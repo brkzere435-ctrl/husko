@@ -3,6 +3,11 @@
     "slug": "husko",
     "android": {
       "versionCode": 5
+    },
+    "extra": {
+      "eas": {
+        "projectId": "b208c29f-259d-4480-a606-76abdabe9ed1"
+      }
     }
   }
 }

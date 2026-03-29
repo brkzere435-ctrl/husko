@@ -127,6 +127,7 @@ function huskoPlugins() {
   );
 
   return [
+    './plugins/withAndroidNewArchOff.js',
     [
       'expo-build-properties',
       {
