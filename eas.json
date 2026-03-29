@@ -36,7 +36,10 @@
         "buildType": "apk",
         "autoIncrement": "versionCode"
       },
-      "env": { "EXPO_PUBLIC_APP_VARIANT": "client" }
+      "env": {
+        "EXPO_PUBLIC_APP_VARIANT": "client",
+        "EAS_BUILD_AUTOCOMMIT": "1"
+      }
     },
     "apk-livreur": {
       "distribution": "internal",
