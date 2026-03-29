@@ -41,7 +41,8 @@
     "validate:expo": "node scripts/validate-expo.mjs",
     "verify": "npx tsc --noEmit && npx expo lint && npm run validate:expo",
     "verify:all": "npm run preflight && npm run verify",
-    "test:ci": "npm run verify:all && npx expo export --platform web"
+    "test:ci": "npm run verify:all && npx expo export --platform web",
+    "git:github": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/github-sync.ps1"
   },
   "dependencies": {
     "@expo/ngrok": "^4.1.0",
