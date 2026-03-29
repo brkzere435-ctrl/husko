@@ -131,8 +131,9 @@ function huskoPlugins() {
       'expo-build-properties',
       {
         android: {
-          compileSdkVersion: 35,
-          targetSdkVersion: 35,
+          // androidx.core 1.17 (expo-notifications, etc.) exige compileSdk >= 36 (EAS checkReleaseAarMetadata).
+          compileSdkVersion: 36,
+          targetSdkVersion: 36,
           minSdkVersion: 24,
           kotlinVersion: '2.1.20',
         },
