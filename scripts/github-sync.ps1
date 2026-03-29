@@ -18,31 +18,40 @@ if ($env:GITHUB_TOKEN) {
 if ($LASTEXITCODE -ne 0) {
   Write-Host @'
 
-Authentification manquante.
+Authentification GitHub absente pour gh.
 
-  A) PAT (recommandé pour tout automatiser) :
-     PowerShell :  $env:GITHUB_TOKEN="ghp_xxxxxxxxxxxxxxxxxxxx"
-                   .\scripts\github-sync.ps1
+  1) Dans ce dossier projet, lance :   npm run git:github:login
+     (navigateur → autoriser → terminé)
 
-  B) Navigateur (une fois) :
-     gh auth login
-     .\scripts\github-sync.ps1
+  2) Puis :   npm run git:github
+
+  Ou PAT : $env:GITHUB_TOKEN="ghp_…" puis npm run git:github
 
 '@
   exit 1
 }
 
+& $gh auth setup-git 2>$null
+
 $login = (& $gh api user --jq .login).Trim()
 if (-not $login) { Write-Error 'Login GitHub introuvable.' }
 
 $repo = 'husko'
-$full = "$login/$repo"
-$cloneUrl = "https://github.com/$login/$repo.git"
+$owner = $login
+if ($env:GITHUB_OWNER -and $env:GITHUB_OWNER.Trim()) {
+  $owner = $env:GITHUB_OWNER.Trim()
+}
+$full = "$owner/$repo"
+$cloneUrl = "https://github.com/$owner/$repo.git"
 
 & $gh repo view $full 2>$null
 if ($LASTEXITCODE -ne 0) {
   Write-Host "Création du dépôt public $full …"
-  & $gh repo create $repo --public --description 'Husko By Night — Expo / EAS'
+  if ($owner -eq $login) {
+    & $gh repo create $repo --public --description 'Husko By Night — Expo / EAS'
+  } else {
+    & $gh repo create $full --public --description 'Husko By Night — Expo / EAS'
+  }
 }
 
 git remote remove origin 2>$null
