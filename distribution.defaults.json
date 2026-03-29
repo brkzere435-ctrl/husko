@@ -1,0 +1,6 @@
+{
+  "_info": "Modifiez les URLs ci-dessous (liens EAS, APK directs, Drive…), puis exécutez : npm run qr:generate. Les variables EXPO_PUBLIC_DISTRIBUTION_* ont la priorité sur ce fichier.",
+  "gerant": "https://expo.dev/go?utm_source=husko_apk_gerant",
+  "client": "https://expo.dev/go?utm_source=husko_apk_client",
+  "livreur": "https://expo.dev/go?utm_source=husko_apk_livreur"
+}

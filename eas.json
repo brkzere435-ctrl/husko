@@ -1,0 +1,96 @@
+{
+  "cli": { "version": ">= 12.0.0", "appVersionSource": "local" },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "android": { "buildType": "apk" },
+      "ios": { "simulator": true }
+    },
+    "preview": {
+      "distribution": "internal",
+      "android": { "buildType": "apk" }
+    },
+    "apk": {
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk",
+        "autoIncrement": "versionCode"
+      }
+    },
+    "apk-gerant": {
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk",
+        "autoIncrement": "versionCode"
+      },
+      "env": { "EXPO_PUBLIC_APP_VARIANT": "gerant" }
+    },
+    "apk-client": {
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk",
+        "autoIncrement": "versionCode"
+      },
+      "env": { "EXPO_PUBLIC_APP_VARIANT": "client" }
+    },
+    "apk-livreur": {
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk",
+        "autoIncrement": "versionCode"
+      },
+      "env": { "EXPO_PUBLIC_APP_VARIANT": "livreur" }
+    },
+    "apk-assistant": {
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk",
+        "autoIncrement": "versionCode"
+      },
+      "env": { "EXPO_PUBLIC_APP_VARIANT": "assistant" }
+    },
+    "ios-internal": {
+      "distribution": "internal",
+      "ios": { "simulator": true }
+    },
+    "ios-gerant": {
+      "distribution": "internal",
+      "ios": { "simulator": false },
+      "env": { "EXPO_PUBLIC_APP_VARIANT": "gerant" }
+    },
+    "ios-client": {
+      "distribution": "internal",
+      "ios": { "simulator": false },
+      "env": { "EXPO_PUBLIC_APP_VARIANT": "client" }
+    },
+    "ios-livreur": {
+      "distribution": "internal",
+      "ios": { "simulator": false },
+      "env": { "EXPO_PUBLIC_APP_VARIANT": "livreur" }
+    },
+    "ios-assistant": {
+      "distribution": "internal",
+      "ios": { "simulator": false },
+      "env": { "EXPO_PUBLIC_APP_VARIANT": "assistant" }
+    },
+    "mobile": {
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk",
+        "autoIncrement": "versionCode"
+      },
+      "ios": { "simulator": false }
+    },
+    "production": {
+      "android": {
+        "buildType": "app-bundle",
+        "autoIncrement": "versionCode"
+      },
+      "ios": {}
+    }
+  },
+  "submit": {
+    "production": {}
+  }
+}

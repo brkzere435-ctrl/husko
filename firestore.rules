@@ -1,0 +1,11 @@
+rules_version = '2';
+// Déploiement : npm run firebase:deploy:rules (après firebase login + firebase use).
+// ⚠️ Développement / test : lecture/écriture ouvertes. Durcir avant production (auth, etc.).
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if true;
+    }
+  }
+}

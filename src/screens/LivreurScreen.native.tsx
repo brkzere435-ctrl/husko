@@ -1,0 +1,175 @@
+import { Ionicons } from '@expo/vector-icons';
+import * as Location from 'expo-location';
+import { useEffect, useRef, useState } from 'react';
+import { Alert, Platform, StyleSheet, Switch, Text, View } from 'react-native';
+import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
+import { CarMarkerIcon } from '@/components/CarMarkerIcon';
+import { DeploymentHints } from '@/components/DeploymentHints';
+import { GTAMiniMap } from '@/components/GTAMiniMap';
+import { LivreurAppGate } from '@/components/LivreurAppGate';
+import { LivreurOrderPanel } from '@/components/LivreurOrderPanel';
+import { mapDarkStyle } from '@/constants/mapDarkStyle';
+import { colors, spacing } from '@/constants/theme';
+import type { MapRegion } from '@/types/mapRegion';
+import { ANGERS_DEFAULT, useHuskoStore } from '@/stores/useHuskoStore';
+
+export default function LivreurScreenNative() {
+  const setDriver = useHuskoStore((s) => s.setDriver);
+  const livreurOnline = useHuskoStore((s) => s.livreurOnline);
+  const setLivreurOnline = useHuskoStore((s) => s.setLivreurOnline);
+  const driverHeading = useHuskoStore((s) => s.driverHeading);
+  const driver = useHuskoStore((s) => s.driver);
+
+  const [region, setRegion] = useState<MapRegion>({
+    ...ANGERS_DEFAULT,
+    latitudeDelta: 0.012,
+    longitudeDelta: 0.012,
+  });
+
+  const subRef = useRef<Location.LocationSubscription | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function start() {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Permission refusée', 'Activez la localisation pour le suivi livreur.');
+        return;
+      }
+      subRef.current?.remove();
+      subRef.current = await Location.watchPositionAsync(
+        {
+          accuracy: Location.Accuracy.High,
+          distanceInterval: 8,
+          timeInterval: 4000,
+        },
+        (loc) => {
+          if (cancelled) return;
+          const lat = loc.coords.latitude;
+          const lng = loc.coords.longitude;
+          const raw = loc.coords.heading;
+          const heading = typeof raw === 'number' && Number.isFinite(raw) ? raw : 0;
+          setDriver({ latitude: lat, longitude: lng }, heading);
+          setRegion((r) => ({
+            ...r,
+            latitude: lat,
+            longitude: lng,
+          }));
+        }
+      );
+    }
+
+    if (livreurOnline) start();
+    else {
+      subRef.current?.remove();
+      subRef.current = null;
+    }
+
+    return () => {
+      cancelled = true;
+      subRef.current?.remove();
+      subRef.current = null;
+    };
+  }, [livreurOnline, setDriver]);
+
+  const miniRegion: MapRegion = {
+    latitude: region.latitude,
+    longitude: region.longitude,
+    latitudeDelta: 0.05,
+    longitudeDelta: 0.05,
+  };
+
+  const useGoogleStyle = Platform.OS === 'android';
+
+  return (
+    <LivreurAppGate>
+      <SafeAreaView style={styles.root} edges={['bottom']}>
+      <LivreurOrderPanel />
+      <View style={styles.toolbar}>
+        <Text style={styles.toolbarLabel}>En ligne</Text>
+        <Switch
+          value={livreurOnline}
+          onValueChange={setLivreurOnline}
+          trackColor={{ false: '#333', true: colors.accentDim }}
+        />
+      </View>
+
+      <DeploymentHints mode="alerts" mapsRelevant />
+
+      <View style={styles.mapContainer}>
+        <MapView
+          style={styles.map}
+          provider={Platform.OS === 'android' ? PROVIDER_GOOGLE : undefined}
+          region={region}
+          onRegionChangeComplete={setRegion}
+          showsUserLocation={false}
+          showsMyLocationButton={false}
+          customMapStyle={useGoogleStyle ? mapDarkStyle : undefined}
+          mapType={Platform.OS === 'ios' ? 'mutedStandard' : 'standard'}
+        >
+          {driver ? (
+            <Marker coordinate={driver} anchor={{ x: 0.5, y: 0.5 }}>
+              <CarMarkerIcon headingDeg={driverHeading} size={48} />
+            </Marker>
+          ) : null}
+        </MapView>
+
+        <View style={styles.miniWrap} pointerEvents="box-none">
+          <GTAMiniMap
+            region={miniRegion}
+            driver={driver}
+            headingDeg={driverHeading}
+            showDest={false}
+          />
+        </View>
+
+        <View style={styles.hud} pointerEvents="none">
+          <Ionicons name="radio-button-on" size={10} color={colors.gold} style={styles.hudPulse} />
+          <Text style={styles.hudText}>HUSKO · MAP</Text>
+        </View>
+      </View>
+      </SafeAreaView>
+    </LivreurAppGate>
+  );
+}
+
+const styles = StyleSheet.create({
+  root: { flex: 1, backgroundColor: colors.bg },
+  toolbar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    borderBottomWidth: 1,
+    borderColor: colors.accentDeep,
+  },
+  toolbarLabel: { color: colors.text, fontWeight: '700' },
+  mapContainer: { flex: 1, position: 'relative' },
+  map: { ...StyleSheet.absoluteFillObject },
+  miniWrap: {
+    position: 'absolute',
+    right: spacing.md,
+    bottom: spacing.md,
+    zIndex: 4,
+  },
+  hud: {
+    position: 'absolute',
+    top: spacing.md,
+    left: spacing.md,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 6,
+    backgroundColor: colors.mapOverlay,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: colors.goldDim,
+  },
+  hudPulse: { opacity: 0.95 },
+  hudText: { color: colors.gold, fontWeight: '900', fontSize: 11, letterSpacing: 2 },
+});

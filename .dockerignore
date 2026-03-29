@@ -1,0 +1,14 @@
+node_modules
+npm-debug.log
+.expo
+dist
+.git
+.gitignore
+*.md
+.env
+.env.*
+.DS_Store
+android
+ios
+.vscode
+.idea
