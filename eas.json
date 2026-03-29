@@ -34,7 +34,8 @@
       "distribution": "internal",
       "android": {
         "buildType": "apk",
-        "autoIncrement": "versionCode"
+        "autoIncrement": "versionCode",
+        "resourceClass": "large"
       },
       "env": {
         "EXPO_PUBLIC_APP_VARIANT": "client",
