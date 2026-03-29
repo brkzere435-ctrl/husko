@@ -209,7 +209,7 @@ module.exports = (ctx = {}) => {
     name: v.name,
     // Slug unique = même projet EAS (projectId) ; les APK se distinguent par android.package / name.
     slug: DEFAULT_VARIANT.slug,
-    version: base.version ?? '1.0.2',
+    version: '1.0.2',
     orientation: 'portrait',
     scheme: v.scheme,
     userInterfaceStyle: 'dark',

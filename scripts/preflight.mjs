@@ -78,4 +78,11 @@ console.log('  npm run validate:expo — vérifie que app.config.js se charge (E
 console.log('  eas secret:create — mêmes noms EXPO_PUBLIC_* que dans env.example');
 console.log('  firebase login && firebase use --add && npm run firebase:deploy:rules');
 console.log('  npm run apk:client — build cloud APK « Husko Client » seul');
-console.log('  npm run qr:generate — après mise à jour des URLs\n');
+console.log('  npm run qr:generate — après mise à jour des URLs');
+if (process.platform === 'win32') {
+  console.log(
+    '  Windows : si eas build échoue en « Prepare project » (tar), lance le workflow GitHub'
+  );
+  console.log('    « EAS APK Client » (.github/workflows) avec le secret EXPO_TOKEN, ou eas depuis WSL.');
+}
+console.log('');

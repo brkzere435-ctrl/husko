@@ -1,0 +1,32 @@
+# Build cloud APK « Husko Client » sur Linux (contourne l’échec tar « Prepare project » de eas sur Windows).
+# Prérequis : dépôt GitHub + secret EXPO_TOKEN (https://expo.dev/accounts/[compte]/settings/access-tokens)
+name: EAS APK Client
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Android APK (apk-client)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Setup EAS
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: EAS build (wait for completion)
+        run: eas build --platform android --profile apk-client --non-interactive
