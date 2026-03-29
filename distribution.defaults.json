@@ -1,6 +1,6 @@
 {
   "_info": "Liens APK directs EAS (mars 2026). Après nouveau build : remplacer par les nouveaux artefacts expo.dev → Application. Puis npm run qr:generate && npm run distribution:fiches.",
-  "gerant": "https://expo.dev/artifacts/eas/iCrkvSyjxFvJ7BZyioM45F.apk",
+  "gerant": "https://expo.dev/artifacts/eas/3SeUczDRjWK1JCQyk3eKue.apk",
   "client": "https://expo.dev/artifacts/eas/rMV8BqEnJBetyAUYm2xH9Z.apk",
   "livreur": "https://expo.dev/artifacts/eas/paHuzRhDFhmUkL524Lgz4A.apk"
 }
