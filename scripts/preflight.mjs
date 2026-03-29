@@ -63,26 +63,24 @@ const dist =
 console.log(
   dist
     ? '• Distribution : au moins une URL EXPO_PUBLIC_DISTRIBUTION_*'
-    : '• Distribution : utiliser distribution.defaults.json ou EXPO_PUBLIC_DISTRIBUTION_* après build EAS'
+    : '• Distribution : utiliser distribution.defaults.json ou EXPO_PUBLIC_DISTRIBUTION_* apres build EAS'
 );
 
 const easId = env.EXPO_PUBLIC_EAS_PROJECT_ID;
 console.log(
   easId && String(easId).trim()
-    ? '• EAS : EXPO_PUBLIC_EAS_PROJECT_ID renseigné (extra.eas.projectId au build)'
-    : '• EAS : après npm run eas:init, copier l’UUID du projet dans .env → EXPO_PUBLIC_EAS_PROJECT_ID'
+    ? '• EAS : EXPO_PUBLIC_EAS_PROJECT_ID renseigne (extra.eas.projectId au build)'
+    : '• EAS : apres npm run eas:init, copier UUID projet dans .env -> EXPO_PUBLIC_EAS_PROJECT_ID'
 );
 
 console.log('\nRappels :');
-console.log('  npm run validate:expo — vérifie que app.config.js se charge (Expo JSON)');
-console.log('  eas secret:create — mêmes noms EXPO_PUBLIC_* que dans env.example');
+console.log('  npm run validate:expo - verifie que app.config.js se charge (Expo JSON)');
+console.log('  eas secret:create - memes noms EXPO_PUBLIC_* que dans env.example');
 console.log('  firebase login && firebase use --add && npm run firebase:deploy:rules');
-console.log('  npm run apk:client — build cloud APK « Husko Client » seul');
-console.log('  npm run qr:generate — après mise à jour des URLs');
+console.log('  npm run apk:client - build cloud APK Husko Client seul');
+console.log('  npm run qr:generate - apres mise a jour des URLs');
 if (process.platform === 'win32') {
-  console.log(
-    '  Windows : si eas build échoue en « Prepare project » (tar), lance le workflow GitHub'
-  );
-  console.log('    « EAS APK Client » (.github/workflows) avec le secret EXPO_TOKEN, ou eas depuis WSL.');
+  console.log('  Windows / EAS : Git committe + eas.json requireCommit + npm run eas:version (eas-cli local).');
+  console.log('  Si erreur tar Prepare project persiste : workflow GitHub EAS APK Client + secret EXPO_TOKEN.');
 }
 console.log('');

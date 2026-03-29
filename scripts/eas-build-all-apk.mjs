@@ -1,11 +1,24 @@
 /**
- * Enchaîne les builds EAS Android (gérant, client, livreur, copilote) — même base, package distinct.
- * Prérequis : eas login, eas init (projectId), secrets EAS pour EXPO_PUBLIC_* (Firebase, Maps, distribution).
+ * Enchaine les builds EAS Android (gerant, client, livreur) — meme base, package distinct.
+ * Utilise le binaire `eas` du projet (devDependency eas-cli), pas un eas global aleatoire.
  *
  * Usage : npm run build:apk:all
- * APK client seul (pour tes testeurs) : npm run apk:client
  */
 import { spawnSync } from 'child_process';
+import { existsSync } from 'fs';
+import { dirname, join } from 'path';
+import { fileURLToPath } from 'url';
+
+const root = join(dirname(fileURLToPath(import.meta.url)), '..');
+const easBin =
+  process.platform === 'win32'
+    ? join(root, 'node_modules', '.bin', 'eas.cmd')
+    : join(root, 'node_modules', '.bin', 'eas');
+
+if (!existsSync(easBin)) {
+  console.error('[Husko] eas introuvable. Lance : npm install');
+  process.exit(1);
+}
 
 const profiles = ['apk-gerant', 'apk-client', 'apk-livreur'];
 
@@ -14,19 +27,20 @@ const buildEnv = {
   EAS_BUILD_NO_EXPO_GO_WARNING: process.env.EAS_BUILD_NO_EXPO_GO_WARNING ?? 'true',
 };
 
-console.log('\n[Husko] Lancement séquentiel de', profiles.length, 'builds EAS Android.\n');
+console.log('\n[Husko] Lancement sequentiel de', profiles.length, 'builds EAS Android.\n');
 
 for (const profile of profiles) {
-  console.log('→ Profil', profile, '…\n');
-  const r = spawnSync(
-    'npx',
-    ['eas', 'build', '-p', 'android', '--profile', profile, '--non-interactive'],
-    { stdio: 'inherit', shell: true, env: buildEnv }
-  );
+  console.log('-> Profil', profile, '...\n');
+  const r = spawnSync(easBin, ['build', '-p', 'android', '--profile', profile, '--non-interactive'], {
+    stdio: 'inherit',
+    env: buildEnv,
+    cwd: root,
+    shell: process.platform === 'win32',
+  });
   if (r.status !== 0) {
-    console.error('\nÉchec sur le profil', profile, '(code', r.status, ')');
+    console.error('\nEchec sur le profil', profile, '(code', r.status, ')');
     process.exit(r.status ?? 1);
   }
 }
 
-console.log('\n✓ Builds soumis. Télécharge les APK sur https://expo.dev (onglet Builds du projet).\n');
+console.log('\nOK — Builds soumis. Telecharge les APK sur https://expo.dev (onglet Builds du projet).\n');

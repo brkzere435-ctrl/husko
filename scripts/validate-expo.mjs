@@ -3,19 +3,24 @@
  * Usage : npm run validate:expo (intégré à npm run verify).
  */
 import { spawnSync } from 'child_process';
+import { existsSync } from 'fs';
 import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const expoCli = join(root, 'node_modules', 'expo', 'bin', 'cli');
 
+/** Avec depot Git : ne pas forcer EAS_NO_VCS (aligne validate:expo sur eas build / requireCommit). */
+const hasGitMeta = existsSync(join(root, '.git'));
+const envForExpo = { ...process.env };
+if (!hasGitMeta && process.env.EAS_NO_VCS === undefined) {
+  envForExpo.EAS_NO_VCS = '1';
+}
+
 const r = spawnSync(process.execPath, [expoCli, 'config', '--json'], {
   cwd: root,
   encoding: 'utf8',
-  env: {
-    ...process.env,
-    EAS_NO_VCS: process.env.EAS_NO_VCS ?? '1',
-  },
+  env: envForExpo,
 });
 
 if (r.status !== 0) {
