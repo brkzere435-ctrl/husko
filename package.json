@@ -43,6 +43,7 @@
     "qr:generate": "node scripts/generate-distribution-qr.mjs",
     "distribution:fiches": "node scripts/generate-distribution-fiches-html.mjs",
     "setup:env": "node scripts/setup-env.mjs",
+    "setup:pipeline": "node scripts/setup-pipeline.mjs",
     "assistant:server": "node server/assistant-chat.mjs",
     "firebase:deploy:rules": "npx --yes firebase-tools@14 deploy --only firestore:rules",
     "preflight": "node scripts/preflight.mjs",
