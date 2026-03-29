@@ -1,16 +1,23 @@
 import type { SubscriptionTierId } from '@/constants/subscriptionPlans';
+import { readHuskoExpoExtra } from '@/utils/readHuskoExpoExtra';
 
 /**
- * Liens de paiement Revolut (Payment link Merchant, checkout hébergé, etc.).
- * Crée-les depuis Revolut Business / Developer ; ne mets pas de secrets ici.
+ * Liens Revolut (publics). Références explicites à EXPO_PUBLIC_* pour que Metro les inline au build ;
+ * repli sur `extra` (expo-constants) si besoin.
  */
 export function revolutPayUrlForTier(id: SubscriptionTierId): string {
-  const key =
-    id === 'essentiel'
-      ? 'EXPO_PUBLIC_REVOLUT_PAY_ESSENTIEL'
-      : id === 'pro'
-        ? 'EXPO_PUBLIC_REVOLUT_PAY_PRO'
-        : 'EXPO_PUBLIC_REVOLUT_PAY_PREMIUM';
-  const v = process.env[key]?.trim();
-  return v ?? '';
+  const e = readHuskoExpoExtra();
+  const fromEnvEssentiel = process.env.EXPO_PUBLIC_REVOLUT_PAY_ESSENTIEL?.trim() || '';
+  const fromEnvPro = process.env.EXPO_PUBLIC_REVOLUT_PAY_PRO?.trim() || '';
+  const fromEnvPremium = process.env.EXPO_PUBLIC_REVOLUT_PAY_PREMIUM?.trim() || '';
+  switch (id) {
+    case 'essentiel':
+      return fromEnvEssentiel || e.revolutPayEssentiel?.trim() || '';
+    case 'pro':
+      return fromEnvPro || e.revolutPayPro?.trim() || '';
+    case 'premium':
+      return fromEnvPremium || e.revolutPayPremium?.trim() || '';
+    default:
+      return '';
+  }
 }

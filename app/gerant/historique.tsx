@@ -6,7 +6,7 @@ import { DeploymentHints } from '@/components/DeploymentHints';
 import { HuskoBackground } from '@/components/HuskoBackground';
 import { StatusBadge } from '@/components/StatusBadge';
 import { typography } from '@/constants/typography';
-import { colors, radius, spacing } from '@/constants/theme';
+import { spacing, surface } from '@/constants/theme';
 import { useHuskoStore } from '@/stores/useHuskoStore';
 
 export default function HistoriqueScreen() {
@@ -29,10 +29,18 @@ export default function HistoriqueScreen() {
           ListHeaderComponent={
             <DeploymentHints mode="alerts" mapsRelevant={false} style={styles.infra} />
           }
-          ListEmptyComponent={<Text style={typography.bodyMuted}>Aucune commande terminée.</Text>}
+          ListEmptyComponent={
+            <View style={[surface.glass, styles.emptyWrap]}>
+              <Text style={typography.section}>Historique</Text>
+              <Text style={[typography.bodyMuted, styles.emptyText]}>
+                Aucune commande livrée ou annulée pour l’instant. Les terminées apparaîtront ici, les
+                plus récentes en premier.
+              </Text>
+            </View>
+          }
           contentContainerStyle={styles.list}
           renderItem={({ item: o }) => (
-            <View style={styles.row}>
+            <View style={[surface.elevated, styles.row]}>
               <Text style={typography.mono}>{o.id}</Text>
               <View style={styles.badge}>
                 <StatusBadge status={o.status} />
@@ -55,13 +63,11 @@ const styles = StyleSheet.create({
   list: { padding: spacing.md, paddingBottom: spacing.xl },
   infra: { marginBottom: spacing.md },
   row: {
-    backgroundColor: colors.cardElevated,
-    borderRadius: radius.lg,
-    borderWidth: 1,
-    borderColor: colors.border,
     padding: spacing.md,
     marginBottom: spacing.sm,
   },
+  emptyWrap: { padding: spacing.lg, marginBottom: spacing.md, gap: spacing.sm },
+  emptyText: { lineHeight: 22 },
   badge: { marginVertical: spacing.sm },
   addr: { marginTop: spacing.xs },
 });

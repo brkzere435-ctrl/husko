@@ -1,59 +1,8 @@
 {
   "expo": {
-    "name": "Husko By Night",
     "slug": "husko",
-    "version": "1.0.1",
-    "orientation": "portrait",
-    "scheme": "husko",
-    "userInterfaceStyle": "dark",
-    "icon": "./assets/icon.png",
-    "splash": {
-      "backgroundColor": "#120404"
-    },
-    "assetBundlePatterns": ["**/*"],
-    "web": {
-      "bundler": "metro",
-      "output": "static",
-      "favicon": "./assets/icon.png"
-    },
-    "ios": {
-      "supportsTablet": true,
-      "buildNumber": "1",
-      "bundleIdentifier": "com.husko.bynight",
-      "config": {
-        "googleMapsApiKey": "REMPLACEZ_PAR_CLE_API_GOOGLE_MAPS_IOS"
-      },
-      "infoPlist": {
-        "NSLocationWhenInUseUsageDescription": "Husko utilise votre position pour afficher la carte et le suivi de livraison.",
-        "NSLocationAlwaysAndWhenInUseUsageDescription": "Les livreurs ont besoin de la position pour la navigation et le suivi."
-      }
-    },
     "android": {
-      "versionCode": 1,
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#120404"
-      },
-      "package": "com.husko.bynight",
-      "permissions": ["ACCESS_COARSE_LOCATION", "ACCESS_FINE_LOCATION"],
-      "config": {
-        "googleMaps": {
-          "apiKey": "REMPLACEZ_PAR_CLE_API_GOOGLE_MAPS_ANDROID"
-        }
-      }
-    },
-    "plugins": [
-      "expo-router",
-      ["expo-splash-screen", { "backgroundColor": "#120404" }],
-      [
-        "expo-location",
-        {
-          "locationAlwaysAndWhenInUsePermission": "Autoriser Husko à utiliser votre position pour la livraison."
-        }
-      ]
-    ],
-    "extra": {
-      "router": { "origin": false }
+      "versionCode": 3
     }
   }
 }

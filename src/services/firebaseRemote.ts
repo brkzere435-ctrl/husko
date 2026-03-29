@@ -1,4 +1,3 @@
-import Constants from 'expo-constants';
 import { initializeApp, getApps, getApp, type FirebaseApp } from 'firebase/app';
 import {
   getFirestore,
@@ -11,28 +10,16 @@ import {
 
 import type { LatLng, Order } from '@/stores/useHuskoStore';
 import { coerceOrderFromRemote } from '@/utils/orderNormalize';
+import { readHuskoExpoExtra } from '@/utils/readHuskoExpoExtra';
 
 export type RemoteAutonomousDemo = { enabled: boolean; stepMs: number };
-
-type FirebaseExtra = {
-  firebaseApiKey?: string;
-  firebaseAuthDomain?: string;
-  firebaseProjectId?: string;
-  firebaseStorageBucket?: string;
-  firebaseMessagingSenderId?: string;
-  firebaseAppId?: string;
-};
 
 let app: FirebaseApp | null = null;
 let db: Firestore | null = null;
 let driverWriteTimer: ReturnType<typeof setTimeout> | null = null;
 
-function getExtra(): FirebaseExtra {
-  return (Constants.expoConfig?.extra ?? {}) as FirebaseExtra;
-}
-
 function buildConfig() {
-  const e = getExtra();
+  const e = readHuskoExpoExtra();
   const projectId = e.firebaseProjectId || process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID;
   const apiKey = e.firebaseApiKey || process.env.EXPO_PUBLIC_FIREBASE_API_KEY;
   if (!projectId || !apiKey) return null;

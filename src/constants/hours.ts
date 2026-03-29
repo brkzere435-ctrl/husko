@@ -1,4 +1,20 @@
-/** Lundi–samedi 20h–00h (Angers Husko By Night) */
+/**
+ * Husko By Night — une seule formulation « heure sûre » pour toute l’app et la comm’.
+ * Créneau réel : commandes / envois livreur entre 20h00 et 00h00, lundi → samedi (dimanche fermé).
+ */
+export const SURE_DELIVERY_WINDOW = '20h00 – 00h00';
+export const SURE_DELIVERY_DAYS = 'du lundi au samedi';
+
+/** Phrase unique affichée menu, hub, alertes « fermé ». */
+export function deliveryHoursLabel(): string {
+  return `Livraison ${SURE_DELIVERY_DAYS}, ${SURE_DELIVERY_WINDOW}`;
+}
+
+/** Titre court pour badges / accessibilité. */
+export function deliveryHoursShort(): string {
+  return `lun–sam · ${SURE_DELIVERY_WINDOW}`;
+}
+
 export function isDeliveryOpen(now = new Date()): boolean {
   const day = now.getDay();
   if (day === 0) return false;
@@ -10,6 +26,7 @@ export function isDeliveryOpen(now = new Date()): boolean {
   return minutes >= start && minutes < end;
 }
 
-export function deliveryHoursLabel(): string {
-  return 'Livraison lun–sam, 20h00 – 00h00';
+/** Message alerte quand le client commande hors créneau. */
+export function deliveryClosedAlertMessage(): string {
+  return `Les livraisons sont assurées ${SURE_DELIVERY_DAYS}, ${SURE_DELIVERY_WINDOW}. Revenez dans ce créneau pour commander.`;
 }

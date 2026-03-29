@@ -1,9 +1,9 @@
-import Constants from 'expo-constants';
+import { readHuskoExpoExtra } from '@/utils/readHuskoExpoExtra';
 
 export type AppVariant = 'all' | 'gerant' | 'client' | 'livreur' | 'assistant';
 
 export function getAppVariant(): AppVariant {
-  const v = Constants.expoConfig?.extra?.appVariant;
+  const v = readHuskoExpoExtra().appVariant;
   if (v === 'gerant' || v === 'client' || v === 'livreur' || v === 'assistant') return v;
   return 'all';
 }

@@ -69,3 +69,30 @@ export const elevation = {
     elevation: 8,
   },
 };
+
+/**
+ * Surfaces premium réutilisables — bordure subtile + rayon xl + ombre légère.
+ * Composer avec padding / margin en local : style={[surface.elevated, styles.inner]}
+ */
+export const surface = {
+  elevated: {
+    backgroundColor: colors.cardElevated,
+    borderRadius: radius.xl,
+    borderWidth: 1,
+    borderColor: colors.borderSubtle,
+    ...elevation.card,
+  },
+  glass: {
+    backgroundColor: colors.glass,
+    borderRadius: radius.xl,
+    borderWidth: 1,
+    borderColor: colors.borderGlow,
+    ...elevation.card,
+  },
+  inset: {
+    backgroundColor: colors.bgLift,
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: colors.borderSubtle,
+  },
+} as const;

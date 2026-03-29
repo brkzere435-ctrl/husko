@@ -14,10 +14,12 @@ type AssistantState = {
   appendMessages: (...msgs: ChatMessage[]) => void;
 };
 
+const DEFAULT_TIER: SubscriptionTierId = 'premium';
+
 export const useAssistantStore = create<AssistantState>()(
   persist(
     (set) => ({
-      tier: null,
+      tier: DEFAULT_TIER,
       messages: [],
       setTier: (tier) => set({ tier }),
       clearChat: () => set({ messages: [] }),
@@ -28,6 +30,15 @@ export const useAssistantStore = create<AssistantState>()(
       name: 'husko-assistant-v1',
       storage: createJSONStorage(() => AsyncStorage),
       partialize: (s) => ({ tier: s.tier, messages: s.messages }),
+      merge: (persisted, current) => {
+        const p = persisted as Partial<AssistantState> | undefined;
+        if (!p) return current;
+        return {
+          ...current,
+          messages: p.messages ?? current.messages,
+          tier: p.tier == null ? DEFAULT_TIER : p.tier,
+        };
+      },
     },
   ),
 );

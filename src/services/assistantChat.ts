@@ -1,13 +1,10 @@
-import Constants from 'expo-constants';
-
 import type { SubscriptionTierId } from '@/constants/subscriptionPlans';
 import type { ChatMessage } from '@/stores/useAssistantStore';
+import { readHuskoExpoExtra } from '@/utils/readHuskoExpoExtra';
 
 function assistantApiUrl(): string {
   const fromEnv = process.env.EXPO_PUBLIC_ASSISTANT_API_URL?.trim();
-  const fromExtra = (
-    Constants.expoConfig?.extra as { assistantApiUrl?: string } | undefined
-  )?.assistantApiUrl?.trim();
+  const fromExtra = readHuskoExpoExtra().assistantApiUrl?.trim();
   return fromEnv || fromExtra || '';
 }
 

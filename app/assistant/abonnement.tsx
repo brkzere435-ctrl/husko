@@ -5,7 +5,7 @@ import { HuskoBackground } from '@/components/HuskoBackground';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { revolutPayUrlForTier } from '@/constants/revolutLinks';
 import { SUBSCRIPTION_PLANS, type SubscriptionTierId } from '@/constants/subscriptionPlans';
-import { colors, radius, spacing } from '@/constants/theme';
+import { colors, radius, spacing, surface } from '@/constants/theme';
 import { typography } from '@/constants/typography';
 import { useAssistantStore } from '@/stores/useAssistantStore';
 
@@ -43,14 +43,24 @@ export default function AssistantAbonnementScreen() {
         keyboardShouldPersistTaps="handled"
       >
         <Text style={styles.intro}>
-          Trois niveaux : Essentiel 50 €, Pro 100 €, Premium 180 €. Le paiement se fait via tes liens
-          Revolut Merchant ; l’app n’embarque aucun secret.
+          Forfait conseillé : Premium 180 € (pleine fonctionnalité). Essentiel 50 € et Pro 100 €
+          restent disponibles. Paiement via tes liens Revolut Merchant.
         </Text>
 
-        {SUBSCRIPTION_PLANS.map((p) => (
-          <View key={p.id} style={styles.card}>
+        {[...SUBSCRIPTION_PLANS].sort((a, b) => (a.id === 'premium' ? -1 : b.id === 'premium' ? 1 : 0)).map((p) => (
+          <View
+            key={p.id}
+            style={[surface.elevated, styles.card, p.id === 'premium' && styles.cardPremium]}
+          >
             <View style={styles.cardHead}>
-              <Text style={styles.name}>{p.name}</Text>
+              <View style={styles.nameRow}>
+                <Text style={styles.name}>{p.name}</Text>
+                {p.id === 'premium' ? (
+                  <View style={styles.badge}>
+                    <Text style={styles.badgeTxt}>Choix conseillé</Text>
+                  </View>
+                ) : null}
+              </View>
               <Text style={styles.price}>{p.priceEur} €</Text>
             </View>
             <Text style={styles.tag}>{p.tagline}</Text>
@@ -86,14 +96,40 @@ const styles = StyleSheet.create({
   },
   card: {
     padding: spacing.lg,
-    borderRadius: radius.lg,
+    borderRadius: radius.xl,
+    gap: spacing.sm,
     borderWidth: 1,
     borderColor: colors.borderGlow,
     backgroundColor: colors.glass,
+  },
+  cardPremium: {
+    borderColor: colors.gold,
+    borderWidth: 2,
+    backgroundColor: 'rgba(240, 208, 80, 0.08)',
+  },
+  cardHead: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
     gap: spacing.sm,
   },
-  cardHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' },
+  nameRow: { flex: 1, flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: spacing.sm },
   name: { ...typography.title, fontSize: 20 },
+  badge: {
+    paddingVertical: 4,
+    paddingHorizontal: spacing.sm,
+    borderRadius: radius.pill,
+    backgroundColor: 'rgba(240, 208, 80, 0.2)',
+    borderWidth: 1,
+    borderColor: colors.gold,
+  },
+  badgeTxt: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: colors.gold,
+    letterSpacing: 0.5,
+    textTransform: 'uppercase',
+  },
   price: { ...typography.title, color: colors.gold, fontSize: 22 },
   tag: { ...typography.caption, color: colors.textMuted, fontWeight: '600' },
   list: { gap: spacing.xs, marginTop: spacing.sm },

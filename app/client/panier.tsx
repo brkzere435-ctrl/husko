@@ -1,4 +1,4 @@
-import { router } from 'expo-router';
+import { Link, router } from 'expo-router';
 import { useState } from 'react';
 import { Alert, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -8,7 +8,8 @@ import { HuskoBackground } from '@/components/HuskoBackground';
 import { GTAMiniMap } from '@/components/GTAMiniMap';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { ScreenSection } from '@/components/ScreenSection';
-import { isDeliveryOpen } from '@/constants/hours';
+import { clientStrings } from '@/constants/clientExperience';
+import { deliveryClosedAlertMessage, isDeliveryOpen } from '@/constants/hours';
 import { PAYMENT_NOTICE_LONG, PAYMENT_NOTICE_SHORT } from '@/constants/paymentPolicy';
 import { typography } from '@/constants/typography';
 import { colors, elevation, radius, spacing } from '@/constants/theme';
@@ -34,7 +35,7 @@ export default function PanierScreen() {
 
   function checkout() {
     if (!isDeliveryOpen()) {
-      Alert.alert('Fermé', 'La livraison est ouverte du lundi au samedi, 20h–00h.');
+      Alert.alert('Hors créneau', deliveryClosedAlertMessage());
       return;
     }
     if (!cart.length) {
@@ -44,9 +45,11 @@ export default function PanierScreen() {
     const order = placeOrder(address.trim() || 'Adresse', ANGERS_DEFAULT);
     if (order) {
       hapticSuccess();
-      Alert.alert('Commande envoyée', `Réf. ${order.id}\n\n${PAYMENT_NOTICE_SHORT}`, [
-        { text: 'OK', onPress: () => router.replace('/client/suivi') },
-      ]);
+      Alert.alert(
+        clientStrings.orderSentTitle,
+        `${clientStrings.orderSentMessage(order.id)}\n\n${PAYMENT_NOTICE_SHORT}`,
+        [{ text: 'Voir le suivi', onPress: () => router.replace('/client/suivi') }]
+      );
     }
   }
 
@@ -54,6 +57,9 @@ export default function PanierScreen() {
     <HuskoBackground>
       <SafeAreaView style={styles.root} edges={['bottom']}>
         <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+          {cart.length > 0 ? (
+            <Text style={[typography.bodyMuted, styles.intro]}>{clientStrings.panierIntro}</Text>
+          ) : null}
           <View style={styles.mapRow}>
             <GTAMiniMap
               region={region}
@@ -79,7 +85,15 @@ export default function PanierScreen() {
 
           <ScreenSection title="Récapitulatif">
             {cart.length === 0 ? (
-              <Text style={typography.bodyMuted}>Panier vide.</Text>
+              <View style={styles.emptyCart}>
+                <Text style={typography.body}>{clientStrings.panierEmptyTitle}</Text>
+                <Text style={[typography.bodyMuted, styles.emptyCartBody]}>
+                  {clientStrings.panierEmptyBody}
+                </Text>
+                <Link href="/client" asChild>
+                  <PrimaryButton title="Retour au menu" style={styles.emptyCartBtn} />
+                </Link>
+              </View>
             ) : (
               cart.map((line) => (
                 <View key={line.item.id} style={styles.line}>
@@ -117,6 +131,10 @@ export default function PanierScreen() {
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: 'transparent' },
   scroll: { padding: spacing.md, paddingBottom: spacing.xl },
+  intro: { marginBottom: spacing.md, fontSize: 14, lineHeight: 21 },
+  emptyCart: { gap: spacing.md, paddingVertical: spacing.sm },
+  emptyCartBody: { lineHeight: 20 },
+  emptyCartBtn: { marginTop: spacing.sm },
   infra: { marginTop: spacing.lg },
   mapRow: { flexDirection: 'row', marginBottom: spacing.lg, alignItems: 'flex-start', gap: spacing.md },
   mapLegend: { flex: 1, justifyContent: 'center' },
@@ -124,7 +142,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.cardElevated,
     borderRadius: radius.lg,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: colors.borderSubtle,
     color: colors.text,
     padding: spacing.md,
     fontSize: 16,

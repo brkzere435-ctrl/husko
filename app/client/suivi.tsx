@@ -1,3 +1,4 @@
+import { Link } from 'expo-router';
 import { useMemo } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -5,16 +6,18 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { DeploymentHints } from '@/components/DeploymentHints';
 import { HuskoBackground } from '@/components/HuskoBackground';
 import { GTAMiniMap } from '@/components/GTAMiniMap';
+import { PrimaryButton } from '@/components/PrimaryButton';
 import { StatusBadge } from '@/components/StatusBadge';
 import {
   AUTONOMOUS_PACE_PRESETS,
   estimatedMsUntilDelivered,
   formatEtaUntilDelivery,
 } from '@/constants/autonomousDelivery';
+import { clientStrings } from '@/constants/clientExperience';
 import { CLIENT_TIMELINE, timelineStepIndex } from '@/constants/orderFlow';
 import { PAYMENT_NOTICE_SHORT } from '@/constants/paymentPolicy';
 import { typography } from '@/constants/typography';
-import { colors, radius, spacing } from '@/constants/theme';
+import { colors, elevation, radius, spacing } from '@/constants/theme';
 import { useHuskoStore } from '@/stores/useHuskoStore';
 
 export default function SuiviScreen() {
@@ -29,6 +32,10 @@ export default function SuiviScreen() {
     () => orders.find((o) => o.status !== 'delivered' && o.status !== 'cancelled'),
     [orders]
   );
+
+  /** Dernière commande (liste triée : plus récente en premier). */
+  const latestOrder = orders[0];
+  const showDeliveredThanks = !active && latestOrder?.status === 'delivered';
 
   const stepIdx = active ? timelineStepIndex(active.status) : -1;
 
@@ -62,8 +69,23 @@ export default function SuiviScreen() {
     <HuskoBackground>
       <SafeAreaView style={styles.root} edges={['bottom']}>
         <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
-          {!active ? (
-            <Text style={[typography.bodyMuted, styles.empty]}>Aucune commande en cours.</Text>
+          {showDeliveredThanks ? (
+            <View style={[styles.card, styles.merciCard, elevation.card]}>
+              <Text style={styles.merciTitle}>{clientStrings.suiviMerciTitle}</Text>
+              <Text style={[typography.bodyMuted, styles.merciBody]}>{clientStrings.suiviMerciBody}</Text>
+              <Text style={[typography.mono, styles.merciRef]}>{latestOrder?.id}</Text>
+              <Link href="/client" asChild>
+                <PrimaryButton title={clientStrings.suiviNewOrder} style={styles.merciBtn} />
+              </Link>
+            </View>
+          ) : !active ? (
+            <View style={[styles.card, styles.emptyCard, elevation.card]}>
+              <Text style={typography.title}>{clientStrings.suiviEmptyTitle}</Text>
+              <Text style={[typography.bodyMuted, styles.emptyBody]}>{clientStrings.suiviEmptyBody}</Text>
+              <Link href="/client" asChild>
+                <PrimaryButton title={clientStrings.suiviGoMenu} style={styles.emptyBtn} />
+              </Link>
+            </View>
           ) : (
             <View style={styles.card}>
               <Text style={typography.mono}>{active.id}</Text>
@@ -151,7 +173,23 @@ export default function SuiviScreen() {
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: 'transparent' },
   scroll: { padding: spacing.md, paddingBottom: spacing.xl },
-  empty: { textAlign: 'center', marginTop: spacing.xl },
+  emptyCard: { alignItems: 'stretch', gap: spacing.md },
+  emptyBody: { marginTop: spacing.sm, lineHeight: 22 },
+  emptyBtn: { marginTop: spacing.md },
+  merciCard: {
+    alignItems: 'stretch',
+    gap: spacing.sm,
+    borderColor: colors.borderGlow,
+  },
+  merciTitle: {
+    fontSize: 22,
+    fontWeight: '900',
+    color: colors.gold,
+    letterSpacing: 0.5,
+  },
+  merciBody: { lineHeight: 22 },
+  merciRef: { color: colors.textMuted, marginTop: spacing.xs },
+  merciBtn: { marginTop: spacing.md },
   card: {
     backgroundColor: colors.cardElevated,
     borderRadius: radius.xl,

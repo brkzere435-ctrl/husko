@@ -7,9 +7,10 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { CarMarkerIcon } from '@/components/CarMarkerIcon';
 import { DeploymentHints } from '@/components/DeploymentHints';
 import { GTAMiniMap } from '@/components/GTAMiniMap';
+import { HuskoBackground } from '@/components/HuskoBackground';
 import { LivreurAppGate } from '@/components/LivreurAppGate';
 import { LivreurOrderPanel } from '@/components/LivreurOrderPanel';
-import { colors, spacing } from '@/constants/theme';
+import { colors, radius, spacing } from '@/constants/theme';
 import type { MapRegion } from '@/types/mapRegion';
 import { ANGERS_DEFAULT, useHuskoStore } from '@/stores/useHuskoStore';
 
@@ -81,57 +82,59 @@ export default function LivreurScreenWeb() {
 
   return (
     <LivreurAppGate>
-      <SafeAreaView style={styles.root} edges={['bottom']}>
-      <LivreurOrderPanel />
-      <View style={styles.toolbar}>
-        <Text style={styles.toolbarLabel}>En ligne</Text>
-        <Switch
-          value={livreurOnline}
-          onValueChange={setLivreurOnline}
-          trackColor={{ false: '#333', true: colors.accentDim }}
-        />
-      </View>
-
-      <DeploymentHints mode="alerts" mapsRelevant={false} />
-
-      <View style={styles.mapContainer}>
-        <View style={styles.mapPlaceholder}>
-          <View style={styles.placeholderInner}>
-            {driver ? (
-              <View style={styles.bigMarker}>
-                <CarMarkerIcon headingDeg={driverHeading} size={56} />
-              </View>
-            ) : (
-              <Ionicons name="car-sport" size={48} color={colors.goldDim} />
-            )}
-            <Text style={styles.placeholderTitle}>Carte Google Maps</Text>
-            <Text style={styles.placeholderSub}>
-              Vue complète sur l’application Android / iOS. Ici : suivi simplifié + géoloc navigateur.
-            </Text>
+      <HuskoBackground>
+        <SafeAreaView style={styles.root} edges={['bottom']}>
+          <LivreurOrderPanel />
+          <View style={styles.toolbar}>
+            <Text style={styles.toolbarLabel}>En ligne</Text>
+            <Switch
+              value={livreurOnline}
+              onValueChange={setLivreurOnline}
+              trackColor={{ false: '#333', true: colors.accentDim }}
+            />
           </View>
-        </View>
 
-        <View style={styles.miniWrap} pointerEvents="box-none">
-          <GTAMiniMap
-            region={miniRegion}
-            driver={driver}
-            headingDeg={driverHeading}
-            showDest={false}
-          />
-        </View>
+          <DeploymentHints mode="alerts" mapsRelevant={false} />
 
-        <View style={styles.hud} pointerEvents="none">
-          <Ionicons name="radio-button-on" size={10} color={colors.gold} style={styles.hudPulse} />
-          <Text style={styles.hudText}>HUSKO · MAP</Text>
-        </View>
-      </View>
-      </SafeAreaView>
+          <View style={styles.mapContainer}>
+            <View style={styles.mapPlaceholder}>
+              <View style={styles.placeholderInner}>
+                {driver ? (
+                  <View style={styles.bigMarker}>
+                    <CarMarkerIcon headingDeg={driverHeading} size={56} />
+                  </View>
+                ) : (
+                  <Ionicons name="car-sport" size={48} color={colors.goldDim} />
+                )}
+                <Text style={styles.placeholderTitle}>Carte Google Maps</Text>
+                <Text style={styles.placeholderSub}>
+                  Vue complète sur l’application Android / iOS. Ici : suivi simplifié + géoloc navigateur.
+                </Text>
+              </View>
+            </View>
+
+            <View style={styles.miniWrap} pointerEvents="box-none">
+              <GTAMiniMap
+                region={miniRegion}
+                driver={driver}
+                headingDeg={driverHeading}
+                showDest={false}
+              />
+            </View>
+
+            <View style={styles.hud} pointerEvents="none">
+              <Ionicons name="radio-button-on" size={10} color={colors.gold} style={styles.hudPulse} />
+              <Text style={styles.hudText}>HUSKO · MAP</Text>
+            </View>
+          </View>
+        </SafeAreaView>
+      </HuskoBackground>
     </LivreurAppGate>
   );
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: colors.bg },
+  root: { flex: 1, backgroundColor: 'transparent' },
   toolbar: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -139,15 +142,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
     borderBottomWidth: 1,
-    borderColor: colors.accentDeep,
+    borderColor: colors.borderSubtle,
+    backgroundColor: colors.mapOverlay,
   },
   toolbarLabel: { color: colors.text, fontWeight: '700' },
   mapContainer: { flex: 1, position: 'relative' },
   mapPlaceholder: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: '#140808',
+    backgroundColor: 'rgba(10, 4, 4, 0.92)',
     borderTopWidth: 1,
-    borderColor: colors.border,
+    borderColor: colors.borderSubtle,
   },
   placeholderInner: {
     flex: 1,
@@ -187,9 +191,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.sm,
     paddingVertical: 6,
     backgroundColor: colors.mapOverlay,
-    borderRadius: 6,
+    borderRadius: radius.lg,
     borderWidth: 1,
-    borderColor: colors.goldDim,
+    borderColor: colors.borderGlow,
   },
   hudPulse: { opacity: 0.95 },
   hudText: { color: colors.gold, fontWeight: '900', fontSize: 11, letterSpacing: 2 },

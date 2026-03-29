@@ -12,13 +12,14 @@ export default function ClientLayout() {
         headerShadowVisible: false,
         headerTintColor: colors.gold,
         headerTitleStyle: { fontWeight: '800', color: colors.text },
+        contentStyle: { backgroundColor: 'transparent' },
         headerLargeTitle: Platform.OS === 'ios',
         headerRight: () => <SyncStatusPill />,
       }}
     >
-      <Stack.Screen name="index" options={{ title: 'Menu' }} />
-      <Stack.Screen name="panier" options={{ title: 'Panier' }} />
-      <Stack.Screen name="suivi" options={{ title: 'Livraison' }} />
+      <Stack.Screen name="index" options={{ title: 'À la carte' }} />
+      <Stack.Screen name="panier" options={{ title: 'Mon panier' }} />
+      <Stack.Screen name="suivi" options={{ title: 'Ma livraison' }} />
     </Stack>
   );
 }

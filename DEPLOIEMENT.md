@@ -2,6 +2,15 @@
 
 Ordre : **prérequis** → **développement** → **builds mobiles** → **web / Docker** → **Cloud Run**.
 
+### Chemin express — APK « Client » (téléphone du client)
+
+1. `npm install` · compte [expo.dev](https://expo.dev) · `npx eas login`
+2. Secrets EAS = mêmes clés que `.env` : `EXPO_PUBLIC_FIREBASE_*`, `EXPO_PUBLIC_GOOGLE_MAPS_ANDROID_API_KEY` (et iOS si besoin), optionnel `EXPO_PUBLIC_DISTRIBUTION_CLIENT_APK_URL` après le 1er build.
+3. `npm run validate:expo` puis **`npm run apk:client`** (build cloud, profil `apk-client`).
+4. Sur [expo.dev](https://expo.dev) → ton projet → **Builds** → télécharger l’**APK** → envoyer au client (WhatsApp, Drive, lien direct). Pour la synchro commandes en direct : Firebase obligatoire (section ci‑dessous).
+
+Toute la config Expo est dans **`app.config.js`** (y compris `extra.eas.projectId`).
+
 ---
 
 ## 1. Prérequis
@@ -34,7 +43,7 @@ Collections utilisées : `orders/{orderId}`, `meta/driver` (position du livreur)
 1. Créer un compte sur [expo.dev](https://expo.dev) (gratuit possible pour builds limités).
 2. Dans le dossier du projet : `npm install` puis `npm install -g eas-cli` (ou utiliser `npx eas` sans install global).
 3. `eas login` — email / mot de passe **Expo** (pas le PIN gérant de l’app Husko).
-4. `npm run eas:init` — lie le dossier au projet Expo (sans Git : `EAS_NO_VCS=1` est déjà injecté). Ensuite, mettre l’**ID du projet** dans `.env` : `EXPO_PUBLIC_EAS_PROJECT_ID=<uuid>` (visible sur [expo.dev](https://expo.dev) → Projet → ID) pour que `app.config.ts` expose `extra.eas.projectId` aux builds non interactifs. **Builds cloud :** ajouter le même nom `EXPO_PUBLIC_EAS_PROJECT_ID` dans les **Secrets** Expo (le `.env` local n’est pas envoyé sur EAS).
+4. `npm run eas:init` — lie le dossier au projet Expo (sans Git : `EAS_NO_VCS=1` est déjà dans les scripts). L’ID projet par défaut est dans **`app.config.js`** (`DEFAULT_EAS_PROJECT_ID`) ; surcharge possible via `.env` / secret **`EXPO_PUBLIC_EAS_PROJECT_ID`** pour les builds cloud.
 5. Sur [expo.dev](https://expo.dev) → votre projet → **Secrets** : ajouter les mêmes variables que dans `env.example` (`EXPO_PUBLIC_FIREBASE_*`, `EXPO_PUBLIC_GOOGLE_MAPS_*`, etc.) pour que les **builds cloud** embarquent Firebase et Maps.
 6. Lancer les builds :
    - les trois APK d’affilée : `npm run build:apk:all`

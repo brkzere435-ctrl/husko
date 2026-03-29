@@ -74,6 +74,8 @@ console.log(
 );
 
 console.log('\nRappels :');
+console.log('  npm run validate:expo — vérifie que app.config.js se charge (Expo JSON)');
 console.log('  eas secret:create — mêmes noms EXPO_PUBLIC_* que dans env.example');
 console.log('  firebase login && firebase use --add && npm run firebase:deploy:rules');
+console.log('  npm run apk:client — build cloud APK « Husko Client » seul');
 console.log('  npm run qr:generate — après mise à jour des URLs\n');

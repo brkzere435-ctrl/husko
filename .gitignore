@@ -10,6 +10,7 @@ dist/
 *.mobileprovision
 *.orig.*
 web-build/
+.expo-export-test/
 .DS_Store
 *.log
 .env

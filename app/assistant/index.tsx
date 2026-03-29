@@ -5,7 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { HuskoBackground } from '@/components/HuskoBackground';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { SUBSCRIPTION_PLANS } from '@/constants/subscriptionPlans';
-import { colors, radius, spacing } from '@/constants/theme';
+import { colors, spacing, surface } from '@/constants/theme';
 import { typography } from '@/constants/typography';
 import { useAssistantStore } from '@/stores/useAssistantStore';
 
@@ -16,7 +16,7 @@ export default function AssistantHomeScreen() {
   return (
     <HuskoBackground>
       <SafeAreaView style={styles.root} edges={['bottom']}>
-        <View style={styles.block}>
+        <View style={[surface.glass, styles.block]}>
           <Text style={typography.title}>Copilote</Text>
           <Text style={styles.lead}>
             Connaissance, conception et dialogue — branché sur ton API sécurisée (pas de clés dans
@@ -24,7 +24,7 @@ export default function AssistantHomeScreen() {
           </Text>
         </View>
 
-        <View style={styles.card}>
+        <View style={[surface.elevated, styles.card]}>
           <Text style={styles.cardLabel}>Forfait actuel</Text>
           <Text style={styles.cardValue}>
             {plan ? `${plan.name} · ${plan.priceEur} €` : 'Non renseigné (abonnement à valider)'}
@@ -36,7 +36,7 @@ export default function AssistantHomeScreen() {
 
         <View style={styles.actions}>
           <Link href="/assistant/abonnement" asChild>
-            <PrimaryButton title="Voir les forfaits (50 / 100 / 180 €)" style={styles.btn} />
+            <PrimaryButton title="Forfaits · Premium 180 € en tête" style={styles.btn} />
           </Link>
           <Link href="/assistant/chat" asChild>
             <PrimaryButton title="Ouvrir la conversation" variant="ghost" style={styles.btn} />
@@ -54,7 +54,7 @@ const styles = StyleSheet.create({
     paddingTop: spacing.md,
     gap: spacing.lg,
   },
-  block: { gap: spacing.sm },
+  block: { gap: spacing.sm, padding: spacing.lg },
   lead: {
     ...typography.body,
     color: colors.textMuted,
@@ -62,10 +62,6 @@ const styles = StyleSheet.create({
   },
   card: {
     padding: spacing.lg,
-    borderRadius: radius.lg,
-    borderWidth: 1,
-    borderColor: colors.borderSubtle,
-    backgroundColor: colors.glass,
     gap: spacing.xs,
   },
   cardLabel: { ...typography.caption, color: colors.textMuted, fontWeight: '700' },

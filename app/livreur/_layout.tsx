@@ -11,6 +11,7 @@ export default function LivreurLayout() {
         headerShadowVisible: false,
         headerTintColor: colors.gold,
         headerTitleStyle: { fontWeight: '800', color: colors.text },
+        contentStyle: { backgroundColor: 'transparent' },
         headerRight: () => <SyncStatusPill />,
       }}
     >

@@ -18,7 +18,7 @@ import { PrimaryButton } from '@/components/PrimaryButton';
 import { getDistributionApkUrls } from '@/constants/distribution';
 import { DISTRIBUTION_QR_IMAGES } from '@/constants/distributionQrAssets';
 import { typography } from '@/constants/typography';
-import { colors, radius, spacing } from '@/constants/theme';
+import { colors, elevation, radius, spacing, surface } from '@/constants/theme';
 
 type TabKey = 'client' | 'livreur' | 'gerant';
 
@@ -52,6 +52,7 @@ export default function DistributionScreen() {
       <SafeAreaView style={styles.root} edges={['bottom']}>
         <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
           <Text style={typography.title}>Distribution</Text>
+          <Text style={[typography.section, styles.kicker]}>QR & liens APK</Text>
           <Text style={[typography.bodyMuted, styles.intro]}>
             Trois QR distincts. Les liens par défaut viennent de{' '}
             <Text style={styles.mono}>distribution.defaults.json</Text> (modifiable). PNG haute définition :{' '}
@@ -83,7 +84,7 @@ export default function DistributionScreen() {
             </Pressable>
           </View>
 
-          <View style={styles.card}>
+          <View style={[surface.elevated, styles.card]}>
             <Text style={styles.cardTitle}>{title}</Text>
             <Text style={[typography.bodyMuted, styles.hint]}>{hint}</Text>
 
@@ -148,6 +149,7 @@ function QrSummary({ label, url }: { label: string; url: string }) {
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: 'transparent' },
   scroll: { padding: spacing.md, paddingBottom: spacing.xl },
+  kicker: { marginTop: spacing.xs, marginBottom: spacing.xs },
   intro: { marginTop: spacing.sm, marginBottom: spacing.lg },
   infra: { marginBottom: spacing.md },
   tabs: {
@@ -158,23 +160,20 @@ const styles = StyleSheet.create({
   tab: {
     flex: 1,
     paddingVertical: spacing.md,
-    borderRadius: radius.md,
+    borderRadius: radius.lg,
     borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.card,
+    borderColor: colors.borderSubtle,
+    backgroundColor: colors.bgLift,
     alignItems: 'center',
   },
   tabOn: {
-    borderColor: colors.goldDim,
+    borderColor: colors.borderGlow,
     backgroundColor: colors.cardElevated,
+    ...elevation.card,
   },
   tabTxt: { color: colors.textMuted, fontWeight: '700', fontSize: 12 },
   tabTxtOn: { color: colors.gold },
   card: {
-    backgroundColor: colors.cardElevated,
-    borderRadius: radius.lg,
-    borderWidth: 1,
-    borderColor: colors.border,
     padding: spacing.lg,
     marginBottom: spacing.lg,
   },
@@ -231,17 +230,16 @@ const styles = StyleSheet.create({
   btn: { marginTop: spacing.md, width: '100%' },
   placeholder: {
     padding: spacing.lg,
-    borderRadius: radius.md,
+    borderRadius: radius.lg,
     borderWidth: 1,
     borderStyle: 'dashed',
-    borderColor: colors.border,
+    borderColor: colors.borderSubtle,
+    backgroundColor: colors.bgLift,
   },
   both: {
     padding: spacing.md,
+    ...surface.glass,
     borderRadius: radius.lg,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: 'rgba(0,0,0,0.25)',
   },
   bothTitle: {
     color: colors.textMuted,
