@@ -2,7 +2,7 @@
   "expo": {
     "slug": "husko",
     "android": {
-      "versionCode": 13
+      "versionCode": 14
     },
     "extra": {
       "eas": {
