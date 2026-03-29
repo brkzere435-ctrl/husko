@@ -46,11 +46,11 @@ $cloneUrl = "https://github.com/$owner/$repo.git"
 
 & $gh repo view $full 2>$null
 if ($LASTEXITCODE -ne 0) {
-  Write-Host "Création du dépôt public $full …"
+  Write-Host "Creation du depot public $full ..."
   if ($owner -eq $login) {
-    & $gh repo create $repo --public --description 'Husko By Night — Expo / EAS'
+    & $gh repo create $repo --public --description 'Husko By Night - Expo / EAS'
   } else {
-    & $gh repo create $full --public --description 'Husko By Night — Expo / EAS'
+    & $gh repo create $full --public --description 'Husko By Night - Expo / EAS'
   }
 }
 
@@ -60,9 +60,10 @@ git remote add origin $cloneUrl
 $branch = (git branch --show-current).Trim()
 if (-not $branch) { $branch = 'master' }
 
-Write-Host "git push -u origin $branch …"
+Write-Host "git push -u origin $branch ..."
 git push -u origin $branch
 
 if ($LASTEXITCODE -eq 0) {
-  Write-Host "`nOK — https://github.com/$full"
+  Write-Host ""
+  Write-Host "OK: https://github.com/$full"
 }

@@ -6,11 +6,11 @@ if (-not (Test-Path $gh)) {
   Write-Error 'Installe GitHub CLI : winget install GitHub.cli'
 }
 
-Write-Host "`nOuverture du flux GitHub (navigateur). Autorise l’accès, puis reviens ici.`n"
+Write-Host "`nOuverture du flux GitHub (navigateur). Autorise l'acces, puis reviens ici.`n"
 & $gh auth login -h github.com -p https -w -s repo -s read:org -s workflow --git-protocol https
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
-Write-Host "`nConfiguration de git pour utiliser GitHub CLI …"
+Write-Host "`nConfiguration de git pour utiliser GitHub CLI ..."
 & $gh auth setup-git
 
 Write-Host "`nConnexion OK. Pousse le code avec :  npm run git:github`n"
