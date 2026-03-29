@@ -4,6 +4,10 @@ android/
 ios/
 dist/
 *.jks
+# Keystore Android genere localement (npm run android:keystore)
+credentials/*.keystore
+credentials/*.p12
+credentials/android-keystore.secrets.txt
 *.p8
 *.p12
 *.key
