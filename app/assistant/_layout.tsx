@@ -14,9 +14,9 @@ export default function AssistantLayout() {
         headerBackTitle: '',
       }}
     >
-      <Stack.Screen name="index" options={{ title: 'Assistant' }} />
+      <Stack.Screen name="index" options={{ title: 'Copilote' }} />
       <Stack.Screen name="abonnement" options={{ title: 'Forfaits' }} />
-      <Stack.Screen name="chat" options={{ title: 'Conversation' }} />
+      <Stack.Screen name="chat" options={{ title: 'Chat' }} />
     </Stack>
   );
 }

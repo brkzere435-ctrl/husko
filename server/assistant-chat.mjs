@@ -99,9 +99,18 @@ function corsHeaders(origin) {
   };
 }
 
+const MAX_BODY_BYTES = 512 * 1024;
+const MAX_MESSAGES = 48;
+const MAX_CONTENT_CHARS = 16_000;
+
 async function readJsonBody(req) {
   const chunks = [];
-  for await (const chunk of req) chunks.push(chunk);
+  let total = 0;
+  for await (const chunk of req) {
+    total += chunk.length;
+    if (total > MAX_BODY_BYTES) return { _huskoError: 'Payload trop volumineux (max 512 Ko).' };
+    chunks.push(chunk);
+  }
   const raw = Buffer.concat(chunks).toString('utf8');
   if (!raw) return null;
   try {
@@ -109,6 +118,23 @@ async function readJsonBody(req) {
   } catch {
     return null;
   }
+}
+
+function normalizeTier(t) {
+  if (t === 'essentiel' || t === 'pro' || t === 'premium') return t;
+  return null;
+}
+
+function validateChatBody(body) {
+  if (body?._huskoError) return body._huskoError;
+  if (!body || !Array.isArray(body.messages)) return 'JSON invalide : messages[] requis.';
+  if (body.messages.length > MAX_MESSAGES) return `Trop de messages (max ${MAX_MESSAGES}).`;
+  for (let i = 0; i < body.messages.length; i++) {
+    const m = body.messages[i];
+    const c = String(m?.content ?? '');
+    if (c.length > MAX_CONTENT_CHARS) return `Message ${i + 1} trop long (max ${MAX_CONTENT_CHARS} caractères).`;
+  }
+  return null;
 }
 
 const server = http.createServer(async (req, res) => {
@@ -141,9 +167,10 @@ const server = http.createServer(async (req, res) => {
   }
 
   const body = await readJsonBody(req);
-  if (!body || !Array.isArray(body.messages)) {
+  const validationError = validateChatBody(body);
+  if (validationError) {
     res.writeHead(400, baseH);
-    res.end(JSON.stringify({ reply: 'JSON invalide : messages[] requis.' }));
+    res.end(JSON.stringify({ reply: validationError }));
     return;
   }
 
@@ -158,17 +185,18 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
-  const tier = body.tier ?? null;
+  const tier = normalizeTier(body.tier);
   const locale = typeof body.locale === 'string' ? body.locale : 'fr';
   const model = resolveModelForTier(tier);
   const { max_tokens, temperature } = tierSampling(tier);
 
+  const trimmed = body.messages.slice(-40);
   const openaiMessages = [
     {
       role: 'system',
       content: buildSystemPrompt(tier, locale),
     },
-    ...body.messages.map((m) => ({
+    ...trimmed.map((m) => ({
       role: m.role === 'assistant' ? 'assistant' : 'user',
       content: String(m.content ?? ''),
     })),

@@ -17,9 +17,11 @@ import {
   type RemoteAutonomousDemo,
 } from '@/services/firebaseRemote';
 import { normalizeOrderStatus } from '@/utils/orderNormalize';
+import { PENDING_VALIDATION_MS } from '@/constants/orderPolicy';
 import {
   notifyClientDelivered,
   notifyClientOnTheWay,
+  notifyClientOrderCancelledTimeout,
   notifyClientPreparing,
   notifyGerantDelivered,
   notifyGerantNewOrder,
@@ -84,11 +86,13 @@ type State = {
   setNotificationsEnabled: (v: boolean) => void;
   setAutonomousDemoEnabled: (v: boolean) => void;
   setAutonomousPacePreset: (id: AutonomousPacePresetId) => void;
+  /** Annule les commandes encore « pending » après PENDING_VALIDATION_MS (notification client). */
+  expireStalePendingOrders: () => void;
 };
 
 const ANGERS_DEFAULT: LatLng = { latitude: 47.4739, longitude: -0.5517 };
 
-const STORAGE_VERSION = 5;
+const STORAGE_VERSION = 6;
 
 function genId() {
   return `HK-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`;
@@ -248,6 +252,27 @@ export const useHuskoStore = create<State>()(
           stepMs: AUTONOMOUS_PACE_PRESETS[autonomousPacePreset].stepMs,
         });
       },
+
+      expireStalePendingOrders: () => {
+        const now = Date.now();
+        const { orders, notificationsEnabled } = get();
+        const toCancel: string[] = [];
+        const next = orders.map((o) => {
+          if (o.status !== 'pending') return o;
+          if (now - o.createdAt < PENDING_VALIDATION_MS) return o;
+          toCancel.push(o.id);
+          return { ...o, status: 'cancelled' as const };
+        });
+        if (toCancel.length === 0) return;
+        set({ orders: next });
+        for (const id of toCancel) {
+          const o = next.find((x) => x.id === id);
+          if (o) void remotePushOrder(o);
+          if (notificationsEnabled) {
+            void notifyClientOrderCancelledTimeout(id);
+          }
+        }
+      },
     };
     },
     {
@@ -278,6 +303,9 @@ export const useHuskoStore = create<State>()(
         if (version < 5) {
           (p as { autonomousDemoEnabled?: boolean }).autonomousDemoEnabled = false;
           (p as { autonomousPacePreset?: AutonomousPacePresetId }).autonomousPacePreset = 'demo';
+        }
+        if (version < 6) {
+          /* expiration auto des pending > 30 min : géré au runtime */
         }
         return p;
       },

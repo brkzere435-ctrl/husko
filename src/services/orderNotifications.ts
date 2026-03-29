@@ -61,3 +61,11 @@ export async function notifyGerantDelivered(order: Order) {
 export async function notifyClientDelivered(orderId: string) {
   await schedule('Husko · Livré', `Commande ${orderId} livrée. Bon appétit !`);
 }
+
+/** Aucune validation gérant dans les 30 minutes → annulation automatique */
+export async function notifyClientOrderCancelledTimeout(orderId: string) {
+  await schedule(
+    'Husko · Commande annulée',
+    `Pas de validation sous 30 min — commande ${orderId} annulée. Réessayez ou appelez le restaurant.`
+  );
+}

@@ -15,35 +15,21 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
     name: 'Essentiel',
     priceEur: 50,
     tagline: 'Démarrage',
-    features: [
-      'Assistant conversationnel (modèle standard)',
-      'Contexte court, idéal pour questions ponctuelles',
-      'Aide rédaction et idées (usage modéré)',
-    ],
+    features: ['Réponses courtes, usage régulier modéré', 'Idées et rédaction simple'],
   },
   {
     id: 'pro',
     name: 'Pro',
     priceEur: 100,
     tagline: 'Cadence soutenue',
-    features: [
-      'Tout Essentiel',
-      'Contexte plus long et suivis de fil',
-      'Aide structuration (docs, specs, conception)',
-      'Quota élargi côté serveur (selon ton backend)',
-    ],
+    features: ['Contexte plus long, structuration', 'Quota serveur plus large'],
   },
   {
     id: 'premium',
     name: 'Premium',
     priceEur: 180,
     tagline: 'Pleine fonctionnalité',
-    features: [
-      'Tout Pro',
-      'Priorité et limites maximales côté API',
-      'Scénarios avancés (design, architecture, itérations longues)',
-      'Aligné sur une offre « référence » équivalente à un forfait ~65 € / mois côté fournisseur',
-    ],
+    features: ['Profondeur max, priorité côté API', 'Idééal pour conception et itérations longues'],
   },
 ];
 

@@ -2,11 +2,15 @@
 export const CLIENT_PHONE_DISPLAY = '06 29 39 74 30';
 export const CLIENT_PHONE_TEL = '+33629397430';
 
+/** Panier : commande acceptée même fermé — livraison selon horaires réels. */
+export const outsideDeliveryHoursBanner =
+  'Vous pouvez commander maintenant : le gérant valide sous 30 min max. Sinon la commande est annulée automatiquement. Livraison habituelle lun–sam 20h–00h.';
+
 export const clientStrings = {
   menuHint: 'Touchez un plat pour l’ajouter au panier.',
   trustLine: 'Paiement à la livraison · Suivi en temps réel',
-  openNow: 'Ouvert aux commandes',
-  closedNow: 'Fermé pour le moment — repassez aux horaires affichés',
+  openNow: 'Créneau livraison ouvert',
+  closedNow: 'Hors créneau livraison — commandes toujours possibles',
   panierIntro:
     'Vérifiez votre adresse : le livreur s’y rendra avec votre commande. Le restaurant vous confirme la préparation.',
   panierEmptyTitle: 'Votre panier est vide',
@@ -20,4 +24,7 @@ export const clientStrings = {
   suiviMerciBody: 'Votre dernière commande est indiquée comme livrée. Merci de votre confiance.',
   suiviNewOrder: 'Nouvelle commande',
   suiviGoMenu: 'Voir le menu',
+  suiviCancelledTitle: 'Commande annulée',
+  suiviCancelledBody: (ref: string) =>
+    `Pas de validation gérant dans les 30 minutes — ${ref}. Tu peux recommander depuis le menu.`,
 } as const;

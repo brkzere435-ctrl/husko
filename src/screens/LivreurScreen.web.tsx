@@ -101,7 +101,7 @@ export default function LivreurScreenWeb() {
               <View style={styles.placeholderInner}>
                 {driver ? (
                   <View style={styles.bigMarker}>
-                    <CarMarkerIcon headingDeg={driverHeading} size={56} />
+                    <CarMarkerIcon headingDeg={driverHeading} size={56} variant="lowrider" />
                   </View>
                 ) : (
                   <Ionicons name="car-sport" size={48} color={colors.goldDim} />
@@ -119,6 +119,7 @@ export default function LivreurScreenWeb() {
                 driver={driver}
                 headingDeg={driverHeading}
                 showDest={false}
+                hudFooter="213 · FLEET TRACKER"
               />
             </View>
 

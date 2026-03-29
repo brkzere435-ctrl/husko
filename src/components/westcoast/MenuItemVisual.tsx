@@ -1,0 +1,77 @@
+import type { ComponentProps } from 'react';
+import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
+import { StyleSheet, View } from 'react-native';
+
+import type { MenuCategory, MenuItem } from '@/constants/menu';
+import { WC } from '@/constants/westCoastTheme';
+import { radius, spacing } from '@/constants/theme';
+
+const CAT_ICON: Record<MenuCategory, ComponentProps<typeof Ionicons>['name']> = {
+  smash: 'flame',
+  frites: 'fast-food',
+  baguette: 'restaurant',
+  sandwich: 'nutrition',
+  four: 'bonfire',
+  dessert: 'ice-cream',
+  boisson: 'water',
+};
+
+const CAT_GRAD: Record<MenuCategory, [string, string, string]> = {
+  smash: ['#7f1d1d', '#3b0764', '#0c0a09'],
+  frites: ['#78350f', '#7f1d1d', '#1c1917'],
+  baguette: ['#854d0e', '#451a03', '#0c0a09'],
+  sandwich: ['#991b1b', '#134e4a', '#0f172a'],
+  four: ['#9a3412', '#7c2d12', '#1c1917'],
+  dessert: ['#831843', '#4c0519', '#0f172a'],
+  boisson: ['#0e7490', '#164e63', '#0c4a6e'],
+};
+
+type Props = { item: MenuItem; size: 'sm' | 'lg' };
+
+export function MenuItemVisual({ item, size }: Props) {
+  const side = size === 'lg' ? 220 : 72;
+  const iconSz = size === 'lg' ? 88 : 32;
+  const g = CAT_GRAD[item.category];
+  const icon = CAT_ICON[item.category];
+
+  return (
+    <View style={[styles.wrap, { width: side, height: side }]}>
+      <LinearGradient colors={g} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.grad}>
+        <View style={[styles.neon, size === 'lg' && styles.neonLg]} />
+        <Ionicons name={icon} size={iconSz} color={WC.gold} style={styles.iconShadow} />
+      </LinearGradient>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  wrap: {
+    borderRadius: radius.lg,
+    overflow: 'hidden',
+    borderWidth: 2,
+    borderColor: WC.neonCyanDim,
+  },
+  grad: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  neon: {
+    ...StyleSheet.absoluteFillObject,
+    borderWidth: 1,
+    borderColor: WC.neonCyanDim,
+    borderRadius: radius.lg,
+    margin: spacing.xs,
+  },
+  neonLg: {
+    margin: spacing.sm,
+    borderWidth: 2,
+  },
+  iconShadow: {
+    shadowColor: WC.neonCyan,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.9,
+    shadowRadius: 16,
+  },
+});

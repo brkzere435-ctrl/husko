@@ -1,0 +1,147 @@
+import { LinearGradient } from 'expo-linear-gradient';
+import type { ReactNode } from 'react';
+import { StyleSheet, Text, View, type ViewStyle } from 'react-native';
+
+import { WC } from '@/constants/westCoastTheme';
+import { radius, spacing } from '@/constants/theme';
+
+type Props = {
+  children: ReactNode;
+  /** Taille du bloc carte (carré). */
+  size?: number;
+  style?: ViewStyle;
+  /** Bandeau bas (humour West Coast / suivi). */
+  footerTag?: string;
+};
+
+/** Encadrement type HUD GTA : néon cyan/or, équerres, scanlines, bandeau. */
+export function GTAHudFrame({ children, size = 156, style, footerTag = 'WESTSIDE · SUIVI LIVE' }: Props) {
+  const corner = 18;
+  const t = 3;
+  return (
+    <View style={[styles.root, { width: size, height: size }, style]}>
+      <LinearGradient
+        colors={['rgba(34,211,238,0.35)', 'rgba(250,204,21,0.15)', 'rgba(34,211,238,0.2)']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={[styles.neonBorder, { borderRadius: radius.lg }]}
+      >
+        <View style={[styles.inner, { borderRadius: radius.lg - 2 }]}>
+          {/* Équerres coin — style radar GTA */}
+          <View style={[styles.bracket, styles.tl, { borderTopWidth: t, borderLeftWidth: t, width: corner, height: corner }]} />
+          <View
+            style={[styles.bracket, styles.tr, { borderTopWidth: t, borderRightWidth: t, width: corner, height: corner }]}
+          />
+          <View
+            style={[styles.bracket, styles.bl, { borderBottomWidth: t, borderLeftWidth: t, width: corner, height: corner }]}
+          />
+          <View
+            style={[styles.bracket, styles.br, { borderBottomWidth: t, borderRightWidth: t, width: corner, height: corner }]}
+          />
+
+          <View style={styles.mapSlot}>{children}</View>
+
+          {/* Scanlines */}
+          <View style={styles.scanOverlay} pointerEvents="none">
+            {Array.from({ length: 14 }).map((_, i) => (
+              <View key={i} style={[styles.scanLine, { top: i * 11 }]} />
+            ))}
+          </View>
+
+          <View style={styles.topHud}>
+            <Text style={styles.hudMini}>GPS</Text>
+            <Text style={styles.hudCompass}>▲</Text>
+          </View>
+          <View style={styles.bottomHud}>
+            <Text style={styles.hudFooter} numberOfLines={1}>
+              {footerTag}
+            </Text>
+          </View>
+        </View>
+      </LinearGradient>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  root: {
+    borderRadius: radius.lg,
+  },
+  neonBorder: {
+    padding: 2,
+    borderRadius: radius.lg,
+  },
+  inner: {
+    flex: 1,
+    backgroundColor: '#050308',
+    overflow: 'hidden',
+  },
+  bracket: {
+    position: 'absolute',
+    borderColor: WC.neonCyan,
+    zIndex: 6,
+    opacity: 0.95,
+  },
+  tl: { top: 5, left: 5 },
+  tr: { top: 5, right: 5 },
+  bl: { bottom: 22, left: 5 },
+  br: { bottom: 22, right: 5 },
+  mapSlot: {
+    ...StyleSheet.absoluteFillObject,
+    marginBottom: 20,
+  },
+  scanOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    zIndex: 4,
+    opacity: 0.14,
+  },
+  scanLine: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    height: 1,
+    backgroundColor: 'rgba(0,0,0,0.55)',
+  },
+  topHud: {
+    position: 'absolute',
+    top: 4,
+    left: 0,
+    right: 0,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: spacing.sm,
+    zIndex: 5,
+  },
+  hudMini: {
+    color: WC.gold,
+    fontSize: 9,
+    fontWeight: '900',
+    letterSpacing: 2,
+    textShadowColor: '#000',
+    textShadowRadius: 3,
+  },
+  hudCompass: {
+    color: WC.neonCyan,
+    fontSize: 10,
+    fontWeight: '900',
+  },
+  bottomHud: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: 'rgba(0,0,0,0.82)',
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(34,211,238,0.45)',
+    paddingVertical: 3,
+    paddingHorizontal: 4,
+    zIndex: 5,
+  },
+  hudFooter: {
+    color: WC.gold,
+    fontSize: 8,
+    fontWeight: '900',
+    letterSpacing: 0.8,
+    textAlign: 'center',
+  },
+});

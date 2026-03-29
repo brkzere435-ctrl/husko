@@ -114,7 +114,7 @@ export default function LivreurScreenNative() {
             >
               {driver ? (
                 <Marker coordinate={driver} anchor={{ x: 0.5, y: 0.5 }}>
-                  <CarMarkerIcon headingDeg={driverHeading} size={48} />
+                  <CarMarkerIcon headingDeg={driverHeading} size={48} variant="lowrider" />
                 </Marker>
               ) : null}
             </MapView>
@@ -125,6 +125,7 @@ export default function LivreurScreenNative() {
                 driver={driver}
                 headingDeg={driverHeading}
                 showDest={false}
+                hudFooter="213 · FLEET TRACKER"
               />
             </View>
 

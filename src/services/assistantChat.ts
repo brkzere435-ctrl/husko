@@ -1,5 +1,6 @@
 import type { SubscriptionTierId } from '@/constants/subscriptionPlans';
 import type { ChatMessage } from '@/stores/useAssistantStore';
+import { prepareMessagesForApi } from '@/utils/assistantMessages';
 import { readHuskoExpoExtra } from '@/utils/readHuskoExpoExtra';
 
 function assistantApiUrl(): string {
@@ -33,12 +34,18 @@ export async function sendAssistantMessage(
 
   const ctrl = new AbortController();
   const t = setTimeout(() => ctrl.abort(), 120_000);
+  const payload = {
+    messages: prepareMessagesForApi(messages),
+    tier,
+    locale: 'fr' as const,
+  };
+
   let res: Response;
   try {
     res = await fetch(url, {
       method: 'POST',
       headers,
-      body: JSON.stringify({ messages, tier, locale: 'fr' }),
+      body: JSON.stringify(payload),
       signal: ctrl.signal,
     });
   } catch (e) {

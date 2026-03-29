@@ -4,12 +4,12 @@ import { Alert, ScrollView, StyleSheet, Text, TextInput, View } from 'react-nati
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { DeploymentHints } from '@/components/DeploymentHints';
-import { HuskoBackground } from '@/components/HuskoBackground';
+import { WestCoastBackground } from '@/components/westcoast/WestCoastBackground';
 import { GTAMiniMap } from '@/components/GTAMiniMap';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { ScreenSection } from '@/components/ScreenSection';
-import { clientStrings } from '@/constants/clientExperience';
-import { deliveryClosedAlertMessage, isDeliveryOpen } from '@/constants/hours';
+import { clientStrings, outsideDeliveryHoursBanner } from '@/constants/clientExperience';
+import { isDeliveryOpen } from '@/constants/hours';
 import { PAYMENT_NOTICE_LONG, PAYMENT_NOTICE_SHORT } from '@/constants/paymentPolicy';
 import { typography } from '@/constants/typography';
 import { colors, elevation, radius, spacing } from '@/constants/theme';
@@ -34,10 +34,6 @@ export default function PanierScreen() {
   };
 
   function checkout() {
-    if (!isDeliveryOpen()) {
-      Alert.alert('Hors créneau', deliveryClosedAlertMessage());
-      return;
-    }
     if (!cart.length) {
       Alert.alert('Panier vide', 'Ajoutez des articles depuis le menu.');
       return;
@@ -54,11 +50,19 @@ export default function PanierScreen() {
   }
 
   return (
-    <HuskoBackground>
+    <WestCoastBackground>
       <SafeAreaView style={styles.root} edges={['bottom']}>
         <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
           {cart.length > 0 ? (
-            <Text style={[typography.bodyMuted, styles.intro]}>{clientStrings.panierIntro}</Text>
+            <>
+              <Text style={[typography.bodyMuted, styles.intro]}>{clientStrings.panierIntro}</Text>
+              {!isDeliveryOpen() ? (
+                <View style={styles.outsideBanner}>
+                  <Text style={styles.outsideBannerTitle}>Hors créneau livraison</Text>
+                  <Text style={styles.outsideBannerBody}>{outsideDeliveryHoursBanner}</Text>
+                </View>
+              ) : null}
+            </>
           ) : null}
           <View style={styles.mapRow}>
             <GTAMiniMap
@@ -67,6 +71,7 @@ export default function PanierScreen() {
               headingDeg={driverHeading}
               dest={ANGERS_DEFAULT}
               showDest
+              hudFooter="PREVIEW MAP · ANGERS"
             />
             <View style={styles.mapLegend}>
               <Text style={typography.bodyMuted}>Aperçu carte & livreur (même appareil).</Text>
@@ -124,7 +129,7 @@ export default function PanierScreen() {
           <DeploymentHints mode="alerts" mapsRelevant style={styles.infra} />
         </ScrollView>
       </SafeAreaView>
-    </HuskoBackground>
+    </WestCoastBackground>
   );
 }
 
@@ -132,6 +137,28 @@ const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: 'transparent' },
   scroll: { padding: spacing.md, paddingBottom: spacing.xl },
   intro: { marginBottom: spacing.md, fontSize: 14, lineHeight: 21 },
+  outsideBanner: {
+    marginBottom: spacing.md,
+    padding: spacing.md,
+    borderRadius: radius.lg,
+    backgroundColor: 'rgba(34, 211, 238, 0.1)',
+    borderWidth: 1,
+    borderColor: 'rgba(34, 211, 238, 0.45)',
+  },
+  outsideBannerTitle: {
+    color: '#67e8f9',
+    fontWeight: '900',
+    fontSize: 13,
+    letterSpacing: 0.8,
+    textTransform: 'uppercase',
+    marginBottom: spacing.xs,
+  },
+  outsideBannerBody: {
+    color: colors.textMuted,
+    fontSize: 13,
+    lineHeight: 20,
+    fontWeight: '600',
+  },
   emptyCart: { gap: spacing.md, paddingVertical: spacing.sm },
   emptyCartBody: { lineHeight: 20 },
   emptyCartBtn: { marginTop: spacing.sm },

@@ -1,6 +1,6 @@
 /**
  * Génère les PNG des QR (gérant, client, livreur) depuis distribution.defaults.json
- * Couleurs Husko : or sur fond sombre.
+ * Couleurs distinctes par rôle (or / vert / bleu).
  */
 import { mkdirSync, readFileSync, existsSync } from 'fs';
 import { dirname, join } from 'path';
@@ -11,6 +11,13 @@ import QRCode from 'qrcode';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = join(__dirname, '..');
 const defaultsPath = join(root, 'distribution.defaults.json');
+
+/** dark (modules QR) + light (fond) par rôle */
+const ROLE_QR = {
+  gerant: { dark: '#f0d050', light: '#1a0808' },
+  client: { dark: '#4ade80', light: '#0a1a12' },
+  livreur: { dark: '#60a5fa', light: '#0c1424' },
+};
 
 if (!existsSync(defaultsPath)) {
   console.error('Fichier introuvable : distribution.defaults.json');
@@ -28,13 +35,14 @@ for (const [name, url] of entries) {
     console.warn(`Ignoré : ${name}`);
     continue;
   }
+  const colors = ROLE_QR[name] ?? ROLE_QR.gerant;
   const out = join(outDir, `${name}.png`);
   await QRCode.toFile(out, url, {
     width: 512,
     margin: 2,
     color: {
-      dark: '#f0d050',
-      light: '#1a0808',
+      dark: colors.dark,
+      light: colors.light,
     },
   });
   console.log('OK', out);

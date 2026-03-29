@@ -1,11 +1,16 @@
 import { Stack } from 'expo-router';
+import { useState } from 'react';
 import { Platform } from 'react-native';
 
+import { ClientBootOverlay } from '@/components/westcoast/ClientBootOverlay';
 import { SyncStatusPill } from '@/components/SyncStatusPill';
 import { colors } from '@/constants/theme';
 
 export default function ClientLayout() {
+  const [boot, setBoot] = useState(true);
   return (
+    <>
+      <ClientBootOverlay visible={boot} onDone={() => setBoot(false)} />
     <Stack
       screenOptions={{
         headerStyle: { backgroundColor: colors.bgLift },
@@ -18,8 +23,10 @@ export default function ClientLayout() {
       }}
     >
       <Stack.Screen name="index" options={{ title: 'À la carte' }} />
+      <Stack.Screen name="product/[id]" options={{ title: 'Ton choix', headerShown: true }} />
       <Stack.Screen name="panier" options={{ title: 'Mon panier' }} />
       <Stack.Screen name="suivi" options={{ title: 'Ma livraison' }} />
     </Stack>
+    </>
   );
 }

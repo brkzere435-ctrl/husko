@@ -4,7 +4,7 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { DeploymentHints } from '@/components/DeploymentHints';
-import { HuskoBackground } from '@/components/HuskoBackground';
+import { WestCoastBackground } from '@/components/westcoast/WestCoastBackground';
 import { GTAMiniMap } from '@/components/GTAMiniMap';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { StatusBadge } from '@/components/StatusBadge';
@@ -14,6 +14,7 @@ import {
   formatEtaUntilDelivery,
 } from '@/constants/autonomousDelivery';
 import { clientStrings } from '@/constants/clientExperience';
+import { PENDING_VALIDATION_MS } from '@/constants/orderPolicy';
 import { CLIENT_TIMELINE, timelineStepIndex } from '@/constants/orderFlow';
 import { PAYMENT_NOTICE_SHORT } from '@/constants/paymentPolicy';
 import { typography } from '@/constants/typography';
@@ -36,6 +37,7 @@ export default function SuiviScreen() {
   /** Dernière commande (liste triée : plus récente en premier). */
   const latestOrder = orders[0];
   const showDeliveredThanks = !active && latestOrder?.status === 'delivered';
+  const latestCancelled = !active && latestOrder?.status === 'cancelled' ? latestOrder : null;
 
   const stepIdx = active ? timelineStepIndex(active.status) : -1;
 
@@ -66,32 +68,22 @@ export default function SuiviScreen() {
   }, [active, etaStepMs]);
 
   return (
-    <HuskoBackground>
+    <WestCoastBackground>
       <SafeAreaView style={styles.root} edges={['bottom']}>
         <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
-          {showDeliveredThanks ? (
-            <View style={[styles.card, styles.merciCard, elevation.card]}>
-              <Text style={styles.merciTitle}>{clientStrings.suiviMerciTitle}</Text>
-              <Text style={[typography.bodyMuted, styles.merciBody]}>{clientStrings.suiviMerciBody}</Text>
-              <Text style={[typography.mono, styles.merciRef]}>{latestOrder?.id}</Text>
-              <Link href="/client" asChild>
-                <PrimaryButton title={clientStrings.suiviNewOrder} style={styles.merciBtn} />
-              </Link>
-            </View>
-          ) : !active ? (
-            <View style={[styles.card, styles.emptyCard, elevation.card]}>
-              <Text style={typography.title}>{clientStrings.suiviEmptyTitle}</Text>
-              <Text style={[typography.bodyMuted, styles.emptyBody]}>{clientStrings.suiviEmptyBody}</Text>
-              <Link href="/client" asChild>
-                <PrimaryButton title={clientStrings.suiviGoMenu} style={styles.emptyBtn} />
-              </Link>
-            </View>
-          ) : (
+          {active ? (
             <View style={styles.card}>
               <Text style={typography.mono}>{active.id}</Text>
               <View style={styles.badgeRow}>
                 <StatusBadge status={active.status} />
               </View>
+
+              {active.status === 'pending' ? (
+                <Text style={styles.pendingHint}>
+                  En attente du gérant — validation sous {Math.round(PENDING_VALIDATION_MS / 60000)} min max,
+                  sinon annulation automatique.
+                </Text>
+              ) : null}
 
               {etaText ? (
                 <Text style={styles.etaLine}>
@@ -151,22 +143,51 @@ export default function SuiviScreen() {
 
               {showLiveMap ? (
                 <View style={styles.mapWrap}>
-                  <Text style={styles.mapTitle}>Suivi livreur</Text>
+                  <Text style={styles.mapTitle}>Suivi Cadillac · mode GTA</Text>
+                  <Text style={styles.mapSub}>GPS West Coast — le livreur roule vers toi</Text>
                   <GTAMiniMap
                     region={region}
                     driver={driver}
                     headingDeg={driverHeading}
                     dest={dest}
                     showDest={!!dest}
+                    hudFooter="LBC · DROP TOP · EN ROUTE"
                   />
                 </View>
               ) : null}
+            </View>
+          ) : showDeliveredThanks ? (
+            <View style={[styles.card, styles.merciCard, elevation.card]}>
+              <Text style={styles.merciTitle}>{clientStrings.suiviMerciTitle}</Text>
+              <Text style={[typography.bodyMuted, styles.merciBody]}>{clientStrings.suiviMerciBody}</Text>
+              <Text style={[typography.mono, styles.merciRef]}>{latestOrder?.id}</Text>
+              <Link href="/client" asChild>
+                <PrimaryButton title={clientStrings.suiviNewOrder} style={styles.merciBtn} />
+              </Link>
+            </View>
+          ) : latestCancelled ? (
+            <View style={[styles.card, styles.cancelCard, elevation.card]}>
+              <Text style={styles.cancelTitle}>{clientStrings.suiviCancelledTitle}</Text>
+              <Text style={[typography.bodyMuted, styles.cancelBody]}>
+                {clientStrings.suiviCancelledBody(latestCancelled.id)}
+              </Text>
+              <Link href="/client" asChild>
+                <PrimaryButton title={clientStrings.suiviGoMenu} style={styles.merciBtn} />
+              </Link>
+            </View>
+          ) : (
+            <View style={[styles.card, styles.emptyCard, elevation.card]}>
+              <Text style={typography.title}>{clientStrings.suiviEmptyTitle}</Text>
+              <Text style={[typography.bodyMuted, styles.emptyBody]}>{clientStrings.suiviEmptyBody}</Text>
+              <Link href="/client" asChild>
+                <PrimaryButton title={clientStrings.suiviGoMenu} style={styles.emptyBtn} />
+              </Link>
             </View>
           )}
           <DeploymentHints mode="alerts" mapsRelevant={showLiveMap} style={styles.infra} />
         </ScrollView>
       </SafeAreaView>
-    </HuskoBackground>
+    </WestCoastBackground>
   );
 }
 
@@ -174,6 +195,18 @@ const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: 'transparent' },
   scroll: { padding: spacing.md, paddingBottom: spacing.xl },
   emptyCard: { alignItems: 'stretch', gap: spacing.md },
+  cancelCard: {
+    alignItems: 'stretch',
+    gap: spacing.sm,
+    borderColor: 'rgba(248, 113, 113, 0.45)',
+  },
+  cancelTitle: {
+    fontSize: 22,
+    fontWeight: '900',
+    color: '#fca5a5',
+    letterSpacing: 0.5,
+  },
+  cancelBody: { lineHeight: 22 },
   emptyBody: { marginTop: spacing.sm, lineHeight: 22 },
   emptyBtn: { marginTop: spacing.md },
   merciCard: {
@@ -198,6 +231,13 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
   },
   badgeRow: { marginTop: spacing.sm, marginBottom: spacing.sm },
+  pendingHint: {
+    marginBottom: spacing.md,
+    color: '#67e8f9',
+    fontSize: 13,
+    lineHeight: 19,
+    fontWeight: '600',
+  },
   etaLine: { marginBottom: spacing.md, color: colors.textMuted, fontSize: 14, lineHeight: 20 },
   etaStrong: { color: colors.gold, fontWeight: '800' },
   timelineWrap: {
@@ -251,15 +291,23 @@ const styles = StyleSheet.create({
   pay: { marginTop: spacing.md, fontStyle: 'italic' },
   mapHint: { marginTop: spacing.md },
   mapTitle: {
-    marginBottom: spacing.sm,
+    marginBottom: spacing.xs,
     marginTop: spacing.sm,
     alignSelf: 'stretch',
     textAlign: 'center',
     color: colors.gold,
-    fontSize: 12,
-    fontWeight: '800',
-    letterSpacing: 1.2,
+    fontSize: 13,
+    fontWeight: '900',
+    letterSpacing: 1.4,
     textTransform: 'uppercase',
+  },
+  mapSub: {
+    textAlign: 'center',
+    color: '#67e8f9',
+    fontSize: 11,
+    fontWeight: '600',
+    marginBottom: spacing.sm,
+    opacity: 0.9,
   },
   mapWrap: { marginTop: spacing.lg, alignItems: 'center' },
   infra: { marginTop: spacing.lg },

@@ -66,6 +66,19 @@ console.log(
     : '• Distribution : utiliser distribution.defaults.json ou EXPO_PUBLIC_DISTRIBUTION_* apres build EAS'
 );
 
+const assistantUrl = env.EXPO_PUBLIC_ASSISTANT_API_URL;
+const openaiServer = env.OPENAI_API_KEY;
+console.log(
+  assistantUrl && String(assistantUrl).trim()
+    ? '• Copilote : EXPO_PUBLIC_ASSISTANT_API_URL renseigne (pense a npm run assistant:server en local)'
+    : '• Copilote : EXPO_PUBLIC_ASSISTANT_API_URL vide — chat sans backend jusqu’a URL + serveur proxy'
+);
+console.log(
+  openaiServer && String(openaiServer).trim()
+    ? '• Copilote : OPENAI_API_KEY presente dans .env (uniquement pour la machine qui lance assistant:server)'
+    : '• Copilote : OPENAI_API_KEY absente — le proxy repondra sans vraie reponse IA tant que la cle n’est pas sur le serveur'
+);
+
 const easId = env.EXPO_PUBLIC_EAS_PROJECT_ID;
 console.log(
   easId && String(easId).trim()

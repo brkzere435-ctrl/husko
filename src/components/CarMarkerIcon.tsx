@@ -1,28 +1,51 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 
+import { WC } from '@/constants/westCoastTheme';
 import { colors } from '@/constants/theme';
 
-type Props = { size?: number; headingDeg?: number };
+type Props = { size?: number; headingDeg?: number; variant?: 'default' | 'lowrider' };
 
-/** Silhouette vue du dessus type berline US (Impala / Cadillac) */
-export function CarMarkerIcon({ size = 44, headingDeg = 0 }: Props) {
+/** Vue du dessus : berline US — mode lowrider = chrome or + néon sous caisse (West Coast). */
+export function CarMarkerIcon({ size = 44, headingDeg = 0, variant = 'default' }: Props) {
+  const low = variant === 'lowrider';
   return (
-    <View style={[styles.wrap, { width: size, height: size * 1.6, transform: [{ rotate: `${headingDeg}deg` }] }]}>
-      <View style={[styles.hood, { width: size * 0.85 }]} />
-      <View style={[styles.cabin, { width: size * 0.95, height: size * 0.55 }]} />
-      <View style={[styles.trunk, { width: size * 0.8 }]} />
-      <View style={[styles.wheel, styles.wl]} />
-      <View style={[styles.wheel, styles.wr]} />
-      <View style={[styles.wheel, styles.bl]} />
-      <View style={[styles.wheel, styles.br]} />
-      <View style={styles.strip} />
+    <View
+      style={[
+        styles.wrap,
+        {
+          width: size,
+          height: size * 1.6,
+          transform: [{ rotate: `${headingDeg}deg` }],
+        },
+      ]}
+    >
+      {low ? <View style={[styles.underglow, { width: size * 1.2, height: size * 0.4 }]} /> : null}
+      <View style={[styles.hood, { width: size * 0.85 }, low && styles.chrome]} />
+      <View style={[styles.cabin, { width: size * 0.95, height: size * 0.55 }, low && styles.cabinLow]} />
+      <View style={[styles.trunk, { width: size * 0.8 }, low && styles.chrome]} />
+      <View style={[styles.wheel, styles.wl, low && styles.rimGold]} />
+      <View style={[styles.wheel, styles.wr, low && styles.rimGold]} />
+      <View style={[styles.wheel, styles.bl, low && styles.rimGold]} />
+      <View style={[styles.wheel, styles.br, low && styles.rimGold]} />
+      <View style={[styles.strip, low && styles.stripLow]} />
+      {low ? <View style={styles.fogL} /> : null}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   wrap: { alignItems: 'center', justifyContent: 'center' },
+  underglow: {
+    position: 'absolute',
+    bottom: 4,
+    borderRadius: 40,
+    backgroundColor: WC.neonCyan,
+    opacity: 0.45,
+    shadowColor: WC.neonCyan,
+    shadowOpacity: 1,
+    shadowRadius: 12,
+  },
   hood: {
     height: 14,
     backgroundColor: '#1c1c1c',
@@ -31,11 +54,22 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.gold,
   },
+  chrome: {
+    borderColor: WC.gold,
+    borderWidth: 2,
+    shadowColor: WC.gold,
+    shadowOpacity: 0.5,
+    shadowRadius: 4,
+  },
   cabin: {
     backgroundColor: '#2a1515',
     borderRadius: 4,
     borderWidth: 1,
     borderColor: colors.accent,
+  },
+  cabinLow: {
+    backgroundColor: '#1a0a12',
+    borderColor: WC.neonCyan,
   },
   trunk: {
     height: 12,
@@ -54,6 +88,10 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#333',
   },
+  rimGold: {
+    borderColor: WC.gold,
+    backgroundColor: '#111',
+  },
   wl: { top: 10, left: 2 },
   wr: { top: 10, right: 2 },
   bl: { bottom: 10, left: 2 },
@@ -66,5 +104,20 @@ const styles = StyleSheet.create({
     opacity: 0.9,
     top: '46%',
     borderRadius: 2,
+  },
+  stripLow: {
+    backgroundColor: WC.neonCyan,
+    opacity: 0.85,
+    height: 4,
+  },
+  fogL: {
+    position: 'absolute',
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#fff',
+    opacity: 0.35,
+    bottom: 6,
+    left: '42%',
   },
 });

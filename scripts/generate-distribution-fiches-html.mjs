@@ -28,23 +28,30 @@ function esc(s) {
     .replace(/"/g, '&quot;');
 }
 
+const ROLE_QR = {
+  gerant: { dark: '#f0d050', light: '#1a0808', title: 'GÉRANT (or)', border: 'rgba(240, 208, 80, 0.55)' },
+  client: { dark: '#4ade80', light: '#0a1a12', title: 'CLIENT (vert)', border: 'rgba(74, 222, 128, 0.55)' },
+  livreur: { dark: '#60a5fa', light: '#0c1424', title: 'LIVREUR (bleu)', border: 'rgba(96, 165, 250, 0.55)' },
+};
+
 const cards = [];
 for (const [key, url] of entries) {
   if (typeof url !== 'string' || !url.startsWith('http')) continue;
+  const role = ROLE_QR[key] ?? ROLE_QR.gerant;
   const label =
     key === 'gerant'
-      ? 'APK Gérant'
+      ? 'APK Gérant — page Expo'
       : key === 'client'
-        ? 'APK Client (sandwicherie)'
+        ? 'APK Client — page Expo'
         : key === 'livreur'
-          ? 'APK Livreur'
+          ? 'APK Livreur — page Expo'
           : key;
   const dataUrl = await QRCode.toDataURL(url, {
     width: 320,
     margin: 2,
-    color: { dark: '#f0d050', light: '#1a0808' },
+    color: { dark: role.dark, light: role.light },
   });
-  cards.push({ key, label, url, dataUrl });
+  cards.push({ key, label, url, dataUrl, role });
 }
 
 const html = `<!DOCTYPE html>
@@ -110,6 +117,12 @@ const html = `<!DOCTYPE html>
       color: #f0d050;
       margin-bottom: 4px;
     }
+    .role-tag {
+      font-size: 0.75rem;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      margin-bottom: 8px;
+    }
     @media print {
       body { background: #fff; color: #111; }
       .card { border-color: #333; background: #fff; }
@@ -123,14 +136,15 @@ const html = `<!DOCTYPE html>
   <div class="brand">HUSKO</div>
   <h1>Distribution APK — sandwicherie</h1>
   <p class="sub">
-    Une fiche par rôle : QR à afficher ou partager, et lien brut à copier. Mettez à jour
-    <code>distribution.defaults.json</code> avec les URLs réelles (expo.dev → artefact APK), puis régénérez ce fichier avec
-    <code>npm run distribution:fiches</code>.
+    QR <strong>or / vert / bleu</strong> : ne pas intervertir. Chaque QR ouvre la page Expo (installation sur téléphone).
+    Fichier <code>.apk</code> sur PC : <code>npm run apk:download:all</code>. Mettez à jour
+    <code>distribution.defaults.json</code> puis <code>npm run distribution:fiches</code>.
   </p>
   <div class="grid">
 ${cards
   .map(
-    (c) => `    <section class="card">
+    (c) => `    <section class="card" style="border-color:${esc(c.role.border)}">
+      <div class="role-tag" style="color:${esc(c.role.dark)}">${esc(c.role.title)}</div>
       <h2>${esc(c.label)}</h2>
       <img class="qr" alt="QR ${esc(c.label)}" src="${c.dataUrl}" />
       <p class="url">${esc(c.url)}</p>

@@ -2,6 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
+import { ASSISTANT_MAX_STORED_MESSAGES } from '@/constants/assistantLimits';
 import type { SubscriptionTierId } from '@/constants/subscriptionPlans';
 
 export type ChatMessage = { role: 'user' | 'assistant'; content: string };
@@ -24,7 +25,15 @@ export const useAssistantStore = create<AssistantState>()(
       setTier: (tier) => set({ tier }),
       clearChat: () => set({ messages: [] }),
       appendMessages: (...msgs) =>
-        set((s) => ({ messages: [...s.messages, ...msgs] })),
+        set((s) => {
+          const next = [...s.messages, ...msgs];
+          return {
+            messages:
+              next.length > ASSISTANT_MAX_STORED_MESSAGES
+                ? next.slice(-ASSISTANT_MAX_STORED_MESSAGES)
+                : next,
+          };
+        }),
     }),
     {
       name: 'husko-assistant-v1',
@@ -33,9 +42,14 @@ export const useAssistantStore = create<AssistantState>()(
       merge: (persisted, current) => {
         const p = persisted as Partial<AssistantState> | undefined;
         if (!p) return current;
+        const raw = p.messages ?? current.messages;
+        const messages =
+          raw.length > ASSISTANT_MAX_STORED_MESSAGES
+            ? raw.slice(-ASSISTANT_MAX_STORED_MESSAGES)
+            : raw;
         return {
           ...current,
-          messages: p.messages ?? current.messages,
+          messages,
           tier: p.tier == null ? DEFAULT_TIER : p.tier,
         };
       },

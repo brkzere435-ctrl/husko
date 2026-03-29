@@ -24,6 +24,7 @@
     },
     "apk-gerant": {
       "distribution": "internal",
+      "channel": "gerant",
       "android": {
         "buildType": "apk",
         "autoIncrement": "versionCode"
@@ -32,6 +33,7 @@
     },
     "apk-client": {
       "distribution": "internal",
+      "channel": "client",
       "android": {
         "buildType": "apk",
         "autoIncrement": "versionCode"
@@ -43,6 +45,7 @@
     },
     "apk-livreur": {
       "distribution": "internal",
+      "channel": "livreur",
       "android": {
         "buildType": "apk",
         "autoIncrement": "versionCode"
@@ -51,6 +54,7 @@
     },
     "apk-assistant": {
       "distribution": "internal",
+      "channel": "assistant",
       "android": {
         "buildType": "apk",
         "autoIncrement": "versionCode"

@@ -16,30 +16,24 @@ export default function AssistantHomeScreen() {
   return (
     <HuskoBackground>
       <SafeAreaView style={styles.root} edges={['bottom']}>
-        <View style={[surface.glass, styles.block]}>
-          <Text style={typography.title}>Copilote</Text>
-          <Text style={styles.lead}>
-            Connaissance, conception et dialogue — branché sur ton API sécurisée (pas de clés dans
-            l’app).
-          </Text>
+        <View style={styles.hero}>
+          <Text style={styles.brand}>Copilote</Text>
+          <Text style={styles.tag}>Une question, une réponse structurée.</Text>
         </View>
 
-        <View style={[surface.elevated, styles.card]}>
-          <Text style={styles.cardLabel}>Forfait actuel</Text>
-          <Text style={styles.cardValue}>
-            {plan ? `${plan.name} · ${plan.priceEur} €` : 'Non renseigné (abonnement à valider)'}
-          </Text>
-          <Text style={styles.cardHint}>
-            Après paiement Revolut, confirme le niveau ici ou via ton backend (webhook).
+        <View style={[surface.elevated, styles.planRow]}>
+          <Text style={styles.planLabel}>Forfait</Text>
+          <Text style={styles.planValue}>
+            {plan ? `${plan.name} · ${plan.priceEur} €` : '—'}
           </Text>
         </View>
 
         <View style={styles.actions}>
-          <Link href="/assistant/abonnement" asChild>
-            <PrimaryButton title="Forfaits · Premium 180 € en tête" style={styles.btn} />
-          </Link>
           <Link href="/assistant/chat" asChild>
-            <PrimaryButton title="Ouvrir la conversation" variant="ghost" style={styles.btn} />
+            <PrimaryButton title="Parler au Copilote" style={styles.btn} />
+          </Link>
+          <Link href="/assistant/abonnement" asChild>
+            <PrimaryButton title="Choisir un forfait" variant="ghost" style={styles.btn} />
           </Link>
         </View>
       </SafeAreaView>
@@ -51,22 +45,28 @@ const styles = StyleSheet.create({
   root: {
     flex: 1,
     paddingHorizontal: spacing.lg,
-    paddingTop: spacing.md,
+    paddingTop: spacing.xl,
     gap: spacing.lg,
   },
-  block: { gap: spacing.sm, padding: spacing.lg },
-  lead: {
-    ...typography.body,
-    color: colors.textMuted,
+  hero: { gap: spacing.xs },
+  brand: {
+    ...typography.heroBrand,
+    fontSize: 32,
+  },
+  tag: {
+    ...typography.bodyMuted,
+    fontSize: 16,
     lineHeight: 22,
   },
-  card: {
-    padding: spacing.lg,
-    gap: spacing.xs,
+  planRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.lg,
   },
-  cardLabel: { ...typography.caption, color: colors.textMuted, fontWeight: '700' },
-  cardValue: { ...typography.subtitle, color: colors.text, fontWeight: '800' },
-  cardHint: { marginTop: spacing.sm, ...typography.caption, color: colors.textMuted },
-  actions: { gap: spacing.md, marginTop: 'auto', paddingBottom: spacing.lg },
+  planLabel: { ...typography.caption, color: colors.textMuted, fontWeight: '700' },
+  planValue: { ...typography.body, fontWeight: '800', color: colors.gold },
+  actions: { gap: spacing.md, marginTop: 'auto', paddingBottom: spacing.xl },
   btn: { width: '100%' },
 });

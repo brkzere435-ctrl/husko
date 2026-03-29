@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
+import { GTAHudFrame } from '@/components/GTAHudFrame';
 import { colors } from '@/constants/theme';
 import type { MapRegion } from '@/types/mapRegion';
 
@@ -12,19 +13,29 @@ type Props = {
   headingDeg?: number;
   dest?: { latitude: number; longitude: number } | null;
   showDest?: boolean;
+  hudFooter?: string;
 };
 
-/** Sur le web, pas de MapView natif : aperçu style mini-carte + marqueurs. */
-export function GTAMiniMap({ region: _region, driver, headingDeg = 0, dest, showDest }: Props) {
+const HUD_SIZE = 172;
+
+/** Web : aperçu + même encadrement GTA que le natif. */
+export function GTAMiniMap({
+  region: _region,
+  driver,
+  headingDeg = 0,
+  dest,
+  showDest,
+  hudFooter = 'LONG BEACH · CADILLAC SUIVI',
+}: Props) {
   return (
-    <View style={styles.shell}>
-      <View style={styles.cornerBracket} />
+    <GTAHudFrame size={HUD_SIZE} footerTag={hudFooter}>
       <View style={styles.fakeMap}>
         <View style={styles.gridLine} />
         <View style={[styles.gridLine, styles.gridV]} />
+        <View style={styles.palmSilhouette} />
         {driver ? (
           <View style={styles.markerWrap}>
-            <CarMarkerIcon headingDeg={headingDeg} size={36} />
+            <CarMarkerIcon headingDeg={headingDeg} size={38} variant="lowrider" />
           </View>
         ) : null}
         {showDest && dest ? (
@@ -33,35 +44,14 @@ export function GTAMiniMap({ region: _region, driver, headingDeg = 0, dest, show
           </View>
         ) : null}
       </View>
-      <View style={styles.label}>
-        <Text style={styles.north}>N</Text>
-      </View>
-    </View>
+    </GTAHudFrame>
   );
 }
 
 const styles = StyleSheet.create({
-  shell: {
-    width: 140,
-    height: 140,
-    borderRadius: 12,
-    overflow: 'hidden',
-    borderWidth: 2,
-    borderColor: colors.goldDim,
-    backgroundColor: colors.bg,
-  },
-  cornerBracket: {
-    ...StyleSheet.absoluteFillObject,
-    borderWidth: 2,
-    borderColor: colors.gold,
-    borderRadius: 12,
-    opacity: 0.35,
-    margin: 3,
-    zIndex: 2,
-  },
   fakeMap: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: '#1a0c0c',
+    backgroundColor: '#0d0408',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -71,7 +61,7 @@ const styles = StyleSheet.create({
     right: 0,
     top: '50%',
     height: 1,
-    backgroundColor: 'rgba(240,208,80,0.12)',
+    backgroundColor: 'rgba(34,211,238,0.15)',
   },
   gridV: {
     left: '50%',
@@ -80,6 +70,16 @@ const styles = StyleSheet.create({
     bottom: 0,
     width: 1,
     height: '100%',
+  },
+  palmSilhouette: {
+    position: 'absolute',
+    bottom: 8,
+    left: 12,
+    width: 28,
+    height: 36,
+    borderRadius: 4,
+    backgroundColor: 'rgba(0,0,0,0.25)',
+    opacity: 0.5,
   },
   markerWrap: { zIndex: 4 },
   destDot: {
@@ -95,17 +95,4 @@ const styles = StyleSheet.create({
     zIndex: 3,
   },
   destX: { color: '#fff', fontWeight: '900', fontSize: 14 },
-  label: {
-    position: 'absolute',
-    top: 6,
-    right: 8,
-    zIndex: 3,
-  },
-  north: {
-    color: colors.gold,
-    fontSize: 11,
-    fontWeight: '800',
-    textShadowColor: '#000',
-    textShadowRadius: 4,
-  },
 });

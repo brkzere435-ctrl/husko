@@ -16,13 +16,12 @@ export default function AssistantAbonnementScreen() {
     const url = revolutPayUrlForTier(id);
     if (!url) {
       Alert.alert(
-        'Lien Revolut manquant',
-        `Définis la variable d'environnement pour ce forfait (voir env.example), puis reconstruis l'APK.`,
+        'Lien Revolut',
+        'Ajoute les URLs dans .env (EXPO_PUBLIC_REVOLUT_PAY_*) puis reconstruis.',
       );
       return;
     }
-    const ok = await Linking.canOpenURL(url);
-    if (!ok) {
+    if (!(await Linking.canOpenURL(url))) {
       Alert.alert('URL invalide', url);
       return;
     }
@@ -30,9 +29,8 @@ export default function AssistantAbonnementScreen() {
     await Linking.openURL(url);
   }
 
-  function selectLocalOnly(id: SubscriptionTierId) {
+  function tryLocal(id: SubscriptionTierId) {
     setTier(id);
-    Alert.alert('Forfait enregistré localement', 'Pense à valider le paiement côté Revolut / webhook.');
   }
 
   return (
@@ -42,41 +40,36 @@ export default function AssistantAbonnementScreen() {
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
-        <Text style={styles.intro}>
-          Forfait conseillé : Premium 180 € (pleine fonctionnalité). Essentiel 50 € et Pro 100 €
-          restent disponibles. Paiement via tes liens Revolut Merchant.
-        </Text>
+        <Text style={styles.intro}>Trois prix · paiement par lien Revolut (configurable).</Text>
 
-        {[...SUBSCRIPTION_PLANS].sort((a, b) => (a.id === 'premium' ? -1 : b.id === 'premium' ? 1 : 0)).map((p) => (
-          <View
-            key={p.id}
-            style={[surface.elevated, styles.card, p.id === 'premium' && styles.cardPremium]}
-          >
-            <View style={styles.cardHead}>
-              <View style={styles.nameRow}>
-                <Text style={styles.name}>{p.name}</Text>
-                {p.id === 'premium' ? (
-                  <View style={styles.badge}>
-                    <Text style={styles.badgeTxt}>Choix conseillé</Text>
-                  </View>
-                ) : null}
+        {[...SUBSCRIPTION_PLANS]
+          .sort((a, b) => (a.id === 'premium' ? -1 : b.id === 'premium' ? 1 : 0))
+          .map((p) => (
+            <View
+              key={p.id}
+              style={[surface.elevated, styles.card, p.id === 'premium' && styles.cardPremium]}
+            >
+              <View style={styles.head}>
+                <View>
+                  <Text style={styles.name}>{p.name}</Text>
+                  {p.id === 'premium' ? (
+                    <Text style={styles.reco}>Recommandé</Text>
+                  ) : null}
+                </View>
+                <Text style={styles.price}>{p.priceEur} €</Text>
               </View>
-              <Text style={styles.price}>{p.priceEur} €</Text>
-            </View>
-            <Text style={styles.tag}>{p.tagline}</Text>
-            <View style={styles.list}>
+              <Text style={styles.tag}>{p.tagline}</Text>
               {p.features.map((f) => (
                 <Text key={f} style={styles.feat}>
                   · {f}
                 </Text>
               ))}
+              <PrimaryButton title="Payer (Revolut)" onPress={() => pay(p.id)} style={styles.btn} />
+              <Pressable onPress={() => tryLocal(p.id)} hitSlop={8}>
+                <Text style={styles.link}>Utiliser ce forfait (test)</Text>
+              </Pressable>
             </View>
-            <PrimaryButton title="Payer avec Revolut" onPress={() => pay(p.id)} style={styles.btn} />
-            <Pressable onPress={() => selectLocalOnly(p.id)} style={styles.secondary}>
-              <Text style={styles.secondaryTxt}>Enregistrer ce forfait (test sans lien)</Text>
-            </Pressable>
-          </View>
-        ))}
+          ))}
       </ScrollView>
     </HuskoBackground>
   );
@@ -90,9 +83,8 @@ const styles = StyleSheet.create({
     gap: spacing.lg,
   },
   intro: {
-    ...typography.body,
-    color: colors.textMuted,
-    lineHeight: 22,
+    ...typography.bodyMuted,
+    marginBottom: spacing.xs,
   },
   card: {
     padding: spacing.lg,
@@ -100,41 +92,35 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
     borderWidth: 1,
     borderColor: colors.borderGlow,
-    backgroundColor: colors.glass,
   },
   cardPremium: {
     borderColor: colors.gold,
     borderWidth: 2,
-    backgroundColor: 'rgba(240, 208, 80, 0.08)',
+    backgroundColor: 'rgba(240, 208, 80, 0.06)',
   },
-  cardHead: {
+  head: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    gap: spacing.sm,
   },
-  nameRow: { flex: 1, flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: spacing.sm },
   name: { ...typography.title, fontSize: 20 },
-  badge: {
-    paddingVertical: 4,
-    paddingHorizontal: spacing.sm,
-    borderRadius: radius.pill,
-    backgroundColor: 'rgba(240, 208, 80, 0.2)',
-    borderWidth: 1,
-    borderColor: colors.gold,
-  },
-  badgeTxt: {
+  reco: {
+    marginTop: 4,
     fontSize: 11,
     fontWeight: '800',
     color: colors.gold,
-    letterSpacing: 0.5,
     textTransform: 'uppercase',
+    letterSpacing: 0.6,
   },
-  price: { ...typography.title, color: colors.gold, fontSize: 22 },
-  tag: { ...typography.caption, color: colors.textMuted, fontWeight: '600' },
-  list: { gap: spacing.xs, marginTop: spacing.sm },
-  feat: { ...typography.body, color: colors.text, fontSize: 14, lineHeight: 20 },
-  btn: { width: '100%', marginTop: spacing.md },
-  secondary: { alignSelf: 'center', paddingVertical: spacing.sm },
-  secondaryTxt: { ...typography.caption, color: colors.gold, fontWeight: '700' },
+  price: { ...typography.title, color: colors.gold, fontSize: 24 },
+  tag: { ...typography.caption, color: colors.textMuted },
+  feat: { ...typography.body, fontSize: 14, color: colors.text, lineHeight: 20 },
+  btn: { width: '100%', marginTop: spacing.sm },
+  link: {
+    alignSelf: 'center',
+    ...typography.caption,
+    color: colors.textMuted,
+    fontWeight: '600',
+    marginTop: spacing.xs,
+  },
 });

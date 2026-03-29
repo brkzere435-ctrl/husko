@@ -13,7 +13,9 @@ import {
 
 import { HuskoBackground } from '@/components/HuskoBackground';
 import { PrimaryButton } from '@/components/PrimaryButton';
+import { ASSISTANT_MAX_MESSAGE_CHARS } from '@/constants/assistantLimits';
 import { ASSISTANT_PROMPT_HINTS } from '@/constants/assistantPromptHints';
+import { SUBSCRIPTION_PLANS } from '@/constants/subscriptionPlans';
 import { colors, radius, spacing } from '@/constants/theme';
 import { typography } from '@/constants/typography';
 import { sendAssistantMessage } from '@/services/assistantChat';
@@ -32,6 +34,26 @@ export default function AssistantChatScreen() {
     scrollRef.current?.scrollToEnd({ animated: true });
   }, []);
 
+  const runAssistant = useCallback(
+    async (history: ChatMessage[]) => {
+      setBusy(true);
+      try {
+        const reply = await sendAssistantMessage(history, tier);
+        appendMessages({ role: 'assistant', content: reply });
+      } catch (e) {
+        const msg = e instanceof Error ? e.message : String(e);
+        appendMessages({
+          role: 'assistant',
+          content: `Erreur : ${msg}. Vérifie le réseau et EXPO_PUBLIC_ASSISTANT_API_URL.`,
+        });
+      } finally {
+        setBusy(false);
+        requestAnimationFrame(scrollEnd);
+      }
+    },
+    [tier, appendMessages, scrollEnd],
+  );
+
   async function onSend() {
     const t = input.trim();
     if (!t || busy) return;
@@ -39,15 +61,20 @@ export default function AssistantChatScreen() {
     const next: ChatMessage[] = [...messages, userMsg];
     appendMessages(userMsg);
     setInput('');
-    setBusy(true);
-    try {
-      const reply = await sendAssistantMessage(next, tier);
-      appendMessages({ role: 'assistant', content: reply });
-    } finally {
-      setBusy(false);
-      requestAnimationFrame(scrollEnd);
-    }
+    await runAssistant(next);
   }
+
+  async function onHint(h: string) {
+    if (busy) return;
+    const userMsg: ChatMessage = { role: 'user', content: h };
+    const next: ChatMessage[] = [...messages, userMsg];
+    appendMessages(userMsg);
+    await runAssistant(next);
+  }
+
+  const planLabel = tier
+    ? SUBSCRIPTION_PLANS.find((p) => p.id === tier)?.name ?? tier
+    : '—';
 
   return (
     <HuskoBackground>
@@ -64,16 +91,13 @@ export default function AssistantChatScreen() {
         >
           {messages.length === 0 ? (
             <View style={styles.emptyBlock}>
-              <Text style={styles.emptyTitle}>Copilote</Text>
-              <Text style={styles.empty}>
-                Pose une question ou choisis une entrée : le serveur applique un raisonnement structuré
-                et calibre la profondeur selon ton forfait.
-              </Text>
-              <Text style={styles.hintLabel}>Suggestions</Text>
+              <Text style={styles.emptyLine}>Écris ou choisis une suggestion.</Text>
+              <Text style={styles.hintLabel}>En un clic</Text>
               {ASSISTANT_PROMPT_HINTS.map((h) => (
                 <Pressable
                   key={h}
-                  onPress={() => setInput(h)}
+                  onPress={() => onHint(h)}
+                  disabled={busy}
                   style={({ pressed }) => [styles.hintChip, pressed && styles.hintChipPressed]}
                 >
                   <Text style={styles.hintChipTxt}>{h}</Text>
@@ -86,36 +110,35 @@ export default function AssistantChatScreen() {
               key={`${i}-${m.role}-${m.content.slice(0, 24)}`}
               style={[styles.bubble, m.role === 'user' ? styles.bubbleUser : styles.bubbleBot]}
             >
-              <Text style={styles.bubbleRole}>{m.role === 'user' ? 'Vous' : 'Assistant'}</Text>
+              <Text style={styles.bubbleRole}>{m.role === 'user' ? 'Vous' : 'Copilote'}</Text>
               <Text style={styles.bubbleText}>{m.content}</Text>
             </View>
           ))}
           {busy ? (
             <View style={styles.rowBusy}>
               <ActivityIndicator color={colors.gold} />
-              <Text style={styles.busyTxt}>Synthèse en cours…</Text>
+              <Text style={styles.busyTxt}>…</Text>
             </View>
           ) : null}
         </ScrollView>
 
         <View style={styles.composer}>
-          <Text style={styles.tierHint}>
-            Forfait envoyé au serveur : {tier ?? 'aucun (null)'}
-          </Text>
-          <View style={styles.inputRow}>
-            <TextInput
-              value={input}
-              onChangeText={setInput}
-              placeholder="Votre message…"
-              placeholderTextColor={colors.textMuted}
-              style={styles.input}
-              multiline
-              editable={!busy}
-              onSubmitEditing={onSend}
-            />
+          <Text style={styles.meta}>{planLabel}</Text>
+          <TextInput
+            value={input}
+            onChangeText={setInput}
+            placeholder="Message…"
+            placeholderTextColor={colors.textMuted}
+            style={styles.input}
+            multiline
+            maxLength={ASSISTANT_MAX_MESSAGE_CHARS}
+            editable={!busy}
+            onSubmitEditing={onSend}
+          />
+          <View style={styles.row}>
             <PrimaryButton title="Envoyer" onPress={onSend} disabled={busy} style={styles.send} />
+            <PrimaryButton title="Effacer" variant="ghost" onPress={clearChat} disabled={busy} />
           </View>
-          <PrimaryButton title="Effacer la conversation" variant="ghost" onPress={clearChat} />
         </View>
       </KeyboardAvoidingView>
     </HuskoBackground>
@@ -131,18 +154,13 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.sm,
     gap: spacing.md,
   },
-  emptyBlock: { gap: spacing.md },
-  emptyTitle: {
-    ...typography.section,
-    fontSize: 13,
-    marginBottom: spacing.xs,
-  },
-  empty: { ...typography.bodyMuted, lineHeight: 22 },
+  emptyBlock: { gap: spacing.sm },
+  emptyLine: { ...typography.bodyMuted, fontSize: 15 },
   hintLabel: {
     ...typography.caption,
     fontWeight: '800',
     color: colors.textMuted,
-    marginTop: spacing.sm,
+    marginTop: spacing.md,
   },
   hintChip: {
     alignSelf: 'flex-start',
@@ -153,7 +171,7 @@ const styles = StyleSheet.create({
     borderColor: colors.borderSubtle,
     backgroundColor: colors.glass,
   },
-  hintChipPressed: { opacity: 0.85, borderColor: colors.gold },
+  hintChipPressed: { borderColor: colors.gold },
   hintChipTxt: { ...typography.body, fontSize: 14, color: colors.text },
   bubble: {
     padding: spacing.md,
@@ -178,14 +196,17 @@ const styles = StyleSheet.create({
   composer: {
     paddingHorizontal: spacing.lg,
     paddingBottom: spacing.lg,
-    paddingTop: spacing.sm,
+    paddingTop: spacing.md,
     gap: spacing.sm,
     borderTopWidth: 1,
     borderTopColor: colors.borderSubtle,
-    backgroundColor: 'rgba(18, 4, 4, 0.92)',
+    backgroundColor: 'rgba(18, 4, 4, 0.94)',
   },
-  tierHint: { ...typography.caption, color: colors.textMuted },
-  inputRow: { gap: spacing.sm },
+  meta: {
+    ...typography.caption,
+    color: colors.textMuted,
+    fontWeight: '700',
+  },
   input: {
     minHeight: 44,
     maxHeight: 120,
@@ -197,5 +218,6 @@ const styles = StyleSheet.create({
     ...typography.body,
     color: colors.text,
   },
-  send: { width: '100%' },
+  row: { flexDirection: 'row', gap: spacing.sm, alignItems: 'center' },
+  send: { flex: 1 },
 });
