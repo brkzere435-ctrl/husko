@@ -147,7 +147,14 @@ function huskoPlugins() {
       },
     ],
     'expo-router',
-    ['expo-splash-screen', { backgroundColor: '#120404' }],
+    [
+      'expo-splash-screen',
+      {
+        backgroundColor: '#120404',
+        image: './assets/icon.png',
+        imageWidth: 200,
+      },
+    ],
     [
       'expo-location',
       {
@@ -243,6 +250,8 @@ module.exports = (ctx = {}) => {
     icon: './assets/icon.png',
     splash: {
       backgroundColor: '#120404',
+      image: './assets/icon.png',
+      resizeMode: 'contain',
     },
     assetBundlePatterns: ['**/*'],
     web: {
