@@ -78,6 +78,12 @@ function resolveVariant(role) {
   return VARIANTS[role];
 }
 
+/** Cle vide = pas de meta-data Maps cote plugin ; on garde un placeholder pour builds EAS sans secrets. */
+function envOrMapsPlaceholder(value, placeholder) {
+  const t = (value ?? '').trim();
+  return t || placeholder;
+}
+
 function buildExtra({
   role,
   easProjectId,
@@ -111,6 +117,15 @@ function buildExtra({
 }
 
 function huskoPlugins() {
+  const googleMapsIosKey = envOrMapsPlaceholder(
+    process.env.EXPO_PUBLIC_GOOGLE_MAPS_IOS_API_KEY,
+    MAPS_IOS_PLACEHOLDER
+  );
+  const googleMapsAndroidKey = envOrMapsPlaceholder(
+    process.env.EXPO_PUBLIC_GOOGLE_MAPS_ANDROID_API_KEY,
+    MAPS_ANDROID_PLACEHOLDER
+  );
+
   return [
     [
       'expo-build-properties',
@@ -119,7 +134,15 @@ function huskoPlugins() {
           compileSdkVersion: 35,
           targetSdkVersion: 35,
           minSdkVersion: 24,
+          kotlinVersion: '2.1.20',
         },
+      },
+    ],
+    [
+      'react-native-maps',
+      {
+        iosGoogleMapsApiKey: googleMapsIosKey,
+        androidGoogleMapsApiKey: googleMapsAndroidKey,
       },
     ],
     'expo-router',
@@ -152,10 +175,14 @@ module.exports = (ctx = {}) => {
   const v = resolveVariant(role);
   const hasGoogleServicesJson = existsSync(GOOGLE_SERVICES_ABS);
   const easProjectId = (process.env.EXPO_PUBLIC_EAS_PROJECT_ID || '').trim() || DEFAULT_EAS_PROJECT_ID;
-  const googleMapsIosKey =
-    process.env.EXPO_PUBLIC_GOOGLE_MAPS_IOS_API_KEY ?? MAPS_IOS_PLACEHOLDER;
-  const googleMapsAndroidKey =
-    process.env.EXPO_PUBLIC_GOOGLE_MAPS_ANDROID_API_KEY ?? MAPS_ANDROID_PLACEHOLDER;
+  const googleMapsIosKey = envOrMapsPlaceholder(
+    process.env.EXPO_PUBLIC_GOOGLE_MAPS_IOS_API_KEY,
+    MAPS_IOS_PLACEHOLDER
+  );
+  const googleMapsAndroidKey = envOrMapsPlaceholder(
+    process.env.EXPO_PUBLIC_GOOGLE_MAPS_ANDROID_API_KEY,
+    MAPS_ANDROID_PLACEHOLDER
+  );
 
   const distUrls = {
     gerant: distributionDefaults.gerant ?? '',
@@ -172,7 +199,6 @@ module.exports = (ctx = {}) => {
   });
 
   const android = {
-    versionCode: 2,
     adaptiveIcon: {
       foregroundImage: './assets/adaptive-icon.png',
       backgroundColor: '#120404',
