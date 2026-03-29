@@ -22,6 +22,8 @@
     "build:apk:gerant": "cross-env EAS_BUILD_NO_EXPO_GO_WARNING=true eas build -p android --profile apk-gerant --non-interactive",
     "build:apk:client": "cross-env EAS_BUILD_NO_EXPO_GO_WARNING=true eas build -p android --profile apk-client --non-interactive",
     "apk:client": "npm run build:apk:client",
+    "apk:download:last": "node scripts/download-latest-apk-client.mjs",
+    "apk:install:device": "node scripts/install-apk-on-device.mjs",
     "build:apk:livreur": "cross-env EAS_BUILD_NO_EXPO_GO_WARNING=true eas build -p android --profile apk-livreur --non-interactive",
     "build:apk:assistant": "cross-env EAS_BUILD_NO_EXPO_GO_WARNING=true eas build -p android --profile apk-assistant --non-interactive",
     "build:apk:all": "node scripts/eas-build-all-apk.mjs",
