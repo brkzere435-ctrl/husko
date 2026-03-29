@@ -3,6 +3,7 @@ import {
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
+  Pressable,
   ScrollView,
   StyleSheet,
   Text,
@@ -12,6 +13,7 @@ import {
 
 import { HuskoBackground } from '@/components/HuskoBackground';
 import { PrimaryButton } from '@/components/PrimaryButton';
+import { ASSISTANT_PROMPT_HINTS } from '@/constants/assistantPromptHints';
 import { colors, radius, spacing } from '@/constants/theme';
 import { typography } from '@/constants/typography';
 import { sendAssistantMessage } from '@/services/assistantChat';
@@ -61,10 +63,23 @@ export default function AssistantChatScreen() {
           onContentSizeChange={scrollEnd}
         >
           {messages.length === 0 ? (
-            <Text style={styles.empty}>
-              Écris un message. Sans URL d’API, l’app affiche une consigne de configuration (clé
-              uniquement côté serveur).
-            </Text>
+            <View style={styles.emptyBlock}>
+              <Text style={styles.emptyTitle}>Copilote</Text>
+              <Text style={styles.empty}>
+                Pose une question ou choisis une entrée : le serveur applique un raisonnement structuré
+                et calibre la profondeur selon ton forfait.
+              </Text>
+              <Text style={styles.hintLabel}>Suggestions</Text>
+              {ASSISTANT_PROMPT_HINTS.map((h) => (
+                <Pressable
+                  key={h}
+                  onPress={() => setInput(h)}
+                  style={({ pressed }) => [styles.hintChip, pressed && styles.hintChipPressed]}
+                >
+                  <Text style={styles.hintChipTxt}>{h}</Text>
+                </Pressable>
+              ))}
+            </View>
           ) : null}
           {messages.map((m, i) => (
             <View
@@ -78,7 +93,7 @@ export default function AssistantChatScreen() {
           {busy ? (
             <View style={styles.rowBusy}>
               <ActivityIndicator color={colors.gold} />
-              <Text style={styles.busyTxt}>Réponse…</Text>
+              <Text style={styles.busyTxt}>Synthèse en cours…</Text>
             </View>
           ) : null}
         </ScrollView>
@@ -116,7 +131,30 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.sm,
     gap: spacing.md,
   },
+  emptyBlock: { gap: spacing.md },
+  emptyTitle: {
+    ...typography.section,
+    fontSize: 13,
+    marginBottom: spacing.xs,
+  },
   empty: { ...typography.bodyMuted, lineHeight: 22 },
+  hintLabel: {
+    ...typography.caption,
+    fontWeight: '800',
+    color: colors.textMuted,
+    marginTop: spacing.sm,
+  },
+  hintChip: {
+    alignSelf: 'flex-start',
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
+    borderRadius: radius.pill,
+    borderWidth: 1,
+    borderColor: colors.borderSubtle,
+    backgroundColor: colors.glass,
+  },
+  hintChipPressed: { opacity: 0.85, borderColor: colors.gold },
+  hintChipTxt: { ...typography.body, fontSize: 14, color: colors.text },
   bubble: {
     padding: spacing.md,
     borderRadius: radius.lg,

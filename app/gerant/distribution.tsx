@@ -12,6 +12,7 @@ import {
 import QRCode from 'react-native-qrcode-svg';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { BrandMark } from '@/components/BrandMark';
 import { DeploymentHints } from '@/components/DeploymentHints';
 import { HuskoBackground } from '@/components/HuskoBackground';
 import { PrimaryButton } from '@/components/PrimaryButton';
@@ -19,6 +20,7 @@ import { getDistributionApkUrls } from '@/constants/distribution';
 import { DISTRIBUTION_QR_IMAGES } from '@/constants/distributionQrAssets';
 import { typography } from '@/constants/typography';
 import { colors, elevation, radius, spacing, surface } from '@/constants/theme';
+import { VENUE_LEGAL_LINE } from '@/constants/venue';
 
 type TabKey = 'client' | 'livreur' | 'gerant';
 
@@ -51,13 +53,16 @@ export default function DistributionScreen() {
     <HuskoBackground>
       <SafeAreaView style={styles.root} edges={['bottom']}>
         <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+          <BrandMark tagline={VENUE_LEGAL_LINE} />
           <Text style={typography.title}>Distribution</Text>
           <Text style={[typography.section, styles.kicker]}>QR & liens APK</Text>
-          <Text style={[typography.bodyMuted, styles.intro]}>
-            Trois QR distincts. Les liens par défaut viennent de{' '}
-            <Text style={styles.mono}>distribution.defaults.json</Text> (modifiable). PNG haute définition :{' '}
-            <Text style={styles.mono}>npm run qr:generate</Text> → dossier{' '}
-            <Text style={styles.mono}>assets/distribution-qr/</Text>. Les variables{' '}
+            <Text style={[typography.bodyMuted, styles.intro]}>
+            Trois QR distincts (gérant · client sandwicherie · livreur). Remplacez les URLs d’exemple par les liens
+            APK Expo, puis{' '}
+            <Text style={styles.mono}>npm run qr:generate</Text> et{' '}
+            <Text style={styles.mono}>npm run distribution:fiches</Text> (fiches imprimables{' '}
+            <Text style={styles.mono}>distribution-fiches.html</Text>). Fichier source :{' '}
+            <Text style={styles.mono}>distribution.defaults.json</Text>. Les variables{' '}
             <Text style={styles.mono}>EXPO_PUBLIC_DISTRIBUTION_*</Text> priment sur le fichier.
           </Text>
 

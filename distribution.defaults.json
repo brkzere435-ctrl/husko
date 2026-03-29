@@ -1,6 +1,6 @@
 {
-  "_info": "Modifiez les URLs ci-dessous (liens EAS, APK directs, Drive…), puis exécutez : npm run qr:generate. Les variables EXPO_PUBLIC_DISTRIBUTION_* ont la priorité sur ce fichier.",
-  "gerant": "https://expo.dev/go?utm_source=husko_apk_gerant",
-  "client": "https://expo.dev/go?utm_source=husko_apk_client",
-  "livreur": "https://expo.dev/go?utm_source=husko_apk_livreur"
+  "_info": "Remplacez chaque URL par le lien DIRECT de téléchargement APK affiché sur expo.dev après build (Build terminé → Application → lien HTTPS). Ne pas utiliser expo.dev/go (Expo Go). Ensuite : npm run qr:generate && npm run distribution:fiches. Optionnel : mêmes clés en secrets EAS EXPO_PUBLIC_DISTRIBUTION_* pour figer les URLs dans les builds cloud.",
+  "gerant": "https://husko.invalid/apk/gerant.apk",
+  "client": "https://husko.invalid/apk/client.apk",
+  "livreur": "https://husko.invalid/apk/livreur.apk"
 }

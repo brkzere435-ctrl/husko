@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { BrandMark } from '@/components/BrandMark';
 import { FirstPinChangeForm } from '@/components/FirstPinChangeForm';
 import { HuskoBackground } from '@/components/HuskoBackground';
 import { PrimaryButton } from '@/components/PrimaryButton';
@@ -94,6 +95,7 @@ export default function GerantDashboardScreen() {
       <HuskoBackground>
         <SafeAreaView style={styles.lockRoot} edges={['bottom']}>
           <View style={styles.lockCard}>
+            <BrandMark compact />
             <Text style={typography.title}>Gérant</Text>
             <Text style={[typography.bodyMuted, styles.lockHint]}>
               {!gerantPinOnboarded

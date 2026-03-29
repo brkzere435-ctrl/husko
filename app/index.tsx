@@ -2,10 +2,12 @@ import { Link, Redirect } from 'expo-router';
 import { StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { BrandMark } from '@/components/BrandMark';
 import { HuskoBackground } from '@/components/HuskoBackground';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { getAppVariant } from '@/constants/appVariant';
 import { deliveryHoursLabel } from '@/constants/hours';
+import { VENUE_TAGLINE_HUB } from '@/constants/venue';
 import { colors, elevation, radius, spacing } from '@/constants/theme';
 import { typography } from '@/constants/typography';
 
@@ -21,9 +23,8 @@ export default function HubScreen() {
       <SafeAreaView style={styles.root} edges={['top', 'bottom']}>
         <View style={styles.header}>
           <View style={[styles.logoFrame, elevation.hero]}>
-            <Text style={typography.display}>HUSKO</Text>
+            <BrandMark tagline={VENUE_TAGLINE_HUB} />
             <View style={styles.logoRule} />
-            <Text style={styles.sub}>Restaurant kebab · by night</Text>
             <View style={styles.pill}>
               <Text style={styles.pillTxt}>{deliveryHoursLabel()}</Text>
             </View>
@@ -72,14 +73,6 @@ const styles = StyleSheet.create({
     marginTop: spacing.md,
     backgroundColor: colors.posterRed,
     borderRadius: 2,
-  },
-  sub: {
-    marginTop: spacing.md,
-    color: colors.textMuted,
-    fontSize: 13,
-    fontWeight: '700',
-    letterSpacing: 1,
-    textTransform: 'uppercase',
   },
   pill: {
     marginTop: spacing.lg,

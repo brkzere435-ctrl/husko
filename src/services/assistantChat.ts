@@ -31,11 +31,24 @@ export async function sendAssistantMessage(
   };
   if (token) headers.Authorization = `Bearer ${token}`;
 
-  const res = await fetch(url, {
-    method: 'POST',
-    headers,
-    body: JSON.stringify({ messages, tier }),
-  });
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), 120_000);
+  let res: Response;
+  try {
+    res = await fetch(url, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ messages, tier, locale: 'fr' }),
+      signal: ctrl.signal,
+    });
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e);
+    if (msg.includes('abort') || msg === 'Aborted')
+      return 'Délai dépassé (2 min). Réessaie ou vérifie le réseau / le serveur.';
+    return `Réseau : ${msg}`;
+  } finally {
+    clearTimeout(t);
+  }
 
   const text = await res.text();
   if (!res.ok) {

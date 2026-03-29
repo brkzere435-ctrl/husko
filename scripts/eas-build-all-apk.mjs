@@ -43,4 +43,8 @@ for (const profile of profiles) {
   }
 }
 
-console.log('\nOK — Builds soumis. Telecharge les APK sur https://expo.dev (onglet Builds du projet).\n');
+console.log(
+  '\nOK — Builds soumis. Telecharge les APK sur https://expo.dev (Builds → lien Application).\n' +
+    'Puis : copiez chaque URL dans distribution.defaults.json (ou secrets EAS EXPO_PUBLIC_DISTRIBUTION_*),\n' +
+    'npm run qr:generate && npm run distribution:fiches — fiches : distribution-fiches.html\n'
+);

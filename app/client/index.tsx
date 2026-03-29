@@ -4,6 +4,7 @@ import { useMemo } from 'react';
 import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { BrandMark } from '@/components/BrandMark';
 import { DeploymentHints } from '@/components/DeploymentHints';
 import { HuskoBackground } from '@/components/HuskoBackground';
 import { PrimaryButton } from '@/components/PrimaryButton';
@@ -18,6 +19,7 @@ import {
   CLIENT_PHONE_TEL,
   clientStrings,
 } from '@/constants/clientExperience';
+import { VENUE_TAGLINE_CLIENT } from '@/constants/venue';
 import {
   deliveryHoursLabel,
   isDeliveryOpen,
@@ -33,10 +35,9 @@ function MenuHero() {
   return (
     <View
       style={styles.hero}
-      accessibilityLabel={`Husko kebab Angers, ${deliveryHoursLabel()}`}
+      accessibilityLabel={`Husko sandwicherie ${VENUE_TAGLINE_CLIENT}, ${deliveryHoursLabel()}`}
     >
-      <Text style={typography.heroBrand}>Husko</Text>
-      <Text style={typography.heroTagline}>Kebab nocturne · Angers</Text>
+      <BrandMark tagline={VENUE_TAGLINE_CLIENT} />
       <View style={[styles.statusPill, open ? styles.statusOpen : styles.statusClosed]}>
         <View style={[styles.statusDot, open ? styles.statusDotOn : styles.statusDotOff]} />
         <Text style={styles.statusPillText}>{open ? clientStrings.openNow : clientStrings.closedNow}</Text>

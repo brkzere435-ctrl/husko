@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Husko — Fiches distribution APK</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, Segoe UI, Roboto, sans-serif;
+      background: #0f0606;
+      color: #f5e6dc;
+      padding: 24px;
+    }
+    h1 {
+      font-size: 1.5rem;
+      color: #f0d050;
+      margin: 0 0 8px;
+    }
+    .sub {
+      color: #b8a090;
+      font-size: 0.95rem;
+      max-width: 720px;
+      margin-bottom: 28px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 24px;
+    }
+    .card {
+      border: 1px solid rgba(240, 208, 80, 0.35);
+      border-radius: 16px;
+      padding: 20px;
+      background: rgba(26, 8, 8, 0.85);
+      break-inside: avoid;
+    }
+    .card h2 {
+      margin: 0 0 12px;
+      font-size: 1.1rem;
+      color: #f0d050;
+    }
+    .qr {
+      display: block;
+      width: 100%;
+      max-width: 280px;
+      height: auto;
+      margin: 0 auto 16px;
+      border-radius: 8px;
+    }
+    .url {
+      font-size: 11px;
+      word-break: break-all;
+      color: #c9b8a8;
+      line-height: 1.4;
+    }
+    .brand {
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      color: #f0d050;
+      margin-bottom: 4px;
+    }
+    @media print {
+      body { background: #fff; color: #111; }
+      .card { border-color: #333; background: #fff; }
+      .card h2, .brand, h1 { color: #111; }
+      .sub { color: #444; }
+      .url { color: #222; }
+    }
+  </style>
+</head>
+<body>
+  <div class="brand">HUSKO</div>
+  <h1>Distribution APK — sandwicherie</h1>
+  <p class="sub">
+    Une fiche par rôle : QR à afficher ou partager, et lien brut à copier. Mettez à jour
+    <code>distribution.defaults.json</code> avec les URLs réelles (expo.dev → artefact APK), puis régénérez ce fichier avec
+    <code>npm run distribution:fiches</code>.
+  </p>
+  <div class="grid">
+    <section class="card">
+      <h2>APK Gérant</h2>
+      <img class="qr" alt="QR APK Gérant" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAUAAAAFACAYAAADNkKWqAAAAAklEQVR4AewaftIAAAlcSURBVO3BwXFlQW5FwdsILmhDmwALYAJMhgmwAO60FrOY5SuFKh4/hZP55+/39z8BwEImAFjKBABLmQBgKRMALGUCgKVMALCUCQCWMgHAUiYAWMoEAEuZAGApEwAsZQKApUwAsJQJAJYyAcBSJgBYygQAS5kAYKkvXTadwn95lG6ZTp3wKJ2YTn0ij9KJ6dQJj9KT6dRNHqVbplP4L4/SLSYAWMoEAEuZAGApEwAsZQKApUwAsJQJAJYyAcBSJgBY6ks/xKP0m02nbplOfSqP0k3TqSfTqZumU088SiemUyemUyc8Srd4lH6z6dTbTACwlAkAljIBwFImAFjKBABLmQBgKRMALGUCgKW+9MGmU2/zKL3No3RiOvW26dRv51F6m0fpU02n3uZR+kQmAFjKBABLmQBgKRMALGUCgKVMALCUCQCWMgHAUiYAWOpL+DU8SiemUyc8SrdMp27xKL1tOnXCo4T/P0wAsJQJAJYyAcBSJgBYygQAS5kAYCkTACxlAoClTACw1Jfw46ZTJzxKJzxKJ6ZTt3iUTkynnkynTniUbvEonZhO3eRRws8xAcBSJgBYygQAS5kAYCkTACxlAoClTACwlAkAlvrSB/MobeBROjGdOuFRusWjdGI6dcKj9GQ6ddN06olH6SaP0qfyKOE/TACwlAkAljIBwFImAFjKBABLmQBgKRMALGUCgKVMALDUl37IdAr/MZ064VE6MZ064VF6Mp064VE6MZ164lE6MZ064VF6Mp064VE6MZ064VG6ZTqF/x0TACxlAoClTACwlAkAljIBwFImAFjKBABLmQBgKRMALPXn7/f3PwH/R9Opt3mUTkynnniUTkynbvIo4eeYAGApEwAsZQKApUwAsJQJAJYyAcBSJgBYygQAS33psunUCY/Sk+nUCY/SienUE4/SienUCY/SbzadOuFROjGdeuJR+lQepRPTqU81nXriUbppOvXEo/Q2EwAsZQKApUwAsJQJAJYyAcBSJgBYygQAS5kAYCkTACz15+/39z/9gOnUE4/SienUCY/Sk+nUCY/SienUE4/STdOpWzxKN02nnniUTkynTniU3jadeptH6Zbp1AmP0i3TqRMepVtMALCUCQCWMgHAUiYAWMoE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" />
+      <p class="url">https://husko.invalid/apk/gerant.apk</p>
+    </section>
+    <section class="card">
+      <h2>APK Client (sandwicherie)</h2>
+      <img class="qr" alt="QR APK Client (sandwicherie)" src="data:image/png;base64,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" />
+      <p class="url">https://husko.invalid/apk/client.apk</p>
+    </section>
+    <section class="card">
+      <h2>APK Livreur</h2>
+      <img class="qr" alt="QR APK Livreur" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAUAAAAFACAYAAADNkKWqAAAAAklEQVR4AewaftIAAAkHSURBVO3BwW0kWw5FwStCi7JBJtACmkCTaQItoDuaxV80Bhgg3weyU6Xhifj4er2+BQALmQBgKRMALGUCgKVMALCUCQCWMgHAUiYAWMoEAEuZAGApEwAsZQKApUwAsJQJAJYyAcBSJgBYygQAS5kAYCkTACxlAoClPnWz6RT+8Cg9bTr1rjxKd5lOnfAoXZlO/QSP0pXpFP7wKN3FBABLmQBgKRMALGUCgKVMALCUCQCWMgHAUiYAWMoEAEt96od4lH6z6dTTplMnPEonplNXPEonplN3mU6d8Cg9zaN0Yjr1NI/SbzadepoJAJYyAcBSJgBYygQAS5kAYCkTACxlAoClTACw1Kfe2HTqaR6lp02nTniU7uRRuotH6cR06h15lE5Mp3676dTTPErvyAQAS5kAYCkTACxlAoClTACwlAkAljIBwFImAFjKBABLfQprTafu4lE64VG6Mp06MZ26i0fpTh4lvD8TACxlAoClTACwlAkAljIBwFImAFjKBABLmQBgKRMALPUprOVRust06oRH6YpH6cR06oRHCfhfTACwlAkAljIBwFImAFjKBABLmQBgKRMALGUCgKU+9cY8SvhZ06k7Tafe0XTqhEfpt/Mo4R8mAFjKBABLmQBgKRMALGUCgKVMALCUCQCWMgHAUiYAWOpTP2Q6hb9jOnXCo3QXj9KJ6dQVj9KJ6dS7mk6d8CjdZTqFf8cEAEuZAGApEwAsZQKApUwAsJQJAJYyAcBSJgBYygQAS33qZh4l/A7TqSsepRPTqRMepSvTqRMepQ08Svg7TACwlAkAljIBwFImAFjKBABLmQBgKRMALGUCgKU+vl6vb91oOnXCo3RlOvXbeZTuMp16mkfpTtOpu3iUTkynrniU3tV06rfzKL0jEwAsZQKApUwAsJQJAJYyAcBSJgBYygQAS5kAYCkTACz18fV6fetNTadOeJR+s+nUnTxKG0yn8Hd4lJ42nTrhUbqLCQCWMgHAUiYAWMoEAEuZAGApEwAsZQKApUwAsJQJAJb6+Hq9vnWj6dQJj9I7mk49zaN0Yjr1NI/S06ZTJzxKJ6ZTd/EonZhOnfAoXZlO3cmjhH+YAGApEwAsZQKApUwAsJQJAJYyAcBSJgBYygQAS5kAYKlP/ZDp1BWP0rvyKJ2YTt3Fo3RiOnXCo3RlOnXCo3RiOnXFo3RiOnXCo/Q0j9LTPEp3mU6d8CidmE5d8Sg9zQQAS5kAYCkTACxlAoClTACwlAkAljIBwFImAFjq4+v1+tabmk6d8CidmE69I4/ST5hOXfEo/XbTqad5lE5Mp654lJ42nbqTR+kdmQBgKRMALGUCgKVMALCUCQCWMgHAUiYAWMoEAEuZAGCpj6/X61tvajp1wqN0l+nUCY/SXaZTd/IoPW06dReP0p2mU/h3PEpPm06d8CjdxQQAS5kAYCkTACxlAoClTACwlAkAljIBwFImAFjKBABLfepm06kTHqWnTaeueJROTKee5lE6MZ064VG6Mp162nTqhEfpLh6ldzWdupNH6cp06k4epSsepaeZAGApEwAsZQKApUwAsJQJAJYyAcBSJgBYygQAS318vV7f+gHTqSseJfwxnTrhUXradOqER2mD6dTTPEonplNXPEp3mk5d8Sg9zQQAS5kAYCkTACxlAoClTACwlAkAljIBwFImAFjKBABLfepm06kNplMnPEpXplN3mk6d8ChdmU6d8CidmE69I4/SienUCY/S06ZTJzxKV6ZTd/IovSMTACxlAoClTACwlAkAljIBwFImAFjKBABLmQBgKRMALPXx9Xp960bTqRMepSvTqXflUfrtplN38Sg9bTqFv8OjdGI6dcKjdGU6dcKjdBcTACxlAoClTACwlAkAljIBwFImAFjKBABLmQBgqU/9H/AonZhO3WU6dReP0p2mU7/ZdOpOHqWnTafw73iUnmYCgKVMALCUCQCWMgHAUiYAWMoEAEuZAGApEwAsZQKApT6F/+JRetp06id4lK5Mp+40nXpH06kTHqUTHqWnTaee5lE6MZ264lF6mgkAljIBwFImAFjKBABLmQBgKRMALGUCgKVMALCUCQCW+vh6vb51o+nUCY/SlenUnTxKV6ZTd/Io3WU69TSP0tOmU0/zKN1pOvWbeZROTKee5lG6iwkAljIBwFImAFjKBABLmQBgKRMALGUCgKVMALCUCQCW+vh6vb6FHzWdwh8epRPTqad5lE5Mp054lJ42nfrNPEp3MQHAUiYAWMoEAEuZAGApEwAsZQKApUwAsJQJAJb6+Hq9vnWj6RT+8Ci9q+nUBh6lK9Opn+BRujKdOuFROjGdeppH6R2ZAGApEwAsZQKApUwAsJQJAJYyAcBSJgBYygQAS5kAYKlP/RCP0m82nbrLdOoneJTuMp064VG6Mp16mkfpxHTqaR6lp3mUNjABwFImAFjKBABLmQBgKRMALGUCgKVMALCUCQCWMgHAUp96Y9Opp3mU3pVH6U7Tqbt4lE5Mp+7iUToxnbriUTrhUToxnToxnfrNplMnPErvyAQAS5kAYCkTACxlAoClTACwlAkAljIBwFImAFjqU/g1plMnPEonPEp3mU6d8CjdZTp1wqP0rjxKd5lOnfAoXZlO3Wk6dReP0l1MALCUCQCWMgHAUiYAWMoEAEuZAGApEwAsZQKApUwAsNSn8H9nOnXCo3QXj9JdplMnPEonplNXPEonplMnPEonplNPm069I4/S00wAsJQJAJYyAcBSJgBYygQAS5kAYCkTACxlAoClTACw1KfemEdpA4/SienUu5pO3cWjdCeP0pXp1J2mUyc8SlemUyc8SiemU3fxKJ2YTr0jEwAsZQKApUwAsJQJAJYyAcBSJgBYygQAS5kAYKlP/ZDpFP4xnTrhUToxnToxnbqLR+ku06mneZROTKdOeJROTKee5lG6y3TqhEfpHZkAYCkTACxlAoClTACwlAkAljIBwFImAFjKBABLmQBgqY+v1+tbALCQCQCWMgHAUiYAWMoEAEuZAGApEwAsZQKApUwAsJQJAJYyAcBSJgBYygQAS5kAYCkTACxlAoClTACwlAkAljIBwFL/Ac/sBw3PnEAMAAAAAElFTkSuQmCC" />
+      <p class="url">https://husko.invalid/apk/livreur.apk</p>
+    </section>
+  </div>
+</body>
+</html>
