@@ -83,7 +83,7 @@ async function downloadOne(key) {
 }
 
 async function main() {
-  const arg = (process.argv[2] || 'client').toLowerCase();
+  const arg = (process.argv[2] || 'unified').toLowerCase();
 
   if (arg === 'all') {
     for (const key of Object.keys(VARIANTS)) {
@@ -91,7 +91,7 @@ async function main() {
     }
     console.log('[Husko] Tous les APK (unifié + rôles) sont dans le dossier dist/');
     console.log(
-      '[Husko] Transfert téléphone : USB, cloud, ou npm run apk:install:device -- <unified|client|gerant|livreur>'
+      '[Husko] Transfert téléphone : USB, cloud, ou npm run apk:install:device -- <unified|assistant|client|gerant|livreur>'
     );
     return;
   }

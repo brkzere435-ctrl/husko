@@ -57,6 +57,8 @@ const mapsOk =
 console.log(mapsOk ? '• Google Maps : clés Android + iOS renseignées' : '• Google Maps : clés manquantes ou placeholders');
 
 const dist =
+  env.EXPO_PUBLIC_DISTRIBUTION_UNIFIED_APK_URL ||
+  env.EXPO_PUBLIC_DISTRIBUTION_ASSISTANT_APK_URL ||
   env.EXPO_PUBLIC_DISTRIBUTION_GERANT_APK_URL ||
   env.EXPO_PUBLIC_DISTRIBUTION_CLIENT_APK_URL ||
   env.EXPO_PUBLIC_DISTRIBUTION_LIVREUR_APK_URL;
@@ -91,7 +93,9 @@ console.log('  npm run husko:doctor - audit style + fonction + security + tsc');
 console.log('  npm run validate:expo - verifie que app.config.js se charge (Expo JSON)');
 console.log('  eas secret:create - memes noms EXPO_PUBLIC_* que dans env.example');
 console.log('  firebase login && firebase use --add && npm run firebase:deploy:rules');
-console.log('  npm run apk:client - build cloud APK Husko Client seul');
+console.log('  npm run build:apk:unified - build cloud APK unique (hub)');
+console.log('  npm run apk:download:last - telecharge le dernier APK unifie');
+console.log('  npm run apk:install:device -- unified - installe en USB (adb)');
 console.log('  npm run qr:generate - apres mise a jour des URLs');
 if (process.platform === 'win32') {
   console.log('  Windows / EAS : Git committe + eas.json requireCommit + npm run eas:version (eas-cli local).');

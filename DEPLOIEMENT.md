@@ -105,7 +105,8 @@ eas env:create --name EXPO_PUBLIC_GOOGLE_MAPS_ANDROID_API_KEY --value "AIza..." 
 4. `npm run eas:init` — lie le dossier au projet Expo. Avec un dépôt **Git** et **`requireCommit: true`** dans `eas.json`, les builds Windows sont stables (archive via `git`). L’ID projet par défaut est dans **`app.config.js`** (`DEFAULT_EAS_PROJECT_ID`) ; surcharge possible via `.env` / secret **`EXPO_PUBLIC_EAS_PROJECT_ID`** pour les builds cloud.
 5. Sur [expo.dev](https://expo.dev) → votre projet → **Secrets** : ajouter les mêmes variables que dans `env.example` (`EXPO_PUBLIC_FIREBASE_*`, `EXPO_PUBLIC_GOOGLE_MAPS_*`, etc.) pour que les **builds cloud** embarquent Firebase et Maps.
 6. Lancer les builds :
-   - les trois APK d’affilée : `npm run build:apk:all`
+   - l’APK unique (hub) : `npm run build:apk:unified`
+   - les 5 APK d’affilée : `npm run build:apk:all` (ou `npm run build:apk:mono` pour 3 mono-rôles)
    - ou une seule app : `npm run build:apk:client` (utilise `eas` du projet)
 
 Les APK se téléchargent depuis la page du build sur Expo.
@@ -124,6 +125,12 @@ npm run build:android
 ```
 
 Télécharger l’**APK** depuis le lien Expo (test interne / hors Play Store).
+Transfert USB (adb) :
+
+```bash
+npm run apk:download:last
+npm run apk:install:device -- unified
+```
 
 ### Android — trois APK (gérant / client / livreur)
 

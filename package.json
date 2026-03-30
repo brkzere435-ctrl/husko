@@ -24,7 +24,7 @@
     "build:apk:client": "cross-env EAS_BUILD_NO_EXPO_GO_WARNING=true eas build -p android --profile apk-client --non-interactive",
     "apk:client": "npm run build:apk:client",
     "apk:unified": "npm run build:apk:unified",
-    "apk:download:last": "node scripts/download-latest-apk.mjs client",
+    "apk:download:last": "node scripts/download-latest-apk.mjs unified",
     "apk:download:client": "node scripts/download-latest-apk.mjs client",
     "apk:download:gerant": "node scripts/download-latest-apk.mjs gerant",
     "apk:download:livreur": "node scripts/download-latest-apk.mjs livreur",
