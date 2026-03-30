@@ -8,7 +8,14 @@ import { isRemoteSyncEnabled } from '@/services/firebaseRemote';
 export function SyncStatusPill() {
   const cloud = isRemoteSyncEnabled();
   return (
-    <View style={[styles.wrap, cloud ? styles.cloud : styles.local]} accessibilityLabel={cloud ? 'Sync cloud' : 'Mode local'}>
+    <View
+      style={[styles.wrap, cloud ? styles.cloud : styles.local]}
+      accessibilityLabel={
+        cloud
+          ? 'Synchronisation Firebase active, commandes partagées entre appareils'
+          : 'Mode local, pas de synchronisation cloud'
+      }
+    >
       <View style={[styles.dot, cloud ? styles.dotOn : styles.dotOff]} />
       <Text style={[typography.caption, styles.label]}>{cloud ? 'Cloud' : 'Local'}</Text>
     </View>
