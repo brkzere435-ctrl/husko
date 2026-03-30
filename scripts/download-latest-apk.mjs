@@ -20,6 +20,7 @@ const ROOT = join(__dirname, '..');
 
 const VARIANTS = {
   unified: { profile: 'apk-unified', file: 'Husko-ByNight-unified-latest.apk' },
+  assistant: { profile: 'apk-assistant', file: 'Husko-Copilote-latest.apk' },
   client: { profile: 'apk-client', file: 'Husko-Client-latest.apk' },
   gerant: { profile: 'apk-gerant', file: 'Husko-Gerant-latest.apk' },
   livreur: { profile: 'apk-livreur', file: 'Husko-Livreur-latest.apk' },
@@ -62,7 +63,8 @@ async function downloadUrl(url, dest) {
 
 async function downloadOne(key) {
   const v = VARIANTS[key];
-  if (!v) throw new Error(`Profil inconnu : ${key} (unified | client | gerant | livreur | all)`);
+  if (!v)
+    throw new Error(`Profil inconnu : ${key} (unified | assistant | client | gerant | livreur | all)`);
 
   const raw = runEasBuildList(v.profile);
   const arr = JSON.parse(raw);
@@ -95,7 +97,9 @@ async function main() {
   }
 
   if (!VARIANTS[arg]) {
-    console.error('Usage : node scripts/download-latest-apk.mjs [ unified | client | gerant | livreur | all ]');
+    console.error(
+      'Usage : node scripts/download-latest-apk.mjs [ unified | assistant | client | gerant | livreur | all ]'
+    );
     process.exit(1);
   }
 

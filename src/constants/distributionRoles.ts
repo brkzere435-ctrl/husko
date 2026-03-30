@@ -1,10 +1,29 @@
-export type DistributionTabKey = 'client' | 'livreur' | 'gerant';
+export type DistributionTabKey =
+  | 'client'
+  | 'livreur'
+  | 'gerant'
+  | 'unified'
+  | 'assistant';
 
-/** Couleurs QR / onglets — repère visuel fort (gérant ≠ client ≠ livreur). */
+/** Couleurs QR / onglets — repère visuel fort par rôle. */
 export const DISTRIBUTION_ROLE_STYLE: Record<
   DistributionTabKey,
   { label: string; shortLabel: string; qrDark: string; accent: string; bannerBg: string }
 > = {
+  unified: {
+    label: 'UNIFIÉ',
+    shortLabel: 'Unifié',
+    qrDark: '#22d3ee',
+    accent: '#22d3ee',
+    bannerBg: 'rgba(34, 211, 238, 0.15)',
+  },
+  assistant: {
+    label: 'COPILOTE',
+    shortLabel: 'Copilote',
+    qrDark: '#e879f9',
+    accent: '#e879f9',
+    bannerBg: 'rgba(232, 121, 249, 0.14)',
+  },
   gerant: {
     label: 'GÉRANT',
     shortLabel: 'Gérant',

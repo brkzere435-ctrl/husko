@@ -101,6 +101,10 @@ function buildExtra({
       process.env.EXPO_PUBLIC_DISTRIBUTION_LIVREUR_APK_URL || distUrls.livreur,
     distributionGerantApkUrl:
       process.env.EXPO_PUBLIC_DISTRIBUTION_GERANT_APK_URL || distUrls.gerant,
+    distributionUnifiedApkUrl:
+      process.env.EXPO_PUBLIC_DISTRIBUTION_UNIFIED_APK_URL || distUrls.unified,
+    distributionAssistantApkUrl:
+      process.env.EXPO_PUBLIC_DISTRIBUTION_ASSISTANT_APK_URL || distUrls.assistant,
     firebaseApiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY ?? '',
     firebaseAuthDomain: process.env.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN ?? '',
     firebaseProjectId: process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID ?? '',
@@ -199,6 +203,8 @@ module.exports = (ctx = {}) => {
     gerant: distributionDefaults.gerant ?? '',
     client: distributionDefaults.client ?? '',
     livreur: distributionDefaults.livreur ?? '',
+    unified: distributionDefaults.unified ?? '',
+    assistant: distributionDefaults.assistant ?? '',
   };
 
   const extra = buildExtra({

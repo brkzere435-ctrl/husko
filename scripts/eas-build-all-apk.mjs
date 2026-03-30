@@ -1,8 +1,11 @@
 /**
- * Enchaine les builds EAS Android (gerant, client, livreur) — meme base, package distinct.
- * Utilise le binaire `eas` du projet (devDependency eas-cli), pas un eas global aleatoire.
+ * Enchaîne les builds EAS Android pour tout l’écosystème Husko (ordre conseillé).
  *
- * Usage : npm run build:apk:all
+ * Usage :
+ *   npm run build:apk:all              — 5 profils : unifié, copilote, gérant, client, livreur
+ *   npm run build:apk:all -- --mono    — 3 profils mono-rôle seulement (gérant, client, livreur)
+ *
+ * Utilise le binaire `eas` du projet (devDependency eas-cli).
  */
 import { spawnSync } from 'child_process';
 import { existsSync } from 'fs';
@@ -20,14 +23,22 @@ if (!existsSync(easBin)) {
   process.exit(1);
 }
 
-const profiles = ['apk-gerant', 'apk-client', 'apk-livreur'];
+const monoOnly = process.argv.includes('--mono');
+const profiles = monoOnly
+  ? ['apk-gerant', 'apk-client', 'apk-livreur']
+  : ['apk-unified', 'apk-assistant', 'apk-gerant', 'apk-client', 'apk-livreur'];
 
 const buildEnv = {
   ...process.env,
   EAS_BUILD_NO_EXPO_GO_WARNING: process.env.EAS_BUILD_NO_EXPO_GO_WARNING ?? 'true',
 };
 
-console.log('\n[Husko] Lancement sequentiel de', profiles.length, 'builds EAS Android.\n');
+console.log(
+  '\n[Husko] Lancement sequentiel de',
+  profiles.length,
+  'build(s) EAS Android',
+  monoOnly ? '(mode --mono)\n' : '(ecosysteme complet)\n'
+);
 
 for (const profile of profiles) {
   console.log('-> Profil', profile, '...\n');
@@ -45,6 +56,6 @@ for (const profile of profiles) {
 
 console.log(
   '\nOK — Builds soumis. Telecharge les APK sur https://expo.dev (Builds → lien Application).\n' +
-    'Puis : copiez chaque URL dans distribution.defaults.json (ou secrets EAS EXPO_PUBLIC_DISTRIBUTION_*),\n' +
-    'npm run qr:generate && npm run distribution:fiches — fiches : distribution-fiches.html\n'
+    'Puis : copiez chaque URL dans distribution.defaults.json (unified, assistant, gerant, client, livreur)\n' +
+    'ou secrets EAS EXPO_PUBLIC_DISTRIBUTION_* — npm run qr:generate && npm run distribution:fiches\n'
 );

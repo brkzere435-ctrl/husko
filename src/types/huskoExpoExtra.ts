@@ -12,6 +12,10 @@ export type HuskoExpoExtra = {
   distributionClientApkUrl: string;
   distributionLivreurApkUrl: string;
   distributionGerantApkUrl: string;
+  /** Page Expo / lien d’installation APK tout-en-un (hub). */
+  distributionUnifiedApkUrl?: string;
+  /** Page Expo / lien d’installation APK Copilote. */
+  distributionAssistantApkUrl?: string;
   firebaseApiKey: string;
   firebaseAuthDomain: string;
   firebaseProjectId: string;

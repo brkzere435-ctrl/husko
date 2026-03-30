@@ -29,6 +29,8 @@ function esc(s) {
 }
 
 const ROLE_QR = {
+  unified: { dark: '#22d3ee', light: '#081a1c', title: 'UNIFIÉ (cyan)', border: 'rgba(34, 211, 238, 0.5)' },
+  assistant: { dark: '#e879f9', light: '#1a0c18', title: 'COPILOTE (magenta)', border: 'rgba(232, 121, 249, 0.5)' },
   gerant: { dark: '#f0d050', light: '#1a0808', title: 'GÉRANT (or)', border: 'rgba(240, 208, 80, 0.55)' },
   client: { dark: '#4ade80', light: '#0a1a12', title: 'CLIENT (vert)', border: 'rgba(74, 222, 128, 0.55)' },
   livreur: { dark: '#60a5fa', light: '#0c1424', title: 'LIVREUR (bleu)', border: 'rgba(96, 165, 250, 0.55)' },
@@ -39,13 +41,17 @@ for (const [key, url] of entries) {
   if (typeof url !== 'string' || !url.startsWith('http')) continue;
   const role = ROLE_QR[key] ?? ROLE_QR.gerant;
   const label =
-    key === 'gerant'
-      ? 'APK Gérant — page Expo'
-      : key === 'client'
-        ? 'APK Client — page Expo'
-        : key === 'livreur'
-          ? 'APK Livreur — page Expo'
-          : key;
+    key === 'unified'
+      ? 'APK unifié (hub) — page Expo'
+      : key === 'assistant'
+        ? 'APK Copilote — page Expo'
+        : key === 'gerant'
+          ? 'APK Gérant — page Expo'
+          : key === 'client'
+            ? 'APK Client — page Expo'
+            : key === 'livreur'
+              ? 'APK Livreur — page Expo'
+              : key;
   const dataUrl = await QRCode.toDataURL(url, {
     width: 320,
     margin: 2,
@@ -136,8 +142,8 @@ const html = `<!DOCTYPE html>
   <div class="brand">HUSKO</div>
   <h1>Distribution APK — sandwicherie</h1>
   <p class="sub">
-    QR <strong>or / vert / bleu</strong> : ne pas intervertir. Chaque QR ouvre la page Expo (installation sur téléphone).
-    Fichier <code>.apk</code> sur PC : <code>npm run apk:download:all</code>. Mettez à jour
+    QR <strong>cyan / magenta / or / vert / bleu</strong> : ne pas intervertir. Chaque QR ouvre la page Expo (installation sur téléphone).
+    Fichier <code>.apk</code> sur PC : <code>npm run apk:download:all</code> (ou unified / assistant). Mettez à jour
     <code>distribution.defaults.json</code> puis <code>npm run distribution:fiches</code>.
   </p>
   <div class="grid">

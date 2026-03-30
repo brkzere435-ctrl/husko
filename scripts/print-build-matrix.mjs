@@ -21,6 +21,6 @@ console.log('Rôle'.padEnd(14), 'Profil'.padEnd(16), 'Plateforme'.padEnd(10), 'n
 for (const [label, profile, plat, script] of rows) {
   console.log(label.padEnd(14), profile.padEnd(16), plat.padEnd(10), script);
 }
-console.log('APK unique (tous les roles, canal hub) : npm run build:apk:unified');
-console.log('Trois APK mono-role (sequentiel) : npm run build:apk:all');
+console.log('APK unique (canal hub) : npm run build:apk:unified');
+console.log('Cinq APK sequentiels : npm run build:apk:all   |   trois mono-role : npm run build:apk:mono');
 console.log('\nCommande directe (apres npm install) : eas build -p <android|ios> --profile <profil> --non-interactive\n');
