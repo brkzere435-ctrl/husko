@@ -2,18 +2,24 @@
 
 Ordre : **prérequis** → **développement** → **builds mobiles** → **web / Docker** → **Cloud Run**.
 
-### Chemin express — APK « Client » (téléphone du client)
+### Chemin express — APK unifié hub (recommandé)
 
 1. `npm install` · compte [expo.dev](https://expo.dev) · **`npm run eas:login`** (utilise `eas` du projet, même version que le lockfile)
-2. Secrets EAS = mêmes clés que `.env` : `EXPO_PUBLIC_FIREBASE_*`, `EXPO_PUBLIC_GOOGLE_MAPS_ANDROID_API_KEY` (et iOS si besoin), optionnel `EXPO_PUBLIC_DISTRIBUTION_CLIENT_APK_URL` après le 1er build.
-3. `npm run validate:expo` puis **`npm run apk:client`** (build cloud, profil `apk-client`).
-4. Sur [expo.dev](https://expo.dev) → ton projet → **Builds** → télécharger l’**APK** → envoyer au client (WhatsApp, Drive, lien direct). Pour la synchro commandes en direct : Firebase obligatoire (section ci‑dessous).
+2. Secrets EAS = mêmes clés que `.env` : `EXPO_PUBLIC_FIREBASE_*`, `EXPO_PUBLIC_GOOGLE_MAPS_ANDROID_API_KEY` (et iOS si besoin), optionnel `EXPO_PUBLIC_DISTRIBUTION_UNIFIED_APK_URL` après le 1er build.
+3. `npm run validate:expo` puis **`npm run build:android`** (profil `apk-unified`, canal **hub**).
+4. Sur [expo.dev](https://expo.dev) → **Builds** → télécharger l’**APK** ou en local : `npm run apk:download:last` puis `npm run apk:install:unified` (adb). Firebase pour la synchro multi-appareils : section **Liaison directe** ci‑dessous.
+
+### Chemin express — APK « Client » seul (téléphone du client)
+
+1. Mêmes prérequis que ci‑dessus.
+2. `npm run validate:expo` puis **`npm run apk:client`** (build cloud, profil `apk-client`).
+3. Sur [expo.dev](https://expo.dev) → **Builds** → télécharger l’**APK** → envoyer au client (WhatsApp, Drive, lien direct). Pour la synchro commandes en direct : Firebase obligatoire (section ci‑dessous).
 
 Toute la config Expo est dans **`app.config.js`** (y compris `extra.eas.projectId`).
 
 ### Version d’essai (un APK, téléchargement simple)
 
-Objectif : **un seul APK** pour faire tester le menu / navigation sans builder les trois variantes. Le profil **`preview`** ne fixe pas `EXPO_PUBLIC_APP_VARIANT` : l’app démarre sur le **hub** (liens Commander · Livreur · Gérant).
+Objectif : **un seul APK** pour faire tester le menu / navigation **sans** builder les trois **APK mono-rôle** (gérant / client / livreur). Le profil **`preview`** ne fixe pas `EXPO_PUBLIC_APP_VARIANT` : l’app démarre sur le **hub** (liens Commander · Livreur · Gérant). Pour un livrable « prod » par défaut, préférer plutôt **`apk-unified`** (`npm run build:android`).
 
 1. `npm run release:doctor` puis **`npm run build:apk:preview`** (build cloud Android, profil `preview` dans `eas.json`).
 2. Quand le build est vert : [expo.dev](https://expo.dev) → **ton projet** → **Builds** → ouvrir le build → **Install** ou copier l’**URL de la page build** (elle s’ouvre sur le téléphone ; bouton d’installation Expo).
@@ -63,7 +69,7 @@ Collections utilisées : `orders/{orderId}`, `meta/driver` (position du livreur)
    - **Maps SDK for iOS** (si tu build iOS avec carte Google).
 3. **APIs et services** → **Identifiants** → **Créer des identifiants** → **Clé API** :
    - **Android** : restreindre la clé au type *Applications Android* et ajouter les **noms de paquets** + empreinte SHA-1 du keystore de signature (EAS te donne le SHA-1 dans les credentials du build, ou utilise une clé **sans restriction** le temps des tests — moins sécurisé).
-   - Paquets Husko : `com.husko.bynight.client`, `com.husko.bynight.gerant`, `com.husko.bynight.livreur` (un par APK).
+   - Paquets Husko : `com.husko.bynight` (APK unifié hub), `com.husko.bynight.client`, `com.husko.bynight.gerant`, `com.husko.bynight.livreur` (mono-rôle).
    - **iOS** : restreindre par identifiant de bundle `com.husko.bynight.client` (etc.) si tu sépares les clés.
 4. Copier la **clé** (commence souvent par `AIza...`).
 
@@ -211,5 +217,5 @@ Sur navigateur, pas de Google Maps natif (variantes `.web`). Carte complète sur
 |----------|--------|
 | QR code non détecté / illisible | Préférer `npm run start:tunnel` (réseau quelconque) ou saisir l’URL `exp://…` à la main dans Expo Go ; vérifier PC + téléphone sur le même Wi‑Fi si vous restez en LAN ; pare-feu Windows : autoriser le port **8081** pour Node |
 | `export:web` échoue | Node ≥ 18, `npm install` |
-| Carte mobile grise | Clés Maps dans `app.json` |
+| Carte mobile grise | Clés Maps dans `.env` / secrets EAS (voir `app.config.js`) |
 | Build iOS | Certificats / équipe Apple dans EAS (`eas credentials`) |

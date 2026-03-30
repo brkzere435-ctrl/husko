@@ -15,8 +15,8 @@ const labels: Record<Role, string> = {
 };
 
 /**
- * Ouvre l’APK sœur installé (schémas husko-client / husko-livreur / husko-gerant).
- * Les trois apps coexistent (package Android différent par variante).
+ * Ouvre l’app sœur installée (schémas husko-client / husko-livreur / husko-gerant).
+ * Chaque APK mono-rôle a un package Android distinct ; l’APK unifié hub regroupe les rôles dans une seule app.
  */
 export async function openSiblingApp(role: Role) {
   const url = homeUrl(role);

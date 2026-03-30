@@ -61,7 +61,7 @@ export default function ReglagesScreen() {
                 accessibilityLabel="Ouvrir la distribution QR"
               >
                 <Text style={styles.shortcutTitle}>Distribution QR</Text>
-                <Text style={typography.caption}>Liens et codes pour les autres apps Husko</Text>
+                <Text style={typography.caption}>Hub unifié, Copilote et APK mono-rôle</Text>
               </Pressable>
             </Link>
           </SettingsSection>

@@ -48,7 +48,7 @@ export function DeploymentHints({ mode = 'settings', mapsRelevant = true, style 
     <View style={[styles.settings, style]}>
       <Text style={[typography.caption, styles.hint]}>
         {remote
-          ? 'Liaison cloud Firebase active : commandes et livreur synchronisés entre les APK.'
+          ? 'Liaison cloud Firebase active : commandes et livreur synchronisés entre appareils (APK unifié hub ou apps mono-rôle).'
           : 'Sans Firebase (voir env.example + DEPLOIEMENT.md), les données restent sur cet appareil.'}
       </Text>
       {showMapsLine ? (
