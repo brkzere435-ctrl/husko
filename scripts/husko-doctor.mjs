@@ -64,6 +64,9 @@ console.log(`Référentiel — ce qui doit rester aligné :
   • Navigation racine : app/_layout.tsx — ne pas multiplier les Stack.Screen sans besoin Expo Router.
   • Config build : app.config.js, eas.json, .env (non versionné)
 
+  CLI (souvent confondu)
+  • Scripts npm : toujours npm run build:apk:gerant (avec run). Jamais « npm build:apk:gerant » seul.
+
 Fichiers clés présents :`);
 const checks = [
   ['app/client/index.tsx', 'Menu client'],
