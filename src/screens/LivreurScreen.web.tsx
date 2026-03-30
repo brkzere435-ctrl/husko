@@ -1,18 +1,21 @@
 import { Ionicons } from '@expo/vector-icons';
 import * as Location from 'expo-location';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Alert, StyleSheet, Switch, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { CarMarkerIcon } from '@/components/CarMarkerIcon';
 import { DeploymentHints } from '@/components/DeploymentHints';
 import { GTAMiniMap } from '@/components/GTAMiniMap';
-import { HuskoBackground } from '@/components/HuskoBackground';
+import { WestCoastBackground } from '@/components/westcoast/WestCoastBackground';
 import { LivreurAppGate } from '@/components/LivreurAppGate';
 import { LivreurOrderPanel } from '@/components/LivreurOrderPanel';
 import { colors, radius, spacing } from '@/constants/theme';
+import { WC } from '@/constants/westCoastTheme';
 import type { MapRegion } from '@/types/mapRegion';
+import { HUSKO_DEPARTURE_HUB } from '@/constants/huskoDepartureHub';
 import { ANGERS_DEFAULT, useHuskoStore } from '@/stores/useHuskoStore';
+import { fitMapRegion } from '@/utils/fitMapRegion';
 
 /** Livreur sur navigateur : pas de react-native-maps — fond + mini-carte + géoloc si autorisée. */
 export default function LivreurScreenWeb() {
@@ -73,16 +76,15 @@ export default function LivreurScreenWeb() {
     };
   }, [livreurOnline, setDriver]);
 
-  const miniRegion: MapRegion = {
-    latitude: region.latitude,
-    longitude: region.longitude,
-    latitudeDelta: 0.05,
-    longitudeDelta: 0.05,
-  };
+  const miniRegion = useMemo<MapRegion>(() => {
+    const pts = [HUSKO_DEPARTURE_HUB];
+    if (driver) pts.push(driver);
+    return fitMapRegion(pts, 1.95);
+  }, [driver]);
 
   return (
     <LivreurAppGate>
-      <HuskoBackground>
+      <WestCoastBackground>
         <SafeAreaView style={styles.root} edges={['bottom']}>
           <LivreurOrderPanel />
           <View style={styles.toolbar}>
@@ -129,7 +131,7 @@ export default function LivreurScreenWeb() {
             </View>
           </View>
         </SafeAreaView>
-      </HuskoBackground>
+      </WestCoastBackground>
     </LivreurAppGate>
   );
 }
@@ -191,10 +193,10 @@ const styles = StyleSheet.create({
     gap: 6,
     paddingHorizontal: spacing.sm,
     paddingVertical: 6,
-    backgroundColor: colors.mapOverlay,
+    backgroundColor: 'rgba(0,0,0,0.72)',
     borderRadius: radius.lg,
-    borderWidth: 1,
-    borderColor: colors.borderGlow,
+    borderWidth: 2,
+    borderColor: WC.neonCyanDim,
   },
   hudPulse: { opacity: 0.95 },
   hudText: { color: colors.gold, fontWeight: '900', fontSize: 11, letterSpacing: 2 },

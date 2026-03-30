@@ -5,6 +5,7 @@ import { PrimaryButton } from '@/components/PrimaryButton';
 import { DEFAULT_ROLE_PIN, isPinValidFormat } from '@/constants/devicePin';
 import { typography } from '@/constants/typography';
 import { colors, radius, spacing } from '@/constants/theme';
+import { WC } from '@/constants/westCoastTheme';
 
 type Props = {
   title: string;
@@ -63,10 +64,10 @@ export function FirstPinChangeForm({ title, subtitle, onSubmit }: Props) {
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: colors.cardElevated,
+    backgroundColor: 'rgba(0,0,0,0.45)',
     borderRadius: radius.lg,
-    borderWidth: 1,
-    borderColor: colors.borderSubtle,
+    borderWidth: 2,
+    borderColor: WC.neonCyanDim,
     padding: spacing.xl,
     gap: spacing.md,
   },

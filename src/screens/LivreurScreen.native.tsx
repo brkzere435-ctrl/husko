@@ -1,20 +1,24 @@
 import { Ionicons } from '@expo/vector-icons';
 import * as Location from 'expo-location';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Alert, Platform, StyleSheet, Switch, Text, View } from 'react-native';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { CarMarkerIcon } from '@/components/CarMarkerIcon';
+import { HuskoDepartureBuilding } from '@/components/HuskoDepartureBuilding';
 import { DeploymentHints } from '@/components/DeploymentHints';
 import { GTAMiniMap } from '@/components/GTAMiniMap';
-import { HuskoBackground } from '@/components/HuskoBackground';
+import { WestCoastBackground } from '@/components/westcoast/WestCoastBackground';
 import { LivreurAppGate } from '@/components/LivreurAppGate';
 import { LivreurOrderPanel } from '@/components/LivreurOrderPanel';
 import { mapDarkStyle } from '@/constants/mapDarkStyle';
 import { colors, radius, spacing } from '@/constants/theme';
+import { WC } from '@/constants/westCoastTheme';
 import type { MapRegion } from '@/types/mapRegion';
+import { HUSKO_DEPARTURE_HUB } from '@/constants/huskoDepartureHub';
 import { ANGERS_DEFAULT, useHuskoStore } from '@/stores/useHuskoStore';
+import { fitMapRegion } from '@/utils/fitMapRegion';
 
 export default function LivreurScreenNative() {
   const setDriver = useHuskoStore((s) => s.setDriver);
@@ -76,18 +80,17 @@ export default function LivreurScreenNative() {
     };
   }, [livreurOnline, setDriver]);
 
-  const miniRegion: MapRegion = {
-    latitude: region.latitude,
-    longitude: region.longitude,
-    latitudeDelta: 0.05,
-    longitudeDelta: 0.05,
-  };
+  const miniRegion = useMemo<MapRegion>(() => {
+    const pts = [HUSKO_DEPARTURE_HUB];
+    if (driver) pts.push(driver);
+    return fitMapRegion(pts, 1.95);
+  }, [driver]);
 
   const useGoogleStyle = Platform.OS === 'android';
 
   return (
     <LivreurAppGate>
-      <HuskoBackground>
+      <WestCoastBackground>
         <SafeAreaView style={styles.root} edges={['bottom']}>
           <LivreurOrderPanel />
           <View style={styles.toolbar}>
@@ -112,8 +115,17 @@ export default function LivreurScreenNative() {
               customMapStyle={useGoogleStyle ? mapDarkStyle : undefined}
               mapType={Platform.OS === 'ios' ? 'mutedStandard' : 'standard'}
             >
+              <Marker
+                coordinate={HUSKO_DEPARTURE_HUB}
+                anchor={{ x: 0.5, y: 1 }}
+                zIndex={1}
+                tracksViewChanges={false}
+                title="Husko · QG"
+              >
+                <HuskoDepartureBuilding size={56} />
+              </Marker>
               {driver ? (
-                <Marker coordinate={driver} anchor={{ x: 0.5, y: 0.5 }}>
+                <Marker coordinate={driver} anchor={{ x: 0.5, y: 0.5 }} zIndex={2} tracksViewChanges={false}>
                   <CarMarkerIcon headingDeg={driverHeading} size={48} variant="lowrider" />
                 </Marker>
               ) : null}
@@ -135,7 +147,7 @@ export default function LivreurScreenNative() {
             </View>
           </View>
         </SafeAreaView>
-      </HuskoBackground>
+      </WestCoastBackground>
     </LivreurAppGate>
   );
 }
@@ -170,10 +182,10 @@ const styles = StyleSheet.create({
     gap: 6,
     paddingHorizontal: spacing.sm,
     paddingVertical: 6,
-    backgroundColor: colors.mapOverlay,
+    backgroundColor: 'rgba(0,0,0,0.72)',
     borderRadius: radius.lg,
-    borderWidth: 1,
-    borderColor: colors.borderGlow,
+    borderWidth: 2,
+    borderColor: WC.neonCyanDim,
   },
   hudPulse: { opacity: 0.95 },
   hudText: { color: colors.gold, fontWeight: '900', fontSize: 11, letterSpacing: 2 },

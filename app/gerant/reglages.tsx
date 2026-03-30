@@ -3,11 +3,13 @@ import { Pressable, StyleSheet, Switch, Text, TextInput, View } from 'react-nati
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { DeploymentHints } from '@/components/DeploymentHints';
-import { HuskoBackground } from '@/components/HuskoBackground';
+import { OtaUpdateSection } from '@/components/OtaUpdateSection';
+import { WestCoastBackground } from '@/components/westcoast/WestCoastBackground';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { AUTONOMOUS_PACE_ORDER, AUTONOMOUS_PACE_PRESETS } from '@/constants/autonomousDelivery';
 import { typography } from '@/constants/typography';
 import { colors, radius, spacing } from '@/constants/theme';
+import { WC, wcSectionLabel } from '@/constants/westCoastTheme';
 import { isRemoteSyncEnabled } from '@/services/firebaseRemote';
 import { useHuskoStore } from '@/stores/useHuskoStore';
 
@@ -24,9 +26,9 @@ export default function ReglagesScreen() {
   const [pin, setPin] = useState(managerPin);
 
   return (
-    <HuskoBackground>
+    <WestCoastBackground>
       <SafeAreaView style={styles.root} edges={['bottom']}>
-        <Text style={typography.section}>Mode autonome (démo)</Text>
+        <Text style={[wcSectionLabel, styles.sectionFirst]}>Mode autonome (démo)</Text>
         <Text style={[typography.bodyMuted, styles.autoHint]}>
           Avance seul les commandes jusqu’à « Livrée » (l’app gérant doit rester ouverte). Choisissez le
           rythme entre chaque étape.
@@ -63,7 +65,7 @@ export default function ReglagesScreen() {
           </Text>
         )}
 
-        <Text style={[typography.section, styles.sectionSpaced]}>PIN gérant</Text>
+        <Text style={[wcSectionLabel, styles.sectionSpaced]}>PIN gérant</Text>
         <TextInput
           value={pin}
           onChangeText={setPin}
@@ -86,27 +88,29 @@ export default function ReglagesScreen() {
         <Text style={[typography.caption, styles.pinNote]}>
           Vous pouvez changer le code gérant ici à tout moment (déjà obligatoire à la 1ʳᵉ connexion).
         </Text>
+        <OtaUpdateSection />
         <DeploymentHints mode="settings" style={styles.hintBlock} />
       </SafeAreaView>
-    </HuskoBackground>
+    </WestCoastBackground>
   );
 }
 
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: 'transparent', padding: spacing.md, gap: spacing.md },
+  sectionFirst: { marginBottom: spacing.sm },
   autoHint: { marginBottom: spacing.xs },
   presetRow: {
     padding: spacing.md,
     borderRadius: radius.lg,
-    borderWidth: 1,
-    borderColor: colors.borderSubtle,
+    borderWidth: 2,
+    borderColor: WC.neonCyanDim,
     backgroundColor: colors.cardElevated,
     marginTop: spacing.sm,
     opacity: 1,
   },
   presetRowOn: {
-    borderColor: colors.borderGlow,
-    backgroundColor: colors.glass,
+    borderColor: WC.neonCyan,
+    backgroundColor: 'rgba(0,0,0,0.4)',
   },
   presetLabelOn: { color: colors.gold, fontWeight: '800' },
   syncEta: { marginTop: spacing.sm, color: colors.textMuted },

@@ -1,22 +1,25 @@
 import { Stack } from 'expo-router';
+import { Platform } from 'react-native';
 
-import { colors } from '@/constants/theme';
+import { WC } from '@/constants/westCoastTheme';
 
 export default function AssistantLayout() {
   return (
     <Stack
       screenOptions={{
-        headerStyle: { backgroundColor: colors.bgLift },
+        headerStyle: { backgroundColor: WC.brickDeep },
         headerShadowVisible: false,
-        headerTintColor: colors.gold,
-        headerTitleStyle: { fontWeight: '800', color: colors.text },
+        headerTintColor: WC.gold,
+        headerTitleStyle: { fontWeight: '800', color: WC.white },
         contentStyle: { backgroundColor: 'transparent' },
+        headerLargeTitle: Platform.OS === 'ios',
         headerBackTitle: '',
       }}
     >
       <Stack.Screen name="index" options={{ title: 'Copilote' }} />
       <Stack.Screen name="abonnement" options={{ title: 'Forfaits' }} />
       <Stack.Screen name="chat" options={{ title: 'Chat' }} />
+      <Stack.Screen name="reglages" options={{ title: 'App & mises à jour' }} />
     </Stack>
   );
 }

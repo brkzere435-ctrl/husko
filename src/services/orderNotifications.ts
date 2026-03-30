@@ -33,6 +33,27 @@ async function schedule(title: string, body: string) {
   });
 }
 
+/**
+ * EAS Update : notification locale avant reload — sans redemander la permission
+ * (évite une popup système pendant un téléchargement silencieux).
+ * @returns true si une notification a été planifiée (délai conseillé avant reload).
+ */
+export async function notifyAppUpdateReady(): Promise<boolean> {
+  if (!canNotify()) return false;
+  const { status } = await Notifications.getPermissionsAsync();
+  if (status !== 'granted') return false;
+  await Notifications.scheduleNotificationAsync({
+    content: {
+      title: 'Husko · Mise à jour',
+      body: 'Nouvelle version installée. L’application redémarre…',
+      sound: true,
+      data: { huskoType: 'app_update' },
+    },
+    trigger: null,
+  });
+  return true;
+}
+
 /** Nouvelle commande → notification gérant */
 export async function notifyGerantNewOrder(order: Order) {
   await schedule('Husko · Gérant', `Nouvelle commande ${order.id} — ${order.total.toFixed(2)} €`);

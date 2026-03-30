@@ -3,11 +3,12 @@ import { Alert, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { FirstPinChangeForm } from '@/components/FirstPinChangeForm';
-import { HuskoBackground } from '@/components/HuskoBackground';
+import { WestCoastBackground } from '@/components/westcoast/WestCoastBackground';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { DEFAULT_ROLE_PIN } from '@/constants/devicePin';
 import { typography } from '@/constants/typography';
 import { colors, radius, spacing } from '@/constants/theme';
+import { WC } from '@/constants/westCoastTheme';
 import { useHuskoStore } from '@/stores/useHuskoStore';
 import { hapticLight } from '@/utils/haptics';
 
@@ -31,7 +32,7 @@ export function LivreurAppGate({ children }: Props) {
 
   if (!unlocked) {
     return (
-      <HuskoBackground>
+      <WestCoastBackground>
         <SafeAreaView style={styles.lockRoot} edges={['bottom']}>
           <View style={styles.lockCard}>
             <Text style={typography.title}>Livreur</Text>
@@ -52,13 +53,13 @@ export function LivreurAppGate({ children }: Props) {
             <PrimaryButton title="Continuer" onPress={tryUnlock} />
           </View>
         </SafeAreaView>
-      </HuskoBackground>
+      </WestCoastBackground>
     );
   }
 
   if (!livreurPinOnboarded) {
     return (
-      <HuskoBackground>
+      <WestCoastBackground>
         <SafeAreaView style={styles.setupRoot} edges={['bottom']}>
           <FirstPinChangeForm
             title="Votre code livreur"
@@ -69,7 +70,7 @@ export function LivreurAppGate({ children }: Props) {
             }}
           />
         </SafeAreaView>
-      </HuskoBackground>
+      </WestCoastBackground>
     );
   }
 
@@ -85,10 +86,10 @@ const styles = StyleSheet.create({
   },
   setupRoot: { flex: 1, backgroundColor: 'transparent', justifyContent: 'center', padding: spacing.lg },
   lockCard: {
-    backgroundColor: colors.cardElevated,
+    backgroundColor: 'rgba(0,0,0,0.45)',
     borderRadius: radius.lg,
-    borderWidth: 1,
-    borderColor: colors.borderSubtle,
+    borderWidth: 2,
+    borderColor: WC.neonCyanDim,
     padding: spacing.xl,
     gap: spacing.md,
   },

@@ -49,3 +49,17 @@ if (!cfg.extra?.eas?.projectId) {
 }
 
 console.log('[Husko validate:expo] OK —', cfg.name, '/', cfg.slug, '| EAS projectId présent');
+
+const mapsOk =
+  cfg.extra?.mapsAndroidKeyOk === true && cfg.extra?.mapsIosKeyOk === true;
+if (!mapsOk) {
+  console.warn(
+    '[Husko validate:expo] Avertissement : clés Google Maps absentes ou placeholder — tuiles absentes, fallback radar GTA. Ajoute EXPO_PUBLIC_GOOGLE_MAPS_* dans .env + secrets EAS, puis rebuild.'
+  );
+}
+const fbId = cfg.extra?.firebaseProjectId;
+if (!fbId || String(fbId).trim() === '') {
+  console.warn(
+    '[Husko validate:expo] Avertissement : Firebase non configuré — liaison cloud désactivée (voir env.example).'
+  );
+}

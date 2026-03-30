@@ -1,5 +1,5 @@
 import { Link, router } from 'expo-router';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Alert, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -13,7 +13,9 @@ import { isDeliveryOpen } from '@/constants/hours';
 import { PAYMENT_NOTICE_LONG, PAYMENT_NOTICE_SHORT } from '@/constants/paymentPolicy';
 import { typography } from '@/constants/typography';
 import { colors, elevation, radius, spacing } from '@/constants/theme';
+import { HUSKO_DEPARTURE_HUB } from '@/constants/huskoDepartureHub';
 import { ANGERS_DEFAULT, useHuskoStore } from '@/stores/useHuskoStore';
+import { fitMapRegion } from '@/utils/fitMapRegion';
 import { hapticSuccess } from '@/utils/haptics';
 
 export default function PanierScreen() {
@@ -27,11 +29,10 @@ export default function PanierScreen() {
 
   const total = cart.reduce((a, l) => a + l.item.price * l.qty, 0);
 
-  const region = {
-    ...ANGERS_DEFAULT,
-    latitudeDelta: 0.04,
-    longitudeDelta: 0.04,
-  };
+  const region = useMemo(
+    () => fitMapRegion([ANGERS_DEFAULT, HUSKO_DEPARTURE_HUB], 2),
+    []
+  );
 
   function checkout() {
     if (!cart.length) {
@@ -74,7 +75,9 @@ export default function PanierScreen() {
               hudFooter="PREVIEW MAP · ANGERS"
             />
             <View style={styles.mapLegend}>
-              <Text style={typography.bodyMuted}>Aperçu carte & livreur (même appareil).</Text>
+              <Text style={typography.bodyMuted}>
+                QG Husko : bâtiment en H (néon) · pin rouge = adresse de livraison · lowrider = livreur.
+              </Text>
             </View>
           </View>
 

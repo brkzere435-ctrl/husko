@@ -3,9 +3,13 @@ import { Platform, StyleSheet, View } from 'react-native';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 
 import { GTAHudFrame } from '@/components/GTAHudFrame';
+import { GTAMiniMapFallbackInterior } from '@/components/GTAMiniMapFallbackInterior';
+import { HuskoDepartureBuilding } from '@/components/HuskoDepartureBuilding';
+import { HUSKO_DEPARTURE_HUB } from '@/constants/huskoDepartureHub';
 import { mapDarkStyle } from '@/constants/mapDarkStyle';
 import { colors, elevation } from '@/constants/theme';
 import type { MapRegion } from '@/types/mapRegion';
+import { isMapsKeyConfiguredForPlatform } from '@/utils/mapsBuildInfo';
 
 import { CarMarkerIcon } from './CarMarkerIcon';
 
@@ -15,7 +19,8 @@ type Props = {
   headingDeg?: number;
   dest?: { latitude: number; longitude: number } | null;
   showDest?: boolean;
-  /** Bandeau façon HUD (défaut West Coast). */
+  departure?: { latitude: number; longitude: number } | null;
+  showDeparture?: boolean;
   hudFooter?: string;
 };
 
@@ -27,9 +32,30 @@ export function GTAMiniMap({
   headingDeg = 0,
   dest,
   showDest,
+  departure = HUSKO_DEPARTURE_HUB,
+  showDeparture = true,
   hudFooter = 'LONG BEACH · CADILLAC SUIVI',
 }: Props) {
+  const mapsConfigured = isMapsKeyConfiguredForPlatform();
+  const useFallback = !mapsConfigured;
   const useGoogleStyle = Platform.OS === 'android';
+
+  if (useFallback) {
+    return (
+      <View style={elevation.hero}>
+        <GTAHudFrame size={HUD_SIZE} footerTag={hudFooter}>
+          <GTAMiniMapFallbackInterior
+            driver={driver}
+            headingDeg={headingDeg}
+            dest={dest}
+            showDest={showDest}
+            departure={departure}
+            showDeparture={showDeparture}
+          />
+        </GTAHudFrame>
+      </View>
+    );
+  }
 
   return (
     <View style={elevation.hero}>
@@ -45,13 +71,24 @@ export function GTAMiniMap({
           customMapStyle={useGoogleStyle ? mapDarkStyle : undefined}
           mapType={Platform.OS === 'ios' ? 'mutedStandard' : 'standard'}
         >
-          {driver ? (
-            <Marker coordinate={driver} anchor={{ x: 0.5, y: 0.5 }}>
-              <CarMarkerIcon headingDeg={headingDeg} size={38} variant="lowrider" />
+          {showDeparture && departure ? (
+            <Marker
+              coordinate={departure}
+              anchor={{ x: 0.5, y: 1 }}
+              zIndex={1}
+              tracksViewChanges={false}
+              title="Husko · QG"
+            >
+              <HuskoDepartureBuilding size={48} />
             </Marker>
           ) : null}
           {showDest && dest ? (
-            <Marker coordinate={dest} pinColor={colors.accent} title="Livraison" />
+            <Marker coordinate={dest} zIndex={2} pinColor={colors.accent} title="Livraison" />
+          ) : null}
+          {driver ? (
+            <Marker coordinate={driver} anchor={{ x: 0.5, y: 0.5 }} zIndex={3} tracksViewChanges={false}>
+              <CarMarkerIcon headingDeg={headingDeg} size={38} variant="lowrider" />
+            </Marker>
           ) : null}
         </MapView>
       </GTAHudFrame>

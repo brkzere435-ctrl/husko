@@ -3,12 +3,13 @@ import { StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { BrandMark } from '@/components/BrandMark';
-import { HuskoBackground } from '@/components/HuskoBackground';
+import { WestCoastBackground } from '@/components/westcoast/WestCoastBackground';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { getAppVariant } from '@/constants/appVariant';
 import { deliveryHoursLabel } from '@/constants/hours';
 import { VENUE_TAGLINE_HUB } from '@/constants/venue';
 import { colors, elevation, radius, spacing } from '@/constants/theme';
+import { WC } from '@/constants/westCoastTheme';
 import { typography } from '@/constants/typography';
 
 export default function HubScreen() {
@@ -19,9 +20,10 @@ export default function HubScreen() {
   if (role === 'assistant') return <Redirect href="/assistant" />;
 
   return (
-    <HuskoBackground>
+    <WestCoastBackground>
       <SafeAreaView style={styles.root} edges={['top', 'bottom']}>
         <View style={styles.header}>
+          <Text style={styles.wcKicker}>HUSKO · BY NIGHT</Text>
           <View style={[styles.logoFrame, elevation.hero]}>
             <BrandMark tagline={VENUE_TAGLINE_HUB} />
             <View style={styles.logoRule} />
@@ -44,7 +46,7 @@ export default function HubScreen() {
           </Link>
         </View>
       </SafeAreaView>
-    </HuskoBackground>
+    </WestCoastBackground>
   );
 }
 
@@ -56,14 +58,22 @@ const styles = StyleSheet.create({
     paddingTop: spacing.md,
   },
   header: { marginBottom: spacing.lg, alignItems: 'center' },
+  wcKicker: {
+    fontSize: 11,
+    fontWeight: '900',
+    letterSpacing: 4,
+    color: WC.neonCyan,
+    marginBottom: spacing.md,
+    textAlign: 'center',
+  },
   logoFrame: {
     alignItems: 'center',
     paddingVertical: spacing.xl,
     paddingHorizontal: spacing.xl,
-    borderWidth: 1,
-    borderColor: colors.borderGlow,
+    borderWidth: 2,
+    borderColor: WC.neonCyanDim,
     borderRadius: radius.xl,
-    backgroundColor: colors.glass,
+    backgroundColor: 'rgba(0,0,0,0.45)',
     width: '100%',
     maxWidth: 380,
   },
@@ -91,7 +101,7 @@ const styles = StyleSheet.create({
   },
   phone: {
     marginTop: spacing.lg,
-    color: colors.gold,
+    color: WC.gold,
     fontWeight: '800',
     fontSize: 20,
     letterSpacing: 0.6,

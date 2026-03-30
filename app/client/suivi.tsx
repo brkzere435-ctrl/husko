@@ -4,6 +4,7 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { DeploymentHints } from '@/components/DeploymentHints';
+import { OrderLinesPreview } from '@/components/OrderLinesPreview';
 import { WestCoastBackground } from '@/components/westcoast/WestCoastBackground';
 import { GTAMiniMap } from '@/components/GTAMiniMap';
 import { PrimaryButton } from '@/components/PrimaryButton';
@@ -18,8 +19,10 @@ import { PENDING_VALIDATION_MS } from '@/constants/orderPolicy';
 import { CLIENT_TIMELINE, timelineStepIndex } from '@/constants/orderFlow';
 import { PAYMENT_NOTICE_SHORT } from '@/constants/paymentPolicy';
 import { typography } from '@/constants/typography';
+import { HUSKO_DEPARTURE_HUB } from '@/constants/huskoDepartureHub';
 import { colors, elevation, radius, spacing } from '@/constants/theme';
 import { useHuskoStore } from '@/stores/useHuskoStore';
+import { fitMapRegion } from '@/utils/fitMapRegion';
 
 export default function SuiviScreen() {
   const orders = useHuskoStore((s) => s.orders);
@@ -41,18 +44,25 @@ export default function SuiviScreen() {
 
   const stepIdx = active ? timelineStepIndex(active.status) : -1;
 
-  const region = {
-    latitude: active?.destLat ?? 47.4739,
-    longitude: active?.destLng ?? -0.5517,
-    latitudeDelta: 0.06,
-    longitudeDelta: 0.06,
-  };
-
   const dest = active
     ? { latitude: active.destLat, longitude: active.destLng }
     : null;
 
   const showLiveMap = active?.status === 'on_way';
+
+  const region = useMemo(() => {
+    if (!active || !showLiveMap) {
+      return {
+        latitude: active?.destLat ?? 47.4739,
+        longitude: active?.destLng ?? -0.5517,
+        latitudeDelta: 0.06,
+        longitudeDelta: 0.06,
+      };
+    }
+    const pts = [HUSKO_DEPARTURE_HUB, { latitude: active.destLat, longitude: active.destLng }];
+    if (driver) pts.push(driver);
+    return fitMapRegion(pts, 1.85);
+  }, [active, driver, showLiveMap]);
 
   const etaStepMs = useMemo(() => {
     if (remoteAutonomousDemo?.enabled) return remoteAutonomousDemo.stepMs;
@@ -77,6 +87,7 @@ export default function SuiviScreen() {
               <View style={styles.badgeRow}>
                 <StatusBadge status={active.status} />
               </View>
+              <OrderLinesPreview lines={active.lines} />
 
               {active.status === 'pending' ? (
                 <Text style={styles.pendingHint}>
@@ -144,7 +155,9 @@ export default function SuiviScreen() {
               {showLiveMap ? (
                 <View style={styles.mapWrap}>
                   <Text style={styles.mapTitle}>Suivi Cadillac · mode GTA</Text>
-                  <Text style={styles.mapSub}>GPS West Coast — le livreur roule vers toi</Text>
+                  <Text style={styles.mapSub}>
+                    QG bâtiment H (néon) · livraison en pin — le livreur roule vers toi
+                  </Text>
                   <GTAMiniMap
                     region={region}
                     driver={driver}

@@ -6,6 +6,7 @@ import { useEffect, useRef } from 'react';
 import { AppState } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { VariantGate } from '@/components/VariantGate';
 import { colors } from '@/constants/theme';
 import {
@@ -14,7 +15,10 @@ import {
   subscribeToRemoteDriver,
   subscribeToRemoteOrders,
 } from '@/services/firebaseRemote';
-import { checkAndReloadUpdatesAsync } from '@/services/checkAppUpdates';
+import {
+  OTA_PERIODIC_CHECK_MS,
+  checkAndReloadUpdatesAsync,
+} from '@/services/checkAppUpdates';
 import { configureNotificationHandler } from '@/services/orderNotifications';
 import { useHuskoStore } from '@/stores/useHuskoStore';
 
@@ -22,6 +26,7 @@ SplashScreen.preventAutoHideAsync().catch(() => {});
 
 export default function RootLayout() {
   const tickRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const otaRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
     configureNotificationHandler();
@@ -34,6 +39,7 @@ export default function RootLayout() {
     run();
     const upd = setTimeout(() => void checkAndReloadUpdatesAsync(), 2800);
     tickRef.current = setInterval(run, 60_000);
+    otaRef.current = setInterval(() => void checkAndReloadUpdatesAsync(), OTA_PERIODIC_CHECK_MS);
     const sub = AppState.addEventListener('change', (s) => {
       if (s === 'active') {
         run();
@@ -43,6 +49,7 @@ export default function RootLayout() {
     return () => {
       clearTimeout(upd);
       if (tickRef.current) clearInterval(tickRef.current);
+      if (otaRef.current) clearInterval(otaRef.current);
       sub.remove();
     };
   }, []);
@@ -67,25 +74,27 @@ export default function RootLayout() {
 
   return (
     <SafeAreaProvider>
-      <VariantGate />
-      <StatusBar style="light" />
-      <Stack
-        screenOptions={{
-          headerStyle: { backgroundColor: colors.bgLift },
-          headerShadowVisible: false,
-          headerTintColor: colors.gold,
-          headerBackTitle: '',
-          contentStyle: { backgroundColor: 'transparent' },
-          headerTitleStyle: {
-            fontWeight: '800',
-            fontSize: 17,
-            color: colors.text,
-          },
-          animation: 'slide_from_right',
-        }}
-      >
-        <Stack.Screen name="index" options={{ headerShown: false }} />
-      </Stack>
+      <ErrorBoundary>
+        <VariantGate />
+        <StatusBar style="light" />
+        <Stack
+          screenOptions={{
+            headerStyle: { backgroundColor: colors.bgLift },
+            headerShadowVisible: false,
+            headerTintColor: colors.gold,
+            headerBackTitle: '',
+            contentStyle: { backgroundColor: 'transparent' },
+            headerTitleStyle: {
+              fontWeight: '800',
+              fontSize: 17,
+              color: colors.text,
+            },
+            animation: 'slide_from_right',
+          }}
+        >
+          <Stack.Screen name="index" options={{ headerShown: false }} />
+        </Stack>
+      </ErrorBoundary>
     </SafeAreaProvider>
   );
 }

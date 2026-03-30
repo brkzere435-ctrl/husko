@@ -2,7 +2,7 @@ import { Link } from 'expo-router';
 import { StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { HuskoBackground } from '@/components/HuskoBackground';
+import { WestCoastBackground } from '@/components/westcoast/WestCoastBackground';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { SUBSCRIPTION_PLANS } from '@/constants/subscriptionPlans';
 import { colors, spacing, surface } from '@/constants/theme';
@@ -14,7 +14,7 @@ export default function AssistantHomeScreen() {
   const plan = tier ? SUBSCRIPTION_PLANS.find((p) => p.id === tier) : null;
 
   return (
-    <HuskoBackground>
+    <WestCoastBackground>
       <SafeAreaView style={styles.root} edges={['bottom']}>
         <View style={styles.hero}>
           <Text style={styles.brand}>Copilote</Text>
@@ -35,9 +35,12 @@ export default function AssistantHomeScreen() {
           <Link href="/assistant/abonnement" asChild>
             <PrimaryButton title="Choisir un forfait" variant="ghost" style={styles.btn} />
           </Link>
+          <Link href="/assistant/reglages" asChild>
+            <PrimaryButton title="App & mises à jour" variant="ghost" style={styles.btn} />
+          </Link>
         </View>
       </SafeAreaView>
-    </HuskoBackground>
+    </WestCoastBackground>
   );
 }
 

@@ -1,7 +1,7 @@
 import { Link, router } from 'expo-router';
 import * as Linking from 'expo-linking';
-import { useMemo } from 'react';
-import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
+import { memo, useCallback, useMemo } from 'react';
+import { FlatList, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { MenuItemVisual } from '@/components/westcoast/MenuItemVisual';
@@ -30,6 +30,49 @@ import { WC } from '@/constants/westCoastTheme';
 import { elevation, radius, spacing } from '@/constants/theme';
 import { useHuskoStore } from '@/stores/useHuskoStore';
 import { hapticLight } from '@/utils/haptics';
+
+const MenuProductRow = memo(function MenuProductRow({ item }: { item: MenuItem }) {
+  return (
+    <Pressable
+      onPress={() => {
+        hapticLight();
+        router.push(`/client/product/${item.id}`);
+      }}
+      android_ripple={{ color: 'rgba(34,211,238,0.15)' }}
+      style={({ pressed }) => [
+        styles.row,
+        elevation.card,
+        pressed && styles.rowPressed,
+      ]}
+    >
+      <MenuItemVisual item={item} size="sm" />
+      <View style={styles.rowText}>
+        <Text style={styles.rowTitle}>{item.name}</Text>
+        {item.description ? <Text style={styles.desc}>{item.description}</Text> : null}
+      </View>
+      <View style={styles.pricePill}>
+        <Text style={styles.priceTxt}>{item.price.toFixed(2)} €</Text>
+      </View>
+    </Pressable>
+  );
+});
+
+const MenuCategorySection = memo(function MenuCategorySection({
+  category,
+  items,
+}: {
+  category: MenuCategory;
+  items: MenuItem[];
+}) {
+  return (
+    <View style={styles.section}>
+      <Text style={styles.sectionLabel}>{CATEGORY_LABEL[category]}</Text>
+      {items.map((m) => (
+        <MenuProductRow key={m.id} item={m} />
+      ))}
+    </View>
+  );
+});
 
 function MenuHero() {
   const open = isDeliveryOpen();
@@ -76,50 +119,42 @@ export default function ClientMenuScreen() {
     return Array.from(by.entries());
   }, []);
 
+  const renderSection = useCallback(
+    ({ item }: { item: [MenuCategory, MenuItem[]] }) => (
+      <MenuCategorySection category={item[0]} items={item[1]} />
+    ),
+    []
+  );
+
+  const keyExtractor = useCallback(([cat]: [MenuCategory, MenuItem[]]) => cat, []);
+
   return (
     <WestCoastBackground>
       <SafeAreaView style={styles.root} edges={['bottom']}>
         <FlatList
           data={sections}
-          keyExtractor={([cat]) => cat}
+          keyExtractor={keyExtractor}
+          renderItem={renderSection}
+          initialNumToRender={4}
+          maxToRenderPerBatch={4}
+          windowSize={7}
+          removeClippedSubviews={Platform.OS === 'android'}
           ListHeaderComponent={
             <View style={styles.headerBlock}>
               <DeploymentHints mode="alerts" mapsRelevant={false} style={styles.hint} />
               <MenuHero />
             </View>
           }
-          contentContainerStyle={styles.list}
-          renderItem={({ item: [category, items] }) => (
-            <View style={styles.section}>
-              <Text style={styles.sectionLabel}>{CATEGORY_LABEL[category]}</Text>
-              {items.map((m) => (
-                <Pressable
-                  key={m.id}
-                  onPress={() => {
-                    hapticLight();
-                    router.push(`/client/product/${m.id}`);
-                  }}
-                  android_ripple={{ color: 'rgba(34,211,238,0.15)' }}
-                  style={({ pressed }) => [
-                    styles.row,
-                    elevation.card,
-                    pressed && styles.rowPressed,
-                  ]}
-                >
-                  <MenuItemVisual item={m} size="sm" />
-                  <View style={styles.rowText}>
-                    <Text style={styles.rowTitle}>{m.name}</Text>
-                    {m.description ? (
-                      <Text style={styles.desc}>{m.description}</Text>
-                    ) : null}
-                  </View>
-                  <View style={styles.pricePill}>
-                    <Text style={styles.priceTxt}>{m.price.toFixed(2)} €</Text>
-                  </View>
+          ListFooterComponent={
+            <View style={styles.footerAbout}>
+              <Link href="/client/reglages" asChild>
+                <Pressable style={styles.footerLink} accessibilityRole="link" accessibilityLabel="App et mises à jour">
+                  <Text style={styles.footerLinkText}>App & mises à jour</Text>
                 </Pressable>
-              ))}
+              </Link>
             </View>
-          )}
+          }
+          contentContainerStyle={styles.list}
         />
         <View style={styles.dockWrap} pointerEvents="box-none">
           <View style={styles.dockNeon} />
@@ -144,6 +179,19 @@ export default function ClientMenuScreen() {
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: 'transparent' },
   list: { paddingHorizontal: spacing.md, paddingBottom: 132 },
+  footerAbout: {
+    alignItems: 'center',
+    paddingVertical: spacing.lg,
+    marginTop: spacing.sm,
+  },
+  footerLink: { paddingVertical: spacing.xs, paddingHorizontal: spacing.md },
+  footerLinkText: {
+    fontSize: 13,
+    fontWeight: '800',
+    letterSpacing: 1,
+    color: WC.neonCyan,
+    textDecorationLine: 'underline',
+  },
   headerBlock: { marginBottom: spacing.sm },
   hint: { marginBottom: spacing.md },
   hero: {

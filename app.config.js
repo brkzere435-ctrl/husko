@@ -136,6 +136,9 @@ function huskoPlugins() {
           targetSdkVersion: 36,
           minSdkVersion: 24,
           kotlinVersion: '2.1.20',
+          /** R8 / minify release — taille APK et perf ; builds EAS release uniquement. */
+          enableMinifyInReleaseBuilds: true,
+          enableShrinkResourcesInReleaseBuilds: true,
         },
       },
     ],
@@ -243,7 +246,7 @@ module.exports = (ctx = {}) => {
     name: v.name,
     // Slug unique = même projet EAS (projectId) ; les APK se distinguent par android.package / name.
     slug: DEFAULT_VARIANT.slug,
-    version: '1.0.2',
+    version: '1.0.3',
     runtimeVersion: { policy: 'appVersion' },
     updates: {
       url: `https://u.expo.dev/${DEFAULT_EAS_PROJECT_ID}`,

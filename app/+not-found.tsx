@@ -2,14 +2,15 @@ import { Ionicons } from '@expo/vector-icons';
 import { Link } from 'expo-router';
 import { StyleSheet, Text, View } from 'react-native';
 
-import { HuskoBackground } from '@/components/HuskoBackground';
+import { WestCoastBackground } from '@/components/westcoast/WestCoastBackground';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { typography } from '@/constants/typography';
 import { colors, spacing, surface } from '@/constants/theme';
+import { WC } from '@/constants/westCoastTheme';
 
 export default function NotFoundScreen() {
   return (
-    <HuskoBackground>
+    <WestCoastBackground>
       <View style={styles.root}>
         <View style={[surface.glass, styles.card]}>
           <View style={styles.iconWrap}>
@@ -26,7 +27,7 @@ export default function NotFoundScreen() {
           </Link>
         </View>
       </View>
-    </HuskoBackground>
+    </WestCoastBackground>
   );
 }
 
@@ -40,6 +41,8 @@ const styles = StyleSheet.create({
     padding: spacing.xl,
     gap: spacing.md,
     alignItems: 'center',
+    borderWidth: 2,
+    borderColor: WC.neonCyanDim,
   },
   iconWrap: {
     width: 72,

@@ -11,8 +11,10 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { BrandMark } from '@/components/BrandMark';
+import { DeliveryFlowGuide } from '@/components/DeliveryFlowGuide';
 import { FirstPinChangeForm } from '@/components/FirstPinChangeForm';
-import { HuskoBackground } from '@/components/HuskoBackground';
+import { WestCoastBackground } from '@/components/westcoast/WestCoastBackground';
+import { OrderLinesPreview } from '@/components/OrderLinesPreview';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { StatusBadge } from '@/components/StatusBadge';
 import { DEFAULT_ROLE_PIN } from '@/constants/devicePin';
@@ -21,6 +23,7 @@ import { AUTONOMOUS_PACE_PRESETS } from '@/constants/autonomousDelivery';
 import { typography } from '@/constants/typography';
 import { isRemoteSyncEnabled } from '@/services/firebaseRemote';
 import { colors, elevation, radius, spacing } from '@/constants/theme';
+import { WC, wcSectionLabel } from '@/constants/westCoastTheme';
 import type { Order } from '@/stores/useHuskoStore';
 import { useHuskoStore } from '@/stores/useHuskoStore';
 import { hapticLight } from '@/utils/haptics';
@@ -37,7 +40,9 @@ function GerantOrderActions({ order }: { order: Order }) {
         style={styles.actionFull}
         onPress={() => {
           const ok = transitionOrder(order.id, 'preparing', 'gerant');
-          if (!ok) Alert.alert('Action impossible');
+          if (!ok) {
+            Alert.alert('Action impossible', 'La commande doit être « en attente » pour être validée.');
+          }
           else hapticLight();
         }}
       />
@@ -51,7 +56,12 @@ function GerantOrderActions({ order }: { order: Order }) {
         style={styles.actionFull}
         onPress={() => {
           const ok = transitionOrder(order.id, 'awaiting_livreur', 'gerant');
-          if (!ok) Alert.alert('Action impossible');
+          if (!ok) {
+            Alert.alert(
+              'Action impossible',
+              'La commande doit être « en préparation » avant transmission au livreur.'
+            );
+          }
           else hapticLight();
         }}
       />
@@ -60,9 +70,9 @@ function GerantOrderActions({ order }: { order: Order }) {
   return (
     <Text style={typography.caption}>
       {order.status === 'awaiting_livreur'
-        ? 'En attente du livreur.'
+        ? 'En attente du livreur (app Livreur : « Prendre en charge »).'
         : order.status === 'on_way'
-          ? 'Livreur en route.'
+          ? 'Livreur en route — il confirme la livraison dans son app pour clôturer.'
           : '—'}
     </Text>
   );
@@ -92,7 +102,7 @@ export default function GerantDashboardScreen() {
 
   if (!unlocked) {
     return (
-      <HuskoBackground>
+      <WestCoastBackground>
         <SafeAreaView style={styles.lockRoot} edges={['bottom']}>
           <View style={styles.lockCard}>
             <BrandMark compact />
@@ -114,13 +124,13 @@ export default function GerantDashboardScreen() {
             <PrimaryButton title="Continuer" onPress={unlock} />
           </View>
         </SafeAreaView>
-      </HuskoBackground>
+      </WestCoastBackground>
     );
   }
 
   if (!gerantPinOnboarded) {
     return (
-      <HuskoBackground>
+      <WestCoastBackground>
         <SafeAreaView style={styles.setupRoot} edges={['bottom']}>
           <FirstPinChangeForm
             title="Sécurité gérant"
@@ -131,12 +141,12 @@ export default function GerantDashboardScreen() {
             }}
           />
         </SafeAreaView>
-      </HuskoBackground>
+      </WestCoastBackground>
     );
   }
 
   return (
-    <HuskoBackground>
+    <WestCoastBackground>
       <SafeAreaView style={styles.root} edges={['bottom']}>
         <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
           {autonomousDemoEnabled ? (
@@ -147,7 +157,9 @@ export default function GerantDashboardScreen() {
                 seules jusqu’à livraison — gardez cet écran ou l’app en arrière-plan selon l’OS.
               </Text>
             </View>
-          ) : null}
+          ) : (
+            <DeliveryFlowGuide />
+          )}
           <View style={styles.links}>
             <Link href="/gerant/historique" asChild>
               <PrimaryButton title="Historique" variant="ghost" style={styles.linkBtn} />
@@ -194,6 +206,7 @@ export default function GerantDashboardScreen() {
                   <StatusBadge status={o.status} />
                 </View>
                 <Text style={typography.body}>{o.addressLabel}</Text>
+                <OrderLinesPreview lines={o.lines} />
                 <Text style={[typography.caption, styles.meta]}>{o.total.toFixed(2)} €</Text>
                 <View style={styles.actions}>
                   <GerantOrderActions order={o} />
@@ -203,7 +216,7 @@ export default function GerantDashboardScreen() {
           )}
         </ScrollView>
       </SafeAreaView>
-    </HuskoBackground>
+    </WestCoastBackground>
   );
 }
 
@@ -215,10 +228,10 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
   },
   lockCard: {
-    backgroundColor: colors.cardElevated,
+    backgroundColor: 'rgba(0,0,0,0.45)',
     borderRadius: radius.lg,
-    borderWidth: 1,
-    borderColor: colors.border,
+    borderWidth: 2,
+    borderColor: WC.neonCyanDim,
     padding: spacing.xl,
     gap: spacing.md,
   },
@@ -246,9 +259,9 @@ const styles = StyleSheet.create({
     marginBottom: spacing.lg,
     padding: spacing.md,
     borderRadius: radius.xl,
-    borderWidth: 1,
-    borderColor: colors.borderGlow,
-    backgroundColor: colors.glass,
+    borderWidth: 2,
+    borderColor: WC.neonCyanDim,
+    backgroundColor: 'rgba(0,0,0,0.35)',
   },
   autoBannerTitle: {
     color: colors.gold,
@@ -264,26 +277,23 @@ const styles = StyleSheet.create({
     marginBottom: spacing.lg,
     padding: spacing.md,
     borderRadius: radius.xl,
-    borderWidth: 1,
-    borderColor: colors.borderGlow,
-    backgroundColor: colors.glass,
+    borderWidth: 2,
+    borderColor: WC.neonCyanDim,
+    backgroundColor: 'rgba(0,0,0,0.35)',
     gap: spacing.sm,
     ...elevation.card,
   },
   siblingHint: { marginBottom: spacing.xs },
   sectionTitle: {
+    ...wcSectionLabel,
     marginBottom: spacing.md,
-    color: colors.gold,
-    fontWeight: '800',
-    fontSize: 13,
-    letterSpacing: 0.8,
   },
   meta: { marginTop: spacing.xs },
   card: {
     backgroundColor: colors.cardElevated,
     borderRadius: radius.xl,
-    borderWidth: 1,
-    borderColor: colors.borderSubtle,
+    borderWidth: 2,
+    borderColor: WC.neonCyanDim,
     padding: spacing.md,
     marginBottom: spacing.md,
     ...elevation.card,

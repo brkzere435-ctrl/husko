@@ -1,11 +1,13 @@
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
 
+import { OrderLinesPreview } from '@/components/OrderLinesPreview';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { StatusBadge } from '@/components/StatusBadge';
 import { typography } from '@/constants/typography';
 import { colors, elevation, radius, spacing } from '@/constants/theme';
+import { WC, wcSectionLabel } from '@/constants/westCoastTheme';
 import { useHuskoStore } from '@/stores/useHuskoStore';
-import { hapticLight } from '@/utils/haptics';
+import { hapticLight, hapticSuccess } from '@/utils/haptics';
 
 export function LivreurOrderPanel() {
   const orders = useHuskoStore((s) => s.orders);
@@ -29,12 +31,19 @@ export function LivreurOrderPanel() {
         <View key={o.id} style={styles.card}>
           <Text style={typography.mono}>{o.id}</Text>
           <StatusBadge status={o.status} />
+          <OrderLinesPreview lines={o.lines} compact />
           <Text style={[typography.body, styles.addr]}>{o.addressLabel}</Text>
           <Text style={typography.price}>{o.total.toFixed(2)} €</Text>
           <PrimaryButton
             title="Prendre en charge · en route"
             onPress={() => {
-              if (transitionOrder(o.id, 'on_way', 'livreur')) hapticLight();
+              const ok = transitionOrder(o.id, 'on_way', 'livreur');
+              if (ok) hapticLight();
+              else
+                Alert.alert(
+                  'Action impossible',
+                  'Vérifiez que la commande est bien « attente livreur » et réessayez.'
+                );
             }}
             style={styles.btn}
           />
@@ -45,12 +54,31 @@ export function LivreurOrderPanel() {
         <View key={o.id} style={styles.card}>
           <Text style={typography.mono}>{o.id}</Text>
           <StatusBadge status={o.status} />
+          <OrderLinesPreview lines={o.lines} compact />
           <Text style={[typography.body, styles.addr]}>{o.addressLabel}</Text>
           <Text style={typography.price}>{o.total.toFixed(2)} €</Text>
           <PrimaryButton
             title="Confirmer la livraison"
             onPress={() => {
-              if (transitionOrder(o.id, 'delivered', 'livreur')) hapticLight();
+              Alert.alert(
+                'Livraison complète',
+                `Confirmer que la commande ${o.id} a bien été remise au client ?`,
+                [
+                  { text: 'Annuler', style: 'cancel' },
+                  {
+                    text: 'Oui, livrée',
+                    onPress: () => {
+                      const ok = transitionOrder(o.id, 'delivered', 'livreur');
+                      if (ok) hapticSuccess();
+                      else
+                        Alert.alert(
+                          'Action impossible',
+                          'La commande doit être « en livraison » pour être clôturée.'
+                        );
+                    },
+                  },
+                ]
+              );
             }}
             style={styles.btn}
           />
@@ -63,22 +91,18 @@ export function LivreurOrderPanel() {
 const styles = StyleSheet.create({
   wrap: {
     maxHeight: 260,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.borderSubtle,
+    borderBottomWidth: 2,
+    borderColor: WC.neonCyanDim,
   },
   inner: { padding: spacing.md, paddingBottom: spacing.lg, gap: spacing.sm },
   title: {
-    color: colors.gold,
-    fontWeight: '900',
-    fontSize: 12,
-    letterSpacing: 1,
-    marginBottom: spacing.xs,
+    marginBottom: spacing.sm,
   },
   card: {
     backgroundColor: colors.cardElevated,
     borderRadius: radius.xl,
-    borderWidth: 1,
-    borderColor: colors.borderSubtle,
+    borderWidth: 2,
+    borderColor: WC.neonCyanDim,
     padding: spacing.md,
     marginBottom: spacing.sm,
     ...elevation.card,

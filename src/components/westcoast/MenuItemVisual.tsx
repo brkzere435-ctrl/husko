@@ -1,4 +1,5 @@
 import type { ComponentProps } from 'react';
+import { memo } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { StyleSheet, View } from 'react-native';
@@ -29,7 +30,7 @@ const CAT_GRAD: Record<MenuCategory, [string, string, string]> = {
 
 type Props = { item: MenuItem; size: 'sm' | 'lg' };
 
-export function MenuItemVisual({ item, size }: Props) {
+function MenuItemVisualInner({ item, size }: Props) {
   const side = size === 'lg' ? 220 : 72;
   const iconSz = size === 'lg' ? 88 : 32;
   const g = CAT_GRAD[item.category];
@@ -44,6 +45,8 @@ export function MenuItemVisual({ item, size }: Props) {
     </View>
   );
 }
+
+export const MenuItemVisual = memo(MenuItemVisualInner);
 
 const styles = StyleSheet.create({
   wrap: {

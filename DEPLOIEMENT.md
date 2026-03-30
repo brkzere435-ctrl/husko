@@ -17,8 +17,18 @@ Toute la config Expo est dans **`app.config.js`** (y compris `extra.eas.projectI
 
 - **Node.js LTS** · `npm install` à la racine (le fichier `.npmrc` active `legacy-peer-deps` pour les paires Expo / React 19)
 - **Expo Go** aligné sur **SDK 55** (mettre à jour l’app Expo Go sur le téléphone) ou émulateurs : `npx expo start`
-- **Google Maps** (appareils réels) : définir `EXPO_PUBLIC_GOOGLE_MAPS_ANDROID_API_KEY` et `EXPO_PUBLIC_GOOGLE_MAPS_IOS_API_KEY` dans `.env` ou les **secrets EAS** (voir `env.example`). Sans clés valides, carte grise possible.
-- **Contrôle avant build** : `npm run verify:all` (prévol `.env` + TypeScript + ESLint) ou `npm run verify` seul. **`npm run preflight`** affiche l’état Firebase / Maps / distribution sans modifier les fichiers.
+- **Google Maps** (appareils réels) : définir `EXPO_PUBLIC_GOOGLE_MAPS_ANDROID_API_KEY` et `EXPO_PUBLIC_GOOGLE_MAPS_IOS_API_KEY` dans `.env` ou les **variables d’environnement EAS** (voir `env.example`). Sans clés valides, l’app affiche une **vue radar GTA** (sans tuiles satellite) ; avec clés valides, **tuiles Google** dans la mini-carte. Procédure détaillée : section **« Google Maps — obtenir et installer les clés »** ci‑dessous.
+- **Contrôle avant build** : `npm run verify:all` (prévol `.env` + TypeScript + ESLint) ou `npm run verify` seul. **`npm run preflight`** affiche l’état Firebase / Maps / distribution sans modifier les fichiers. **`npm run release:check`** résume en une fois : Maps / Firebase / EAS + rappels des commandes (sans afficher de secrets). **`npm run release:doctor`** enchaîne **`security:check`** (`.env` non versionné, rappel si le dépôt Git est sale pour `requireCommit`) puis **`eas:prebuild`** — à privilégier avant une release sérieuse.
+
+### Risques courants — réponses rapides
+
+| Risque | Mitigation dans le projet |
+|--------|---------------------------|
+| Clé API ou `.env` commité par erreur | `.gitignore` inclut `.env` ; `npm run security:check` échoue si `.env` est suivi par Git. |
+| `eas build` refusé ou **APK sans tes derniers fichiers** | EAS archive Git : le non commité part souvent pas. `npm run security:check:strict` ou `release:doctor` bloquent si l’arbre est sale ; urgence : `HUSKO_SKIP_DIRTY_GIT=1` (à éviter). |
+| Carte grise après « mise à jour » | Les clés Maps sont **natives** : un **`eas update` JS ne suffit pas** ; refaire un **build APK** après avoir mis les clés dans EAS. |
+| Client / gérant / livreur pas synchronisés | Firebase incomplet → données locales seules ; suivre la section **Liaison directe entre appareils** ci‑dessous. |
+| Perte du keystore Android | Sauvegarder ce qu’EAS ou `npm run android:keystore` génère ; sinon nouvelle signature = nouvelle app côté magasin. |
 - Les dossiers `android/` et `ios/` ne sont pas versionnés : **EAS Build** régénère le natif sur les serveurs Expo.
 
 ### Liaison directe entre appareils (Firebase)
@@ -31,6 +41,44 @@ Sans configuration, les commandes restent **locales** (AsyncStorage). Pour que *
 4. Rebuild les APK : la synchro démarre dès que `EXPO_PUBLIC_FIREBASE_PROJECT_ID` et `EXPO_PUBLIC_FIREBASE_API_KEY` sont définis.
 
 Collections utilisées : `orders/{orderId}`, `meta/driver` (position du livreur).
+
+### Google Maps — obtenir et installer les clés
+
+> **À faire sur ton compte Google** (personne ne peut générer la clé à ta place). La facturation Google Cloud est en général **requise** pour Maps (crédit gratuit possible, voir [Google Maps Platform](https://developers.google.com/maps/documentation/android-sdk/overview)).
+
+1. **[Google Cloud Console](https://console.cloud.google.com)** → créer ou choisir un **projet**.
+2. **APIs et services** → **Bibliothèque** → activer au minimum :
+   - **Maps SDK for Android** (obligatoire pour les APK Husko Android),
+   - **Maps SDK for iOS** (si tu build iOS avec carte Google).
+3. **APIs et services** → **Identifiants** → **Créer des identifiants** → **Clé API** :
+   - **Android** : restreindre la clé au type *Applications Android* et ajouter les **noms de paquets** + empreinte SHA-1 du keystore de signature (EAS te donne le SHA-1 dans les credentials du build, ou utilise une clé **sans restriction** le temps des tests — moins sécurisé).
+   - Paquets Husko : `com.husko.bynight.client`, `com.husko.bynight.gerant`, `com.husko.bynight.livreur` (un par APK).
+   - **iOS** : restreindre par identifiant de bundle `com.husko.bynight.client` (etc.) si tu sépares les clés.
+4. Copier la **clé** (commence souvent par `AIza...`).
+
+**Installation locale (Expo / dev)**
+
+- Colle dans **`.env`** à la racine du repo :
+
+```env
+EXPO_PUBLIC_GOOGLE_MAPS_ANDROID_API_KEY=AIza...ta_cle_android
+EXPO_PUBLIC_GOOGLE_MAPS_IOS_API_KEY=AIza...ta_cle_ios
+```
+
+- Redémarre Metro (`npx expo start`). Vérifie : `npm run preflight` doit indiquer les clés Maps présentes.
+
+**Builds cloud EAS (APK installés par les testeurs)**
+
+Les variables `EXPO_PUBLIC_*` doivent être présentes **au moment du build** sur les serveurs Expo :
+
+- [expo.dev](https://expo.dev) → **ton projet** → **Environment variables** (ou **Secrets** selon l’interface) → ajouter les **mêmes noms** que dans `.env` : `EXPO_PUBLIC_GOOGLE_MAPS_ANDROID_API_KEY`, `EXPO_PUBLIC_GOOGLE_MAPS_IOS_API_KEY`, valeur = ta clé, environnement **production** / **preview** selon ton profil `eas.json`.
+- Ou en CLI (exemple, adapte à ta version d’`eas`) :
+
+```bash
+eas env:create --name EXPO_PUBLIC_GOOGLE_MAPS_ANDROID_API_KEY --value "AIza..." --environment production
+```
+
+- Puis **rebuild** l’APK : `npm run build:apk:client` (ou le profil voulu). Un simple `eas update` **ne suffit pas** pour changer une clé embarquée dans le natif : il faut un **nouveau build** si tu n’avais jamais injecté la clé.
 
 ---
 

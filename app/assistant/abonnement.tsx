@@ -1,7 +1,7 @@
 import * as Linking from 'expo-linking';
 import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import { HuskoBackground } from '@/components/HuskoBackground';
+import { WestCoastBackground } from '@/components/westcoast/WestCoastBackground';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { revolutPayUrlForTier } from '@/constants/revolutLinks';
 import { SUBSCRIPTION_PLANS, type SubscriptionTierId } from '@/constants/subscriptionPlans';
@@ -34,7 +34,7 @@ export default function AssistantAbonnementScreen() {
   }
 
   return (
-    <HuskoBackground>
+    <WestCoastBackground>
       <ScrollView
         contentContainerStyle={styles.scroll}
         showsVerticalScrollIndicator={false}
@@ -71,7 +71,7 @@ export default function AssistantAbonnementScreen() {
             </View>
           ))}
       </ScrollView>
-    </HuskoBackground>
+    </WestCoastBackground>
   );
 }
 

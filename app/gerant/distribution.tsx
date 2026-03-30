@@ -15,7 +15,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { BrandMark } from '@/components/BrandMark';
 import { DeploymentHints } from '@/components/DeploymentHints';
-import { HuskoBackground } from '@/components/HuskoBackground';
+import { WestCoastBackground } from '@/components/westcoast/WestCoastBackground';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { getDistributionApkUrls } from '@/constants/distribution';
 import { DISTRIBUTION_QR_IMAGES } from '@/constants/distributionQrAssets';
@@ -25,6 +25,7 @@ import {
 } from '@/constants/distributionRoles';
 import { typography } from '@/constants/typography';
 import { colors, elevation, radius, spacing, surface } from '@/constants/theme';
+import { WC, wcSectionLabel } from '@/constants/westCoastTheme';
 import { VENUE_LEGAL_LINE } from '@/constants/venue';
 
 export default function DistributionScreen() {
@@ -64,12 +65,12 @@ export default function DistributionScreen() {
   }
 
   return (
-    <HuskoBackground>
+    <WestCoastBackground>
       <SafeAreaView style={styles.root} edges={['bottom']}>
         <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
           <BrandMark tagline={VENUE_LEGAL_LINE} />
           <Text style={typography.title}>Distribution</Text>
-          <Text style={[typography.section, styles.kicker]}>QR & liens (3 rôles distincts)</Text>
+          <Text style={[wcSectionLabel, styles.kicker]}>QR & liens (3 rôles distincts)</Text>
           <Text style={[typography.bodyMuted, styles.intro]}>
             Chaque onglet a une couleur : or = gérant, vert = client, bleu = livreur. Les QR ouvrent la{' '}
             <Text style={styles.em}>page Expo</Text> (installation fiable sur téléphone). Pour récupérer le fichier{' '}
@@ -195,7 +196,7 @@ export default function DistributionScreen() {
           </View>
         </ScrollView>
       </SafeAreaView>
-    </HuskoBackground>
+    </WestCoastBackground>
   );
 }
 
@@ -224,7 +225,7 @@ function QrSummary({
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: 'transparent' },
   scroll: { padding: spacing.md, paddingBottom: spacing.xl },
-  kicker: { marginTop: spacing.xs, marginBottom: spacing.xs },
+  kicker: { marginTop: spacing.sm, marginBottom: spacing.sm },
   intro: { marginTop: spacing.sm, marginBottom: spacing.lg },
   em: { fontWeight: '700', color: colors.goldDim },
   infra: { marginBottom: spacing.md },
@@ -238,9 +239,9 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.sm,
     paddingHorizontal: spacing.xs,
     borderRadius: radius.lg,
-    borderWidth: 1,
-    borderColor: colors.borderSubtle,
-    backgroundColor: colors.bgLift,
+    borderWidth: 2,
+    borderColor: WC.neonCyanDim,
+    backgroundColor: 'rgba(0,0,0,0.35)',
     alignItems: 'center',
   },
   tabOn: {
@@ -328,6 +329,8 @@ const styles = StyleSheet.create({
     padding: spacing.md,
     ...surface.glass,
     borderRadius: radius.lg,
+    borderWidth: 2,
+    borderColor: WC.neonCyanDim,
   },
   bothTitle: {
     color: colors.textMuted,

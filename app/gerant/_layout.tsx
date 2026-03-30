@@ -1,8 +1,9 @@
 import { Stack } from 'expo-router';
+import { Platform } from 'react-native';
 
 import { AutonomousDemoRunner } from '@/components/AutonomousDemoRunner';
 import { SyncStatusPill } from '@/components/SyncStatusPill';
-import { colors } from '@/constants/theme';
+import { WC } from '@/constants/westCoastTheme';
 
 export default function GerantLayout() {
   return (
@@ -10,11 +11,12 @@ export default function GerantLayout() {
       <AutonomousDemoRunner />
       <Stack
         screenOptions={{
-          headerStyle: { backgroundColor: colors.bgLift },
+          headerStyle: { backgroundColor: WC.brickDeep },
           headerShadowVisible: false,
-          headerTintColor: colors.gold,
-          headerTitleStyle: { fontWeight: '800', color: colors.text },
+          headerTintColor: WC.gold,
+          headerTitleStyle: { fontWeight: '800', color: WC.white },
           contentStyle: { backgroundColor: 'transparent' },
+          headerLargeTitle: Platform.OS === 'ios',
           headerRight: () => <SyncStatusPill />,
         }}
       >

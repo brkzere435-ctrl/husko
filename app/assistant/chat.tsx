@@ -11,7 +11,7 @@ import {
   View,
 } from 'react-native';
 
-import { HuskoBackground } from '@/components/HuskoBackground';
+import { WestCoastBackground } from '@/components/westcoast/WestCoastBackground';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { ASSISTANT_MAX_MESSAGE_CHARS } from '@/constants/assistantLimits';
 import { ASSISTANT_PROMPT_HINTS } from '@/constants/assistantPromptHints';
@@ -77,7 +77,7 @@ export default function AssistantChatScreen() {
     : '—';
 
   return (
-    <HuskoBackground>
+    <WestCoastBackground>
       <KeyboardAvoidingView
         style={styles.flex}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -141,7 +141,7 @@ export default function AssistantChatScreen() {
           </View>
         </View>
       </KeyboardAvoidingView>
-    </HuskoBackground>
+    </WestCoastBackground>
   );
 }
 

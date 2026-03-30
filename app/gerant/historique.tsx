@@ -3,10 +3,12 @@ import { FlatList, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { DeploymentHints } from '@/components/DeploymentHints';
-import { HuskoBackground } from '@/components/HuskoBackground';
+import { OrderLinesPreview } from '@/components/OrderLinesPreview';
+import { WestCoastBackground } from '@/components/westcoast/WestCoastBackground';
 import { StatusBadge } from '@/components/StatusBadge';
 import { typography } from '@/constants/typography';
 import { spacing, surface } from '@/constants/theme';
+import { WC, wcSectionLabel } from '@/constants/westCoastTheme';
 import { useHuskoStore } from '@/stores/useHuskoStore';
 
 export default function HistoriqueScreen() {
@@ -21,7 +23,7 @@ export default function HistoriqueScreen() {
   );
 
   return (
-    <HuskoBackground>
+    <WestCoastBackground>
       <SafeAreaView style={styles.root} edges={['bottom']}>
         <FlatList
           data={done}
@@ -31,7 +33,7 @@ export default function HistoriqueScreen() {
           }
           ListEmptyComponent={
             <View style={[surface.glass, styles.emptyWrap]}>
-              <Text style={typography.section}>Historique</Text>
+              <Text style={[wcSectionLabel, styles.emptyTitle]}>Historique</Text>
               <Text style={[typography.bodyMuted, styles.emptyText]}>
                 Aucune commande livrée ou annulée pour l’instant. Les terminées apparaîtront ici, les
                 plus récentes en premier.
@@ -49,12 +51,13 @@ export default function HistoriqueScreen() {
                 {new Date(o.createdAt).toLocaleString('fr-FR')}
               </Text>
               <Text style={typography.price}>{o.total.toFixed(2)} €</Text>
+              <OrderLinesPreview lines={o.lines} compact />
               <Text style={[typography.bodyMuted, styles.addr]}>{o.addressLabel}</Text>
             </View>
           )}
         />
       </SafeAreaView>
-    </HuskoBackground>
+    </WestCoastBackground>
   );
 }
 
@@ -65,7 +68,10 @@ const styles = StyleSheet.create({
   row: {
     padding: spacing.md,
     marginBottom: spacing.sm,
+    borderWidth: 2,
+    borderColor: WC.neonCyanDim,
   },
+  emptyTitle: { marginBottom: spacing.sm },
   emptyWrap: { padding: spacing.lg, marginBottom: spacing.md, gap: spacing.sm },
   emptyText: { lineHeight: 22 },
   badge: { marginVertical: spacing.sm },
