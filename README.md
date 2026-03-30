@@ -6,4 +6,4 @@ Application **Expo** : commande (menu, panier, suivi), **livreur** (carte + posi
 
 **Builds installables (APK Android, IPA iOS, web, Cloud Run) :** **`DEPLOIEMENT.md`**
 
-**Gate avant release (dans l’ordre, une seule commande) :** `npm run release:gate` — prévol env, sécurité Git / `.env`, `verify`, puis résumé `release:check`.
+**Gate avant release :** `npm run release:gate` (4 étapes locales). **Prêt pour EAS (gate + dépôt strict + prebuild) :** `npm run release:ready`.

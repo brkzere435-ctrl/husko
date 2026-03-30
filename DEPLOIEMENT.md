@@ -35,7 +35,12 @@ Pour un essai **d’une variante seule** (client, livreur, etc.), utilise plutô
 - **Node.js LTS** · `npm install` à la racine (le fichier `.npmrc` active `legacy-peer-deps` pour les paires Expo / React 19)
 - **Expo Go** aligné sur **SDK 55** (mettre à jour l’app Expo Go sur le téléphone) ou émulateurs : `npx expo start`
 - **Google Maps** (appareils réels) : définir `EXPO_PUBLIC_GOOGLE_MAPS_ANDROID_API_KEY` et `EXPO_PUBLIC_GOOGLE_MAPS_IOS_API_KEY` dans `.env` ou les **variables d’environnement EAS** (voir `env.example`). Sans clés valides, l’app affiche une **vue radar GTA** (sans tuiles satellite) ; avec clés valides, **tuiles Google** dans la mini-carte. Procédure détaillée : section **« Google Maps — obtenir et installer les clés »** ci‑dessous.
-- **Contrôle avant build (ordre logique, sans sauter d’étape)** : **`npm run release:gate`** enchaîne dans l’ordre : `preflight` → `security:check` → `verify` (tsc + ESLint + `validate:expo`) → `release:check`. Raccourci partiel : `npm run verify:all` (= preflight + verify seulement). **`npm run husko:doctor`** — audit style + fonction + security + release + validate + `tsc`. **`npm run release:doctor`** enchaîne **`security:check:strict`** puis **`eas:prebuild`** — à privilégier juste avant un build EAS « sérieux ».
+- **Contrôle avant build (ordre logique, sans sauter d’étape)** :
+  1. **`npm run release:gate`** — `preflight` → `security:check` → `verify` → `release:check`.
+  2. **`npm run release:doctor`** — `security:check:strict` (dépôt Git propre, obligatoire si `requireCommit` dans `eas.json`) → **`eas:prebuild`** (`release:check` + `validate:expo`, dernier garde-fou avant le cloud).
+  - **Tout en une fois (1 + 2) :** **`npm run release:ready`** (= `release:gate` puis `release:doctor`).
+  - **Ensuite (manuel / compte Expo) :** `eas login`, `npm run eas:credentials` si besoin, **`npm run eas:sync:maps`** si les clés Maps dans `.env` doivent être poussées vers EAS, puis **`npm run build:apk:unified`** (ou autre profil).
+  - Raccourci partiel : `npm run verify:all` (= preflight + verify seulement). **`npm run husko:doctor`** — audit style + fonction + garde-fous techniques.
 
 ### Risques courants — réponses rapides
 

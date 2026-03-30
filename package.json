@@ -72,6 +72,7 @@
     "security:check": "node scripts/security-hygiene.mjs",
     "security:check:strict": "node scripts/security-hygiene.mjs --strict",
     "release:doctor": "npm run security:check:strict && npm run eas:prebuild",
+    "release:ready": "npm run release:gate && npm run release:doctor",
     "husko:doctor": "node scripts/husko-doctor.mjs",
     "validate:expo": "node scripts/validate-expo.mjs",
     "verify": "npx tsc --noEmit && npx expo lint && npm run validate:expo",
