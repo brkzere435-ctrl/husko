@@ -214,6 +214,8 @@ module.exports = (ctx = {}) => {
       foregroundImage: './assets/adaptive-icon.png',
       backgroundColor: '#120404',
     },
+    /** Réduit le chevauchement clavier / champs (saisie PIN, formulaires). */
+    softwareKeyboardLayoutMode: 'resize',
     package: v.androidPackage,
     permissions: ['ACCESS_COARSE_LOCATION', 'ACCESS_FINE_LOCATION', 'POST_NOTIFICATIONS'],
     config: {
@@ -228,7 +230,7 @@ module.exports = (ctx = {}) => {
 
   const ios = {
     supportsTablet: true,
-    buildNumber: '1',
+    buildNumber: '2',
     bundleIdentifier: v.iosBundle,
     config: {
       googleMapsApiKey: googleMapsIosKey,
@@ -246,7 +248,7 @@ module.exports = (ctx = {}) => {
     name: v.name,
     // Slug unique = même projet EAS (projectId) ; les APK se distinguent par android.package / name.
     slug: DEFAULT_VARIANT.slug,
-    version: '1.0.3',
+    version: '1.0.4',
     runtimeVersion: { policy: 'appVersion' },
     updates: {
       url: `https://u.expo.dev/${DEFAULT_EAS_PROJECT_ID}`,

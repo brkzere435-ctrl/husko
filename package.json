@@ -1,6 +1,6 @@
 {
   "name": "husko",
-  "version": "1.0.0",
+  "version": "1.0.4",
   "main": "expo-router/entry",
   "private": true,
   "engines": {
@@ -31,6 +31,7 @@
     "build:apk:livreur": "cross-env EAS_BUILD_NO_EXPO_GO_WARNING=true eas build -p android --profile apk-livreur --non-interactive",
     "build:apk:assistant": "cross-env EAS_BUILD_NO_EXPO_GO_WARNING=true eas build -p android --profile apk-assistant --non-interactive",
     "build:apk:all": "node scripts/eas-build-all-apk.mjs",
+    "build:apk:preview": "cross-env EAS_BUILD_NO_EXPO_GO_WARNING=true eas build -p android --profile preview --non-interactive",
     "start:gerant": "cross-env EXPO_PUBLIC_APP_VARIANT=gerant expo start",
     "start:client": "cross-env EXPO_PUBLIC_APP_VARIANT=client expo start",
     "start:livreur": "cross-env EXPO_PUBLIC_APP_VARIANT=livreur expo start",
@@ -62,6 +63,7 @@
     "security:check": "node scripts/security-hygiene.mjs",
     "security:check:strict": "node scripts/security-hygiene.mjs --strict",
     "release:doctor": "npm run security:check:strict && npm run eas:prebuild",
+    "husko:doctor": "node scripts/husko-doctor.mjs",
     "validate:expo": "node scripts/validate-expo.mjs",
     "verify": "npx tsc --noEmit && npx expo lint && npm run validate:expo",
     "verify:all": "npm run preflight && npm run verify",

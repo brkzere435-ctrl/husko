@@ -11,6 +11,17 @@ Ordre : **prérequis** → **développement** → **builds mobiles** → **web /
 
 Toute la config Expo est dans **`app.config.js`** (y compris `extra.eas.projectId`).
 
+### Version d’essai (un APK, téléchargement simple)
+
+Objectif : **un seul APK** pour faire tester le menu / navigation sans builder les trois variantes. Le profil **`preview`** ne fixe pas `EXPO_PUBLIC_APP_VARIANT` : l’app démarre sur le **hub** (liens Commander · Livreur · Gérant).
+
+1. `npm run release:doctor` puis **`npm run build:apk:preview`** (build cloud Android, profil `preview` dans `eas.json`).
+2. Quand le build est vert : [expo.dev](https://expo.dev) → **ton projet** → **Builds** → ouvrir le build → **Install** ou copier l’**URL de la page build** (elle s’ouvre sur le téléphone ; bouton d’installation Expo).
+3. Partage ce lien par **WhatsApp, mail ou QR** (capture d’écran du QR sur la page Expo, ou `npm run qr:generate` après avoir mis l’URL dans `distribution.defaults.json` côté gérant).
+4. Optionnel : dans `app.config.js`, change **`version`** (ex. `1.0.4`) pour distinguer l’essai sur l’écran « À propos » / réglages.
+
+Pour un essai **d’une variante seule** (client, livreur, etc.), utilise plutôt `npm run build:apk:client` (ou `gerant` / `livreur` / `assistant`) comme d’habitude.
+
 ---
 
 ## 1. Prérequis
@@ -18,7 +29,7 @@ Toute la config Expo est dans **`app.config.js`** (y compris `extra.eas.projectI
 - **Node.js LTS** · `npm install` à la racine (le fichier `.npmrc` active `legacy-peer-deps` pour les paires Expo / React 19)
 - **Expo Go** aligné sur **SDK 55** (mettre à jour l’app Expo Go sur le téléphone) ou émulateurs : `npx expo start`
 - **Google Maps** (appareils réels) : définir `EXPO_PUBLIC_GOOGLE_MAPS_ANDROID_API_KEY` et `EXPO_PUBLIC_GOOGLE_MAPS_IOS_API_KEY` dans `.env` ou les **variables d’environnement EAS** (voir `env.example`). Sans clés valides, l’app affiche une **vue radar GTA** (sans tuiles satellite) ; avec clés valides, **tuiles Google** dans la mini-carte. Procédure détaillée : section **« Google Maps — obtenir et installer les clés »** ci‑dessous.
-- **Contrôle avant build** : `npm run verify:all` (prévol `.env` + TypeScript + ESLint) ou `npm run verify` seul. **`npm run preflight`** affiche l’état Firebase / Maps / distribution sans modifier les fichiers. **`npm run release:check`** résume en une fois : Maps / Firebase / EAS + rappels des commandes (sans afficher de secrets). **`npm run release:doctor`** enchaîne **`security:check`** (`.env` non versionné, rappel si le dépôt Git est sale pour `requireCommit`) puis **`eas:prebuild`** — à privilégier avant une release sérieuse.
+- **Contrôle avant build** : `npm run verify:all` (prévol `.env` + TypeScript + ESLint) ou `npm run verify` seul. **`npm run husko:doctor`** — même terrain + référentiel **style ↔ fonctionnalité** (livraison, variantes, Maps, Firebase) + `tsc` en une commande. **`npm run preflight`** affiche l’état Firebase / Maps / distribution sans modifier les fichiers. **`npm run release:check`** résume en une fois : Maps / Firebase / EAS + rappels des commandes (sans afficher de secrets). **`npm run release:doctor`** enchaîne **`security:check`** (`.env` non versionné, rappel si le dépôt Git est sale pour `requireCommit`) puis **`eas:prebuild`** — à privilégier avant une release sérieuse.
 
 ### Risques courants — réponses rapides
 

@@ -1,7 +1,7 @@
 import { Link, router } from 'expo-router';
 import * as Linking from 'expo-linking';
 import { memo, useCallback, useMemo } from 'react';
-import { FlatList, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { MenuItemVisual } from '@/components/westcoast/MenuItemVisual';
@@ -138,7 +138,7 @@ export default function ClientMenuScreen() {
           initialNumToRender={4}
           maxToRenderPerBatch={4}
           windowSize={7}
-          removeClippedSubviews={Platform.OS === 'android'}
+          removeClippedSubviews={false}
           ListHeaderComponent={
             <View style={styles.headerBlock}>
               <DeploymentHints mode="alerts" mapsRelevant={false} style={styles.hint} />

@@ -99,6 +99,7 @@ if (!mapsOk || !fbOk) {
 }
 console.log('Commandes utiles :');
 console.log('  npm run release:doctor         — security:check + eas:prebuild (avant release sérieuse)');
+console.log('  npm run husko:doctor           — audit style + fonction (security, release, expo, tsc)');
 console.log('  npm run security:check         — .env + avertissement si dépôt « sale »');
 console.log('  npm run security:check:strict  — échoue si dépôt sale (comme release:doctor)');
 console.log('  npm run eas:prebuild           — même chose que l’étape 4 (gate avant build)');

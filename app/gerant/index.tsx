@@ -148,7 +148,11 @@ export default function GerantDashboardScreen() {
   return (
     <WestCoastBackground>
       <SafeAreaView style={styles.root} edges={['bottom']}>
-        <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+        <ScrollView
+          contentContainerStyle={styles.scroll}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+        >
           {autonomousDemoEnabled ? (
             <View style={styles.autoBanner}>
               <Text style={styles.autoBannerTitle}>Mode autonome actif</Text>
