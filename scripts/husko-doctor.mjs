@@ -65,7 +65,7 @@ console.log(`Référentiel — ce qui doit rester aligné :
   • Config build : app.config.js, eas.json, .env (non versionné)
 
   CLI (souvent confondu)
-  • Gate local : npm run release:gate (4 étapes) ; prêt EAS : npm run release:ready (gate + strict + eas:prebuild).
+  • Gate local : npm run release:gate (4 étapes) ; prêt EAS : npm run release:ready ; puis phase cloud : npm run release:next.
   • APK unique : npm run build:apk:unified ; tout l’écosystème : npm run build:apk:all (5 builds) ou build:apk:mono (3). OTA : eas:update:hub, eas:update:assistant, etc. Toujours « npm run … », jamais « npm build:… » seul.
 
 Fichiers clés présents :`);

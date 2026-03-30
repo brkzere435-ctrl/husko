@@ -21,7 +21,7 @@ Toute la config Expo est dans **`app.config.js`** (y compris `extra.eas.projectI
 
 Objectif : **un seul APK** pour faire tester le menu / navigation **sans** builder les trois **APK mono-rôle** (gérant / client / livreur). Le profil **`preview`** ne fixe pas `EXPO_PUBLIC_APP_VARIANT` : l’app démarre sur le **hub** (liens Commander · Livreur · Gérant). Pour un livrable « prod » par défaut, préférer plutôt **`apk-unified`** (`npm run build:android`).
 
-1. `npm run release:doctor` puis **`npm run build:apk:preview`** (build cloud Android, profil `preview` dans `eas.json`).
+1. `npm run release:ready` (ou au minimum `release:doctor`) puis **`npm run build:apk:preview`** (build cloud Android, profil `preview` dans `eas.json`).
 2. Quand le build est vert : [expo.dev](https://expo.dev) → **ton projet** → **Builds** → ouvrir le build → **Install** ou copier l’**URL de la page build** (elle s’ouvre sur le téléphone ; bouton d’installation Expo).
 3. Partage ce lien par **WhatsApp, mail ou QR** (capture d’écran du QR sur la page Expo, ou `npm run qr:generate` après avoir mis l’URL dans `distribution.defaults.json` côté gérant).
 4. Optionnel : dans `app.config.js`, change **`version`** (ex. `1.0.4`) pour distinguer l’essai sur l’écran « À propos » / réglages.
@@ -39,7 +39,13 @@ Pour un essai **d’une variante seule** (client, livreur, etc.), utilise plutô
   1. **`npm run release:gate`** — `preflight` → `security:check` → `verify` → `release:check`.
   2. **`npm run release:doctor`** — `security:check:strict` (dépôt Git propre, obligatoire si `requireCommit` dans `eas.json`) → **`eas:prebuild`** (`release:check` + `validate:expo`, dernier garde-fou avant le cloud).
   - **Tout en une fois (1 + 2) :** **`npm run release:ready`** (= `release:gate` puis `release:doctor`).
-  - **Ensuite (manuel / compte Expo) :** `eas login`, `npm run eas:credentials` si besoin, **`npm run eas:sync:maps`** si les clés Maps dans `.env` doivent être poussées vers EAS, puis **`npm run build:apk:unified`** (ou autre profil).
+  - **3. Phase cloud EAS (après `release:ready`, ordre fixe) :**
+    1. `npm run eas:login` (ou `eas login`) si besoin
+    2. `npm run eas:credentials` si keystore / certificats à vérifier
+    3. `npm run eas:sync:maps` si les clés Maps du `.env` doivent être sur Expo
+    4. `npm run build:apk:unified` (hub) ou autre profil (`build:matrix` pour la liste)
+    5. Mettre à jour `distribution.defaults.json` puis `npm run qr:generate`
+    - **`npm run release:next`** affiche cette checklist et exécute `eas whoami` (échoue si pas connecté à Expo).
   - Raccourci partiel : `npm run verify:all` (= preflight + verify seulement). **`npm run husko:doctor`** — audit style + fonction + garde-fous techniques.
 
 ### Risques courants — réponses rapides

@@ -99,6 +99,7 @@ if (!mapsOk || !fbOk) {
 }
 console.log('Commandes utiles :');
 console.log('  npm run release:ready          — release:gate puis release:doctor (prêt avant eas build)');
+console.log('  npm run release:next           — checklist EAS + eas whoami (après release:ready)');
 console.log('  npm run release:gate           — preflight → security:check → verify → release:check');
 console.log('  npm run release:doctor         — security:check + eas:prebuild (avant release sérieuse)');
 console.log('  npm run husko:doctor           — audit style + fonction (security, release, expo, tsc)');
