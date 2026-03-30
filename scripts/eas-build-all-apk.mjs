@@ -31,6 +31,8 @@ const profiles = monoOnly
 const buildEnv = {
   ...process.env,
   EAS_BUILD_NO_EXPO_GO_WARNING: process.env.EAS_BUILD_NO_EXPO_GO_WARNING ?? 'true',
+  /** Bump local versionCode + commit requis pour `eas build --non-interactive` (voir eas.json autoIncrement). */
+  EAS_BUILD_AUTOCOMMIT: process.env.EAS_BUILD_AUTOCOMMIT ?? '1',
 };
 
 console.log(
