@@ -22,7 +22,7 @@ export function LivreurOrderPanel() {
       contentContainerStyle={styles.inner}
       showsVerticalScrollIndicator={false}
     >
-      <Text style={styles.title}>Courses</Text>
+      <Text style={[wcSectionLabel, styles.title]}>Courses</Text>
       {pickup.length === 0 && enRoute.length === 0 ? (
         <Text style={typography.bodyMuted}>Aucune course assignée.</Text>
       ) : null}

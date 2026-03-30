@@ -25,7 +25,7 @@ export default function LivreurScreenWeb() {
   const driverHeading = useHuskoStore((s) => s.driverHeading);
   const driver = useHuskoStore((s) => s.driver);
 
-  const [region, setRegion] = useState<MapRegion>({
+  const [, setRegion] = useState<MapRegion>({
     ...ANGERS_DEFAULT,
     latitudeDelta: 0.012,
     longitudeDelta: 0.012,
