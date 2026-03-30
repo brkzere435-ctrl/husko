@@ -75,6 +75,8 @@
     "release:doctor": "npm run security:check:strict && npm run eas:prebuild",
     "release:ready": "npm run release:gate && npm run release:doctor",
     "release:next": "node scripts/eas-post-ready.mjs",
+    "build:gate:native": "node scripts/native-build-gate.mjs",
+    "build:gate:native:export": "cross-env HUSKO_GATE_EXPORT=1 node scripts/native-build-gate.mjs",
     "husko:doctor": "node scripts/husko-doctor.mjs",
     "validate:expo": "node scripts/validate-expo.mjs",
     "verify": "npx tsc --noEmit && npx expo lint && npm run validate:expo",

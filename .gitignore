@@ -15,6 +15,10 @@ credentials/android-keystore.secrets.txt
 *.orig.*
 web-build/
 .expo-export-test/
+.expo-gate-export/
+# Copie locale Gradle / réglages IDE (chemins machine)
+gradle-9.4.1-all/
+.vscode/
 .DS_Store
 *.log
 .env

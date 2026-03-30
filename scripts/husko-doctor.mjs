@@ -87,6 +87,9 @@ run('security:check', ['run', 'security:check']);
 run('release:check', ['run', 'release:check']);
 run('validate:expo', ['run', 'validate:expo']);
 
+console.log('\n── ESLint (expo lint) ──\n');
+run('lint', ['run', 'lint']);
+
 console.log('\n── TypeScript ──\n');
 const tsc = spawnSync('npx', ['tsc', '--noEmit'], {
   cwd: root,
@@ -94,9 +97,12 @@ const tsc = spawnSync('npx', ['tsc', '--noEmit'], {
   shell: process.platform === 'win32',
 });
 if ((tsc.status ?? 1) !== 0) {
-  console.error('\n[Husko Doctor] tsc a échoué.\n');
+  console.error('\n[Husko Doctor] tsc a échoué (VULN-HUSKO-002).\n');
   process.exit(tsc.status ?? 1);
 }
+
+console.log('\n── Portillon natif optionnel (codes VULN-HUSKO-xxx) ──\n');
+console.log('  Pour le même gate que CI : npm run build:gate:native\n');
 
 console.log(`
 ╔══════════════════════════════════════════════════════════════════════════╗

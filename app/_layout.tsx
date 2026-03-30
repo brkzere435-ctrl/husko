@@ -21,6 +21,10 @@ import {
 } from '@/services/checkAppUpdates';
 import { configureNotificationHandler } from '@/services/orderNotifications';
 import { useHuskoStore } from '@/stores/useHuskoStore';
+import Constants from 'expo-constants';
+
+import { emitBootDebugProbes } from '@/utils/debugProbe';
+import { readHuskoExpoExtra } from '@/utils/readHuskoExpoExtra';
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
@@ -29,6 +33,18 @@ export default function RootLayout() {
   const otaRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
+    const cfg = Constants.expoConfig;
+    const extra = readHuskoExpoExtra();
+    const splash = cfg?.splash as { image?: string } | undefined;
+    emitBootDebugProbes({
+      icon: cfg?.icon,
+      splashImage: splash?.image,
+      adaptiveForeground: cfg?.android?.adaptiveIcon?.foregroundImage,
+      appVariant: String(extra.appVariant ?? ''),
+      mapsAndroidKeyOk: extra.mapsAndroidKeyOk === true,
+      mapsIosKeyOk: extra.mapsIosKeyOk === true,
+    });
+
     configureNotificationHandler();
     SystemUI.setBackgroundColorAsync(colors.bg);
     SplashScreen.hideAsync();

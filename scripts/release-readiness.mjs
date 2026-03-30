@@ -109,6 +109,8 @@ console.log('  npm run eas:prebuild           — même chose que l’étape 4 (
 console.log('  npm run eas:sync:maps:verify    — sync Maps puis release:check');
 console.log('  npm run preflight              — détail .env');
 console.log('  npm run verify                 — tsc + lint + validate:expo');
+console.log('  npm run build:gate:native      — portillon APK/iOS local + codes VULN-HUSKO-xxx si échec');
+console.log('  npm run build:gate:native:export — idem + test expo export Android (Metro)');
 console.log('  npm run build:apk:unified      — APK unique hub (canal OTA hub)');
 console.log('  npm run build:apk:all          — 5 builds EAS (unified → assistant → 3 roles)');
 console.log('  npm run eas:update:hub         — OTA JS APK unifie ; eas:update:* pour chaque canal');
