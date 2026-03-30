@@ -18,12 +18,18 @@ export function OtaUpdateSection() {
   const channel = Updates.channel ?? '—';
   const updateId = Updates.updateId ? `${Updates.updateId.slice(0, 8)}…` : '—';
   const native = Platform.OS !== 'web';
+  /** Android versionCode / iOS CFBundleVersion — utile pour vérifier l’APK installé. */
+  const nativeBuild =
+    Constants.nativeBuildVersion && String(Constants.nativeBuildVersion).length > 0
+      ? String(Constants.nativeBuildVersion)
+      : null;
 
   return (
     <View style={styles.box}>
       <Text style={typography.section}>Mise à jour de l’app (OTA)</Text>
       <Text style={[typography.caption, styles.muted]}>
         Version affichée : {version}
+        {nativeBuild != null ? `\nBuild natif (APK / store) : ${nativeBuild}` : ''}
         {'\n'}
         Canal EAS Update : {channel}
         {'\n'}

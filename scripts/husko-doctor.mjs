@@ -7,6 +7,16 @@ import { existsSync } from 'fs';
 import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 
+function gitShortSha(root) {
+  if (!existsSync(join(root, '.git'))) return null;
+  const r = spawnSync('git', ['rev-parse', '--short', 'HEAD'], {
+    cwd: root,
+    encoding: 'utf8',
+  });
+  const s = (r.stdout ?? '').trim();
+  return r.status === 0 && s ? s : null;
+}
+
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const npmCmd = process.platform === 'win32' ? 'npm.cmd' : 'npm';
 
@@ -27,11 +37,12 @@ function has(p) {
   return existsSync(join(root, p));
 }
 
+const sha = gitShortSha(root);
 console.log(`
 ╔══════════════════════════════════════════════════════════════════════════╗
 ║  HUSKO DOCTOR — Style & fonctionnalité (apps livraison / dark UI)      ║
 ╚══════════════════════════════════════════════════════════════════════════╝
-`);
+${sha ? `Commit Git : ${sha}\n` : ''}`);
 
 console.log(`Référentiel — ce qui doit rester aligné :
 
