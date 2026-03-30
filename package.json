@@ -32,6 +32,7 @@
     "apk:download:unified": "node scripts/download-latest-apk.mjs unified",
     "apk:download:assistant": "node scripts/download-latest-apk.mjs assistant",
     "apk:install:device": "node scripts/install-apk-on-device.mjs",
+    "apk:install:unified": "node scripts/install-apk-on-device.mjs unified",
     "build:apk:livreur": "cross-env EAS_BUILD_NO_EXPO_GO_WARNING=true eas build -p android --profile apk-livreur --non-interactive",
     "build:apk:assistant": "cross-env EAS_BUILD_NO_EXPO_GO_WARNING=true eas build -p android --profile apk-assistant --non-interactive",
     "build:apk:all": "node scripts/eas-build-all-apk.mjs",

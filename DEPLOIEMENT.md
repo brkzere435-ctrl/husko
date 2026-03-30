@@ -44,7 +44,7 @@ Pour un essai **d’une variante seule** (client, livreur, etc.), utilise plutô
 
 ### Liaison directe entre appareils (Firebase)
 
-Sans configuration, les commandes restent **locales** (AsyncStorage). Pour que **client, gérant et livreur** (trois APK) partagent les **mêmes commandes** et la **position livreur** en temps réel :
+Sans configuration, les commandes restent **locales** (AsyncStorage). Pour que **client, gérant et livreur** (APK unifié hub et/ou APK par rôle) partagent les **mêmes commandes** et la **position livreur** en temps réel :
 
 1. Créer un projet **[Firebase](https://console.firebase.google.com)** → activer **Firestore**.
 2. Créer une app Web, récupérer les clés, et les mettre dans **`.env`** (`npm run setup:env` depuis `env.example`) ou dans les **secrets EAS** pour les builds.
@@ -132,9 +132,9 @@ npm run apk:download:last
 npm run apk:install:device -- unified
 ```
 
-### Android — trois APK (gérant / client / livreur)
+### Android — APK mono-rôle (gérant / client / livreur)
 
-Chaque profil définit `EXPO_PUBLIC_APP_VARIANT` et un `applicationId` distinct (`com.husko.bynight.gerant`, etc.) :
+En complément de l’**APK unifié** (`apk-unified`), chaque profil mono-rôle définit `EXPO_PUBLIC_APP_VARIANT` et un `applicationId` distinct (`com.husko.bynight.gerant`, etc.) :
 
 ```bash
 npm run build:apk:gerant

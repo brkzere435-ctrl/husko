@@ -172,7 +172,7 @@ export default function GerantDashboardScreen() {
               <PrimaryButton title="Réglages" variant="ghost" style={styles.linkBtn} />
             </Link>
             <Link href="/gerant/distribution" asChild>
-              <PrimaryButton title="Distribution QR (Client & Livreur)" style={styles.linkBtn} />
+              <PrimaryButton title="Distribution QR & liens (tous les APK)" style={styles.linkBtn} />
             </Link>
           </View>
 
@@ -181,8 +181,8 @@ export default function GerantDashboardScreen() {
               <Text style={styles.sectionTitle}>Applications liées (Client & Livreur)</Text>
               <Text style={[typography.bodyMuted, styles.siblingHint]}>
                 {isRemoteSyncEnabled()
-                  ? 'Liaison Firestore active : commandes et livreur synchronisés entre les trois APK. Ouvrez Client ou Livreur depuis ici.'
-                  : 'Trois APK distincts : ouvrez Client et Livreur depuis ici. Sans Firebase (Réglages / env), chaque téléphone garde ses données en local.'}
+                  ? 'Liaison Firestore active : commandes et livreur synchronisés entre appareils (APK unifié hub ou apps Client / Livreur / Gérant). Ouvrez Client ou Livreur depuis ici.'
+                  : 'APK unifié (hub) ou apps séparées : ouvrez Client et Livreur depuis ici. Sans Firebase (Réglages / env), chaque téléphone garde ses données en local.'}
               </Text>
               <PrimaryButton
                 title="Ouvrir Husko Client"

@@ -1,5 +1,5 @@
 /**
- * Affiche la matrice de builds EAS (Android APK + iOS) pour les trois rôles + hub.
+ * Affiche la matrice de builds EAS (Android APK + iOS) : hub unifié, rôles, Copilote.
  * Prerequis : npm install && eas login && eas init (projectId) — eas-cli est en devDependency
  */
 const rows = [
