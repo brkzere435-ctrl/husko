@@ -53,7 +53,7 @@ console.log(`Référentiel — ce qui doit rester aligné :
   • Carte : tuiles Google si clés OK ; sinon fallback radar (comportement prévu, pas un « bug »).
 
   FONCTIONNALITÉ (métier)
-  • Un rôle par APK : VariantGate — pas de mélange client/livreur/gérant sur le même binaire.
+  • APK unifié (eas profile apk-unified, canal hub) : hub avec tous les rôles ; APK mono-rôle : VariantGate force un seul espace.
   • Flux commande : pending → preparing → awaiting_livreur → on_way → delivered (ou annulé).
   • Données : Firebase = multi-téléphones ; sans Firebase = local seulement (comportement attendu).
   • Mises à jour : eas update = JS ; nouvelles clés natives / plugins = nouveau eas build.
@@ -65,7 +65,7 @@ console.log(`Référentiel — ce qui doit rester aligné :
   • Config build : app.config.js, eas.json, .env (non versionné)
 
   CLI (souvent confondu)
-  • Scripts npm : toujours npm run build:apk:gerant (avec run). Jamais « npm build:apk:gerant » seul.
+  • APK unique livré : npm run build:apk:unified (canal OTA hub : npm run eas:update:hub). Autres rôles : npm run build:apk:gerant, etc. Toujours « npm run … », jamais « npm build:… » seul.
 
 Fichiers clés présents :`);
 const checks = [

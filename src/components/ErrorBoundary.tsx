@@ -19,9 +19,7 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, info: ErrorInfo): void {
-    if (__DEV__) {
-      console.error('[ErrorBoundary]', error.message, info.componentStack);
-    }
+    console.error('[ErrorBoundary]', error.message, info.componentStack);
   }
 
   render(): ReactNode {
@@ -30,18 +28,29 @@ export class ErrorBoundary extends Component<Props, State> {
         <View style={styles.root} accessibilityRole="alert">
           <Text style={styles.title}>Un problème est survenu</Text>
           <Text style={styles.body}>
-            Relancez l’application. Si le souci continue, mettez l’app à jour ou contactez le support.
+            Réessayez l’écran ou relancez l’application. Si le souci continue, mettez l’app à jour ou
+            contactez le support.
           </Text>
-          <Pressable
-            style={({ pressed }) => [styles.btn, pressed && styles.btnPressed]}
-            onPress={() => {
-              void Updates.reloadAsync().catch(() => {});
-            }}
-            accessibilityRole="button"
-            accessibilityLabel="Relancer l’application"
-          >
-            <Text style={styles.btnText}>Relancer</Text>
-          </Pressable>
+          <View style={styles.actions}>
+            <Pressable
+              style={({ pressed }) => [styles.btn, pressed && styles.btnPressed]}
+              onPress={() => this.setState({ hasError: false })}
+              accessibilityRole="button"
+              accessibilityLabel="Réessayer sans quitter l’application"
+            >
+              <Text style={styles.btnText}>Réessayer</Text>
+            </Pressable>
+            <Pressable
+              style={({ pressed }) => [styles.btnSecondary, pressed && styles.btnPressed]}
+              onPress={() => {
+                void Updates.reloadAsync().catch(() => {});
+              }}
+              accessibilityRole="button"
+              accessibilityLabel="Relancer l’application"
+            >
+              <Text style={styles.btnSecondaryText}>Relancer</Text>
+            </Pressable>
+          </View>
         </View>
       );
     }
@@ -68,8 +77,8 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     marginBottom: spacing.lg,
   },
+  actions: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
   btn: {
-    alignSelf: 'flex-start',
     paddingVertical: spacing.sm,
     paddingHorizontal: spacing.lg,
     borderRadius: radius.md,
@@ -77,10 +86,23 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.borderGlow,
   },
+  btnSecondary: {
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.lg,
+    borderRadius: radius.md,
+    backgroundColor: 'transparent',
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
   btnPressed: { opacity: 0.85 },
   btnText: {
     fontWeight: '800',
     color: colors.gold,
+    fontSize: 16,
+  },
+  btnSecondaryText: {
+    fontWeight: '700',
+    color: colors.textMuted,
     fontSize: 16,
   },
 });

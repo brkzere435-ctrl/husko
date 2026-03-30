@@ -81,6 +81,7 @@ type State = {
   setDriver: (pos: LatLng | null, heading?: number) => void;
   setLivreurOnline: (v: boolean) => void;
   setManagerPin: (pin: string) => void;
+  setLivreurPin: (pin: string) => void;
   completeGerantPinSetup: (newPin: string) => void;
   completeLivreurPinSetup: (newPin: string) => void;
   setNotificationsEnabled: (v: boolean) => void;
@@ -230,6 +231,7 @@ export const useHuskoStore = create<State>()(
 
       setLivreurOnline: (livreurOnline) => set({ livreurOnline }),
       setManagerPin: (managerPin) => set({ managerPin, gerantPinOnboarded: true }),
+      setLivreurPin: (livreurPin) => set({ livreurPin }),
       completeGerantPinSetup: (newPin) => set({ managerPin: newPin, gerantPinOnboarded: true }),
       completeLivreurPinSetup: (newPin) => set({ livreurPin: newPin, livreurPinOnboarded: true }),
       setNotificationsEnabled: (notificationsEnabled) => set({ notificationsEnabled }),

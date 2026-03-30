@@ -22,6 +22,15 @@
         "autoIncrement": "versionCode"
       }
     },
+    "apk-unified": {
+      "distribution": "internal",
+      "channel": "hub",
+      "android": {
+        "buildType": "apk",
+        "autoIncrement": "versionCode"
+      },
+      "env": { "EXPO_PUBLIC_APP_VARIANT": "all" }
+    },
     "apk-gerant": {
       "distribution": "internal",
       "channel": "gerant",

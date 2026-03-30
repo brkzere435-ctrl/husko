@@ -4,6 +4,7 @@
  *   node scripts/download-latest-apk.mjs client
  *   node scripts/download-latest-apk.mjs gerant
  *   node scripts/download-latest-apk.mjs livreur
+ *   node scripts/download-latest-apk.mjs unified
  *   node scripts/download-latest-apk.mjs all
  *
  * Sortie : dist/Husko-{Client|Gerant|Livreur}-latest.apk (gitignore)
@@ -18,6 +19,7 @@ const __dirname = fileURLToPath(new URL('.', import.meta.url));
 const ROOT = join(__dirname, '..');
 
 const VARIANTS = {
+  unified: { profile: 'apk-unified', file: 'Husko-ByNight-unified-latest.apk' },
   client: { profile: 'apk-client', file: 'Husko-Client-latest.apk' },
   gerant: { profile: 'apk-gerant', file: 'Husko-Gerant-latest.apk' },
   livreur: { profile: 'apk-livreur', file: 'Husko-Livreur-latest.apk' },
@@ -60,7 +62,7 @@ async function downloadUrl(url, dest) {
 
 async function downloadOne(key) {
   const v = VARIANTS[key];
-  if (!v) throw new Error(`Profil inconnu : ${key} (client | gerant | livreur | all)`);
+  if (!v) throw new Error(`Profil inconnu : ${key} (unified | client | gerant | livreur | all)`);
 
   const raw = runEasBuildList(v.profile);
   const arr = JSON.parse(raw);
@@ -85,13 +87,15 @@ async function main() {
     for (const key of Object.keys(VARIANTS)) {
       await downloadOne(key);
     }
-    console.log('[Husko] Les trois APK sont dans le dossier dist/');
-    console.log('[Husko] Transfert téléphone : USB (copier les .apk), cloud, ou npm run apk:install:device -- <client|gerant|livreur>');
+    console.log('[Husko] Tous les APK (unifié + rôles) sont dans le dossier dist/');
+    console.log(
+      '[Husko] Transfert téléphone : USB, cloud, ou npm run apk:install:device -- <unified|client|gerant|livreur>'
+    );
     return;
   }
 
   if (!VARIANTS[arg]) {
-    console.error('Usage : node scripts/download-latest-apk.mjs [ client | gerant | livreur | all ]');
+    console.error('Usage : node scripts/download-latest-apk.mjs [ unified | client | gerant | livreur | all ]');
     process.exit(1);
   }
 

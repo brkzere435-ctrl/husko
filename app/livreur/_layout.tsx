@@ -35,6 +35,7 @@ export default function LivreurLayout() {
         headerTitleStyle: { fontWeight: '800', color: WC.white },
         contentStyle: { backgroundColor: 'transparent' },
         headerLargeTitle: Platform.OS === 'ios',
+        headerRight: () => <LivreurHeaderRight showSettings />,
       }}
     >
       <Stack.Screen
@@ -42,7 +43,6 @@ export default function LivreurLayout() {
         options={{
           title: 'Livreur',
           headerShown: true,
-          headerRight: () => <LivreurHeaderRight showSettings />,
         }}
       />
       <Stack.Screen

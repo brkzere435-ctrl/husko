@@ -256,6 +256,16 @@ module.exports = (ctx = {}) => {
     orientation: 'portrait',
     scheme: v.scheme,
     userInterfaceStyle: 'dark',
+    /** Shell Android / iOS : même palette que le splash — finition « produit », pas barres grises par défaut. */
+    androidStatusBar: {
+      barStyle: 'light-content',
+      backgroundColor: '#120404',
+      translucent: false,
+    },
+    androidNavigationBar: {
+      barStyle: 'light-content',
+      backgroundColor: '#120404',
+    },
     icon: './assets/icon.png',
     splash: {
       backgroundColor: '#120404',

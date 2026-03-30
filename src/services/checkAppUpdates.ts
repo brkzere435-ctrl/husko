@@ -2,6 +2,7 @@ import * as Updates from 'expo-updates';
 import { Alert, Platform } from 'react-native';
 
 import { notifyAppUpdateReady } from '@/services/orderNotifications';
+import { useHuskoStore } from '@/stores/useHuskoStore';
 
 /** Vérification automatique en arrière-plan (toutes les N ms, app ouverte). */
 export const OTA_PERIODIC_CHECK_MS = 15 * 60 * 1000;
@@ -60,9 +61,12 @@ async function runOtaCheck(mode: CheckMode): Promise<void> {
     }
     const next = await Updates.fetchUpdateAsync();
     if (next.isNew) {
-      const showedNotification = await notifyAppUpdateReady();
-      if (showedNotification) {
-        await new Promise<void>((resolve) => setTimeout(resolve, MS_AFTER_UPDATE_NOTIFICATION));
+      const { notificationsEnabled } = useHuskoStore.getState();
+      if (notificationsEnabled) {
+        const showedNotification = await notifyAppUpdateReady();
+        if (showedNotification) {
+          await new Promise<void>((resolve) => setTimeout(resolve, MS_AFTER_UPDATE_NOTIFICATION));
+        }
       }
       await Updates.reloadAsync();
       return;

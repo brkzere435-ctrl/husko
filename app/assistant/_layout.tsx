@@ -1,6 +1,7 @@
 import { Stack } from 'expo-router';
 import { Platform } from 'react-native';
 
+import { SyncStatusPill } from '@/components/SyncStatusPill';
 import { WC } from '@/constants/westCoastTheme';
 
 export default function AssistantLayout() {
@@ -14,6 +15,7 @@ export default function AssistantLayout() {
         contentStyle: { backgroundColor: 'transparent' },
         headerLargeTitle: Platform.OS === 'ios',
         headerBackTitle: '',
+        headerRight: () => <SyncStatusPill />,
       }}
     >
       <Stack.Screen name="index" options={{ title: 'Copilote' }} />
