@@ -3,7 +3,7 @@
  * 1. Dépendances npm
  * 2. .env depuis env.example si absent
  * 3. Syntaxe du proxy assistant (Node)
- * 4. Prévol + TypeScript + ESLint + validate:expo
+ * 4. release:gate (preflight → security:check → verify → release:check)
  *
  * Usage : npm run setup:pipeline
  */
@@ -40,6 +40,6 @@ run('node', ['--check', 'server/assistant-chat.mjs'], '3 — Vérification synta
   shell: false,
 });
 
-run('npm', ['run', 'verify:all'], '4 — preflight + tsc + eslint + validate:expo');
+run('npm', ['run', 'release:gate'], '4 — release:gate (preflight → security → verify → release:check)');
 
 console.log(`\n${'═'.repeat(56)}\n  Terminé — prochaines étapes manuelles :\n  • Renseigner .env (OPENAI_API_KEY, liens Revolut, etc.)\n  • npm run assistant:server  puis  npm run start:assistant\n  • eas login && npm run build:apk:assistant  (APK Copilote)\n${'═'.repeat(56)}\n`);

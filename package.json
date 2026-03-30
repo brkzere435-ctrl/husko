@@ -76,6 +76,7 @@
     "validate:expo": "node scripts/validate-expo.mjs",
     "verify": "npx tsc --noEmit && npx expo lint && npm run validate:expo",
     "verify:all": "npm run preflight && npm run verify",
+    "release:gate": "npm run preflight && npm run security:check && npm run verify && npm run release:check",
     "test:ci": "npm run verify:all && npx expo export --platform web",
     "git:github:login": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/github-login.ps1",
     "git:github": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/github-sync.ps1",

@@ -89,6 +89,7 @@ console.log(
 );
 
 console.log('\nRappels :');
+console.log('  npm run release:gate - preflight + security:check + verify + release:check');
 console.log('  npm run husko:doctor - audit style + fonction + security + tsc');
 console.log('  npm run validate:expo - verifie que app.config.js se charge (Expo JSON)');
 console.log('  eas secret:create - memes noms EXPO_PUBLIC_* que dans env.example');
