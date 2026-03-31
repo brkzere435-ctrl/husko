@@ -61,6 +61,8 @@ Cocher après test sur build release. Colonne « OK / KO » + note brève si KO.
 |----|------|----------|-------|---------|---------|------------------------|-------------|
 | P1-001 | | | | | | | |
 
+*Carnet vide côté métier au 2026-03-31 : ajouter une ligne par bug prouvé (capture, logcat, étapes).*
+
 ## 7. Vérification automatique (CI locale)
 
 ```bash
@@ -80,3 +82,4 @@ npm run release:gate    # si .env / preflight OK
 
 - Échec splash : `https://expo.dev/accounts/brkapk/projects/husko/builds/53beb348-1ae3-4239-b1a9-61b755a21de7`
 - Succès post-fix (exemple) : `https://expo.dev/accounts/brkapk/projects/husko/builds/01e03808-41f6-4dba-9347-0573b1ed3fd3`
+- Validation post-suppression sondes boot (`1ddbee0`), `versionCode` 22 : `https://expo.dev/accounts/brkapk/projects/husko/builds/5290c9d6-a52d-4d42-b261-a35409e76c49` (FINISHED, profil `apk-unified`, mars 2026)
