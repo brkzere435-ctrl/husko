@@ -157,8 +157,10 @@ function huskoPlugins() {
     [
       'expo-splash-screen',
       {
-        /** Pas d’image splash : les PNG actuels sont des aplats ; fond seul = cohérent avec le thème sombre. */
+        /** Image requise : sans drawable, le merge Android échoue (splashscreen_logo introuvable — build EAS 53beb348). */
         backgroundColor: '#120404',
+        image: './assets/icon.png',
+        imageWidth: 200,
       },
     ],
     [
@@ -274,6 +276,8 @@ module.exports = (ctx = {}) => {
     icon: './assets/icon.png',
     splash: {
       backgroundColor: '#120404',
+      image: './assets/icon.png',
+      resizeMode: 'contain',
     },
     assetBundlePatterns: ['**/*'],
     web: {
