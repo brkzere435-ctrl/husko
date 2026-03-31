@@ -95,4 +95,19 @@ export const surface = {
     borderWidth: 1,
     borderColor: colors.borderSubtle,
   },
+  /** Cartes / blocs néon (hub, menu, distribution) — bordure cyan légère + ombre. */
+  neonPanel: {
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    borderRadius: radius.xl,
+    borderWidth: 1,
+    borderColor: 'rgba(34, 211, 238, 0.28)',
+    ...elevation.card,
+  },
+  neonPanelStrong: {
+    backgroundColor: 'rgba(0,0,0,0.52)',
+    borderRadius: radius.xl,
+    borderWidth: 2,
+    borderColor: 'rgba(34, 211, 238, 0.38)',
+    ...elevation.card,
+  },
 } as const;

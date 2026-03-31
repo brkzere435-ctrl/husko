@@ -11,7 +11,7 @@ import { CLIENT_PHONE_DISPLAY, CLIENT_PHONE_TEL } from '@/constants/clientExperi
 import { getAppVariant } from '@/constants/appVariant';
 import { deliveryHoursLabel } from '@/constants/hours';
 import { VENUE_TAGLINE_HUB } from '@/constants/venue';
-import { colors, elevation, radius, spacing } from '@/constants/theme';
+import { colors, elevation, radius, spacing, surface } from '@/constants/theme';
 import { WC, wcSectionLabel } from '@/constants/westCoastTheme';
 import { typography } from '@/constants/typography';
 
@@ -35,7 +35,7 @@ export default function HubScreen() {
           <View style={styles.header}>
             <Text style={styles.wcKicker}>HUSKO · BY NIGHT</Text>
             <Text style={styles.unifiedTag}>Une installation · tout l’écosystème</Text>
-            <View style={[styles.logoFrame, elevation.hero]}>
+            <View style={[styles.logoFrame, elevation.hero, surface.neonPanelStrong]}>
               <BrandMark tagline={VENUE_TAGLINE_HUB} />
               <View style={styles.logoRule} />
               <View style={styles.pill}>
@@ -54,7 +54,8 @@ export default function HubScreen() {
           </View>
 
           <Text style={[wcSectionLabel, styles.sectionLabel]}>Choisir un espace</Text>
-          <View style={styles.grid}>
+          <View style={[surface.neonPanel, styles.gridWrap]}>
+            <View style={styles.grid}>
             <Link href="/client" asChild>
               <PrimaryButton title="Commander" style={styles.btn} />
             </Link>
@@ -67,6 +68,7 @@ export default function HubScreen() {
             <Link href="/assistant" asChild>
               <PrimaryButton title="Copilote" variant="ghost" style={styles.btn} />
             </Link>
+            </View>
           </View>
 
           <Text style={styles.footer}>
@@ -110,10 +112,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: spacing.xl,
     paddingHorizontal: spacing.xl,
-    borderWidth: 2,
-    borderColor: WC.neonCyanDim,
-    borderRadius: radius.xl,
-    backgroundColor: 'rgba(0,0,0,0.45)',
     width: '100%',
     maxWidth: 380,
   },
@@ -159,7 +157,8 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   sectionLabel: { marginBottom: spacing.sm, alignSelf: 'flex-start' },
-  grid: { gap: spacing.md, marginBottom: spacing.lg },
+  gridWrap: { padding: spacing.lg, marginBottom: spacing.lg, width: '100%', maxWidth: 420, alignSelf: 'center' },
+  grid: { gap: spacing.md },
   btn: { width: '100%' },
   footer: {
     ...typography.caption,

@@ -27,7 +27,7 @@ import {
 } from '@/constants/hours';
 import { typography } from '@/constants/typography';
 import { WC } from '@/constants/westCoastTheme';
-import { elevation, radius, spacing } from '@/constants/theme';
+import { elevation, radius, spacing, surface } from '@/constants/theme';
 import { useHuskoStore } from '@/stores/useHuskoStore';
 import { hapticLight } from '@/utils/haptics';
 
@@ -77,7 +77,10 @@ const MenuCategorySection = memo(function MenuCategorySection({
 function MenuHero() {
   const open = isDeliveryOpen();
   return (
-    <View style={styles.hero} accessibilityLabel={`Husko ${VENUE_TAGLINE_CLIENT}`}>
+    <View
+      style={[surface.neonPanelStrong, styles.hero]}
+      accessibilityLabel={`Husko ${VENUE_TAGLINE_CLIENT}`}
+    >
       <Text style={styles.wcBrand}>HUSKO</Text>
       <Text style={styles.wcSub}>{VENUE_TAGLINE_CLIENT}</Text>
       <View style={[styles.statusPill, open ? styles.statusOpen : styles.statusClosed]}>
@@ -196,10 +199,6 @@ const styles = StyleSheet.create({
   hint: { marginBottom: spacing.md },
   hero: {
     padding: spacing.lg,
-    borderRadius: radius.xl,
-    borderWidth: 2,
-    borderColor: WC.neonCyanDim,
-    backgroundColor: 'rgba(0,0,0,0.45)',
   },
   wcBrand: {
     fontSize: 36,
@@ -311,33 +310,37 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     alignItems: 'center',
+    minHeight: 76,
     paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.sm,
-    backgroundColor: 'rgba(0,0,0,0.4)',
+    paddingHorizontal: spacing.md,
+    backgroundColor: 'rgba(0,0,0,0.45)',
     borderRadius: radius.lg,
     borderWidth: 1,
-    borderColor: 'rgba(34,211,238,0.2)',
+    borderColor: 'rgba(34,211,238,0.32)',
     marginBottom: spacing.sm,
     gap: spacing.sm,
+    ...elevation.card,
   },
   rowPressed: { opacity: 0.9 },
   rowText: { flex: 1, paddingRight: spacing.sm },
   rowTitle: {
     ...typography.body,
     color: WC.white,
-    fontWeight: '800',
+    fontWeight: '900',
+    fontSize: 16,
+    letterSpacing: 0.2,
   },
   desc: { marginTop: 4, lineHeight: 18, color: 'rgba(250,250,250,0.6)', fontSize: 12 },
   pricePill: {
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
     borderRadius: radius.md,
-    backgroundColor: 'rgba(127, 29, 29, 0.85)',
+    backgroundColor: 'rgba(127, 29, 29, 0.92)',
     borderWidth: 1,
-    borderColor: WC.gold,
+    borderColor: 'rgba(253, 230, 138, 0.85)',
   },
   priceTxt: {
-    fontSize: 16,
+    fontSize: 17,
     fontWeight: '900',
     color: WC.white,
     fontVariant: ['tabular-nums'],

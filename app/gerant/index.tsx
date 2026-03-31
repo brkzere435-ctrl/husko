@@ -22,7 +22,7 @@ import { getAppVariant } from '@/constants/appVariant';
 import { AUTONOMOUS_PACE_PRESETS } from '@/constants/autonomousDelivery';
 import { typography } from '@/constants/typography';
 import { isRemoteSyncEnabled } from '@/services/firebaseRemote';
-import { colors, elevation, radius, spacing } from '@/constants/theme';
+import { colors, elevation, radius, spacing, surface } from '@/constants/theme';
 import { WC, wcSectionLabel } from '@/constants/westCoastTheme';
 import type { Order } from '@/stores/useHuskoStore';
 import { useHuskoStore } from '@/stores/useHuskoStore';
@@ -164,7 +164,7 @@ export default function GerantDashboardScreen() {
           ) : (
             <DeliveryFlowGuide />
           )}
-          <View style={styles.links}>
+          <View style={[surface.neonPanel, styles.links]}>
             <Link href="/gerant/historique" asChild>
               <PrimaryButton title="Historique" variant="ghost" style={styles.linkBtn} />
             </Link>
@@ -275,7 +275,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xs,
   },
   autoBannerText: { fontSize: 13, lineHeight: 19 },
-  links: { gap: spacing.sm, marginBottom: spacing.lg },
+  links: { gap: spacing.sm, marginBottom: spacing.lg, padding: spacing.md },
   linkBtn: { width: '100%' },
   siblingBox: {
     marginBottom: spacing.lg,
@@ -291,14 +291,16 @@ const styles = StyleSheet.create({
   sectionTitle: {
     ...wcSectionLabel,
     marginBottom: spacing.md,
+    marginTop: spacing.sm,
+    fontSize: 14,
   },
   meta: { marginTop: spacing.xs },
   card: {
     backgroundColor: colors.cardElevated,
     borderRadius: radius.xl,
     borderWidth: 2,
-    borderColor: WC.neonCyanDim,
-    padding: spacing.md,
+    borderColor: 'rgba(34, 211, 238, 0.35)',
+    padding: spacing.lg,
     marginBottom: spacing.md,
     ...elevation.card,
   },

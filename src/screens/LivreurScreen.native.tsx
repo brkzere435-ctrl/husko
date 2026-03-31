@@ -13,7 +13,7 @@ import { WestCoastBackground } from '@/components/westcoast/WestCoastBackground'
 import { LivreurAppGate } from '@/components/LivreurAppGate';
 import { LivreurOrderPanel } from '@/components/LivreurOrderPanel';
 import { mapDarkStyle } from '@/constants/mapDarkStyle';
-import { colors, radius, spacing } from '@/constants/theme';
+import { colors, elevation, radius, spacing } from '@/constants/theme';
 import { WC } from '@/constants/westCoastTheme';
 import type { MapRegion } from '@/types/mapRegion';
 import { HUSKO_DEPARTURE_HUB } from '@/constants/huskoDepartureHub';
@@ -159,12 +159,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    borderBottomWidth: 1,
-    borderColor: colors.borderSubtle,
-    backgroundColor: colors.mapOverlay,
+    paddingVertical: spacing.md,
+    borderBottomWidth: 2,
+    borderColor: 'rgba(34, 211, 238, 0.35)',
+    backgroundColor: 'rgba(8, 2, 4, 0.96)',
+    ...elevation.card,
   },
-  toolbarLabel: { color: colors.text, fontWeight: '700' },
+  toolbarLabel: { color: WC.neonCyan, fontWeight: '900', fontSize: 13, letterSpacing: 1.2 },
   mapContainer: { flex: 1, position: 'relative' },
   map: { ...StyleSheet.absoluteFillObject },
   miniWrap: {
@@ -180,13 +181,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 6,
-    backgroundColor: 'rgba(0,0,0,0.72)',
+    paddingHorizontal: spacing.md,
+    paddingVertical: 8,
+    backgroundColor: 'rgba(0,0,0,0.78)',
     borderRadius: radius.lg,
     borderWidth: 2,
-    borderColor: WC.neonCyanDim,
+    borderColor: 'rgba(34, 211, 238, 0.45)',
+    ...elevation.card,
   },
   hudPulse: { opacity: 0.95 },
-  hudText: { color: colors.gold, fontWeight: '900', fontSize: 11, letterSpacing: 2 },
+  hudText: { color: colors.gold, fontWeight: '900', fontSize: 11, letterSpacing: 2.5 },
 });

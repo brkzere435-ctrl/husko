@@ -179,7 +179,7 @@ export default function DistributionScreen() {
 
           <DeploymentHints mode="alerts" mapsRelevant={false} style={styles.infra} />
 
-          <View style={styles.tabRows}>
+          <View style={[surface.neonPanel, styles.tabRows]}>
             <View style={styles.tabRow}>
               <DistributionRoleTab
                 role="unified"
@@ -346,6 +346,7 @@ const styles = StyleSheet.create({
   tabRows: {
     marginBottom: spacing.lg,
     gap: spacing.sm,
+    padding: spacing.md,
   },
   tabRow: {
     flexDirection: 'row',
@@ -353,19 +354,20 @@ const styles = StyleSheet.create({
   },
   tab: {
     flex: 1,
-    paddingVertical: spacing.sm,
+    paddingVertical: spacing.md,
     paddingHorizontal: spacing.xs,
     borderRadius: radius.lg,
     borderWidth: 2,
-    borderColor: WC.neonCyanDim,
-    backgroundColor: 'rgba(0,0,0,0.35)',
+    borderColor: 'rgba(34, 211, 238, 0.22)',
+    backgroundColor: 'rgba(0,0,0,0.42)',
     alignItems: 'center',
   },
   tabOn: {
     ...elevation.card,
+    backgroundColor: 'rgba(0,0,0,0.55)',
   },
-  tabEmoji: { fontSize: 10, color: colors.textMuted, marginBottom: 2 },
-  tabTxt: { color: colors.textMuted, fontWeight: '800', fontSize: 12 },
+  tabEmoji: { fontSize: 11, color: colors.textMuted, marginBottom: 4 },
+  tabTxt: { color: colors.textMuted, fontWeight: '800', fontSize: 12, letterSpacing: 0.3 },
   tabTxtOn: { color: colors.gold },
   tabHint: { fontSize: 9, color: colors.textMuted, marginTop: 2, fontWeight: '600' },
   card: {
