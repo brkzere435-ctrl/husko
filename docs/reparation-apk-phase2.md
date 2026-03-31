@@ -71,6 +71,7 @@ npm run release:gate    # si .env / preflight OK
 
 ## 8. Amélioration continue
 
+- Instrumentation boot : `emitBootDebugProbes` retiré de `app/_layout.tsx` ; `src/utils/debugProbe.ts` supprimé (prod sans ingest local).
 - Secrets EAS : Maps, Firebase, `EXPO_PUBLIC_*` pour builds production.
 - Mettre à jour [`distribution.defaults.json`](../distribution.defaults.json) après chaque vague d’APK ; `npm run qr:generate`.
 - Ce document : ajouter une ligne « preuve » par P1 clos.
