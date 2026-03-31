@@ -9,3 +9,5 @@ Application **Expo** : commande (menu, panier, suivi), **livreur** (carte + posi
 **Gate avant release :** `npm run release:gate` (4 étapes locales). **Prêt pour EAS (gate + dépôt strict + prebuild) :** `npm run release:ready`. **Suite cloud (checklist + `eas whoami`) :** `npm run release:next`.
 
 **Réparation / diagnostic (boucle, preuves, mode Agent) :** [`docs/reparation-autonomie.md`](docs/reparation-autonomie.md).
+
+**CI GitHub :** `release:gate` sur chaque push/PR (voir [`.github/workflows/ci.yml`](.github/workflows/ci.yml)).

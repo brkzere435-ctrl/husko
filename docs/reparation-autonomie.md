@@ -37,3 +37,9 @@ Les modifications de fichiers `.ts` / `.tsx` nécessitent le **mode Agent**. En 
 7. `git commit` / `push`.  
 
 Désactiver les sondes debug en prod pour les utilisateurs finaux : ne pas définir `EXPO_PUBLIC_HUSKO_DEBUG_BOOT` sur les builds « store ».
+
+## CI GitHub (à chaque push / PR)
+
+Le workflow [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) exécute **`npm run release:gate`** sur Ubuntu. Aucun `eas build` : pas de crédits EAS consommés. Les PR cassées sont visibles avant merge.
+
+Template d’issue : [`.github/ISSUE_TEMPLATE/bug_report.md`](../.github/ISSUE_TEMPLATE/bug_report.md).
