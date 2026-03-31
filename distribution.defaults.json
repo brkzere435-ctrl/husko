@@ -2,7 +2,7 @@
   "_info": "QR / partage : pages build Expo (s’ouvrent sur téléphone, bouton Install). Téléchargement PC brut : npm run apk:download:* (URL artefact via API). Après nouveau build : mettre à jour les UUID ci-dessous, puis npm run qr:generate && npm run distribution:fiches, puis rebuild apk-gerant pour embarquer les liens. unified = profil apk-unified (hub) ; assistant = apk-assistant.",
   "unified": "https://expo.dev/accounts/brkapk/projects/husko/builds/affcff0d-6b29-4849-9e12-dc05e660f28e",
   "assistant": "",
-  "gerant": "https://expo.dev/accounts/brkapk/projects/husko/builds/17360830-dee3-40aa-9156-80dd8bb2c479",
+  "gerant": "https://expo.dev/accounts/brkapk/projects/husko/builds/6f756b2b-1c35-4379-aeef-691225555294",
   "client": "https://expo.dev/accounts/brkapk/projects/husko/builds/d0ddadee-f851-4469-bdf2-b864e069eb35",
   "livreur": "https://expo.dev/accounts/brkapk/projects/husko/builds/bb9d7437-53cf-42d0-80f3-69e707da54ac"
 }
