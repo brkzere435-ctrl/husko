@@ -51,7 +51,7 @@ export default function PanierScreen() {
   }
 
   return (
-    <WestCoastBackground>
+    <WestCoastBackground preset="client">
       <SafeAreaView style={styles.root} edges={['bottom']}>
         <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
           {cart.length > 0 ? (

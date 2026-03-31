@@ -66,6 +66,7 @@ console.log('Parcours EAS (ordre conseillé) :');
 console.log('  1. eas login');
 console.log('  2. npm run eas:credentials   — keystores / certificats Apple & Android');
 console.log('  3. npm run eas:sync:maps     — clés Maps → EAS (production + preview)');
+console.log('  3b. npm run eas:sync:firebase — EXPO_PUBLIC_FIREBASE_* → EAS (production + preview)');
 console.log('  4. npm run eas:prebuild      — release:check + validate:expo (avant eas build)');
 console.log('  5. npm run build:apk:unified — APK tout-en-un (hub) ; ou build:apk:all (5 APK) / build:apk:mono (3)');
 console.log('  6. npm run eas:update:hub     — ou eas:update:client / gerant / livreur / assistant');
@@ -107,6 +108,8 @@ console.log('  npm run security:check         — .env + avertissement si dépô
 console.log('  npm run security:check:strict  — échoue si dépôt sale (comme release:doctor)');
 console.log('  npm run eas:prebuild           — même chose que l’étape 4 (gate avant build)');
 console.log('  npm run eas:sync:maps:verify    — sync Maps puis release:check');
+console.log('  npm run chantiers:check        — checklist Maps + Firebase + assets menu + OTA');
+console.log('  npm run release:chantiers      — verify + chantiers:check');
 console.log('  npm run preflight              — détail .env');
 console.log('  npm run verify                 — tsc + lint + validate:expo');
 console.log('  npm run build:gate:native      — portillon APK/iOS local + codes VULN-HUSKO-xxx si échec');

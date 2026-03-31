@@ -2,9 +2,10 @@ import type { ComponentProps } from 'react';
 import { memo } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { StyleSheet, View } from 'react-native';
+import { Image, StyleSheet, View } from 'react-native';
 
 import type { MenuCategory, MenuItem } from '@/constants/menu';
+import { getMenuImage } from '@/constants/menuImages';
 import { WC } from '@/constants/westCoastTheme';
 import { radius, spacing } from '@/constants/theme';
 
@@ -35,6 +36,22 @@ function MenuItemVisualInner({ item, size }: Props) {
   const iconSz = size === 'lg' ? 88 : 32;
   const g = CAT_GRAD[item.category];
   const icon = CAT_ICON[item.category];
+  const photo = getMenuImage(item);
+
+  if (photo) {
+    return (
+      <View style={[styles.wrap, { width: side, height: side }]}>
+        <Image
+          source={photo}
+          style={styles.photo}
+          resizeMode="cover"
+          accessibilityLabel={item.name}
+          accessibilityIgnoresInvertColors
+        />
+        <View style={[styles.neon, size === 'lg' && styles.neonLg]} pointerEvents="none" />
+      </View>
+    );
+  }
 
   return (
     <View style={[styles.wrap, { width: side, height: side }]}>
@@ -54,6 +71,11 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     borderWidth: 2,
     borderColor: WC.neonCyanDim,
+  },
+  photo: {
+    ...StyleSheet.absoluteFillObject,
+    width: '100%',
+    height: '100%',
   },
   grad: {
     flex: 1,

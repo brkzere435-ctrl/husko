@@ -2,6 +2,8 @@
 
 Ordre : **prérequis** → **développement** → **builds mobiles** → **web / Docker** → **Cloud Run**.
 
+Checklist release (commandes synthétiques) : [RELEASE_CHECKLIST.md](RELEASE_CHECKLIST.md). Checklist **iOS** (bundles, Maps, TestFlight) : [IOS_RELEASE_CHECKLIST.md](IOS_RELEASE_CHECKLIST.md).
+
 ### Chemin express — APK unifié hub (recommandé)
 
 1. `npm install` · compte [expo.dev](https://expo.dev) · **`npm run eas:login`** (utilise `eas` du projet, même version que le lockfile)

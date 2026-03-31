@@ -19,7 +19,7 @@ export default function ProductDetailScreen() {
 
   if (!item) {
     return (
-      <WestCoastBackground>
+      <WestCoastBackground preset="client">
         <SafeAreaView style={styles.center}>
           <Text style={typography.title}>Article introuvable</Text>
           <PrimaryButton title="Retour" onPress={() => router.back()} />
@@ -36,7 +36,7 @@ export default function ProductDetailScreen() {
   }
 
   return (
-    <WestCoastBackground>
+    <WestCoastBackground preset="client">
       <SafeAreaView style={styles.root} edges={['bottom']}>
         <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
           <View style={styles.heroCard}>

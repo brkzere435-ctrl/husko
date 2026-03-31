@@ -18,7 +18,7 @@ export default function ClientReglagesScreen() {
   const setNotificationsEnabled = useHuskoStore((s) => s.setNotificationsEnabled);
 
   return (
-    <WestCoastBackground>
+    <WestCoastBackground preset="client">
       <SafeAreaView style={styles.root} edges={['bottom']}>
         <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
           <Text style={styles.screenTitle}>Réglages</Text>

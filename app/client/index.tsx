@@ -132,7 +132,7 @@ export default function ClientMenuScreen() {
   const keyExtractor = useCallback(([cat]: [MenuCategory, MenuItem[]]) => cat, []);
 
   return (
-    <WestCoastBackground>
+    <WestCoastBackground preset="client">
       <SafeAreaView style={styles.root} edges={['bottom']}>
         <FlatList
           data={sections}

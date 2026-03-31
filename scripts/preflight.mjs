@@ -89,9 +89,12 @@ console.log(
 );
 
 console.log('\nRappels :');
+console.log('  RELEASE_CHECKLIST.md - ordre release (Maps, Firebase, OTA vs build)');
+console.log('  IOS_RELEASE_CHECKLIST.md - bundles iOS, Maps iOS, eas build -p ios');
 console.log('  npm run release:gate - preflight + security:check + verify + release:check');
 console.log('  npm run release:ready - release:gate puis release:doctor (strict + eas:prebuild)');
 console.log('  npm run release:next - checklist phase cloud + eas whoami');
+console.log('  npm run chantiers:check - Maps + Firebase + PNG menu + rappels OTA/build');
 console.log('  npm run husko:doctor - audit style + fonction + security + tsc');
 console.log('  npm run validate:expo - verifie que app.config.js se charge (Expo JSON)');
 console.log('  eas secret:create - memes noms EXPO_PUBLIC_* que dans env.example');

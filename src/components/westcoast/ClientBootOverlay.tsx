@@ -2,9 +2,12 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useEffect } from 'react';
 import { Modal, StyleSheet, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { WC } from '@/constants/westCoastTheme';
 import { spacing } from '@/constants/theme';
+
+const BOOT_CONTENT_OFFSET = spacing.lg;
 
 type Props = {
   visible: boolean;
@@ -13,6 +16,8 @@ type Props = {
 
 /** Écran d’accueil client — scène « camion + silhouette » façon affiche West Coast. */
 export function ClientBootOverlay({ visible, onDone }: Props) {
+  const insets = useSafeAreaInsets();
+
   useEffect(() => {
     if (!visible) return;
     const t = setTimeout(onDone, 2800);
@@ -21,11 +26,13 @@ export function ClientBootOverlay({ visible, onDone }: Props) {
 
   if (!visible) return null;
 
+  const topPad = insets.top + BOOT_CONTENT_OFFSET;
+
   return (
     <Modal visible animationType="fade" statusBarTranslucent transparent>
       <LinearGradient
         colors={['#0a0204', '#4c0510', '#0f172a', '#1a0508']}
-        style={styles.fill}
+        style={[styles.fill, { paddingTop: topPad }]}
         start={{ x: 0, y: 0 }}
         end={{ x: 0.8, y: 1 }}
       >
@@ -55,7 +62,7 @@ export function ClientBootOverlay({ visible, onDone }: Props) {
 }
 
 const styles = StyleSheet.create({
-  fill: { flex: 1, paddingTop: 56, paddingHorizontal: spacing.lg, justifyContent: 'flex-start' },
+  fill: { flex: 1, paddingHorizontal: spacing.lg, justifyContent: 'flex-start' },
   brickTexture: {
     ...StyleSheet.absoluteFillObject,
     opacity: 0.12,
