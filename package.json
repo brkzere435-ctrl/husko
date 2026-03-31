@@ -36,6 +36,8 @@
     "build:apk:livreur": "node node_modules/cross-env/src/bin/cross-env.js EAS_BUILD_NO_EXPO_GO_WARNING=true EAS_BUILD_AUTOCOMMIT=1 eas build -p android --profile apk-livreur --non-interactive",
     "build:apk:assistant": "node node_modules/cross-env/src/bin/cross-env.js EAS_BUILD_NO_EXPO_GO_WARNING=true EAS_BUILD_AUTOCOMMIT=1 eas build -p android --profile apk-assistant --non-interactive",
     "build:apk:all": "node scripts/eas-build-all-apk.mjs",
+    "build:apk:three": "node scripts/eas-build-three-apk.mjs",
+    "brand:assets": "node scripts/generate-brand-assets.mjs",
     "build:apk:mono": "node scripts/eas-build-all-apk.mjs --mono",
     "build:apk:preview": "node node_modules/cross-env/src/bin/cross-env.js EAS_BUILD_NO_EXPO_GO_WARNING=true EAS_BUILD_AUTOCOMMIT=1 eas build -p android --profile preview --non-interactive",
     "start:gerant": "node node_modules/cross-env/src/bin/cross-env.js EXPO_PUBLIC_APP_VARIANT=gerant expo start",
@@ -130,6 +132,7 @@
     "eslint-config-expo": "~55.0.0",
     "eslint-import-resolver-typescript": "^4.4.4",
     "qrcode": "^1.5.4",
+    "sharp": "^0.34.5",
     "typescript": "~5.9.2"
   }
 }

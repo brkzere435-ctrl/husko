@@ -1,6 +1,7 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { forwardRef } from 'react';
 import {
+  Platform,
   Pressable,
   StyleSheet,
   Text,
@@ -11,6 +12,7 @@ import {
 } from 'react-native';
 
 import { colors, radius } from '@/constants/theme';
+import { WC } from '@/constants/westCoastTheme';
 
 const MIN_TOUCH = 52;
 
@@ -28,7 +30,7 @@ export const PrimaryButton = forwardRef<React.ElementRef<typeof Pressable>, Prop
         <Pressable
           ref={ref}
           accessibilityRole="button"
-          style={({ pressed }) => [styles.ghost, pressed && styles.pressed, style]}
+          style={({ pressed }) => [styles.ghost, pressed && styles.ghostPressed, style]}
           {...rest}
         >
           {icon ? (
@@ -47,7 +49,7 @@ export const PrimaryButton = forwardRef<React.ElementRef<typeof Pressable>, Prop
       <Pressable
         ref={ref}
         accessibilityRole="button"
-        style={({ pressed }) => [styles.primaryOuter, pressed && styles.pressed, style]}
+        style={({ pressed }) => [styles.primaryOuter, pressed && styles.primaryPressed, style]}
         {...rest}
       >
         <LinearGradient
@@ -77,6 +79,16 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: colors.goldDim,
     minHeight: MIN_TOUCH,
+    ...Platform.select({
+      ios: {
+        shadowColor: WC.neonCyan,
+        shadowOffset: { width: 0, height: 0 },
+        shadowOpacity: 0.22,
+        shadowRadius: 12,
+      },
+      android: { elevation: 4 },
+      default: {},
+    }),
   },
   primaryGradient: {
     minHeight: MIN_TOUCH - 4,
@@ -96,7 +108,15 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.borderSubtle,
   },
-  pressed: { opacity: 0.9 },
+  ghostPressed: {
+    opacity: 0.92,
+    borderColor: 'rgba(34, 211, 238, 0.35)',
+    backgroundColor: 'rgba(34, 211, 238, 0.06)',
+  },
+  primaryPressed: {
+    opacity: 0.94,
+    transform: [{ scale: 0.98 }],
+  },
   row: {
     flexDirection: 'row',
     alignItems: 'center',

@@ -159,8 +159,8 @@ function huskoPlugins() {
       {
         /** Image requise : sans drawable, le merge Android échoue (splashscreen_logo introuvable — build EAS 53beb348). */
         backgroundColor: '#120404',
-        image: './assets/icon.png',
-        imageWidth: 200,
+        image: './assets/splash.png',
+        imageWidth: 220,
       },
     ],
     [
@@ -173,7 +173,8 @@ function huskoPlugins() {
     [
       'expo-notifications',
       {
-        icon: './assets/icon.png',
+        /** Monochrome blanc sur transparent (Android). */
+        icon: './assets/notification-icon.png',
         color: '#120404',
         defaultChannel: 'default',
       },
@@ -276,7 +277,7 @@ module.exports = (ctx = {}) => {
     icon: './assets/icon.png',
     splash: {
       backgroundColor: '#120404',
-      image: './assets/icon.png',
+      image: './assets/splash.png',
       resizeMode: 'contain',
     },
     assetBundlePatterns: ['**/*'],

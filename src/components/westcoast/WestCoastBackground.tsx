@@ -1,23 +1,33 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { StyleSheet, View, type ViewProps } from 'react-native';
 
+import { getAppVariant } from '@/constants/appVariant';
+import { DECOR_PRESETS, type DecorPreset, resolveDecorPreset } from '@/constants/decor';
 import { WC } from '@/constants/westCoastTheme';
 
-type Props = ViewProps & { children: React.ReactNode };
+type Props = ViewProps & {
+  children: React.ReactNode;
+  /** Si omis : déduit de la variante d’app (APK mono-rôle ou hub). */
+  preset?: DecorPreset;
+};
 
-export function WestCoastBackground({ children, style, ...rest }: Props) {
+export function WestCoastBackground({ children, style, preset: presetProp, ...rest }: Props) {
+  const role = getAppVariant();
+  const preset = presetProp ?? resolveDecorPreset(role);
+  const cfg = DECOR_PRESETS[preset] ?? DECOR_PRESETS.hub;
+
   return (
     <View style={[styles.root, style]} {...rest}>
       <LinearGradient
-        colors={[WC.brickDeep, '#3f0d12', '#0f172a', WC.brickDeep]}
-        locations={[0, 0.35, 0.72, 1]}
+        colors={[...cfg.baseGradient]}
+        locations={[...cfg.baseLocations]}
         style={StyleSheet.absoluteFill}
       />
       <LinearGradient
-        colors={['transparent', 'rgba(34,211,238,0.06)', 'transparent']}
+        colors={[...cfg.neonOverlay]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
-        style={[StyleSheet.absoluteFill, { opacity: 0.9 }]}
+        style={[StyleSheet.absoluteFill, { opacity: cfg.neonOpacity }]}
       />
       {children}
     </View>
