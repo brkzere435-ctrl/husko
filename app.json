@@ -1,7 +1,8 @@
 {
   "expo": {
     "slug": "husko",
-    "android": {"package":"com.husko.app",'}
+    "android": {
+      "package": "com.husko.app",
       "versionCode": 28
     },
     "extra": {
