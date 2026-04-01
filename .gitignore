@@ -16,6 +16,7 @@ credentials/android-keystore.secrets.txt
 web-build/
 .expo-export-test/
 .expo-gate-export/
+.tmp-eas-logs/
 # Copie locale Gradle / réglages IDE (chemins machine)
 gradle-9.4.1-all/
 .vscode/
