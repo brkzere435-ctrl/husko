@@ -1,5 +1,6 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { MenuItemVisual } from '@/components/westcoast/MenuItemVisual';
@@ -39,7 +40,10 @@ export default function ProductDetailScreen() {
     <WestCoastBackground preset="client">
       <SafeAreaView style={styles.root} edges={['bottom']}>
         <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
-          <View style={styles.heroCard}>
+          <Animated.View
+            entering={FadeInDown.duration(420).springify()}
+            style={styles.heroCard}
+          >
             <MenuItemVisual item={item} size="lg" />
             <Text style={styles.name}>{item.name}</Text>
             {item.description ? (
@@ -50,7 +54,7 @@ export default function ProductDetailScreen() {
               <Text style={styles.eurSym}>€</Text>
             </View>
             <Text style={styles.tag}>West Coast street food · Angers</Text>
-          </View>
+          </Animated.View>
           <PrimaryButton title="Valider & ajouter au panier" onPress={add} style={styles.btn} />
           <PrimaryButton title="Retour au menu" variant="ghost" onPress={() => router.back()} />
         </ScrollView>

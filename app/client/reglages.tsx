@@ -1,12 +1,18 @@
 import * as Linking from 'expo-linking';
+import { Link } from 'expo-router';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { DeploymentHints } from '@/components/DeploymentHints';
+import { PrimaryButton } from '@/components/PrimaryButton';
 import { OtaUpdateSection } from '@/components/OtaUpdateSection';
 import { SettingsSection, SettingsSwitchRow } from '@/components/settings/SettingsSection';
 import { WestCoastBackground } from '@/components/westcoast/WestCoastBackground';
-import { CLIENT_PHONE_DISPLAY, CLIENT_PHONE_TEL } from '@/constants/clientExperience';
+import {
+  CLIENT_PHONE_DISPLAY,
+  CLIENT_PHONE_TEL,
+  clientStrings,
+} from '@/constants/clientExperience';
 import { typography } from '@/constants/typography';
 import { colors, radius, spacing } from '@/constants/theme';
 import { VENUE_TAGLINE_CLIENT } from '@/constants/venue';
@@ -60,6 +66,15 @@ export default function ClientReglagesScreen() {
               <Text style={styles.phoneBtnText}>{CLIENT_PHONE_DISPLAY}</Text>
               <Text style={[typography.caption, styles.phoneSub]}>Snap HUSKOBYNIGHT</Text>
             </Pressable>
+          </SettingsSection>
+
+          <SettingsSection
+            title={clientStrings.historiqueTitle}
+            subtitle="Livraisons terminées et annulations sur cet appareil."
+          >
+            <Link href="/client/historique" asChild>
+              <PrimaryButton title={clientStrings.historiqueLink} variant="ghost" />
+            </Link>
           </SettingsSection>
 
           <OtaUpdateSection />

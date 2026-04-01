@@ -1,7 +1,9 @@
 import { Link, router } from 'expo-router';
 import * as Linking from 'expo-linking';
+import { FlashList } from '@shopify/flash-list';
 import { memo, useCallback, useMemo } from 'react';
-import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+import Animated, { FadeIn } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { MenuItemVisual } from '@/components/westcoast/MenuItemVisual';
@@ -29,6 +31,7 @@ import { typography } from '@/constants/typography';
 import { WC } from '@/constants/westCoastTheme';
 import { elevation, radius, spacing, surface } from '@/constants/theme';
 import { useHuskoStore } from '@/stores/useHuskoStore';
+import { buildClientMenuRows, type ClientMenuRow } from '@/utils/clientMenuRows';
 import { hapticLight } from '@/utils/haptics';
 
 const MenuProductRow = memo(function MenuProductRow({ item }: { item: MenuItem }) {
@@ -57,19 +60,16 @@ const MenuProductRow = memo(function MenuProductRow({ item }: { item: MenuItem }
   );
 });
 
-const MenuCategorySection = memo(function MenuCategorySection({
+const MenuSectionHeaderRow = memo(function MenuSectionHeaderRow({
   category,
-  items,
+  isFirst,
 }: {
   category: MenuCategory;
-  items: MenuItem[];
+  isFirst: boolean;
 }) {
   return (
-    <View style={styles.section}>
+    <View style={[styles.sectionHeader, isFirst && styles.sectionHeaderFirst]}>
       <Text style={styles.sectionLabel}>{CATEGORY_LABEL[category]}</Text>
-      {items.map((m) => (
-        <MenuProductRow key={m.id} item={m} />
-      ))}
     </View>
   );
 });
@@ -122,26 +122,31 @@ export default function ClientMenuScreen() {
     return Array.from(by.entries());
   }, []);
 
-  const renderSection = useCallback(
-    ({ item }: { item: [MenuCategory, MenuItem[]] }) => (
-      <MenuCategorySection category={item[0]} items={item[1]} />
-    ),
+  const rows = useMemo(() => buildClientMenuRows(sections), [sections]);
+
+  const renderRow = useCallback(
+    ({ item, index }: { item: ClientMenuRow; index: number }) => {
+      if (item.type === 'header') {
+        return <MenuSectionHeaderRow category={item.category} isFirst={index === 0} />;
+      }
+      return <MenuProductRow item={item.item} />;
+    },
     []
   );
 
-  const keyExtractor = useCallback(([cat]: [MenuCategory, MenuItem[]]) => cat, []);
+  const keyExtractor = useCallback((item: ClientMenuRow) => item.key, []);
+
+  const getItemType = useCallback((item: ClientMenuRow) => item.type, []);
 
   return (
     <WestCoastBackground preset="client">
       <SafeAreaView style={styles.root} edges={['bottom']}>
-        <FlatList
-          data={sections}
+        <FlashList
+          data={rows}
           keyExtractor={keyExtractor}
-          renderItem={renderSection}
-          initialNumToRender={4}
-          maxToRenderPerBatch={4}
-          windowSize={7}
-          removeClippedSubviews={false}
+          renderItem={renderRow}
+          getItemType={getItemType}
+          drawDistance={280}
           ListHeaderComponent={
             <View style={styles.headerBlock}>
               <DeploymentHints mode="alerts" mapsRelevant={false} style={styles.hint} />
@@ -159,7 +164,11 @@ export default function ClientMenuScreen() {
           }
           contentContainerStyle={styles.list}
         />
-        <View style={styles.dockWrap} pointerEvents="box-none">
+        <Animated.View
+          entering={FadeIn.duration(380).delay(60)}
+          style={styles.dockWrap}
+          pointerEvents="box-none"
+        >
           <View style={styles.dockNeon} />
           <View style={[styles.bar, elevation.dock]}>
             <Text style={styles.barText}>
@@ -173,7 +182,7 @@ export default function ClientMenuScreen() {
               <PrimaryButton title="Suivi" variant="ghost" style={styles.barBtn} />
             </Link>
           </View>
-        </View>
+        </Animated.View>
       </SafeAreaView>
     </WestCoastBackground>
   );
@@ -297,7 +306,13 @@ const styles = StyleSheet.create({
     fontSize: 13,
     textDecorationLine: 'underline',
   },
-  section: { marginBottom: spacing.xl },
+  sectionHeader: {
+    marginTop: spacing.lg,
+    marginBottom: spacing.sm,
+  },
+  sectionHeaderFirst: {
+    marginTop: 0,
+  },
   sectionLabel: {
     marginBottom: spacing.sm,
     marginLeft: 2,

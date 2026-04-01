@@ -1,6 +1,7 @@
 import { Link } from 'expo-router';
 import { useMemo } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import Animated, { FadeIn } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { DeploymentHints } from '@/components/DeploymentHints';
@@ -49,20 +50,24 @@ export default function SuiviScreen() {
     : null;
 
   const showLiveMap = active?.status === 'on_way';
+  const showStaticMap =
+    !!active && active.status !== 'on_way' && active.status !== 'delivered' && active.status !== 'cancelled';
 
-  const region = useMemo(() => {
-    if (!active || !showLiveMap) {
-      return {
-        latitude: active?.destLat ?? 47.4739,
-        longitude: active?.destLng ?? -0.5517,
-        latitudeDelta: 0.06,
-        longitudeDelta: 0.06,
-      };
-    }
+  const staticRegion = useMemo(() => {
+    if (!active || !showStaticMap) return null;
+    return fitMapRegion(
+      [HUSKO_DEPARTURE_HUB, { latitude: active.destLat, longitude: active.destLng }],
+      2
+    );
+  }, [active, showStaticMap]);
+
+  const liveRegion = useMemo(() => {
+    if (!active || !showLiveMap) return null;
     const pts = [HUSKO_DEPARTURE_HUB, { latitude: active.destLat, longitude: active.destLng }];
     if (driver) pts.push(driver);
     return fitMapRegion(pts, 1.85);
   }, [active, driver, showLiveMap]);
+
 
   const etaStepMs = useMemo(() => {
     if (remoteAutonomousDemo?.enabled) return remoteAutonomousDemo.stepMs;
@@ -82,7 +87,7 @@ export default function SuiviScreen() {
       <SafeAreaView style={styles.root} edges={['bottom']}>
         <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
           {active ? (
-            <View style={styles.card}>
+            <Animated.View entering={FadeIn.duration(340)} style={styles.card}>
               <Text style={typography.mono}>{active.id}</Text>
               <View style={styles.badgeRow}>
                 <StatusBadge status={active.status} />
@@ -147,19 +152,34 @@ export default function SuiviScreen() {
 
               {active.status === 'awaiting_livreur' ? (
                 <Text style={[typography.bodyMuted, styles.mapHint]}>
-                  Un livreur va bientôt prendre en charge votre commande. La carte s’affiche dès qu’il est en
-                  route.
+                  Un livreur va bientôt prendre en charge votre commande. Dès qu’il est en route, la carte
+                  passe en suivi live avec sa position.
                 </Text>
               ) : null}
 
-              {showLiveMap ? (
+              {showStaticMap && staticRegion && dest ? (
+                <View style={styles.mapWrap}>
+                  <Text style={styles.mapTitle}>Aperçu du trajet</Text>
+                  <Text style={styles.mapSub}>Du QG Husko à votre adresse — suivi live dès l’étape « En route »</Text>
+                  <GTAMiniMap
+                    region={staticRegion}
+                    driver={null}
+                    headingDeg={0}
+                    dest={dest}
+                    showDest
+                    hudFooter="APERÇU · QG → DROP"
+                  />
+                </View>
+              ) : null}
+
+              {showLiveMap && liveRegion && dest ? (
                 <View style={styles.mapWrap}>
                   <Text style={styles.mapTitle}>Suivi Cadillac · mode GTA</Text>
                   <Text style={styles.mapSub}>
                     QG bâtiment H (néon) · livraison en pin — le livreur roule vers toi
                   </Text>
                   <GTAMiniMap
-                    region={region}
+                    region={liveRegion}
                     driver={driver}
                     headingDeg={driverHeading}
                     dest={dest}
@@ -168,7 +188,7 @@ export default function SuiviScreen() {
                   />
                 </View>
               ) : null}
-            </View>
+            </Animated.View>
           ) : showDeliveredThanks ? (
             <View style={[styles.card, styles.merciCard, elevation.card]}>
               <Text style={styles.merciTitle}>{clientStrings.suiviMerciTitle}</Text>
@@ -197,7 +217,18 @@ export default function SuiviScreen() {
               </Link>
             </View>
           )}
-          <DeploymentHints mode="alerts" mapsRelevant={showLiveMap} style={styles.infra} />
+          {orders.some((o) => o.status === 'delivered' || o.status === 'cancelled') ? (
+            <View style={styles.historiqueLinkWrap}>
+              <Link href="/client/historique" asChild>
+                <PrimaryButton title={clientStrings.historiqueLink} variant="ghost" />
+              </Link>
+            </View>
+          ) : null}
+          <DeploymentHints
+            mode="alerts"
+            mapsRelevant={showLiveMap || showStaticMap}
+            style={styles.infra}
+          />
         </ScrollView>
       </SafeAreaView>
     </WestCoastBackground>
@@ -323,5 +354,6 @@ const styles = StyleSheet.create({
     opacity: 0.9,
   },
   mapWrap: { marginTop: spacing.lg, alignItems: 'center' },
+  historiqueLinkWrap: { marginTop: spacing.md, marginBottom: spacing.sm },
   infra: { marginTop: spacing.lg },
 });

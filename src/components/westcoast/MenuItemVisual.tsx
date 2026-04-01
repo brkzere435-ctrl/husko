@@ -1,8 +1,9 @@
 import type { ComponentProps } from 'react';
 import { memo } from 'react';
 import { Ionicons } from '@expo/vector-icons';
+import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Image, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 import type { MenuCategory, MenuItem } from '@/constants/menu';
 import { getMenuImage } from '@/constants/menuImages';
@@ -39,12 +40,15 @@ function MenuItemVisualInner({ item, size }: Props) {
   const photo = getMenuImage(item);
 
   if (photo) {
+    const placeholderBg = CAT_GRAD[item.category][0];
     return (
-      <View style={[styles.wrap, { width: side, height: side }]}>
+      <View style={[styles.wrap, { width: side, height: side, backgroundColor: placeholderBg }]}>
         <Image
           source={photo}
           style={styles.photo}
-          resizeMode="cover"
+          contentFit="cover"
+          transition={220}
+          cachePolicy="memory-disk"
           accessibilityLabel={item.name}
           accessibilityIgnoresInvertColors
         />

@@ -15,6 +15,14 @@ npm run eas:sync:maps
 npm run eas:sync:firebase
 ```
 
+Contrôle strict des 6 clés Firebase dans `.env` (optionnel, avant `eas build`) :
+
+```bash
+npm run firebase:env:check:strict
+```
+
+Si tout est **MANQ** alors que tu crois avoir rempli le `.env` : vérifier que le fichier est bien **à la racine du dépôt** (pas un sous-dossier), et que chaque ligne `EXPO_PUBLIC_FIREBASE_*=` a une **valeur non vide** après le `=` (pas seulement des espaces, pas de ligne commentée à la place de la valeur).
+
 Avant une release sérieuse :
 
 ```bash
@@ -51,6 +59,7 @@ npm run release:chantiers
 ## 3. Firebase (hors repo)
 
 - Renseigner les 6 `EXPO_PUBLIC_FIREBASE_*` dans `.env`, puis `npm run eas:sync:firebase`.
+- **`google-services.json`** : une entrée Firebase Android par `applicationId` réel (hub, client, gérant, livreur, copilote) — voir le tableau dans [DEPLOIEMENT.md](DEPLOIEMENT.md) (section liaison Firebase).
 - Règles Firestore si besoin : `npm run firebase:deploy:rules`.
 
 ## 4. Photos menu

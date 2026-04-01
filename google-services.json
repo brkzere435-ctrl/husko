@@ -1,0 +1,200 @@
+{
+  "project_info": {
+    "project_number": "961217560590",
+    "project_id": "husko-322dc",
+    "storage_bucket": "husko-322dc.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:961217560590:android:1d42fad8c5df43e88c7c5f",
+        "android_client_info": {
+          "package_name": "com.husko.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCcuTeRYfqOFcGQciut_URl6dU7zbq5tjA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:961217560590:android:ffde77d8c86c03158c7c5f",
+        "android_client_info": {
+          "package_name": "com.husko.bynight"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCcuTeRYfqOFcGQciut_URl6dU7zbq5tjA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:961217560590:android:b9804eb9201a6b828c7c5f",
+        "android_client_info": {
+          "package_name": "com.husko.bynight.client"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCcuTeRYfqOFcGQciut_URl6dU7zbq5tjA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:961217560590:android:472dc8a111bcaf908c7c5f",
+        "android_client_info": {
+          "package_name": "com.husko.bynight.copilot"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCcuTeRYfqOFcGQciut_URl6dU7zbq5tjA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:961217560590:android:34de3821fb0465018c7c5f",
+        "android_client_info": {
+          "package_name": "com.husko.bynight.gerant"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCcuTeRYfqOFcGQciut_URl6dU7zbq5tjA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:961217560590:android:cc97ee81020bb3d68c7c5f",
+        "android_client_info": {
+          "package_name": "com.husko.bynight.livreur"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCcuTeRYfqOFcGQciut_URl6dU7zbq5tjA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:961217560590:android:5160ed92815caaff8c7c5f",
+        "android_client_info": {
+          "package_name": "com.husko.client"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCcuTeRYfqOFcGQciut_URl6dU7zbq5tjA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:961217560590:android:c5ce190579c5c9c18c7c5f",
+        "android_client_info": {
+          "package_name": "com.husko.copilot"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCcuTeRYfqOFcGQciut_URl6dU7zbq5tjA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:961217560590:android:991f967ce39fc0bf8c7c5f",
+        "android_client_info": {
+          "package_name": "com.husko.gerant"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCcuTeRYfqOFcGQciut_URl6dU7zbq5tjA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:961217560590:android:8a322e7598e8a1b88c7c5f",
+        "android_client_info": {
+          "package_name": "com.husko.livreur"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCcuTeRYfqOFcGQciut_URl6dU7zbq5tjA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

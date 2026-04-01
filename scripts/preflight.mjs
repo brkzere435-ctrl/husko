@@ -46,10 +46,28 @@ if (!existsSync(envPath)) {
   console.log('• Fichier .env trouvé');
 }
 
-const fbOk =
+const FB_KEYS = [
+  'EXPO_PUBLIC_FIREBASE_API_KEY',
+  'EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN',
+  'EXPO_PUBLIC_FIREBASE_PROJECT_ID',
+  'EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET',
+  'EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID',
+  'EXPO_PUBLIC_FIREBASE_APP_ID',
+];
+const fbMissing = FB_KEYS.filter((k) => emptyOrPlaceholder(env[k]));
+const fbOk = fbMissing.length === 0;
+const fbMin =
   !emptyOrPlaceholder(env.EXPO_PUBLIC_FIREBASE_API_KEY) &&
   !emptyOrPlaceholder(env.EXPO_PUBLIC_FIREBASE_PROJECT_ID);
-console.log(fbOk ? '• Firebase (min.) : OK (apiKey + projectId)' : '• Firebase : incomplet → liaison locale seule');
+if (fbOk) {
+  console.log('• Firebase : OK (6 clés) — npm run eas:sync:firebase avant eas build cloud');
+} else if (fbMin) {
+  console.log(
+    `• Firebase : partiel (${fbMissing.length} manquante(s)) — sync fragile ; compléter les 6 clés`
+  );
+} else {
+  console.log('• Firebase : incomplet → liaison locale seule (panier bloqué sans cloud dans l’app)');
+}
 
 const mapsOk =
   !emptyOrPlaceholder(env.EXPO_PUBLIC_GOOGLE_MAPS_ANDROID_API_KEY) &&

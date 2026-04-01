@@ -45,8 +45,10 @@ Pour un essai **d’une variante seule** (client, livreur, etc.), utilise plutô
     1. `npm run eas:login` (ou `eas login`) si besoin
     2. `npm run eas:credentials` si keystore / certificats à vérifier
     3. `npm run eas:sync:maps` si les clés Maps du `.env` doivent être sur Expo
-    4. `npm run build:apk:unified` (hub) ou autre profil (`build:matrix` pour la liste)
-    5. Mettre à jour `distribution.defaults.json` puis `npm run qr:generate`
+    4. `npm run eas:sync:firebase` si les `EXPO_PUBLIC_FIREBASE_*` du `.env` doivent être sur Expo (synchro client / gérant / livreur)
+    5. `npm run build:apk:unified` (hub) ou autre profil (`build:matrix` pour la liste)
+    6. Mettre à jour `distribution.defaults.json` puis `npm run qr:generate`
+    7. Optionnel avant `eas build` : `npm run firebase:env:check:strict` (échoue si une clé Firebase manque dans `.env`)
     - **`npm run release:next`** affiche cette checklist et exécute `eas whoami` (échoue si pas connecté à Expo).
   - Raccourci partiel : `npm run verify:all` (= preflight + verify seulement). **`npm run husko:doctor`** — audit style + fonction + garde-fous techniques.
 
@@ -69,6 +71,22 @@ Sans configuration, les commandes restent **locales** (AsyncStorage). Pour que *
 2. Créer une app Web, récupérer les clés, et les mettre dans **`.env`** (`npm run setup:env` depuis `env.example`) ou dans les **secrets EAS** pour les builds.
 3. Déployer les règles : `npm install`, `firebase login`, `firebase use --add` (choisir le projet), puis **`npm run firebase:deploy:rules`**. Fichiers source : **`firestore.rules`** (modèle ouvert pour tests ; à durcir en production). L’exemple **`firestore.rules.example`** reste une copie de référence.
 4. Rebuild les APK : la synchro démarre dès que `EXPO_PUBLIC_FIREBASE_PROJECT_ID` et `EXPO_PUBLIC_FIREBASE_API_KEY` sont définis.
+
+**`google-services.json` (Android, racine du dépôt)** — [app.config.js](app.config.js) branche ce fichier sur `android.googleServicesFile` s’il est présent. Pour que le JSON corresponde au **vrai** `applicationId` de chaque APK, enregistre dans Firebase **une app Android par package** (Paramètres du projet → Tes applications → Ajouter une application), puis remplace le fichier à la racine par celui fourni par Firebase (un même fichier peut contenir **plusieurs** blocs `client` si tu as ajouté toutes les apps au même projet).
+
+Paquets Husko (`EXPO_PUBLIC_APP_VARIANT` / profil EAS) :
+
+| Rôle / usage | `applicationId` Android |
+|----------------|-------------------------|
+| Hub unifié (`all`) | `com.husko.bynight` |
+| Client | `com.husko.bynight.client` |
+| Gérant | `com.husko.bynight.gerant` |
+| Livreur | `com.husko.bynight.livreur` |
+| Copilote | `com.husko.copilot` |
+
+Si le fichier ne contient qu’un autre nom de paquet (ex. `com.husko.app`), les identifiants ne correspondent pas à l’APK Husko : ajoute les apps ci-dessus dans le projet Firebase et régénère le JSON. Vérification locale **sans afficher de clés** : `npm run google-services:check` (liste `project_id` + paquets ; `google-services:check:strict` pour un exit code non nul si un paquet Husko manque). La synchro **Firestore côté JS** repose surtout sur les `EXPO_PUBLIC_FIREBASE_*` ; `google-services.json` aligne surtout les attentes **natives** (p. ex. FCM / services Google liés au fichier).
+
+Côté **app client**, le panier affiche un avertissement et désactive la validation tant que la liaison Firebase n’est pas active dans le build (évite d’envoyer une commande « locale seule » sans le dire).
 
 Collections utilisées : `orders/{orderId}`, `meta/driver` (position du livreur).
 

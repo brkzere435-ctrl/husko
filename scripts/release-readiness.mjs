@@ -58,7 +58,18 @@ const env = parseEnvFile();
 const localAndroid = hasRealKey(env.EXPO_PUBLIC_GOOGLE_MAPS_ANDROID_API_KEY);
 const localIos = hasRealKey(env.EXPO_PUBLIC_GOOGLE_MAPS_IOS_API_KEY);
 const mapsOk = cfg.extra?.mapsAndroidKeyOk === true && cfg.extra?.mapsIosKeyOk === true;
-const fbOk = hasRealKey(env.EXPO_PUBLIC_FIREBASE_PROJECT_ID) && hasRealKey(env.EXPO_PUBLIC_FIREBASE_API_KEY);
+const FB_KEYS = [
+  'EXPO_PUBLIC_FIREBASE_API_KEY',
+  'EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN',
+  'EXPO_PUBLIC_FIREBASE_PROJECT_ID',
+  'EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET',
+  'EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID',
+  'EXPO_PUBLIC_FIREBASE_APP_ID',
+];
+const fbMissingKeys = FB_KEYS.filter((k) => !hasRealKey(env[k]));
+const fbOk = fbMissingKeys.length === 0;
+const fbMin =
+  hasRealKey(env.EXPO_PUBLIC_FIREBASE_PROJECT_ID) && hasRealKey(env.EXPO_PUBLIC_FIREBASE_API_KEY);
 const pid = cfg.extra?.eas?.projectId ?? '(manquant)';
 
 console.log('\n[Husko — release:check]\n');
@@ -78,7 +89,14 @@ console.log('');
 console.log('Google Maps (.env local)     : Android', localAndroid ? 'renseigné' : 'vide / placeholder');
 console.log('                             : iOS    ', localIos ? 'renseigné' : 'vide / placeholder');
 console.log('expo config (clés réelles)   :', mapsOk ? 'OK (tuiles Maps possibles au build)' : 'NON — fallback radar GTA en app si build sans vraie clé');
-console.log('Firebase (.env)              :', fbOk ? 'min. OK (sync multi-appareils possible)' : 'incomplet — données locales seules');
+console.log(
+  'Firebase (.env)              :',
+  fbOk
+    ? 'OK — 6 clés (sync client / gérant / livreur possible après eas:sync:firebase + build)'
+    : fbMin
+      ? `partiel (${fbMissingKeys.length} clé(s) manquante(s)) — compléter puis eas:sync:firebase`
+      : 'incomplet — données locales seules ; panier client sans validation si pas de build avec Firebase'
+);
 console.log('');
 console.log('OTA vs build natif :');
 console.log('  • eas update = bundle JS uniquement (pas de nouvelles clés natives).');
@@ -94,7 +112,8 @@ if (!mapsOk || !fbOk) {
     console.log('  • Relancer un eas build (pas seulement eas update)');
   }
   if (!fbOk) {
-    console.log('  • Renseigner EXPO_PUBLIC_FIREBASE_* pour commandes / livreur synchronisés');
+    console.log('  • Renseigner les 6 EXPO_PUBLIC_FIREBASE_* (voir env.example)');
+    console.log('  • npm run eas:sync:firebase puis npm run firebase:env:check:strict avant eas build');
   }
   console.log('');
 }
@@ -108,6 +127,8 @@ console.log('  npm run security:check         — .env + avertissement si dépô
 console.log('  npm run security:check:strict  — échoue si dépôt sale (comme release:doctor)');
 console.log('  npm run eas:prebuild           — même chose que l’étape 4 (gate avant build)');
 console.log('  npm run eas:sync:maps:verify    — sync Maps puis release:check');
+console.log('  npm run firebase:env:check     — détail des 6 clés Firebase (.env)');
+console.log('  npm run firebase:env:check:strict — échoue si une clé Firebase manque');
 console.log('  npm run chantiers:check        — checklist Maps + Firebase + assets menu + OTA');
 console.log('  npm run release:chantiers      — verify + chantiers:check');
 console.log('  npm run preflight              — détail .env');

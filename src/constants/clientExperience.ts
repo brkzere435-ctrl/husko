@@ -27,4 +27,10 @@ export const clientStrings = {
   suiviCancelledTitle: 'Commande annulée',
   suiviCancelledBody: (ref: string) =>
     `Pas de validation gérant dans les 30 minutes — ${ref}. Tu peux recommander depuis le menu.`,
+  historiqueTitle: 'Mes commandes',
+  historiqueEmpty: 'Aucune commande terminée pour l’instant. Les livraisons et annulations apparaîtront ici.',
+  historiqueLink: 'Mes commandes passées',
+  cloudCheckoutBlockedTitle: 'Liaison cloud requise',
+  cloudCheckoutBlockedBody:
+    'Sans Firebase configuré dans l’app (variables EAS + nouveau build), votre commande ne part pas au restaurant. Consultez App & mises à jour ou env.example.',
 } as const;

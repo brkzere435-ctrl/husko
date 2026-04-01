@@ -1,10 +1,12 @@
 import { Link, router } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { Alert, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import Animated, { FadeIn } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { DeploymentHints } from '@/components/DeploymentHints';
 import { WestCoastBackground } from '@/components/westcoast/WestCoastBackground';
+import { isRemoteSyncEnabled } from '@/services/firebaseRemote';
 import { GTAMiniMap } from '@/components/GTAMiniMap';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { ScreenSection } from '@/components/ScreenSection';
@@ -28,6 +30,7 @@ export default function PanierScreen() {
   const [address, setAddress] = useState('Angers centre');
 
   const total = cart.reduce((a, l) => a + l.item.price * l.qty, 0);
+  const cloudOk = isRemoteSyncEnabled();
 
   const region = useMemo(
     () => fitMapRegion([ANGERS_DEFAULT, HUSKO_DEPARTURE_HUB], 2),
@@ -37,6 +40,13 @@ export default function PanierScreen() {
   function checkout() {
     if (!cart.length) {
       Alert.alert('Panier vide', 'Ajoutez des articles depuis le menu.');
+      return;
+    }
+    if (!isRemoteSyncEnabled()) {
+      Alert.alert(
+        clientStrings.cloudCheckoutBlockedTitle,
+        clientStrings.cloudCheckoutBlockedBody
+      );
       return;
     }
     const order = placeOrder(address.trim() || 'Adresse', ANGERS_DEFAULT);
@@ -61,6 +71,15 @@ export default function PanierScreen() {
                 <View style={styles.outsideBanner}>
                   <Text style={styles.outsideBannerTitle}>Hors créneau livraison</Text>
                   <Text style={styles.outsideBannerBody}>{outsideDeliveryHoursBanner}</Text>
+                </View>
+              ) : null}
+              {!cloudOk ? (
+                <View style={styles.cloudBanner}>
+                  <Text style={styles.cloudBannerTitle}>Liaison cloud inactive</Text>
+                  <Text style={[typography.bodyMuted, styles.cloudBannerBody]}>
+                    Le gérant ne recevra pas la commande sur un autre appareil tant que Firebase n’est pas
+                    configuré au build (EAS). Voir App & mises à jour.
+                  </Text>
                 </View>
               ) : null}
             </>
@@ -126,8 +145,12 @@ export default function PanierScreen() {
             <Text style={[typography.bodyMuted, styles.paymentText]}>{PAYMENT_NOTICE_LONG}</Text>
           </View>
 
-          <PrimaryButton title="Valider la commande" onPress={checkout} />
-          <PrimaryButton title="Vider le panier" variant="ghost" onPress={() => clearCart()} />
+          {cart.length > 0 ? (
+            <Animated.View entering={FadeIn.duration(360)} style={styles.ctaBlock}>
+              <PrimaryButton title="Valider la commande" onPress={checkout} />
+              <PrimaryButton title="Vider le panier" variant="ghost" onPress={() => clearCart()} />
+            </Animated.View>
+          ) : null}
 
           <DeploymentHints mode="alerts" mapsRelevant style={styles.infra} />
         </ScrollView>
@@ -158,6 +181,27 @@ const styles = StyleSheet.create({
   },
   outsideBannerBody: {
     color: colors.textMuted,
+    fontSize: 13,
+    lineHeight: 20,
+    fontWeight: '600',
+  },
+  cloudBanner: {
+    marginBottom: spacing.md,
+    padding: spacing.md,
+    borderRadius: radius.lg,
+    backgroundColor: 'rgba(250, 204, 21, 0.08)',
+    borderWidth: 1,
+    borderColor: 'rgba(250, 204, 21, 0.45)',
+  },
+  cloudBannerTitle: {
+    color: colors.gold,
+    fontWeight: '900',
+    fontSize: 13,
+    letterSpacing: 0.6,
+    textTransform: 'uppercase',
+    marginBottom: spacing.xs,
+  },
+  cloudBannerBody: {
     fontSize: 13,
     lineHeight: 20,
     fontWeight: '600',
@@ -202,4 +246,5 @@ const styles = StyleSheet.create({
     ...elevation.card,
   },
   paymentText: { marginTop: spacing.sm },
+  ctaBlock: { gap: spacing.sm, marginBottom: spacing.sm },
 });
