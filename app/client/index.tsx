@@ -1,8 +1,8 @@
 import { Link, router } from 'expo-router';
 import * as Linking from 'expo-linking';
 import { FlashList } from '@shopify/flash-list';
-import { memo, useCallback, useMemo } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { memo, useCallback, useMemo, useState } from 'react';
+import { type LayoutChangeEvent, Pressable, StyleSheet, Text, View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -33,6 +33,11 @@ import { elevation, radius, spacing, surface } from '@/constants/theme';
 import { useHuskoStore } from '@/stores/useHuskoStore';
 import { buildClientMenuRows, type ClientMenuRow } from '@/utils/clientMenuRows';
 import { hapticLight } from '@/utils/haptics';
+
+/** Réserve initiale sous la liste avant mesure `onLayout` du dock (1er frame). */
+const CLIENT_MENU_DOCK_MIN_RESERVE = 200;
+/** Marge sous la hauteur mesurée du dock (Android / iOS, grossissement police). */
+const CLIENT_MENU_DOCK_LIST_GAP = spacing.sm;
 
 const MenuProductRow = memo(function MenuProductRow({ item }: { item: MenuItem }) {
   return (
@@ -112,6 +117,15 @@ export default function ClientMenuScreen() {
     s.cart.reduce((a, l) => a + l.item.price * l.qty, 0)
   );
 
+  const [dockListPad, setDockListPad] = useState(CLIENT_MENU_DOCK_MIN_RESERVE);
+
+  const onDockLayout = useCallback((e: LayoutChangeEvent) => {
+    const h = e.nativeEvent.layout.height;
+    if (h <= 0) return;
+    const next = Math.ceil(h) + CLIENT_MENU_DOCK_LIST_GAP;
+    setDockListPad((prev) => (prev !== next ? next : prev));
+  }, []);
+
   const sections = useMemo(() => {
     const by = new Map<MenuCategory, MenuItem[]>();
     for (const item of MENU) {
@@ -162,14 +176,14 @@ export default function ClientMenuScreen() {
               </Link>
             </View>
           }
-          contentContainerStyle={styles.list}
+          contentContainerStyle={[styles.list, { paddingBottom: dockListPad }]}
         />
         <Animated.View
           entering={FadeIn.duration(380).delay(60)}
           style={styles.dockWrap}
           pointerEvents="box-none"
+          onLayout={onDockLayout}
         >
-          <View style={styles.dockNeon} />
           <View style={[styles.bar, elevation.dock]}>
             <Text style={styles.barText}>
               {cartCount} article{cartCount !== 1 ? 's' : ''}
@@ -190,7 +204,7 @@ export default function ClientMenuScreen() {
 
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: 'transparent' },
-  list: { paddingHorizontal: spacing.md, paddingBottom: 132 },
+  list: { paddingHorizontal: spacing.md },
   footerAbout: {
     alignItems: 'center',
     paddingVertical: spacing.lg,
@@ -366,17 +380,12 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
   },
-  dockNeon: {
-    height: 2,
-    backgroundColor: WC.neonCyan,
-    opacity: 0.85,
-  },
   bar: {
     padding: spacing.md,
     paddingBottom: spacing.lg,
     backgroundColor: 'rgba(8, 2, 4, 0.94)',
-    borderTopWidth: 1,
-    borderColor: 'rgba(34,211,238,0.25)',
+    borderTopWidth: 2,
+    borderTopColor: 'rgba(34, 211, 238, 0.88)',
     gap: spacing.sm,
   },
   barText: {
