@@ -1,0 +1,20 @@
+---
+description: UI responsive Husko (Expo/React Native) — unités relatives, flex, tests appareil
+globs: "**/*.{tsx,ts}"
+alwaysApply: false
+---
+
+# UI responsive (Husko)
+
+## Unités et mise en page
+
+- Éviter les **largeurs/hauteurs fixes** partout : préférer **flex** (`flex`, `flexGrow`), **alignSelf**, **`maxWidth: '100%'`** quand le parent le permet.
+- En React Native, les nombres dans les styles sont en **dp** (Android) / **points** (iOS), pas des px web.
+- Pour dimensionner par rapport à l’écran : **`useWindowDimensions()`** (ou `Dimensions`) plutôt que des constantes magiques isolées.
+- Bordures / séparateurs très fins : **`StyleSheet.hairlineWidth`** plutôt qu’un `1` fixe pour viser la densité.
+- Images : privilégier **vectoriel** ou assets **@2x/@3x** ; éviter de caler des détails sur un « 1px physique » à la main.
+
+## Vérification
+
+- Après changement UI notable : tester sur **vrai appareil** (Expo Go / dev build) ; si **web**, redimensionner la fenêtre.
+- Ne pas introduire de régressions d’accessibilité (tailles de toucher, lisibilité).
