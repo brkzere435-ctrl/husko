@@ -1,10 +1,10 @@
 import { Link, router } from 'expo-router';
 import * as Linking from 'expo-linking';
 import { FlashList } from '@shopify/flash-list';
-import { memo, useCallback, useMemo, useState } from 'react';
-import { type LayoutChangeEvent, Pressable, StyleSheet, Text, View } from 'react-native';
+import { memo, useCallback, useMemo } from 'react';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { MenuItemVisual } from '@/components/westcoast/MenuItemVisual';
 import { WestCoastBackground } from '@/components/westcoast/WestCoastBackground';
@@ -33,11 +33,6 @@ import { elevation, radius, spacing, surface } from '@/constants/theme';
 import { useHuskoStore } from '@/stores/useHuskoStore';
 import { buildClientMenuRows, type ClientMenuRow } from '@/utils/clientMenuRows';
 import { hapticLight } from '@/utils/haptics';
-
-/** Réserve initiale sous la liste avant mesure `onLayout` du dock (1er frame). */
-const CLIENT_MENU_DOCK_MIN_RESERVE = 200;
-/** Marge sous la hauteur mesurée du dock (Android / iOS, grossissement police). */
-const CLIENT_MENU_DOCK_LIST_GAP = spacing.sm;
 
 const MenuProductRow = memo(function MenuProductRow({ item }: { item: MenuItem }) {
   return (
@@ -112,19 +107,11 @@ function MenuHero() {
 }
 
 export default function ClientMenuScreen() {
+  const insets = useSafeAreaInsets();
   const cartCount = useHuskoStore((s) => s.cart.reduce((a, l) => a + l.qty, 0));
   const cartTotal = useHuskoStore((s) =>
     s.cart.reduce((a, l) => a + l.item.price * l.qty, 0)
   );
-
-  const [dockListPad, setDockListPad] = useState(CLIENT_MENU_DOCK_MIN_RESERVE);
-
-  const onDockLayout = useCallback((e: LayoutChangeEvent) => {
-    const h = e.nativeEvent.layout.height;
-    if (h <= 0) return;
-    const next = Math.ceil(h) + CLIENT_MENU_DOCK_LIST_GAP;
-    setDockListPad((prev) => (prev !== next ? next : prev));
-  }, []);
 
   const sections = useMemo(() => {
     const by = new Map<MenuCategory, MenuItem[]>();
@@ -155,48 +142,52 @@ export default function ClientMenuScreen() {
   return (
     <WestCoastBackground preset="client">
       <SafeAreaView style={styles.root} edges={['bottom']}>
-        <FlashList
-          data={rows}
-          keyExtractor={keyExtractor}
-          renderItem={renderRow}
-          getItemType={getItemType}
-          drawDistance={280}
-          ListHeaderComponent={
-            <View style={styles.headerBlock}>
-              <DeploymentHints mode="alerts" mapsRelevant={false} style={styles.hint} />
-              <MenuHero />
-            </View>
-          }
-          ListFooterComponent={
-            <View style={styles.footerAbout}>
-              <Link href="/client/reglages" asChild>
-                <Pressable style={styles.footerLink} accessibilityRole="link" accessibilityLabel="App et mises à jour">
-                  <Text style={styles.footerLinkText}>App & mises à jour</Text>
-                </Pressable>
+        <View style={styles.screenBody}>
+          <FlashList
+            data={rows}
+            keyExtractor={keyExtractor}
+            renderItem={renderRow}
+            getItemType={getItemType}
+            style={styles.listFlex}
+            drawDistance={280}
+            ListHeaderComponent={
+              <View style={styles.headerBlock}>
+                <DeploymentHints mode="alerts" mapsRelevant={false} style={styles.hint} />
+                <MenuHero />
+              </View>
+            }
+            ListFooterComponent={
+              <View style={styles.footerAbout}>
+                <Link href="/client/reglages" asChild>
+                  <Pressable style={styles.footerLink} accessibilityRole="link" accessibilityLabel="App et mises à jour">
+                    <Text style={styles.footerLinkText}>App & mises à jour</Text>
+                  </Pressable>
+                </Link>
+              </View>
+            }
+            contentContainerStyle={styles.listContent}
+          />
+          <Animated.View entering={FadeIn.duration(380).delay(60)} style={styles.dockColumn}>
+            <View
+              style={[
+                styles.bar,
+                elevation.dock,
+                { paddingBottom: spacing.lg + Math.max(insets.bottom, 0) },
+              ]}
+            >
+              <Text style={styles.barText}>
+                {cartCount} article{cartCount !== 1 ? 's' : ''}
+                {cartTotal > 0 ? ` · ${cartTotal.toFixed(2)} €` : ''}
+              </Text>
+              <Link href="/client/panier" asChild>
+                <PrimaryButton title="Panier" style={styles.barBtn} />
+              </Link>
+              <Link href="/client/suivi" asChild>
+                <PrimaryButton title="Suivi" variant="ghost" style={styles.barBtn} />
               </Link>
             </View>
-          }
-          contentContainerStyle={[styles.list, { paddingBottom: dockListPad }]}
-        />
-        <Animated.View
-          entering={FadeIn.duration(380).delay(60)}
-          style={styles.dockWrap}
-          pointerEvents="box-none"
-          onLayout={onDockLayout}
-        >
-          <View style={[styles.bar, elevation.dock]}>
-            <Text style={styles.barText}>
-              {cartCount} article{cartCount !== 1 ? 's' : ''}
-              {cartTotal > 0 ? ` · ${cartTotal.toFixed(2)} €` : ''}
-            </Text>
-            <Link href="/client/panier" asChild>
-              <PrimaryButton title="Panier" style={styles.barBtn} />
-            </Link>
-            <Link href="/client/suivi" asChild>
-              <PrimaryButton title="Suivi" variant="ghost" style={styles.barBtn} />
-            </Link>
-          </View>
-        </Animated.View>
+          </Animated.View>
+        </View>
       </SafeAreaView>
     </WestCoastBackground>
   );
@@ -204,7 +195,9 @@ export default function ClientMenuScreen() {
 
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: 'transparent' },
-  list: { paddingHorizontal: spacing.md },
+  screenBody: { flex: 1 },
+  listFlex: { flex: 1 },
+  listContent: { paddingHorizontal: spacing.md, paddingBottom: spacing.sm },
   footerAbout: {
     alignItems: 'center',
     paddingVertical: spacing.lg,
@@ -307,8 +300,9 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   trustLine: {
-    marginTop: spacing.sm,
+    marginTop: spacing.md,
     fontSize: 12,
+    lineHeight: 18,
     fontWeight: '700',
     color: WC.neonCyan,
     textAlign: 'center',
@@ -374,15 +368,11 @@ const styles = StyleSheet.create({
     color: WC.white,
     fontVariant: ['tabular-nums'],
   },
-  dockWrap: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 0,
+  dockColumn: {
+    width: '100%',
   },
   bar: {
     padding: spacing.md,
-    paddingBottom: spacing.lg,
     backgroundColor: 'rgba(8, 2, 4, 0.94)',
     borderTopWidth: 2,
     borderTopColor: 'rgba(34, 211, 238, 0.88)',

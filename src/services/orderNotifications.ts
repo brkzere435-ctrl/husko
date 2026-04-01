@@ -1,6 +1,7 @@
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 
+import { getAppVariant } from '@/constants/appVariant';
 import type { Order } from '@/stores/useHuskoStore';
 
 function canNotify() {
@@ -54,9 +55,25 @@ export async function notifyAppUpdateReady(): Promise<boolean> {
   return true;
 }
 
-/** Nouvelle commande → notification gérant */
+/** Nouvelle commande : notif locale dans l’app qui appelle `placeOrder` (souvent le client) — pas un push vers l’APK gérant. */
 export async function notifyGerantNewOrder(order: Order) {
-  await schedule('Husko · Gérant', `Nouvelle commande ${order.id} — ${order.total.toFixed(2)} €`);
+  const variant = getAppVariant();
+  const total = order.total.toFixed(2);
+  if (variant === 'client') {
+    await schedule(
+      'Husko · Commande envoyée',
+      `Commande ${order.id} — ${total} €. Le restaurant la reçoit par synchronisation (Firebase).`
+    );
+    return;
+  }
+  if (variant === 'all') {
+    await schedule(
+      'Husko · Nouvelle commande',
+      `${order.id} — ${total} €. Ouvrez l’espace gérant pour valider.`
+    );
+    return;
+  }
+  await schedule('Husko · Gérant', `Nouvelle commande ${order.id} — ${total} €`);
 }
 
 /** Gérant a validé → client */

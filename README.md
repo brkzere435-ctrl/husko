@@ -10,4 +10,8 @@ Application **Expo** : commande (menu, panier, suivi), **livreur** (carte + posi
 
 **Réparation / diagnostic (boucle, preuves, mode Agent) :** [`docs/reparation-autonomie.md`](docs/reparation-autonomie.md).
 
+**Debug runtime sur téléphone / APK (Metro, LAN, tunnel, logcat) :** [`docs/debug-mobile.md`](docs/debug-mobile.md).
+
+**Briefing client (notifications locales vs Firestore, synchro client–gérant) :** [`docs/briefing-rdv-client-notifications.md`](docs/briefing-rdv-client-notifications.md).
+
 **CI GitHub :** `release:gate` sur chaque push/PR (voir [`.github/workflows/ci.yml`](.github/workflows/ci.yml)).

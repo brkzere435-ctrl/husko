@@ -2,7 +2,7 @@
 
 Ordre : **prérequis** → **développement** → **builds mobiles** → **web / Docker** → **Cloud Run**.
 
-Checklist release (commandes synthétiques) : [RELEASE_CHECKLIST.md](RELEASE_CHECKLIST.md). Checklist **iOS** (bundles, Maps, TestFlight) : [IOS_RELEASE_CHECKLIST.md](IOS_RELEASE_CHECKLIST.md).
+Checklist release (commandes synthétiques) : [RELEASE_CHECKLIST.md](RELEASE_CHECKLIST.md). Checklist **iOS** (bundles, Maps, TestFlight) : [IOS_RELEASE_CHECKLIST.md](IOS_RELEASE_CHECKLIST.md). **Briefing** (notifications / synchro client–gérant, limite push) : [docs/briefing-rdv-client-notifications.md](docs/briefing-rdv-client-notifications.md).
 
 ### Chemin express — APK unifié hub (recommandé)
 
@@ -71,6 +71,13 @@ Sans configuration, les commandes restent **locales** (AsyncStorage). Pour que *
 2. Créer une app Web, récupérer les clés, et les mettre dans **`.env`** (`npm run setup:env` depuis `env.example`) ou dans les **secrets EAS** pour les builds.
 3. Déployer les règles : `npm install`, `firebase login`, `firebase use --add` (choisir le projet), puis **`npm run firebase:deploy:rules`**. Fichiers source : **`firestore.rules`** (modèle ouvert pour tests ; à durcir en production). L’exemple **`firestore.rules.example`** reste une copie de référence.
 4. Rebuild les APK : la synchro démarre dès que `EXPO_PUBLIC_FIREBASE_PROJECT_ID` et `EXPO_PUBLIC_FIREBASE_API_KEY` sont définis.
+
+**Checklist — commandes visibles sur le téléphone gérant (APK client ≠ APK gérant)** :
+
+- Mêmes `EXPO_PUBLIC_FIREBASE_*` injectées pour les profils EAS **client** et **gérant** (depuis un `.env` complet : `npm run eas:sync:firebase` avant les builds).
+- `npm run firebase:env:check` sans erreur avant de lancer les builds concernés.
+- Règles Firestore déployées (`npm run firebase:deploy:rules`) ; la collection `orders` doit être lisible/écritable selon ton modèle dans `firestore.rules`.
+- Sur le téléphone **gérant** : ouvrir l’app connectée au réseau ; les commandes arrivent via le listener Firestore du root layout (`app/_layout.tsx`). Si la liste reste vide : vérifier que le **même** projet Firebase est bien embarqué dans les deux APK, puis diagnostiquer (`adb logcat`, messages d’erreur Firestore).
 
 **`google-services.json` (Android, racine du dépôt)** — [app.config.js](app.config.js) branche ce fichier sur `android.googleServicesFile` s’il est présent. Pour que le JSON corresponde au **vrai** `applicationId` de chaque APK, enregistre dans Firebase **une app Android par package** (Paramètres du projet → Tes applications → Ajouter une application), puis remplace le fichier à la racine par celui fourni par Firebase (un même fichier peut contenir **plusieurs** blocs `client` si tu as ajouté toutes les apps au même projet).
 
