@@ -1,6 +1,6 @@
 import * as Clipboard from 'expo-clipboard';
 import * as Linking from 'expo-linking';
-import { memo, useMemo, useState } from 'react';
+import { memo, useEffect, useMemo, useState } from 'react';
 import {
   Alert,
   Image,
@@ -27,6 +27,7 @@ import { typography } from '@/constants/typography';
 import { colors, elevation, radius, spacing, surface } from '@/constants/theme';
 import { WC, wcSectionLabel } from '@/constants/westCoastTheme';
 import { VENUE_LEGAL_LINE } from '@/constants/venue';
+import { getAppVariant } from '@/constants/appVariant';
 
 function urlForTab(
   tab: DistributionTabKey,
@@ -135,7 +136,16 @@ const DistributionRoleTab = memo(function DistributionRoleTab({
 export default function DistributionScreen() {
   const urls = useMemo(() => getDistributionApkUrls(), []);
   const { client, livreur, gerant, unified, assistant } = urls;
-  const [tab, setTab] = useState<DistributionTabKey>('unified');
+  /** APK gérant seul : pas de QR hub unifié ni Copilote (rôles déjà couverts ailleurs). */
+  const isGerantDedicatedApk = getAppVariant() === 'gerant';
+  const [tab, setTab] = useState<DistributionTabKey>(() =>
+    isGerantDedicatedApk ? 'gerant' : 'unified'
+  );
+
+  useEffect(() => {
+    if (!isGerantDedicatedApk) return;
+    if (tab === 'unified' || tab === 'assistant') setTab('gerant');
+  }, [isGerantDedicatedApk, tab]);
 
   const activeUrl = urlForTab(tab, urls);
   const roleStyle = DISTRIBUTION_ROLE_STYLE[tab];
@@ -168,13 +178,26 @@ export default function DistributionScreen() {
         <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
           <BrandMark tagline={VENUE_LEGAL_LINE} />
           <Text style={typography.title}>Distribution</Text>
-          <Text style={[wcSectionLabel, styles.kicker]}>QR & liens (unifié + mono-rôles)</Text>
+          <Text style={[wcSectionLabel, styles.kicker]}>
+            {isGerantDedicatedApk ? 'QR & liens (gérant · client · livreur)' : 'QR & liens (unifié + mono-rôles)'}
+          </Text>
           <Text style={[typography.bodyMuted, styles.intro]}>
-            Couleurs : cyan = APK unique (hub), magenta = Copilote, puis or / vert / bleu pour les APK
-            dédiés. Les QR ouvrent la <Text style={styles.em}>page Expo</Text>. Fichiers{' '}
-            <Text style={styles.mono}>.apk</Text> sur PC :{' '}
-            <Text style={styles.mono}>npm run apk:download:unified</Text>,{' '}
-            <Text style={styles.mono}>npm run apk:download:assistant</Text>, ou client / gerant / livreur / all.
+            {isGerantDedicatedApk ? (
+              <>
+                Cette app <Text style={styles.em}>gérant</Text> sert aux QR <Text style={styles.em}>or / vert / bleu</Text>{' '}
+                uniquement (pas hub unifié ni Copilote). Les QR ouvrent la{' '}
+                <Text style={styles.em}>page Expo</Text>. Fichiers <Text style={styles.mono}>.apk</Text> sur PC :{' '}
+                <Text style={styles.mono}>npm run apk:download:gerant</Text>, client, livreur ou all.
+              </>
+            ) : (
+              <>
+                Couleurs : cyan = APK unique (hub), magenta = Copilote, puis or / vert / bleu pour les APK
+                dédiés. Les QR ouvrent la <Text style={styles.em}>page Expo</Text>. Fichiers{' '}
+                <Text style={styles.mono}>.apk</Text> sur PC :{' '}
+                <Text style={styles.mono}>npm run apk:download:unified</Text>,{' '}
+                <Text style={styles.mono}>npm run apk:download:assistant</Text>, ou client / gerant / livreur / all.
+              </>
+            )}
           </Text>
 
           <DeploymentHints mode="alerts" mapsRelevant={false} style={styles.infra} />
@@ -282,16 +305,20 @@ export default function DistributionScreen() {
 
           <View style={styles.both}>
             <Text style={styles.bothTitle}>Tous les liens (ne pas mélanger les QR)</Text>
-            <QrSummary
-              label="Unifié hub (cyan)"
-              url={unified}
-              accent={DISTRIBUTION_ROLE_STYLE.unified.accent}
-            />
-            <QrSummary
-              label="Copilote (magenta)"
-              url={assistant}
-              accent={DISTRIBUTION_ROLE_STYLE.assistant.accent}
-            />
+            {!isGerantDedicatedApk ? (
+              <>
+                <QrSummary
+                  label="Unifié hub (cyan)"
+                  url={unified}
+                  accent={DISTRIBUTION_ROLE_STYLE.unified.accent}
+                />
+                <QrSummary
+                  label="Copilote (magenta)"
+                  url={assistant}
+                  accent={DISTRIBUTION_ROLE_STYLE.assistant.accent}
+                />
+              </>
+            ) : null}
             <QrSummary
               label="Gérant (or)"
               url={gerant}

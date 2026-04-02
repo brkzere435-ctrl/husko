@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Platform, StyleSheet, View } from 'react-native';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 
@@ -8,6 +8,7 @@ import { HuskoDepartureBuilding } from '@/components/HuskoDepartureBuilding';
 import { HUSKO_DEPARTURE_HUB } from '@/constants/huskoDepartureHub';
 import { mapDarkStyle } from '@/constants/mapDarkStyle';
 import { colors, elevation } from '@/constants/theme';
+import { useTracksViewChangesForCustomMarker } from '@/hooks/useTracksViewChangesForCustomMarker';
 import type { MapRegion } from '@/types/mapRegion';
 import { isMapsKeyConfiguredForPlatform } from '@/utils/mapsBuildInfo';
 
@@ -39,6 +40,18 @@ export function GTAMiniMap({
   const mapsConfigured = isMapsKeyConfiguredForPlatform();
   const useFallback = !mapsConfigured;
   const useGoogleStyle = Platform.OS === 'android';
+
+  const driverTrackKey = useMemo(
+    () =>
+      driver
+        ? `${driver.latitude.toFixed(5)}_${driver.longitude.toFixed(5)}_${headingDeg.toFixed(0)}`
+        : 'no-driver',
+    [driver, headingDeg]
+  );
+  const tracksDepartureMarker = useTracksViewChangesForCustomMarker(
+    showDeparture && departure ? `${departure.latitude}_${departure.longitude}` : 'no-dep'
+  );
+  const tracksDriverMarker = useTracksViewChangesForCustomMarker(driverTrackKey);
 
   if (useFallback) {
     return (
@@ -76,7 +89,7 @@ export function GTAMiniMap({
               coordinate={departure}
               anchor={{ x: 0.5, y: 1 }}
               zIndex={1}
-              tracksViewChanges={false}
+              tracksViewChanges={tracksDepartureMarker}
               title="Husko · QG"
             >
               <HuskoDepartureBuilding size={48} />
@@ -86,7 +99,12 @@ export function GTAMiniMap({
             <Marker coordinate={dest} zIndex={2} pinColor={colors.accent} title="Livraison" />
           ) : null}
           {driver ? (
-            <Marker coordinate={driver} anchor={{ x: 0.5, y: 0.5 }} zIndex={3} tracksViewChanges={false}>
+            <Marker
+              coordinate={driver}
+              anchor={{ x: 0.5, y: 0.5 }}
+              zIndex={3}
+              tracksViewChanges={tracksDriverMarker}
+            >
               <CarMarkerIcon headingDeg={headingDeg} size={38} variant="lowrider" />
             </Marker>
           ) : null}

@@ -39,7 +39,7 @@ export function GTAMiniMapFallbackInterior({
         </View>
       ) : null}
       {driver ? (
-        <View style={styles.markerWrap}>
+        <View style={styles.markerWrap} pointerEvents="none">
           <CarMarkerIcon headingDeg={headingDeg} size={38} variant="lowrider" />
         </View>
       ) : null}
@@ -100,7 +100,12 @@ const styles = StyleSheet.create({
     color: colors.gold,
     opacity: 0.95,
   },
-  markerWrap: { zIndex: 4 },
+  markerWrap: {
+    ...StyleSheet.absoluteFillObject,
+    zIndex: 4,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   destDot: {
     position: 'absolute',
     bottom: 24,

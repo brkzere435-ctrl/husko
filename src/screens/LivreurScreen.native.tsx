@@ -17,6 +17,7 @@ import { colors, elevation, radius, spacing } from '@/constants/theme';
 import { WC } from '@/constants/westCoastTheme';
 import type { MapRegion } from '@/types/mapRegion';
 import { HUSKO_DEPARTURE_HUB } from '@/constants/huskoDepartureHub';
+import { useTracksViewChangesForCustomMarker } from '@/hooks/useTracksViewChangesForCustomMarker';
 import { ANGERS_DEFAULT, useHuskoStore } from '@/stores/useHuskoStore';
 import { fitMapRegion } from '@/utils/fitMapRegion';
 
@@ -86,6 +87,12 @@ export default function LivreurScreenNative() {
     return fitMapRegion(pts, 1.95);
   }, [driver]);
 
+  const driverMarkerKey = driver
+    ? `${driver.latitude.toFixed(5)}_${driver.longitude.toFixed(5)}_${driverHeading.toFixed(0)}`
+    : 'no-driver';
+  const tracksHubMarker = useTracksViewChangesForCustomMarker('husko-hub');
+  const tracksDriverMarker = useTracksViewChangesForCustomMarker(driverMarkerKey);
+
   const useGoogleStyle = Platform.OS === 'android';
 
   return (
@@ -119,13 +126,18 @@ export default function LivreurScreenNative() {
                 coordinate={HUSKO_DEPARTURE_HUB}
                 anchor={{ x: 0.5, y: 1 }}
                 zIndex={1}
-                tracksViewChanges={false}
+                tracksViewChanges={tracksHubMarker}
                 title="Husko · QG"
               >
                 <HuskoDepartureBuilding size={56} />
               </Marker>
               {driver ? (
-                <Marker coordinate={driver} anchor={{ x: 0.5, y: 0.5 }} zIndex={2} tracksViewChanges={false}>
+                <Marker
+                  coordinate={driver}
+                  anchor={{ x: 0.5, y: 0.5 }}
+                  zIndex={2}
+                  tracksViewChanges={tracksDriverMarker}
+                >
                   <CarMarkerIcon headingDeg={driverHeading} size={48} variant="lowrider" />
                 </Marker>
               ) : null}

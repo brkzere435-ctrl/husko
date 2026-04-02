@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import { Platform, View, StyleSheet } from 'react-native';
 
 import { WC } from '@/constants/westCoastTheme';
 import { colors } from '@/constants/theme';
@@ -11,6 +11,7 @@ export function CarMarkerIcon({ size = 44, headingDeg = 0, variant = 'default' }
   const low = variant === 'lowrider';
   return (
     <View
+      collapsable={Platform.OS === 'android' ? false : undefined}
       style={[
         styles.wrap,
         {
