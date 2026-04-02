@@ -14,6 +14,8 @@ Application **Expo** : commande (menu, panier, suivi), **livreur** (carte + posi
 
 **Debug runtime sur téléphone / APK (Metro, LAN, tunnel, logcat) :** [`docs/debug-mobile.md`](docs/debug-mobile.md).
 
+**Vérifier une APK unifiée (variante `all`, canal `hub`, build natif) :** [`docs/verification-apk-unified.md`](docs/verification-apk-unified.md).
+
 **Briefing client (notifications locales vs Firestore, synchro client–gérant) :** [`docs/briefing-rdv-client-notifications.md`](docs/briefing-rdv-client-notifications.md).
 
 **CI GitHub :** `release:gate` sur chaque push/PR (voir [`.github/workflows/ci.yml`](.github/workflows/ci.yml)).
