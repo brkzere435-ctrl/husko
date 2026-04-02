@@ -1,13 +1,7 @@
 import { Link } from 'expo-router';
 import { useMemo, useState } from 'react';
-import {
-  Alert,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
+import { Card, Snackbar, Text, TextInput } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { BrandMark } from '@/components/BrandMark';
@@ -29,7 +23,13 @@ import { useHuskoStore } from '@/stores/useHuskoStore';
 import { hapticLight } from '@/utils/haptics';
 import { openSiblingApp } from '@/utils/siblingApps';
 
-function GerantOrderActions({ order }: { order: Order }) {
+function GerantOrderActions({
+  order,
+  onActionError,
+}: {
+  order: Order;
+  onActionError: (message: string) => void;
+}) {
   const transitionOrder = useHuskoStore((s) => s.transitionOrder);
 
   if (order.status === 'pending') {
@@ -41,7 +41,7 @@ function GerantOrderActions({ order }: { order: Order }) {
         onPress={() => {
           const ok = transitionOrder(order.id, 'preparing', 'gerant');
           if (!ok) {
-            Alert.alert('Action impossible', 'La commande doit être « en attente » pour être validée.');
+            onActionError('La commande doit être « en attente » pour être validée.');
           }
           else hapticLight();
         }}
@@ -57,10 +57,7 @@ function GerantOrderActions({ order }: { order: Order }) {
         onPress={() => {
           const ok = transitionOrder(order.id, 'awaiting_livreur', 'gerant');
           if (!ok) {
-            Alert.alert(
-              'Action impossible',
-              'La commande doit être « en préparation » avant transmission au livreur.'
-            );
+            onActionError('La commande doit être « en préparation » avant transmission au livreur.');
           }
           else hapticLight();
         }}
@@ -68,7 +65,7 @@ function GerantOrderActions({ order }: { order: Order }) {
     );
   }
   return (
-    <Text style={typography.caption}>
+    <Text variant="bodySmall" style={typography.caption}>
       {order.status === 'awaiting_livreur'
         ? 'En attente du livreur (app Livreur : « Prendre en charge »).'
         : order.status === 'on_way'
@@ -89,6 +86,7 @@ export default function GerantDashboardScreen() {
 
   const [pin, setPin] = useState('');
   const [unlocked, setUnlocked] = useState(false);
+  const [snack, setSnack] = useState('');
 
   const live = useMemo(
     () => orders.filter((o) => o.status !== 'delivered' && o.status !== 'cancelled'),
@@ -97,7 +95,7 @@ export default function GerantDashboardScreen() {
 
   function unlock() {
     if (pin === managerPin) setUnlocked(true);
-    else Alert.alert('Code incorrect');
+    else setSnack('Code incorrect');
   }
 
   if (!unlocked) {
@@ -113,16 +111,23 @@ export default function GerantDashboardScreen() {
                 : 'Saisissez votre code gérant.'}
             </Text>
             <TextInput
+              mode="outlined"
               value={pin}
               onChangeText={setPin}
               placeholder="••••"
               keyboardType="number-pad"
               secureTextEntry
               placeholderTextColor={colors.textMuted}
+              textColor={colors.text}
+              outlineColor={colors.borderSubtle}
+              activeOutlineColor={colors.accent}
               style={styles.input}
             />
             <PrimaryButton title="Continuer" onPress={unlock} />
           </View>
+          <Snackbar visible={snack.length > 0} onDismiss={() => setSnack('')} duration={3000}>
+            {snack}
+          </Snackbar>
         </SafeAreaView>
       </WestCoastBackground>
     );
@@ -204,21 +209,35 @@ export default function GerantDashboardScreen() {
             <Text style={typography.bodyMuted}>Aucune commande.</Text>
           ) : (
             live.map((o) => (
-              <View key={o.id} style={styles.card}>
-                <Text style={typography.mono}>{o.id}</Text>
-                <View style={styles.rowBadge}>
-                  <StatusBadge status={o.status} />
-                </View>
-                <Text style={typography.body}>{o.addressLabel}</Text>
-                <OrderLinesPreview lines={o.lines} />
-                <Text style={[typography.caption, styles.meta]}>{o.total.toFixed(2)} €</Text>
-                <View style={styles.actions}>
-                  <GerantOrderActions order={o} />
-                </View>
-              </View>
+              <Card key={o.id} mode="elevated" style={styles.card}>
+                <Card.Content style={styles.cardInner}>
+                  <Text variant="bodySmall" style={typography.mono}>
+                    {o.id}
+                  </Text>
+                  <View style={styles.rowBadge}>
+                    <StatusBadge status={o.status} />
+                  </View>
+                  <Text variant="bodyMedium" style={typography.body}>
+                    {o.addressLabel}
+                  </Text>
+                  <OrderLinesPreview lines={o.lines} />
+                  <Text variant="bodySmall" style={[typography.caption, styles.meta]}>
+                    {o.total.toFixed(2)} €
+                  </Text>
+                  <View style={styles.actions}>
+                    <GerantOrderActions
+                      order={o}
+                      onActionError={(msg) => setSnack(`Action impossible — ${msg}`)}
+                    />
+                  </View>
+                </Card.Content>
+              </Card>
             ))
           )}
         </ScrollView>
+        <Snackbar visible={snack.length > 0} onDismiss={() => setSnack('')} duration={4000}>
+          {snack}
+        </Snackbar>
       </SafeAreaView>
     </WestCoastBackground>
   );
@@ -249,11 +268,6 @@ const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: 'transparent', padding: spacing.md },
   input: {
     backgroundColor: colors.bg,
-    borderRadius: radius.lg,
-    borderWidth: 1,
-    borderColor: colors.borderSubtle,
-    color: colors.text,
-    padding: spacing.md,
     fontSize: 20,
     textAlign: 'center',
     letterSpacing: 8,
@@ -300,10 +314,10 @@ const styles = StyleSheet.create({
     borderRadius: radius.xl,
     borderWidth: 2,
     borderColor: 'rgba(34, 211, 238, 0.35)',
-    padding: spacing.lg,
     marginBottom: spacing.md,
     ...elevation.card,
   },
+  cardInner: { gap: spacing.xs },
   rowBadge: { marginVertical: spacing.sm },
   actions: { marginTop: spacing.md },
   actionFull: { width: '100%' },

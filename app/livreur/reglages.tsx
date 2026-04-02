@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
+import { Text, TextInput } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { DeploymentHints } from '@/components/DeploymentHints';
@@ -8,7 +9,7 @@ import { PrimaryButton } from '@/components/PrimaryButton';
 import { SettingsSection, SettingsSwitchRow } from '@/components/settings/SettingsSection';
 import { WestCoastBackground } from '@/components/westcoast/WestCoastBackground';
 import { typography } from '@/constants/typography';
-import { colors, radius, spacing } from '@/constants/theme';
+import { colors, spacing } from '@/constants/theme';
 import { WC } from '@/constants/westCoastTheme';
 import { isRemoteSyncEnabled } from '@/services/firebaseRemote';
 import { useHuskoStore } from '@/stores/useHuskoStore';
@@ -77,11 +78,15 @@ export default function LivreurReglagesScreen() {
             subtitle="Code pour déverrouiller l’app livreur. Modifiable ici comme pour le gérant."
           >
             <TextInput
+              mode="outlined"
               value={pin}
               onChangeText={setPin}
               keyboardType="number-pad"
               secureTextEntry
               placeholderTextColor={colors.textMuted}
+              textColor={colors.text}
+              outlineColor={colors.border}
+              activeOutlineColor={colors.accent}
               style={styles.input}
             />
             <PrimaryButton title="Enregistrer le code" onPress={() => setLivreurPin(pin)} />
@@ -114,13 +119,8 @@ const styles = StyleSheet.create({
   off: { color: colors.textMuted, fontWeight: '700' },
   muted: { color: colors.textMuted, lineHeight: 18 },
   input: {
+    marginTop: spacing.xs,
     backgroundColor: colors.cardElevated,
-    borderRadius: radius.lg,
-    borderWidth: 1,
-    borderColor: colors.border,
-    color: colors.text,
-    padding: spacing.md,
-    fontSize: 16,
   },
   hint: { marginTop: spacing.sm },
 });

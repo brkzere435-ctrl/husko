@@ -1,5 +1,7 @@
 import * as Linking from 'expo-linking';
-import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useState } from 'react';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Button, Card, Dialog, Portal, Text } from 'react-native-paper';
 
 import { WestCoastBackground } from '@/components/westcoast/WestCoastBackground';
 import { PrimaryButton } from '@/components/PrimaryButton';
@@ -11,18 +13,19 @@ import { useAssistantStore } from '@/stores/useAssistantStore';
 
 export default function AssistantAbonnementScreen() {
   const setTier = useAssistantStore((s) => s.setTier);
+  const [dialog, setDialog] = useState<{ title: string; body: string } | null>(null);
 
   async function pay(id: SubscriptionTierId) {
     const url = revolutPayUrlForTier(id);
     if (!url) {
-      Alert.alert(
-        'Lien Revolut',
-        'Ajoute les URLs dans .env (EXPO_PUBLIC_REVOLUT_PAY_*) puis reconstruis.',
-      );
+      setDialog({
+        title: 'Lien Revolut',
+        body: 'Ajoute les URLs dans .env (EXPO_PUBLIC_REVOLUT_PAY_*) puis reconstruis.',
+      });
       return;
     }
     if (!(await Linking.canOpenURL(url))) {
-      Alert.alert('URL invalide', url);
+      setDialog({ title: 'URL invalide', body: url });
       return;
     }
     setTier(id);
@@ -40,37 +43,63 @@ export default function AssistantAbonnementScreen() {
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
-        <Text style={styles.intro}>Trois prix · paiement par lien Revolut (configurable).</Text>
+        <Text variant="bodyMedium" style={styles.intro}>
+          Trois prix · paiement par lien Revolut (configurable).
+        </Text>
 
         {[...SUBSCRIPTION_PLANS]
           .sort((a, b) => (a.id === 'premium' ? -1 : b.id === 'premium' ? 1 : 0))
           .map((p) => (
-            <View
+            <Card
               key={p.id}
+              mode="elevated"
               style={[surface.elevated, styles.card, p.id === 'premium' && styles.cardPremium]}
             >
-              <View style={styles.head}>
-                <View>
-                  <Text style={styles.name}>{p.name}</Text>
-                  {p.id === 'premium' ? (
-                    <Text style={styles.reco}>Recommandé</Text>
-                  ) : null}
+              <Card.Content style={styles.cardInner}>
+                <View style={styles.head}>
+                  <View>
+                    <Text variant="titleLarge" style={styles.name}>
+                      {p.name}
+                    </Text>
+                    {p.id === 'premium' ? (
+                      <Text variant="labelSmall" style={styles.reco}>
+                        Recommandé
+                      </Text>
+                    ) : null}
+                  </View>
+                  <Text variant="headlineSmall" style={styles.price}>
+                    {p.priceEur} €
+                  </Text>
                 </View>
-                <Text style={styles.price}>{p.priceEur} €</Text>
-              </View>
-              <Text style={styles.tag}>{p.tagline}</Text>
-              {p.features.map((f) => (
-                <Text key={f} style={styles.feat}>
-                  · {f}
+                <Text variant="bodyMedium" style={styles.tag}>
+                  {p.tagline}
                 </Text>
-              ))}
-              <PrimaryButton title="Payer (Revolut)" onPress={() => pay(p.id)} style={styles.btn} />
-              <Pressable onPress={() => tryLocal(p.id)} hitSlop={8}>
-                <Text style={styles.link}>Utiliser ce forfait (test)</Text>
-              </Pressable>
-            </View>
+                {p.features.map((f) => (
+                  <Text key={f} variant="bodyMedium" style={styles.feat}>
+                    · {f}
+                  </Text>
+                ))}
+                <PrimaryButton title="Payer (Revolut)" onPress={() => pay(p.id)} style={styles.btn} />
+                <Pressable onPress={() => tryLocal(p.id)} hitSlop={8}>
+                  <Text variant="bodySmall" style={styles.link}>
+                    Utiliser ce forfait (test)
+                  </Text>
+                </Pressable>
+              </Card.Content>
+            </Card>
           ))}
       </ScrollView>
+      <Portal>
+        <Dialog visible={dialog !== null} onDismiss={() => setDialog(null)}>
+          <Dialog.Title>{dialog?.title}</Dialog.Title>
+          <Dialog.Content>
+            <Text variant="bodyMedium">{dialog?.body}</Text>
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button onPress={() => setDialog(null)}>OK</Button>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
     </WestCoastBackground>
   );
 }
@@ -87,11 +116,12 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xs,
   },
   card: {
-    padding: spacing.lg,
     borderRadius: radius.xl,
-    gap: spacing.sm,
     borderWidth: 1,
     borderColor: colors.borderGlow,
+  },
+  cardInner: {
+    gap: spacing.sm,
   },
   cardPremium: {
     borderColor: colors.gold,

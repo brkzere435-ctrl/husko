@@ -1,7 +1,8 @@
 import * as Linking from 'expo-linking';
 import Constants from 'expo-constants';
 import { Link, Redirect } from 'expo-router';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Surface, Text } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { BrandMark } from '@/components/BrandMark';
@@ -33,13 +34,19 @@ export default function HubScreen() {
           keyboardShouldPersistTaps="handled"
         >
           <View style={styles.header}>
-            <Text style={styles.wcKicker}>HUSKO · BY NIGHT</Text>
-            <Text style={styles.unifiedTag}>Une installation · tout l’écosystème</Text>
+            <Text variant="labelSmall" style={styles.wcKicker}>
+              HUSKO · BY NIGHT
+            </Text>
+            <Text variant="bodyMedium" style={styles.unifiedTag}>
+              Une installation · tout l’écosystème
+            </Text>
             <View style={[styles.logoFrame, elevation.hero, surface.neonPanelStrong]}>
               <BrandMark tagline={VENUE_TAGLINE_HUB} />
               <View style={styles.logoRule} />
               <View style={styles.pill}>
-                <Text style={styles.pillTxt}>{deliveryHoursLabel()}</Text>
+                <Text variant="bodySmall" style={styles.pillTxt}>
+                  {deliveryHoursLabel()}
+                </Text>
               </View>
             </View>
             <Pressable
@@ -48,13 +55,19 @@ export default function HubScreen() {
               accessibilityRole="link"
               accessibilityLabel={`Appeler le ${CLIENT_PHONE_DISPLAY}`}
             >
-              <Text style={styles.phone}>{CLIENT_PHONE_DISPLAY}</Text>
-              <Text style={styles.phoneHint}>Appuyer pour appeler</Text>
+              <Text variant="titleLarge" style={styles.phone}>
+                {CLIENT_PHONE_DISPLAY}
+              </Text>
+              <Text variant="bodySmall" style={styles.phoneHint}>
+                Appuyer pour appeler
+              </Text>
             </Pressable>
           </View>
 
-          <Text style={[wcSectionLabel, styles.sectionLabel]}>Choisir un espace</Text>
-          <View style={[surface.neonPanel, styles.gridWrap]}>
+          <Text variant="titleSmall" style={[wcSectionLabel, styles.sectionLabel]}>
+            Choisir un espace
+          </Text>
+          <Surface style={[surface.neonPanel, styles.gridWrap]} elevation={2}>
             <View style={styles.grid}>
             <Link href="/client" asChild>
               <PrimaryButton title="Commander" style={styles.btn} />
@@ -69,9 +82,9 @@ export default function HubScreen() {
               <PrimaryButton title="Copilote" variant="ghost" style={styles.btn} />
             </Link>
             </View>
-          </View>
+          </Surface>
 
-          <Text style={styles.footer}>
+          <Text variant="bodySmall" style={styles.footer}>
             Husko By Night · v{version}
             {'\n'}
             Tout le service — une seule application.

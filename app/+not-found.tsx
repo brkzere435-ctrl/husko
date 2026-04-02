@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Link } from 'expo-router';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import { Card, Text } from 'react-native-paper';
 
 import { WestCoastBackground } from '@/components/westcoast/WestCoastBackground';
 import { PrimaryButton } from '@/components/PrimaryButton';
@@ -12,20 +13,26 @@ export default function NotFoundScreen() {
   return (
     <WestCoastBackground>
       <View style={styles.root}>
-        <View style={[surface.glass, styles.card]}>
-          <View style={styles.iconWrap}>
-            <Ionicons name="compass-outline" size={40} color={colors.gold} />
-          </View>
-          <Text style={styles.code}>404</Text>
-          <Text style={typography.title}>Page introuvable</Text>
-          <Text style={[typography.bodyMuted, styles.body]}>
-            Ce chemin n’existe pas dans Husko, ou le lien a expiré. Retourne à l’accueil pour choisir
-            Client, Livreur, Gérant ou Assistant.
-          </Text>
-          <Link href="/" asChild>
-            <PrimaryButton title="Retour à l’accueil" style={styles.btn} />
-          </Link>
-        </View>
+        <Card mode="elevated" style={[surface.glass, styles.card]}>
+          <Card.Content style={styles.cardInner}>
+            <View style={styles.iconWrap}>
+              <Ionicons name="compass-outline" size={40} color={colors.gold} />
+            </View>
+            <Text variant="labelLarge" style={styles.code}>
+              404
+            </Text>
+            <Text variant="headlineSmall" style={typography.title}>
+              Page introuvable
+            </Text>
+            <Text variant="bodyMedium" style={[typography.bodyMuted, styles.body]}>
+              Ce chemin n’existe pas dans Husko, ou le lien a expiré. Retourne à l’accueil pour choisir
+              Client, Livreur, Gérant ou Assistant.
+            </Text>
+            <Link href="/" asChild>
+              <PrimaryButton title="Retour à l’accueil" style={styles.btn} />
+            </Link>
+          </Card.Content>
+        </Card>
       </View>
     </WestCoastBackground>
   );
@@ -38,11 +45,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   card: {
-    padding: spacing.xl,
-    gap: spacing.md,
-    alignItems: 'center',
     borderWidth: 2,
     borderColor: WC.neonCyanDim,
+  },
+  cardInner: {
+    alignItems: 'center',
+    gap: spacing.md,
+    paddingVertical: spacing.md,
   },
   iconWrap: {
     width: 72,

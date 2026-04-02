@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, TextInput } from 'react-native';
+import { Pressable, ScrollView, StyleSheet } from 'react-native';
+import { Text, TextInput } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Link } from 'expo-router';
 
@@ -103,11 +104,15 @@ export default function ReglagesScreen() {
 
           <SettingsSection title="PIN gérant" subtitle="Code pour déverrouiller l’app gérant.">
             <TextInput
+              mode="outlined"
               value={pin}
               onChangeText={setPin}
               keyboardType="number-pad"
               secureTextEntry
               placeholderTextColor={colors.textMuted}
+              textColor={colors.text}
+              outlineColor={colors.border}
+              activeOutlineColor={colors.accent}
               style={styles.input}
             />
             <PrimaryButton title="Enregistrer le PIN" onPress={() => setManagerPin(pin)} />
@@ -171,13 +176,8 @@ const styles = StyleSheet.create({
   presetLabelOn: { color: colors.gold, fontWeight: '800' },
   syncEta: { marginTop: spacing.sm, color: colors.textMuted, lineHeight: 18 },
   input: {
+    marginTop: spacing.xs,
     backgroundColor: colors.cardElevated,
-    borderRadius: radius.lg,
-    borderWidth: 1,
-    borderColor: colors.border,
-    color: colors.text,
-    padding: spacing.md,
-    fontSize: 16,
   },
   pinNote: { marginTop: spacing.sm, color: colors.textMuted, lineHeight: 18 },
   hintBlock: { marginTop: spacing.sm },

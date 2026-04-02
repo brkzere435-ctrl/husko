@@ -4,7 +4,8 @@ import { Link, router } from 'expo-router';
 import * as Linking from 'expo-linking';
 import { FlashList, type FlashListRef } from '@shopify/flash-list';
 import { memo, useCallback, useMemo, useRef, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Text } from 'react-native-paper';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 

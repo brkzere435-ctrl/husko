@@ -1,7 +1,8 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { Link, router } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { Alert, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
+import { Button, Dialog, Portal, Text, TextInput } from 'react-native-paper';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -29,6 +30,12 @@ export default function PanierScreen() {
   const driverHeading = useHuskoStore((s) => s.driverHeading);
 
   const [address, setAddress] = useState('Angers centre');
+  const [dialog, setDialog] = useState<
+    | { type: 'empty' }
+    | { type: 'cloud' }
+    | { type: 'success'; orderId: string }
+    | null
+  >(null);
 
   const total = cart.reduce((a, l) => a + l.item.price * l.qty, 0);
   const cloudOk = isRemoteSyncEnabled();
@@ -40,24 +47,17 @@ export default function PanierScreen() {
 
   function checkout() {
     if (!cart.length) {
-      Alert.alert('Panier vide', 'Ajoutez des articles depuis le menu.');
+      setDialog({ type: 'empty' });
       return;
     }
     if (!isRemoteSyncEnabled()) {
-      Alert.alert(
-        clientStrings.cloudCheckoutBlockedTitle,
-        clientStrings.cloudCheckoutBlockedBody
-      );
+      setDialog({ type: 'cloud' });
       return;
     }
     const order = placeOrder(address.trim() || 'Adresse', ANGERS_DEFAULT);
     if (order) {
       hapticSuccess();
-      Alert.alert(
-        clientStrings.orderSentTitle,
-        `${clientStrings.orderSentMessage(order.id)}\n\n${PAYMENT_NOTICE_SHORT}`,
-        [{ text: 'Voir le suivi', onPress: () => router.replace('/client/suivi') }]
-      );
+      setDialog({ type: 'success', orderId: order.id });
     }
   }
 
@@ -103,10 +103,14 @@ export default function PanierScreen() {
 
           <ScreenSection title="Adresse">
             <TextInput
+              mode="outlined"
               value={address}
               onChangeText={setAddress}
               placeholder="Rue, code postal, ville"
               placeholderTextColor={colors.textMuted}
+              textColor={colors.text}
+              outlineColor={colors.borderSubtle}
+              activeOutlineColor={colors.accent}
               style={styles.input}
             />
           </ScreenSection>
@@ -163,6 +167,55 @@ export default function PanierScreen() {
 
           <DeploymentHints mode="alerts" mapsRelevant style={styles.infra} />
         </ScrollView>
+
+        <Portal>
+          <Dialog visible={dialog !== null} onDismiss={() => setDialog(null)}>
+            {dialog?.type === 'empty' ? (
+              <>
+                <Dialog.Title>Panier vide</Dialog.Title>
+                <Dialog.Content>
+                  <Text variant="bodyMedium">Ajoutez des articles depuis le menu.</Text>
+                </Dialog.Content>
+                <Dialog.Actions>
+                  <Button onPress={() => setDialog(null)}>OK</Button>
+                </Dialog.Actions>
+              </>
+            ) : null}
+            {dialog?.type === 'cloud' ? (
+              <>
+                <Dialog.Title>{clientStrings.cloudCheckoutBlockedTitle}</Dialog.Title>
+                <Dialog.Content>
+                  <Text variant="bodyMedium">{clientStrings.cloudCheckoutBlockedBody}</Text>
+                </Dialog.Content>
+                <Dialog.Actions>
+                  <Button onPress={() => setDialog(null)}>OK</Button>
+                </Dialog.Actions>
+              </>
+            ) : null}
+            {dialog?.type === 'success' ? (
+              <>
+                <Dialog.Title>{clientStrings.orderSentTitle}</Dialog.Title>
+                <Dialog.Content>
+                  <Text variant="bodyMedium">
+                    {`${clientStrings.orderSentMessage(dialog.orderId)}\n\n${PAYMENT_NOTICE_SHORT}`}
+                  </Text>
+                </Dialog.Content>
+                <Dialog.Actions>
+                  <Button onPress={() => setDialog(null)}>Fermer</Button>
+                  <Button
+                    mode="contained"
+                    onPress={() => {
+                      setDialog(null);
+                      router.replace('/client/suivi');
+                    }}
+                  >
+                    Voir le suivi
+                  </Button>
+                </Dialog.Actions>
+              </>
+            ) : null}
+          </Dialog>
+        </Portal>
       </SafeAreaView>
     </WestCoastBackground>
   );
@@ -222,13 +275,8 @@ const styles = StyleSheet.create({
   mapRow: { flexDirection: 'row', marginBottom: spacing.lg, alignItems: 'flex-start', gap: spacing.md },
   mapLegend: { flex: 1, justifyContent: 'center' },
   input: {
+    marginTop: spacing.xs,
     backgroundColor: colors.cardElevated,
-    borderRadius: radius.lg,
-    borderWidth: 1,
-    borderColor: colors.borderSubtle,
-    color: colors.text,
-    padding: spacing.md,
-    fontSize: 16,
   },
   line: {
     flexDirection: 'row',

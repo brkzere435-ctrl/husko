@@ -1,5 +1,6 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
+import { Card, Text } from 'react-native-paper';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -22,7 +23,9 @@ export default function ProductDetailScreen() {
     return (
       <WestCoastBackground preset="client">
         <SafeAreaView style={styles.center}>
-          <Text style={typography.title}>Article introuvable</Text>
+          <Text variant="headlineSmall" style={typography.title}>
+            Article introuvable
+          </Text>
           <PrimaryButton title="Retour" onPress={() => router.back()} />
         </SafeAreaView>
       </WestCoastBackground>
@@ -40,20 +43,27 @@ export default function ProductDetailScreen() {
     <WestCoastBackground preset="client">
       <SafeAreaView style={styles.root} edges={['bottom']}>
         <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
-          <Animated.View
-            entering={FadeInDown.duration(420).springify()}
-            style={styles.heroCard}
-          >
-            <MenuItemVisual item={item} size="lg" />
-            <Text style={styles.name}>{item.name}</Text>
-            {item.description ? (
-              <Text style={[typography.bodyMuted, styles.desc]}>{item.description}</Text>
-            ) : null}
-            <View style={styles.priceRow}>
-              <Text style={styles.euro}>{item.price.toFixed(2)}</Text>
-              <Text style={styles.eurSym}>€</Text>
-            </View>
-            <Text style={styles.tag}>West Coast street food · Angers</Text>
+          <Animated.View entering={FadeInDown.duration(420).springify()}>
+            <Card mode="elevated" style={styles.heroCard}>
+              <Card.Content style={styles.heroCardContent}>
+                <MenuItemVisual item={item} size="lg" />
+                <Text variant="headlineSmall" style={styles.name}>
+                  {item.name}
+                </Text>
+                {item.description ? (
+                  <Text variant="bodyMedium" style={[typography.bodyMuted, styles.desc]}>
+                    {item.description}
+                  </Text>
+                ) : null}
+                <View style={styles.priceRow}>
+                  <Text style={styles.euro}>{item.price.toFixed(2)}</Text>
+                  <Text style={styles.eurSym}>€</Text>
+                </View>
+                <Text variant="labelSmall" style={styles.tag}>
+                  West Coast street food · Angers
+                </Text>
+              </Card.Content>
+            </Card>
           </Animated.View>
           <PrimaryButton title="Valider & ajouter au panier" onPress={add} style={styles.btn} />
           <PrimaryButton title="Retour au menu" variant="ghost" onPress={() => router.back()} />
@@ -68,13 +78,14 @@ const styles = StyleSheet.create({
   center: { flex: 1, padding: spacing.lg, justifyContent: 'center', gap: spacing.md },
   scroll: { padding: spacing.lg, paddingBottom: 48 },
   heroCard: {
-    alignItems: 'center',
     marginBottom: spacing.xl,
-    padding: spacing.lg,
     borderRadius: radius.xl,
     borderWidth: 2,
     borderColor: WC.neonCyanDim,
     backgroundColor: 'rgba(0,0,0,0.35)',
+  },
+  heroCardContent: {
+    alignItems: 'center',
   },
   name: {
     marginTop: spacing.lg,

@@ -1,7 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
 import * as Location from 'expo-location';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Alert, Platform, StyleSheet, Switch, Text, View } from 'react-native';
+import { Platform, StyleSheet, Switch, View } from 'react-native';
+import { Snackbar, Text } from 'react-native-paper';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -35,6 +36,7 @@ export default function LivreurScreenNative() {
   });
 
   const subRef = useRef<Location.LocationSubscription | null>(null);
+  const [snack, setSnack] = useState('');
 
   useEffect(() => {
     let cancelled = false;
@@ -42,7 +44,7 @@ export default function LivreurScreenNative() {
     async function start() {
       const { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') {
-        Alert.alert('Permission refusée', 'Activez la localisation pour le suivi livreur.');
+        setSnack('Activez la localisation pour le suivi livreur.');
         return;
       }
       subRef.current?.remove();
@@ -158,6 +160,9 @@ export default function LivreurScreenNative() {
               <Text style={styles.hudText}>HUSKO · MAP</Text>
             </View>
           </View>
+          <Snackbar visible={snack.length > 0} onDismiss={() => setSnack('')} duration={4000}>
+            {snack}
+          </Snackbar>
         </SafeAreaView>
       </WestCoastBackground>
     </LivreurAppGate>

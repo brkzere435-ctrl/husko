@@ -1,6 +1,7 @@
 import { Link } from 'expo-router';
 import { useMemo } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
+import { Card, Text } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { WestCoastBackground } from '@/components/westcoast/WestCoastBackground';
@@ -27,17 +28,25 @@ function formatWhen(createdAt: number) {
 
 function PastOrderRow({ order }: { order: Order }) {
   return (
-    <View style={[styles.row, elevation.card]}>
-      <Text style={styles.rowId}>{order.id}</Text>
-      <Text style={[typography.caption, styles.rowWhen]}>{formatWhen(order.createdAt)}</Text>
-      <View style={styles.rowBadge}>
-        <StatusBadge status={order.status} />
-      </View>
-      <Text style={styles.rowTotal}>{order.total.toFixed(2)} €</Text>
-      <Text style={[typography.caption, styles.rowAddr]} numberOfLines={2}>
-        {order.addressLabel}
-      </Text>
-    </View>
+    <Card mode="outlined" style={[styles.row, elevation.card]}>
+      <Card.Content style={styles.rowContent}>
+        <Text variant="labelMedium" style={styles.rowId}>
+          {order.id}
+        </Text>
+        <Text variant="bodySmall" style={[typography.caption, styles.rowWhen]}>
+          {formatWhen(order.createdAt)}
+        </Text>
+        <View style={styles.rowBadge}>
+          <StatusBadge status={order.status} />
+        </View>
+        <Text variant="titleMedium" style={styles.rowTotal}>
+          {order.total.toFixed(2)} €
+        </Text>
+        <Text variant="bodySmall" style={[typography.caption, styles.rowAddr]} numberOfLines={2}>
+          {order.addressLabel}
+        </Text>
+      </Card.Content>
+    </Card>
   );
 }
 
@@ -53,14 +62,18 @@ export default function ClientHistoriqueScreen() {
     <WestCoastBackground preset="client">
       <SafeAreaView style={styles.root} edges={['bottom']}>
         <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
-          <Text style={[typography.bodyMuted, styles.intro]}>
+          <Text variant="bodyMedium" style={[typography.bodyMuted, styles.intro]}>
             Commandes terminées sur cet appareil (synchronisées avec le restaurant si Firebase est actif).
           </Text>
 
           {past.length === 0 ? (
-            <View style={[styles.empty, elevation.card]}>
-              <Text style={[typography.bodyMuted, styles.emptyText]}>{clientStrings.historiqueEmpty}</Text>
-            </View>
+            <Card mode="outlined" style={[styles.empty, elevation.card]}>
+              <Card.Content>
+                <Text variant="bodyMedium" style={[typography.bodyMuted, styles.emptyText]}>
+                  {clientStrings.historiqueEmpty}
+                </Text>
+              </Card.Content>
+            </Card>
           ) : (
             past.map((o) => <PastOrderRow key={o.id} order={o} />)
           )}
@@ -87,12 +100,14 @@ const styles = StyleSheet.create({
   },
   emptyText: { textAlign: 'center', lineHeight: 22 },
   row: {
-    padding: spacing.md,
     borderRadius: radius.xl,
     borderWidth: 1,
     borderColor: colors.borderSubtle,
     backgroundColor: colors.cardElevated,
+  },
+  rowContent: {
     gap: spacing.xs,
+    paddingVertical: spacing.sm,
   },
   rowId: { ...typography.mono, fontSize: 12 },
   rowWhen: { color: colors.textMuted },

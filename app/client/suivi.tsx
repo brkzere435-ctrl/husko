@@ -2,7 +2,8 @@ import { Ionicons } from '@expo/vector-icons';
 import * as Linking from 'expo-linking';
 import { Link } from 'expo-router';
 import { useMemo } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Card, Text } from 'react-native-paper';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -97,7 +98,9 @@ export default function SuiviScreen() {
       <SafeAreaView style={styles.root} edges={['bottom']}>
         <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
           {active ? (
-            <Animated.View entering={FadeIn.duration(340)} style={styles.card}>
+            <Animated.View entering={FadeIn.duration(340)}>
+              <Card mode="elevated" style={styles.card}>
+                <Card.Content style={styles.cardContent}>
               {etaClockLabel ? (
                 <View style={styles.etaHero} accessibilityRole="summary">
                   <Text style={styles.etaHeroKicker}>Arrivée estimée</Text>
@@ -220,18 +223,23 @@ export default function SuiviScreen() {
                   <Text style={styles.contactChipTxt}>{CLIENT_PHONE_DISPLAY}</Text>
                 </Pressable>
               </View>
+                </Card.Content>
+              </Card>
             </Animated.View>
           ) : showDeliveredThanks ? (
-            <View style={[styles.card, styles.merciCard, elevation.card]}>
+            <Card mode="elevated" style={[styles.card, styles.merciCard, elevation.card]}>
+              <Card.Content style={styles.cardContent}>
               <Text style={styles.merciTitle}>{clientStrings.suiviMerciTitle}</Text>
               <Text style={[typography.bodyMuted, styles.merciBody]}>{clientStrings.suiviMerciBody}</Text>
               <Text style={[typography.mono, styles.merciRef]}>{latestOrder?.id}</Text>
               <Link href="/client" asChild>
                 <PrimaryButton title={clientStrings.suiviNewOrder} style={styles.merciBtn} />
               </Link>
-            </View>
+              </Card.Content>
+            </Card>
           ) : latestCancelled ? (
-            <View style={[styles.card, styles.cancelCard, elevation.card]}>
+            <Card mode="elevated" style={[styles.card, styles.cancelCard, elevation.card]}>
+              <Card.Content style={styles.cardContent}>
               <Text style={styles.cancelTitle}>{clientStrings.suiviCancelledTitle}</Text>
               <Text style={[typography.bodyMuted, styles.cancelBody]}>
                 {clientStrings.suiviCancelledBody(latestCancelled.id)}
@@ -239,15 +247,18 @@ export default function SuiviScreen() {
               <Link href="/client" asChild>
                 <PrimaryButton title={clientStrings.suiviGoMenu} style={styles.merciBtn} />
               </Link>
-            </View>
+              </Card.Content>
+            </Card>
           ) : (
-            <View style={[styles.card, styles.emptyCard, elevation.card]}>
+            <Card mode="elevated" style={[styles.card, styles.emptyCard, elevation.card]}>
+              <Card.Content style={styles.cardContent}>
               <Text style={typography.title}>{clientStrings.suiviEmptyTitle}</Text>
               <Text style={[typography.bodyMuted, styles.emptyBody]}>{clientStrings.suiviEmptyBody}</Text>
               <Link href="/client" asChild>
                 <PrimaryButton title={clientStrings.suiviGoMenu} style={styles.emptyBtn} />
               </Link>
-            </View>
+              </Card.Content>
+            </Card>
           )}
           {orders.some((o) => o.status === 'delivered' || o.status === 'cancelled') ? (
             <View style={styles.historiqueLinkWrap}>
@@ -304,7 +315,10 @@ const styles = StyleSheet.create({
     borderRadius: radius.xl,
     borderWidth: 1,
     borderColor: colors.borderSubtle,
-    padding: spacing.lg,
+  },
+  cardContent: {
+    paddingVertical: spacing.lg,
+    paddingHorizontal: spacing.lg,
   },
   etaHero: {
     marginBottom: spacing.md,

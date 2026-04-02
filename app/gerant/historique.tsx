@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
-import { FlatList, StyleSheet, Text, View } from 'react-native';
+import { FlatList, StyleSheet, View } from 'react-native';
+import { Card, Text } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { DeploymentHints } from '@/components/DeploymentHints';
@@ -32,28 +33,40 @@ export default function HistoriqueScreen() {
             <DeploymentHints mode="alerts" mapsRelevant={false} style={styles.infra} />
           }
           ListEmptyComponent={
-            <View style={[surface.glass, styles.emptyWrap]}>
-              <Text style={[wcSectionLabel, styles.emptyTitle]}>Historique</Text>
-              <Text style={[typography.bodyMuted, styles.emptyText]}>
-                Aucune commande livrée ou annulée pour l’instant. Les terminées apparaîtront ici, les
-                plus récentes en premier.
-              </Text>
-            </View>
+            <Card mode="outlined" style={[surface.glass, styles.emptyWrap]}>
+              <Card.Content>
+                <Text variant="titleSmall" style={[wcSectionLabel, styles.emptyTitle]}>
+                  Historique
+                </Text>
+                <Text variant="bodyMedium" style={[typography.bodyMuted, styles.emptyText]}>
+                  Aucune commande livrée ou annulée pour l’instant. Les terminées apparaîtront ici, les
+                  plus récentes en premier.
+                </Text>
+              </Card.Content>
+            </Card>
           }
           contentContainerStyle={styles.list}
           renderItem={({ item: o }) => (
-            <View style={[surface.elevated, styles.row]}>
-              <Text style={typography.mono}>{o.id}</Text>
-              <View style={styles.badge}>
-                <StatusBadge status={o.status} />
-              </View>
-              <Text style={typography.caption}>
-                {new Date(o.createdAt).toLocaleString('fr-FR')}
-              </Text>
-              <Text style={typography.price}>{o.total.toFixed(2)} €</Text>
-              <OrderLinesPreview lines={o.lines} compact />
-              <Text style={[typography.bodyMuted, styles.addr]}>{o.addressLabel}</Text>
-            </View>
+            <Card mode="elevated" style={[surface.elevated, styles.row]}>
+              <Card.Content style={styles.rowContent}>
+                <Text variant="labelMedium" style={typography.mono}>
+                  {o.id}
+                </Text>
+                <View style={styles.badge}>
+                  <StatusBadge status={o.status} />
+                </View>
+                <Text variant="bodySmall" style={typography.caption}>
+                  {new Date(o.createdAt).toLocaleString('fr-FR')}
+                </Text>
+                <Text variant="titleMedium" style={typography.price}>
+                  {o.total.toFixed(2)} €
+                </Text>
+                <OrderLinesPreview lines={o.lines} compact />
+                <Text variant="bodyMedium" style={[typography.bodyMuted, styles.addr]}>
+                  {o.addressLabel}
+                </Text>
+              </Card.Content>
+            </Card>
           )}
         />
       </SafeAreaView>
@@ -66,11 +79,11 @@ const styles = StyleSheet.create({
   list: { padding: spacing.md, paddingBottom: spacing.xl },
   infra: { marginBottom: spacing.md },
   row: {
-    padding: spacing.md,
     marginBottom: spacing.sm,
     borderWidth: 2,
     borderColor: WC.neonCyanDim,
   },
+  rowContent: { gap: spacing.xs },
   emptyTitle: { marginBottom: spacing.sm },
   emptyWrap: { padding: spacing.lg, marginBottom: spacing.md, gap: spacing.sm },
   emptyText: { lineHeight: 22 },

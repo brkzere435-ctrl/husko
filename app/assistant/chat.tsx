@@ -6,10 +6,9 @@ import {
   Pressable,
   ScrollView,
   StyleSheet,
-  Text,
-  TextInput,
   View,
 } from 'react-native';
+import { Text, TextInput } from 'react-native-paper';
 
 import { WestCoastBackground } from '@/components/westcoast/WestCoastBackground';
 import { PrimaryButton } from '@/components/PrimaryButton';
@@ -125,10 +124,14 @@ export default function AssistantChatScreen() {
         <View style={styles.composer}>
           <Text style={styles.meta}>{planLabel}</Text>
           <TextInput
+            mode="outlined"
             value={input}
             onChangeText={setInput}
             placeholder="Message…"
             placeholderTextColor={colors.textMuted}
+            textColor={colors.text}
+            outlineColor={colors.borderSubtle}
+            activeOutlineColor={colors.accent}
             style={styles.input}
             multiline
             maxLength={ASSISTANT_MAX_MESSAGE_CHARS}
@@ -210,13 +213,7 @@ const styles = StyleSheet.create({
   input: {
     minHeight: 44,
     maxHeight: 120,
-    borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: colors.borderSubtle,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    ...typography.body,
-    color: colors.text,
+    backgroundColor: colors.glass,
   },
   row: { flexDirection: 'row', gap: spacing.sm, alignItems: 'center' },
   send: { flex: 1 },

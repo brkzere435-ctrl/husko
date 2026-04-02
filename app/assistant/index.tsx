@@ -1,11 +1,12 @@
 import { Link } from 'expo-router';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import { Card, Text } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { WestCoastBackground } from '@/components/westcoast/WestCoastBackground';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { SUBSCRIPTION_PLANS } from '@/constants/subscriptionPlans';
-import { colors, spacing, surface } from '@/constants/theme';
+import { colors, radius, spacing, surface } from '@/constants/theme';
 import { typography } from '@/constants/typography';
 import { useAssistantStore } from '@/stores/useAssistantStore';
 
@@ -17,16 +18,24 @@ export default function AssistantHomeScreen() {
     <WestCoastBackground>
       <SafeAreaView style={styles.root} edges={['bottom']}>
         <View style={styles.hero}>
-          <Text style={styles.brand}>Copilote</Text>
-          <Text style={styles.tag}>Une question, une réponse structurée.</Text>
-        </View>
-
-        <View style={[surface.elevated, styles.planRow]}>
-          <Text style={styles.planLabel}>Forfait</Text>
-          <Text style={styles.planValue}>
-            {plan ? `${plan.name} · ${plan.priceEur} €` : '—'}
+          <Text variant="headlineMedium" style={styles.brand}>
+            Copilote
+          </Text>
+          <Text variant="bodyLarge" style={styles.tag}>
+            Une question, une réponse structurée.
           </Text>
         </View>
+
+        <Card mode="elevated" style={[surface.elevated, styles.planRow]}>
+          <Card.Content style={styles.planRowInner}>
+            <Text variant="labelLarge" style={styles.planLabel}>
+              Forfait
+            </Text>
+            <Text variant="titleMedium" style={styles.planValue}>
+              {plan ? `${plan.name} · ${plan.priceEur} €` : '—'}
+            </Text>
+          </Card.Content>
+        </Card>
 
         <View style={styles.actions}>
           <Link href="/assistant/chat" asChild>
@@ -62,11 +71,12 @@ const styles = StyleSheet.create({
     lineHeight: 22,
   },
   planRow: {
+    borderRadius: radius.xl,
+  },
+  planRowInner: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: spacing.md,
-    paddingHorizontal: spacing.lg,
   },
   planLabel: { ...typography.caption, color: colors.textMuted, fontWeight: '700' },
   planValue: { ...typography.body, fontWeight: '800', color: colors.gold },

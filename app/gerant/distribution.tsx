@@ -1,15 +1,8 @@
 import * as Clipboard from 'expo-clipboard';
 import * as Linking from 'expo-linking';
 import { memo, useEffect, useMemo, useState } from 'react';
-import {
-  Alert,
-  Image,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { Image, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Button, Dialog, Portal, Snackbar, Text } from 'react-native-paper';
 import QRCode from 'react-native-qrcode-svg';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -141,6 +134,8 @@ export default function DistributionScreen() {
   const [tab, setTab] = useState<DistributionTabKey>(() =>
     isGerantDedicatedApk ? 'gerant' : 'unified'
   );
+  const [dialog, setDialog] = useState<{ title: string; body: string } | null>(null);
+  const [snack, setSnack] = useState('');
 
   useEffect(() => {
     if (!isGerantDedicatedApk) return;
@@ -154,21 +149,24 @@ export default function DistributionScreen() {
 
   function copyUrl() {
     if (!activeUrl) {
-      Alert.alert('Lien non configuré', configHelp);
+      setDialog({ title: 'Lien non configuré', body: configHelp });
       return;
     }
-    Clipboard.setStringAsync(activeUrl).then(() =>
-      Alert.alert('Copié', 'Le lien a été copié dans le presse-papiers.')
+    void Clipboard.setStringAsync(activeUrl).then(() =>
+      setSnack('Le lien a été copié dans le presse-papiers.')
     );
   }
 
   function openInstallPage() {
     if (!activeUrl) {
-      Alert.alert('Lien non configuré', configHelp);
+      setDialog({ title: 'Lien non configuré', body: configHelp });
       return;
     }
     Linking.openURL(activeUrl).catch(() =>
-      Alert.alert('Ouverture impossible', 'Copiez le lien ou ouvrez-le dans Chrome.')
+      setDialog({
+        title: 'Ouverture impossible',
+        body: 'Copiez le lien ou ouvrez-le dans Chrome.',
+      })
     );
   }
 
@@ -336,6 +334,20 @@ export default function DistributionScreen() {
             />
           </View>
         </ScrollView>
+        <Portal>
+          <Dialog visible={dialog !== null} onDismiss={() => setDialog(null)}>
+            <Dialog.Title>{dialog?.title}</Dialog.Title>
+            <Dialog.Content>
+              <Text variant="bodyMedium">{dialog?.body}</Text>
+            </Dialog.Content>
+            <Dialog.Actions>
+              <Button onPress={() => setDialog(null)}>OK</Button>
+            </Dialog.Actions>
+          </Dialog>
+        </Portal>
+        <Snackbar visible={snack.length > 0} onDismiss={() => setSnack('')} duration={2500}>
+          {snack}
+        </Snackbar>
       </SafeAreaView>
     </WestCoastBackground>
   );

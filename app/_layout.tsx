@@ -12,10 +12,12 @@ import { useEffect, useRef } from 'react';
 import { AppState } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { PaperProvider } from 'react-native-paper';
 
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { VariantGate } from '@/components/VariantGate';
 import { FONT } from '@/constants/fonts';
+import { huskoPaperTheme } from '@/constants/paperTheme';
 import { colors } from '@/constants/theme';
 import {
   isRemoteSyncEnabled,
@@ -113,6 +115,7 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
     <SafeAreaProvider>
+      <PaperProvider theme={huskoPaperTheme}>
       <ErrorBoundary>
         <VariantGate />
         <StatusBar style="light" />
@@ -134,6 +137,7 @@ export default function RootLayout() {
           <Stack.Screen name="index" options={{ headerShown: false }} />
         </Stack>
       </ErrorBoundary>
+      </PaperProvider>
     </SafeAreaProvider>
     </GestureHandlerRootView>
   );
