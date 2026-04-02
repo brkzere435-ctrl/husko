@@ -2,7 +2,7 @@
 
 Procédure pour confirmer qu’une APK installée correspond au profil EAS **`apk-unified`** (variante **all**, canal OTA **`hub`**). Référence code : [`src/components/OtaUpdateSection.tsx`](../src/components/OtaUpdateSection.tsx), profil [`eas.json`](../eas.json) (`apk-unified`).
 
-**Exemple de build réussi :** `87e2b608` — après ce run, le **build natif (versionCode)** attendu est **39** (bump automatique EAS).
+**Référence versionCode :** après un `npm run build:apk:unified` réussi, la valeur attendue pour **Build natif (APK / store)** sur l’appareil est celle de `expo.android.versionCode` dans [`app.json`](../app.json) (bump automatique EAS à chaque build). Elle augmente à chaque nouveau build ; ne pas se fier à un numéro figé dans une ancienne doc.
 
 ## Ce que tu installes
 
@@ -24,7 +24,7 @@ Procédure pour confirmer qu’une APK installée correspond au profil EAS **`ap
 | Pastille mode | **Build installé** (pas « développement (Metro) ») |
 | **Variante app (extra)** | **`all`** |
 | **Canal EAS Update** | **`hub`** |
-| **Build natif (APK / store)** | **`39`** pour le build cité ci-dessus (incrémente à chaque nouveau build EAS) |
+| **Build natif (APK / store)** | **Identique** au `versionCode` dans `app.json` après le dernier build EAS (ex. **49** si le dépôt est aligné sur le dernier build unifié) |
 | Dernier bundle OTA | Peut être vide ou « bundle embarqué » tant qu’aucun `eas update` n’a été poussé sur `hub` |
 
 Si **variante ≠ all** ou **canal ≠ hub**, ce n’est pas l’APK du profil `apk-unified` (ou une ancienne installation).
