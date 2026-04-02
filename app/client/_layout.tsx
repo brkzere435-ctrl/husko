@@ -22,7 +22,7 @@ export default function ClientLayout() {
         headerRight: () => <SyncStatusPill />,
       }}
     >
-      <Stack.Screen name="index" options={{ title: 'À la carte' }} />
+      <Stack.Screen name="index" options={{ title: 'À la carte', headerShown: false }} />
       <Stack.Screen name="product/[id]" options={{ title: 'Ton choix', headerShown: true }} />
       <Stack.Screen name="panier" options={{ title: 'Mon panier' }} />
       <Stack.Screen name="suivi" options={{ title: 'Ma livraison' }} />

@@ -6,6 +6,8 @@ Application **Expo** : commande (menu, panier, suivi), **livreur** (carte + posi
 
 **Builds installables (APK Android, IPA iOS, web, Cloud Run) :** **`DEPLOIEMENT.md`**
 
+**Télécharger le dernier APK client déjà buildé sur EAS (sans l’UI web) :** `eas login` puis **`npm run apk:get:client`** → fichier **`dist/Husko-Client-latest.apk`** (idem gérant / hub : `apk:get:gerant`, `apk:get:unified` ; ou `apk:download:*`). Nécessite un build **Finished** pour le profil concerné.
+
 **Gate avant release :** `npm run release:gate` (4 étapes locales). **Prêt pour EAS (gate + dépôt strict + prebuild) :** `npm run release:ready`. **Suite cloud (checklist + `eas whoami`) :** `npm run release:next`.
 
 **Réparation / diagnostic (boucle, preuves, mode Agent) :** [`docs/reparation-autonomie.md`](docs/reparation-autonomie.md).

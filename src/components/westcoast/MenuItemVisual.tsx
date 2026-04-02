@@ -74,7 +74,11 @@ const styles = StyleSheet.create({
     borderRadius: radius.lg,
     overflow: 'hidden',
     borderWidth: 2,
-    borderColor: WC.neonCyanDim,
+    borderColor: 'rgba(34, 211, 238, 0.5)',
+    shadowColor: '#22d3ee',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
   },
   photo: {
     ...StyleSheet.absoluteFillObject,

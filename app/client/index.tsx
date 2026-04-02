@@ -1,15 +1,19 @@
+import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { Link, router } from 'expo-router';
 import * as Linking from 'expo-linking';
-import { FlashList } from '@shopify/flash-list';
-import { memo, useCallback, useMemo } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { FlashList, type FlashListRef } from '@shopify/flash-list';
+import { memo, useCallback, useMemo, useRef, useState } from 'react';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { BrandMark } from '@/components/BrandMark';
 import { MenuItemVisual } from '@/components/westcoast/MenuItemVisual';
 import { WestCoastBackground } from '@/components/westcoast/WestCoastBackground';
 import { DeploymentHints } from '@/components/DeploymentHints';
 import { PrimaryButton } from '@/components/PrimaryButton';
+import { SyncStatusPill } from '@/components/SyncStatusPill';
 import {
   CATEGORY_LABEL,
   MENU,
@@ -29,7 +33,7 @@ import {
 } from '@/constants/hours';
 import { typography } from '@/constants/typography';
 import { WC } from '@/constants/westCoastTheme';
-import { elevation, radius, spacing, surface } from '@/constants/theme';
+import { elevation, radius, spacing } from '@/constants/theme';
 import { useHuskoStore } from '@/stores/useHuskoStore';
 import { buildClientMenuRows, type ClientMenuRow } from '@/utils/clientMenuRows';
 import { hapticLight } from '@/utils/haptics';
@@ -77,12 +81,18 @@ const MenuSectionHeaderRow = memo(function MenuSectionHeaderRow({
 function MenuHero() {
   const open = isDeliveryOpen();
   return (
-    <View
-      style={[surface.neonPanelStrong, styles.hero]}
+    <LinearGradient
+      colors={['rgba(10, 3, 6, 0.97)', 'rgba(72, 12, 28, 0.92)', 'rgba(8, 32, 48, 0.95)']}
+      locations={[0, 0.48, 1]}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+      style={styles.hero}
       accessibilityLabel={`Husko ${VENUE_TAGLINE_CLIENT}`}
     >
+      <View style={styles.heroInnerGlow} pointerEvents="none" />
       <Text style={styles.wcBrand}>HUSKO</Text>
       <Text style={styles.wcSub}>{VENUE_TAGLINE_CLIENT}</Text>
+      <Text style={styles.wcScript}>d&apos;Angers</Text>
       <View style={[styles.statusPill, open ? styles.statusOpen : styles.statusClosed]}>
         <View style={[styles.statusDot, open ? styles.statusDotOn : styles.statusDotOff]} />
         <Text style={styles.statusPillText}>{open ? clientStrings.openNow : clientStrings.closedNow}</Text>
@@ -102,12 +112,18 @@ function MenuHero() {
       >
         <Text style={styles.phoneBtnText}>{CLIENT_PHONE_DISPLAY} · Snap HUSKOBYNIGHT</Text>
       </Pressable>
-    </View>
+    </LinearGradient>
   );
 }
 
+const viewabilityConfig = {
+  itemVisiblePercentThreshold: 12,
+  minimumViewTime: 64,
+} as const;
+
 export default function ClientMenuScreen() {
   const insets = useSafeAreaInsets();
+  const listRef = useRef<FlashListRef<ClientMenuRow>>(null);
   const cartCount = useHuskoStore((s) => s.cart.reduce((a, l) => a + l.qty, 0));
   const cartTotal = useHuskoStore((s) =>
     s.cart.reduce((a, l) => a + l.item.price * l.qty, 0)
@@ -124,6 +140,54 @@ export default function ClientMenuScreen() {
   }, []);
 
   const rows = useMemo(() => buildClientMenuRows(sections), [sections]);
+
+  const categoryToHeaderIndex = useMemo(() => {
+    const m = new Map<MenuCategory, number>();
+    rows.forEach((r, i) => {
+      if (r.type === 'header') m.set(r.category, i);
+    });
+    return m;
+  }, [rows]);
+
+  const [selectedCategory, setSelectedCategory] = useState<MenuCategory>(
+    () => sections[0]?.[0] ?? 'smash'
+  );
+
+  const onViewableItemsChanged = useCallback(
+    ({
+      viewableItems,
+    }: {
+      viewableItems: { item: ClientMenuRow; index: number | null }[];
+    }) => {
+      if (!viewableItems.length) return;
+      const top = viewableItems[0]?.item;
+      if (!top) return;
+      let cat: MenuCategory | undefined;
+      if (top.type === 'header') cat = top.category;
+      else {
+        const idx = rows.findIndex((r) => r.key === top.key);
+        for (let i = idx; i >= 0; i--) {
+          const row = rows[i];
+          if (row.type === 'header') {
+            cat = row.category;
+            break;
+          }
+        }
+      }
+      if (cat) setSelectedCategory(cat);
+    },
+    [rows]
+  );
+
+  const scrollToCategory = useCallback(
+    (cat: MenuCategory) => {
+      const idx = categoryToHeaderIndex.get(cat);
+      if (idx == null) return;
+      setSelectedCategory(cat);
+      listRef.current?.scrollToIndex({ index: idx, animated: true, viewPosition: 0 });
+    },
+    [categoryToHeaderIndex]
+  );
 
   const renderRow = useCallback(
     ({ item, index }: { item: ClientMenuRow; index: number }) => {
@@ -142,18 +206,78 @@ export default function ClientMenuScreen() {
   return (
     <WestCoastBackground preset="client">
       <SafeAreaView style={styles.root} edges={['bottom']}>
+        <View style={[styles.topChrome, { paddingTop: insets.top + spacing.xs }]}>
+          <Text style={styles.clientKicker}>client</Text>
+          <View style={styles.topBarRow}>
+            <BrandMark compact />
+            <View style={styles.topTitleCol}>
+              <Text style={styles.screenTitle}>À la carte</Text>
+              <Text style={styles.screenKicker}>HUSKO · BY NIGHT</Text>
+            </View>
+            <View style={styles.topBarActions}>
+              <SyncStatusPill />
+              <Link href="/client/panier" asChild>
+                <Pressable
+                  style={({ pressed }) => [styles.cartBtn, pressed && styles.cartBtnPressed]}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Panier, ${cartCount} article${cartCount !== 1 ? 's' : ''}`}
+                >
+                  <Ionicons name="cart" size={22} color={WC.gold} />
+                  {cartCount > 0 ? (
+                    <View style={styles.cartBadge}>
+                      <Text style={styles.cartBadgeTxt}>
+                        {cartCount > 9 ? '9+' : String(cartCount)}
+                      </Text>
+                    </View>
+                  ) : null}
+                </Pressable>
+              </Link>
+            </View>
+          </View>
+        </View>
         <View style={styles.screenBody}>
           <FlashList
+            ref={listRef}
             data={rows}
             keyExtractor={keyExtractor}
             renderItem={renderRow}
             getItemType={getItemType}
+            viewabilityConfig={viewabilityConfig}
+            onViewableItemsChanged={onViewableItemsChanged}
             style={styles.listFlex}
             drawDistance={280}
             ListHeaderComponent={
               <View style={styles.headerBlock}>
                 <DeploymentHints mode="alerts" mapsRelevant={false} style={styles.hint} />
                 <MenuHero />
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={styles.chipsScroll}
+                  style={styles.chipsWrap}
+                >
+                  {sections.map(([cat]) => {
+                    const selected = selectedCategory === cat;
+                    return (
+                      <Pressable
+                        key={cat}
+                        onPress={() => scrollToCategory(cat)}
+                        style={({ pressed }) => [
+                          styles.chip,
+                          selected ? styles.chipOn : styles.chipOff,
+                          pressed && styles.chipPressed,
+                        ]}
+                        accessibilityRole="button"
+                        accessibilityState={{ selected }}
+                        accessibilityLabel={`Catégorie ${CATEGORY_LABEL[cat]}`}
+                      >
+                        <Text style={[styles.chipTxt, selected && styles.chipTxtOn]}>
+                          {CATEGORY_LABEL[cat]}
+                        </Text>
+                      </Pressable>
+                    );
+                  })}
+                </ScrollView>
               </View>
             }
             ListFooterComponent={
@@ -168,6 +292,12 @@ export default function ClientMenuScreen() {
             contentContainerStyle={styles.listContent}
           />
           <Animated.View entering={FadeIn.duration(380).delay(60)} style={styles.dockColumn}>
+            <LinearGradient
+              colors={['rgba(34,211,238,0.95)', 'rgba(253,230,138,0.65)', 'rgba(244,63,94,0.55)']}
+              start={{ x: 0, y: 0.5 }}
+              end={{ x: 1, y: 0.5 }}
+              style={styles.dockHairline}
+            />
             <View
               style={[
                 styles.bar,
@@ -195,6 +325,107 @@ export default function ClientMenuScreen() {
 
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: 'transparent' },
+  clientKicker: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: 'rgba(250,250,250,0.45)',
+    letterSpacing: 1,
+    marginBottom: 4,
+    marginLeft: 2,
+  },
+  topChrome: {
+    paddingHorizontal: spacing.md,
+    paddingBottom: spacing.sm,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(253, 230, 138, 0.15)',
+    backgroundColor: 'rgba(6, 2, 5, 0.72)',
+  },
+  topBarRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
+  topTitleCol: { flex: 1, minWidth: 0 },
+  screenTitle: {
+    fontSize: 22,
+    fontWeight: '900',
+    color: WC.white,
+    letterSpacing: 0.3,
+  },
+  screenKicker: {
+    marginTop: 2,
+    fontSize: 11,
+    fontWeight: '800',
+    color: WC.neonCyan,
+    letterSpacing: 1.2,
+  },
+  topBarActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+  },
+  cartBtn: {
+    width: 44,
+    height: 44,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: 'rgba(253, 230, 138, 0.35)',
+    backgroundColor: 'rgba(0,0,0,0.35)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  cartBtnPressed: { opacity: 0.88 },
+  cartBadge: {
+    position: 'absolute',
+    top: 4,
+    right: 4,
+    minWidth: 18,
+    height: 18,
+    borderRadius: 9,
+    paddingHorizontal: 4,
+    backgroundColor: '#b91c1c',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.85)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  cartBadgeTxt: {
+    fontSize: 10,
+    fontWeight: '900',
+    color: '#fff',
+  },
+  chipsWrap: { marginTop: spacing.md, marginHorizontal: -spacing.md },
+  chipsScroll: {
+    paddingHorizontal: spacing.md,
+    gap: spacing.sm,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingBottom: 2,
+  },
+  chip: {
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    borderRadius: radius.pill,
+    borderWidth: 1,
+  },
+  chipOn: {
+    backgroundColor: 'rgba(250, 250, 250, 0.96)',
+    borderColor: 'rgba(250, 250, 250, 0.96)',
+  },
+  chipOff: {
+    backgroundColor: 'rgba(127, 29, 29, 0.55)',
+    borderColor: 'rgba(248, 113, 113, 0.45)',
+  },
+  chipPressed: { opacity: 0.92 },
+  chipTxt: {
+    fontSize: 12,
+    fontWeight: '800',
+    letterSpacing: 0.4,
+    color: 'rgba(250,250,250,0.92)',
+  },
+  chipTxtOn: {
+    color: '#1c1917',
+  },
   screenBody: { flex: 1 },
   listFlex: { flex: 1 },
   listContent: { paddingHorizontal: spacing.md, paddingBottom: spacing.sm },
@@ -215,6 +446,31 @@ const styles = StyleSheet.create({
   hint: { marginBottom: spacing.md },
   hero: {
     padding: spacing.lg,
+    borderRadius: radius.xl,
+    borderWidth: 2,
+    borderColor: 'rgba(34, 211, 238, 0.45)',
+    overflow: 'hidden',
+    ...elevation.hero,
+  },
+  heroInnerGlow: {
+    ...StyleSheet.absoluteFillObject,
+    margin: 12,
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: 'rgba(253, 230, 138, 0.12)',
+  },
+  wcScript: {
+    marginTop: 8,
+    marginBottom: 2,
+    fontSize: 22,
+    fontStyle: 'italic',
+    fontWeight: '700',
+    color: '#fda4af',
+    textAlign: 'center',
+    letterSpacing: 0.4,
+    textShadowColor: 'rgba(0,0,0,0.45)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 6,
   },
   wcBrand: {
     fontSize: 36,
@@ -333,16 +589,20 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    minHeight: 76,
+    minHeight: 80,
     paddingVertical: spacing.sm,
     paddingHorizontal: spacing.md,
-    backgroundColor: 'rgba(0,0,0,0.45)',
+    backgroundColor: 'rgba(8, 4, 6, 0.72)',
     borderRadius: radius.lg,
     borderWidth: 1,
-    borderColor: 'rgba(34,211,238,0.32)',
+    borderColor: 'rgba(34,211,238,0.38)',
     marginBottom: spacing.sm,
     gap: spacing.sm,
     ...elevation.card,
+    shadowColor: '#22d3ee',
+    shadowOpacity: 0.12,
+    shadowRadius: 14,
+    shadowOffset: { width: 0, height: 4 },
   },
   rowPressed: { opacity: 0.9 },
   rowText: { flex: 1, paddingRight: spacing.sm },
@@ -371,11 +631,14 @@ const styles = StyleSheet.create({
   dockColumn: {
     width: '100%',
   },
+  dockHairline: {
+    height: 3,
+    width: '100%',
+    opacity: 0.95,
+  },
   bar: {
     padding: spacing.md,
-    backgroundColor: 'rgba(8, 2, 4, 0.94)',
-    borderTopWidth: 2,
-    borderTopColor: 'rgba(34, 211, 238, 0.88)',
+    backgroundColor: 'rgba(6, 2, 4, 0.97)',
     gap: spacing.sm,
   },
   barText: {

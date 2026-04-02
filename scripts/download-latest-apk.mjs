@@ -1,5 +1,6 @@
 /**
  * Télécharge le dernier build EAS Android terminé pour un profil donné.
+ * Raccourci npm : npm run apk:get:client | apk:get:gerant | apk:get:unified
  * Usage :
  *   node scripts/download-latest-apk.mjs client
  *   node scripts/download-latest-apk.mjs gerant

@@ -31,10 +31,11 @@ export function ClientBootOverlay({ visible, onDone }: Props) {
   return (
     <Modal visible animationType="fade" statusBarTranslucent transparent>
       <LinearGradient
-        colors={['#0a0204', '#4c0510', '#0f172a', '#1a0508']}
+        colors={['#060103', '#5c0e22', '#0c2438', '#140208']}
+        locations={[0, 0.38, 0.72, 1]}
         style={[styles.fill, { paddingTop: topPad }]}
         start={{ x: 0, y: 0 }}
-        end={{ x: 0.8, y: 1 }}
+        end={{ x: 0.75, y: 1 }}
       >
         <View style={styles.brickTexture} />
         <View style={styles.neonTop} />
@@ -56,6 +57,12 @@ export function ClientBootOverlay({ visible, onDone }: Props) {
         <Text style={styles.banner}>LA RECETTE QUI DOMINE LA VILLE</Text>
         <Text style={styles.hours}>LIVRAISON LUN – SAM · 20h – 00h</Text>
         <Text style={styles.snap}>Snap · HUSKOBYNIGHT</Text>
+        <LinearGradient
+          colors={['transparent', 'rgba(0,0,0,0.35)', 'rgba(0,0,0,0.72)']}
+          locations={[0, 0.4, 1]}
+          style={styles.bootVignette}
+          pointerEvents="none"
+        />
       </LinearGradient>
     </Modal>
   );
@@ -171,5 +178,12 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '700',
     textAlign: 'center',
+  },
+  bootVignette: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: '42%',
   },
 });

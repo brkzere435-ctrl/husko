@@ -5,6 +5,8 @@ import { getAppVariant } from '@/constants/appVariant';
 import { DECOR_PRESETS, type DecorPreset, resolveDecorPreset } from '@/constants/decor';
 import { WC } from '@/constants/westCoastTheme';
 
+import { HuskoAmbientGlow } from './HuskoAmbientGlow';
+
 type Props = ViewProps & {
   children: React.ReactNode;
   /** Si omis : déduit de la variante d’app (APK mono-rôle ou hub). */
@@ -29,6 +31,7 @@ export function WestCoastBackground({ children, style, preset: presetProp, ...re
         end={{ x: 1, y: 1 }}
         style={[StyleSheet.absoluteFill, { opacity: cfg.neonOpacity }]}
       />
+      {cfg.ambientOrbs ? <HuskoAmbientGlow /> : null}
       {children}
     </View>
   );

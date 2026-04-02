@@ -13,7 +13,6 @@ import {
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 
 import { colors, radius } from '@/constants/theme';
-import { WC } from '@/constants/westCoastTheme';
 
 const MIN_TOUCH = 52;
 
@@ -75,7 +74,8 @@ export const PrimaryButton = forwardRef<React.ElementRef<typeof Pressable>, Prop
       >
         <Animated.View style={[styles.primaryOuter, animStyle, style]}>
           <LinearGradient
-            colors={[colors.accentDeep, colors.accent]}
+            colors={[colors.accentDeep, '#c41e1e', colors.accent]}
+            locations={[0, 0.45, 1]}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={styles.primaryGradient}
@@ -100,16 +100,16 @@ const styles = StyleSheet.create({
     borderRadius: radius.lg,
     overflow: 'hidden',
     borderWidth: 2,
-    borderColor: colors.goldDim,
+    borderColor: 'rgba(253, 230, 138, 0.65)',
     minHeight: MIN_TOUCH,
     ...Platform.select({
       ios: {
-        shadowColor: WC.neonCyan,
+        shadowColor: '#fde68a',
         shadowOffset: { width: 0, height: 0 },
-        shadowOpacity: 0.22,
-        shadowRadius: 12,
+        shadowOpacity: 0.35,
+        shadowRadius: 16,
       },
-      android: { elevation: 4 },
+      android: { elevation: 6 },
       default: {},
     }),
   },
@@ -127,9 +127,9 @@ const styles = StyleSheet.create({
     borderRadius: radius.lg,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(255,255,255,0.04)',
+    backgroundColor: 'rgba(255,255,255,0.06)',
     borderWidth: 1,
-    borderColor: colors.borderSubtle,
+    borderColor: 'rgba(34, 211, 238, 0.22)',
   },
   row: {
     flexDirection: 'row',

@@ -1,3 +1,4 @@
+import { LinearGradient } from 'expo-linear-gradient';
 import { Link, router } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { Alert, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
@@ -135,10 +136,18 @@ export default function PanierScreen() {
             )}
           </ScreenSection>
 
-          <View style={styles.totalRow}>
-            <Text style={typography.title}>Total</Text>
-            <Text style={[typography.price, styles.totalBig]}>{total.toFixed(2)} €</Text>
-          </View>
+          <LinearGradient
+            colors={['rgba(55, 10, 20, 0.96)', 'rgba(12, 6, 10, 0.98)', 'rgba(8, 24, 36, 0.94)']}
+            locations={[0, 0.55, 1]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.totalRow}
+          >
+            <View style={styles.totalRowInner}>
+              <Text style={styles.totalLabel}>Total</Text>
+              <Text style={[typography.price, styles.totalBig]}>{total.toFixed(2)} €</Text>
+            </View>
+          </LinearGradient>
 
           <View style={styles.paymentBox}>
             <Text style={typography.section}>Paiement</Text>
@@ -229,13 +238,27 @@ const styles = StyleSheet.create({
     borderColor: colors.borderSubtle,
   },
   totalRow: {
+    marginBottom: spacing.lg,
+    marginTop: spacing.sm,
+    borderRadius: radius.xl,
+    borderWidth: 1,
+    borderColor: 'rgba(253, 230, 138, 0.22)',
+    overflow: 'hidden',
+    ...elevation.card,
+  },
+  totalRowInner: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: spacing.lg,
-    marginTop: spacing.sm,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.md,
   },
-  totalBig: { fontSize: 26 },
+  totalLabel: {
+    ...typography.title,
+    fontSize: 18,
+    letterSpacing: 0.5,
+  },
+  totalBig: { fontSize: 28 },
   paymentBox: {
     backgroundColor: colors.glass,
     borderRadius: radius.xl,

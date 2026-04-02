@@ -1,6 +1,8 @@
+import { Ionicons } from '@expo/vector-icons';
+import * as Linking from 'expo-linking';
 import { Link } from 'expo-router';
 import { useMemo } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -15,7 +17,7 @@ import {
   estimatedMsUntilDelivered,
   formatEtaUntilDelivery,
 } from '@/constants/autonomousDelivery';
-import { clientStrings } from '@/constants/clientExperience';
+import { CLIENT_PHONE_DISPLAY, CLIENT_PHONE_TEL, clientStrings } from '@/constants/clientExperience';
 import { PENDING_VALIDATION_MS } from '@/constants/orderPolicy';
 import { CLIENT_TIMELINE, timelineStepIndex } from '@/constants/orderFlow';
 import { PAYMENT_NOTICE_SHORT } from '@/constants/paymentPolicy';
@@ -82,12 +84,55 @@ export default function SuiviScreen() {
     return formatEtaUntilDelivery(ms);
   }, [active, etaStepMs]);
 
+  const etaClockLabel = useMemo(() => {
+    if (!active || etaStepMs == null) return null;
+    const ms = estimatedMsUntilDelivered(active.status, etaStepMs);
+    if (ms <= 0) return null;
+    const t = new Date(Date.now() + ms);
+    return t.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+  }, [active, etaStepMs]);
+
   return (
     <WestCoastBackground preset="client">
       <SafeAreaView style={styles.root} edges={['bottom']}>
         <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
           {active ? (
             <Animated.View entering={FadeIn.duration(340)} style={styles.card}>
+              {etaClockLabel ? (
+                <View style={styles.etaHero} accessibilityRole="summary">
+                  <Text style={styles.etaHeroKicker}>Arrivée estimée</Text>
+                  <Text style={styles.etaHeroTime}>{etaClockLabel}</Text>
+                  {etaText ? <Text style={styles.etaHeroSub}>{etaText}</Text> : null}
+                </View>
+              ) : null}
+
+              <View style={styles.stepperRow}>
+                {CLIENT_TIMELINE.map((step, i) => {
+                  const done = stepIdx > i;
+                  const current = stepIdx === i;
+                  return (
+                    <View key={step.status} style={styles.stepperCell}>
+                      <Ionicons
+                        name={done || current ? 'flame' : 'flame-outline'}
+                        size={current ? 26 : 20}
+                        color={current ? '#f87171' : done ? colors.gold : colors.textMuted}
+                        style={current ? styles.stepperFlameHot : undefined}
+                      />
+                      <Text
+                        style={[
+                          styles.stepperLbl,
+                          done && styles.stepperLblDone,
+                          current && styles.stepperLblCurrent,
+                        ]}
+                        numberOfLines={2}
+                      >
+                        {step.label}
+                      </Text>
+                    </View>
+                  );
+                })}
+              </View>
+
               <Text style={typography.mono}>{active.id}</Text>
               <View style={styles.badgeRow}>
                 <StatusBadge status={active.status} />
@@ -114,37 +159,6 @@ export default function SuiviScreen() {
                   Délai habituel : 30–45 min selon la charge (indicatif).
                 </Text>
               ) : null}
-
-              <View style={styles.timelineWrap}>
-                <View style={styles.timelineRail} />
-                {CLIENT_TIMELINE.map((step, i) => {
-                  const done = stepIdx >= i;
-                  const current = stepIdx === i;
-                  const last = i === CLIENT_TIMELINE.length - 1;
-                  return (
-                    <View key={step.status} style={[styles.tlRow, !last && styles.tlRowSpaced]}>
-                      <View style={styles.tlDotCol}>
-                        <View
-                          style={[
-                            styles.tlDot,
-                            done ? styles.tlDotOn : styles.tlDotOff,
-                            current && styles.tlDotCurrent,
-                          ]}
-                        />
-                      </View>
-                      <Text
-                        style={[
-                          styles.tlLabel,
-                          done ? styles.tlDone : styles.tlPending,
-                          current && styles.tlCurrent,
-                        ]}
-                      >
-                        {step.label}
-                      </Text>
-                    </View>
-                  );
-                })}
-              </View>
 
               <Text style={[typography.body, styles.addr]}>{active.addressLabel}</Text>
               <Text style={typography.price}>{active.total.toFixed(2)} €</Text>
@@ -188,6 +202,24 @@ export default function SuiviScreen() {
                   />
                 </View>
               ) : null}
+
+              <View style={styles.contactStrip}>
+                <Text style={styles.contactStripLbl}>HUSKO</Text>
+                <Pressable
+                  onPress={() => void Linking.openURL('https://snapchat.com/add/HUSKOBYNIGHT')}
+                  style={styles.contactChip}
+                >
+                  <Ionicons name="logo-snapchat" size={18} color="#67e8f9" />
+                  <Text style={styles.contactChipTxt}>HUSKOBYNIGHT</Text>
+                </Pressable>
+                <Pressable
+                  onPress={() => void Linking.openURL(`tel:${CLIENT_PHONE_TEL}`)}
+                  style={styles.contactChip}
+                >
+                  <Ionicons name="call" size={18} color={colors.gold} />
+                  <Text style={styles.contactChipTxt}>{CLIENT_PHONE_DISPLAY}</Text>
+                </Pressable>
+              </View>
             </Animated.View>
           ) : showDeliveredThanks ? (
             <View style={[styles.card, styles.merciCard, elevation.card]}>
@@ -274,6 +306,98 @@ const styles = StyleSheet.create({
     borderColor: colors.borderSubtle,
     padding: spacing.lg,
   },
+  etaHero: {
+    marginBottom: spacing.md,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.md,
+    borderRadius: radius.lg,
+    backgroundColor: 'rgba(127, 29, 29, 0.35)',
+    borderWidth: 1,
+    borderColor: 'rgba(248, 113, 113, 0.35)',
+    alignItems: 'center',
+  },
+  etaHeroKicker: {
+    fontSize: 11,
+    fontWeight: '900',
+    letterSpacing: 2,
+    color: 'rgba(250,250,250,0.75)',
+    textTransform: 'uppercase',
+  },
+  etaHeroTime: {
+    marginTop: spacing.xs,
+    fontSize: 40,
+    fontWeight: '900',
+    color: colors.gold,
+    fontVariant: ['tabular-nums'],
+  },
+  etaHeroSub: {
+    marginTop: spacing.xs,
+    fontSize: 13,
+    color: colors.textMuted,
+    fontWeight: '600',
+  },
+  stepperRow: {
+    flexDirection: 'row',
+    flexWrap: 'nowrap',
+    justifyContent: 'space-between',
+    gap: 4,
+    marginBottom: spacing.lg,
+    paddingVertical: spacing.sm,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderColor: colors.borderSubtle,
+  },
+  stepperCell: {
+    flex: 1,
+    minWidth: 56,
+    alignItems: 'center',
+    gap: 6,
+  },
+  stepperFlameHot: {
+    shadowColor: '#f87171',
+    shadowOpacity: 0.9,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 0 },
+  },
+  stepperLbl: {
+    fontSize: 9,
+    fontWeight: '700',
+    color: colors.textMuted,
+    textAlign: 'center',
+    lineHeight: 12,
+  },
+  stepperLblDone: { color: colors.text },
+  stepperLblCurrent: { color: '#fca5a5', fontWeight: '900' },
+  contactStrip: {
+    marginTop: spacing.lg,
+    paddingTop: spacing.md,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: colors.borderSubtle,
+    gap: spacing.sm,
+    alignItems: 'center',
+  },
+  contactStripLbl: {
+    fontSize: 10,
+    fontWeight: '900',
+    letterSpacing: 3,
+    color: 'rgba(250,250,250,0.45)',
+  },
+  contactChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.borderSubtle,
+    backgroundColor: 'rgba(0,0,0,0.25)',
+  },
+  contactChipTxt: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: colors.text,
+  },
   badgeRow: { marginTop: spacing.sm, marginBottom: spacing.sm },
   pendingHint: {
     marginBottom: spacing.md,
@@ -284,53 +408,6 @@ const styles = StyleSheet.create({
   },
   etaLine: { marginBottom: spacing.md, color: colors.textMuted, fontSize: 14, lineHeight: 20 },
   etaStrong: { color: colors.gold, fontWeight: '800' },
-  timelineWrap: {
-    position: 'relative',
-    marginBottom: spacing.lg,
-    paddingLeft: 4,
-  },
-  timelineRail: {
-    position: 'absolute',
-    left: 15,
-    top: 14,
-    bottom: 14,
-    width: 3,
-    borderRadius: 2,
-    backgroundColor: colors.borderSubtle,
-  },
-  tlRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    minHeight: 28,
-  },
-  tlRowSpaced: { marginBottom: spacing.md },
-  tlDotCol: {
-    width: 32,
-    alignItems: 'center',
-    marginRight: spacing.sm,
-  },
-  tlDot: {
-    width: 14,
-    height: 14,
-    borderRadius: 7,
-    borderWidth: 2,
-    marginTop: 2,
-    zIndex: 2,
-    backgroundColor: colors.bgLift,
-  },
-  tlDotOff: { borderColor: colors.border, backgroundColor: 'transparent' },
-  tlDotOn: { borderColor: colors.gold, backgroundColor: colors.goldDim },
-  tlDotCurrent: {
-    borderColor: colors.gold,
-    backgroundColor: colors.gold,
-    shadowColor: colors.gold,
-    shadowOpacity: 0.8,
-    shadowRadius: 8,
-  },
-  tlLabel: { flex: 1, fontSize: 15, fontWeight: '600', paddingTop: 1 },
-  tlDone: { color: colors.text },
-  tlPending: { color: colors.textMuted },
-  tlCurrent: { color: colors.gold, fontWeight: '800' },
   addr: { marginTop: spacing.xs },
   pay: { marginTop: spacing.md, fontStyle: 'italic' },
   mapHint: { marginTop: spacing.md },

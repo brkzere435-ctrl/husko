@@ -15,14 +15,17 @@ export type DecorPresetConfig = {
   /** Voile néon diagonal (3 stops). */
   neonOverlay: readonly [string, string, string];
   neonOpacity: number;
+  /** Halos bokeh (client / hub). */
+  ambientOrbs?: boolean;
 };
 
 export const DECOR_PRESETS: Record<DecorPreset, DecorPresetConfig> = {
   hub: {
-    baseGradient: ['#2a0505', '#3f0d12', '#0f172a', '#2a0505'],
-    baseLocations: [0, 0.35, 0.72, 1],
-    neonOverlay: ['transparent', 'rgba(34,211,238,0.07)', 'transparent'],
-    neonOpacity: 0.9,
+    baseGradient: ['#1a0306', '#4a0c18', '#0c1828', '#140208'],
+    baseLocations: [0, 0.32, 0.68, 1],
+    neonOverlay: ['transparent', 'rgba(34,211,238,0.1)', 'rgba(244,63,94,0.06)'],
+    neonOpacity: 0.92,
+    ambientOrbs: true,
   },
   gerant: {
     baseGradient: ['#2a0505', '#3d2808', '#1a0c0c', '#2a0505'],
@@ -31,10 +34,11 @@ export const DECOR_PRESETS: Record<DecorPreset, DecorPresetConfig> = {
     neonOpacity: 0.88,
   },
   client: {
-    baseGradient: ['#2a0505', '#0f2418', '#0f172a', '#2a0505'],
-    baseLocations: [0, 0.36, 0.72, 1],
-    neonOverlay: ['transparent', 'rgba(74,222,128,0.07)', 'transparent'],
-    neonOpacity: 0.88,
+    baseGradient: ['#180205', '#5c0a1a', '#0a1f2e', '#120308'],
+    baseLocations: [0, 0.34, 0.7, 1],
+    neonOverlay: ['rgba(244,63,94,0.04)', 'rgba(34,211,238,0.09)', 'rgba(253,230,138,0.05)'],
+    neonOpacity: 0.94,
+    ambientOrbs: true,
   },
   livreur: {
     baseGradient: ['#2a0505', '#0f1a2e', '#0c1220', '#2a0505'],
