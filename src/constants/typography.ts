@@ -1,9 +1,17 @@
-import { TextStyle } from 'react-native';
+import { Platform, TextStyle } from 'react-native';
 
 import { colors } from '@/constants/theme';
 
+/** Sans-serif système, rendu dense type affiche urbaine. */
+const urban = Platform.select({
+  ios: { fontFamily: undefined },
+  android: { fontFamily: 'sans-serif' },
+  default: { fontFamily: undefined },
+}) satisfies Partial<TextStyle>;
+
 export const typography = {
   display: {
+    ...urban,
     fontSize: 42,
     fontWeight: '900' as const,
     letterSpacing: 4,
@@ -11,12 +19,14 @@ export const typography = {
   },
   /** Hub & menu — nom marque */
   heroBrand: {
+    ...urban,
     fontSize: 34,
     fontWeight: '900' as const,
-    letterSpacing: 2,
+    letterSpacing: 2.5,
     color: colors.text,
   },
   heroTagline: {
+    ...urban,
     fontSize: 15,
     fontWeight: '600' as const,
     letterSpacing: 0.8,
@@ -24,8 +34,10 @@ export const typography = {
     marginTop: 6,
   },
   title: {
+    ...urban,
     fontSize: 22,
     fontWeight: '800' as const,
+    letterSpacing: 0.2,
     color: colors.text,
   },
   subtitle: {
@@ -34,15 +46,17 @@ export const typography = {
     color: colors.textMuted,
   },
   section: {
+    ...urban,
     fontSize: 12,
     fontWeight: '800' as const,
-    letterSpacing: 1.2,
+    letterSpacing: 1.4,
     color: colors.gold,
     textTransform: 'uppercase' as const,
   },
   body: {
+    ...urban,
     fontSize: 16,
-    fontWeight: '500' as const,
+    fontWeight: '600' as const,
     color: colors.text,
     lineHeight: 23,
   },

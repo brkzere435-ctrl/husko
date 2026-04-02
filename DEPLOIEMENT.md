@@ -2,7 +2,7 @@
 
 Ordre : **prérequis** → **développement** → **builds mobiles** → **web / Docker** → **Cloud Run**.
 
-Checklist release (commandes synthétiques) : [RELEASE_CHECKLIST.md](RELEASE_CHECKLIST.md). Checklist **iOS** (bundles, Maps, TestFlight) : [IOS_RELEASE_CHECKLIST.md](IOS_RELEASE_CHECKLIST.md). **Briefing** (notifications / synchro client–gérant, limite push) : [docs/briefing-rdv-client-notifications.md](docs/briefing-rdv-client-notifications.md).
+Checklist release (commandes synthétiques) : [RELEASE_CHECKLIST.md](RELEASE_CHECKLIST.md). Checklist **iOS** (bundles, Maps, TestFlight) : [IOS_RELEASE_CHECKLIST.md](IOS_RELEASE_CHECKLIST.md). **Briefing** (notifications / synchro client–gérant, limite push) : [docs/briefing-rdv-client-notifications.md](docs/briefing-rdv-client-notifications.md). **Direction produit** (fil unique, critères « terminé ») : [src/constants/productDirection.ts](src/constants/productDirection.ts).
 
 ### Chemin express — APK unifié hub (recommandé)
 

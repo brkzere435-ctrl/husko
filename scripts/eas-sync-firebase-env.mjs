@@ -1,5 +1,7 @@
 /**
- * Pousse EXPO_PUBLIC_FIREBASE_* depuis .env vers EAS (production + preview).
+ * Pousse EXPO_PUBLIC_FIREBASE_* depuis .env vers EAS (production + preview), scope projet.
+ * Les builds Android (apk-assistant, apk-gerant, apk-livreur, apk-client, apk-unified)
+ * utilisent ces variables au build si configurées dans EAS — une seule source Firebase suffit.
  * Prérequis : eas login, projet lié. Usage : npm run eas:sync:firebase
  */
 import { spawnSync } from 'child_process';

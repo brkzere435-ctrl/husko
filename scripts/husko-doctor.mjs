@@ -59,6 +59,7 @@ console.log(`Référentiel — ce qui doit rester aligné :
   • Mises à jour : eas update = JS ; nouvelles clés natives / plugins = nouveau eas build.
 
   PÉRIMÈTRE FICHIERS (repères)
+  • Direction produit (décisions, définition de « terminé ») : src/constants/productDirection.ts
   • Thème global : src/constants/theme.ts, westCoastTheme.ts, typography.ts
   • Fonds WC : src/components/westcoast/WestCoastBackground.tsx
   • Navigation racine : app/_layout.tsx — ne pas multiplier les Stack.Screen sans besoin Expo Router.

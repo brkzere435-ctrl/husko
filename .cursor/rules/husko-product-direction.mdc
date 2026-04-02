@@ -1,0 +1,13 @@
+---
+description: Direction produit Husko — fil unique (stack, thème, EAS, Firestore, critères terminé)
+alwaysApply: true
+---
+
+# Direction produit (fil unique)
+
+- **Source de vérité :** `src/constants/productDirection.ts` — exports `PRODUCT_DIRECTION`, `PRODUCT_DEFINITION_OF_DONE`, `PRODUCT_DELIVERABLE`.
+- **Stack :** ce dépôt Expo Router + React Native uniquement. Les specs type « Flutter + maquettes » sont une **référence UX**, pas une deuxième base de code.
+- **UI :** tokens Lowrider dans `src/constants/theme.ts` et `src/constants/westCoastTheme.ts` — pas de palette ad hoc par écran.
+- **APK :** EAS (`eas.json`) ; hub par défaut `npm run build:apk:unified`, ou profils client / gérant / livreur selon la démo.
+- **Multi-appareils :** Firestore (`EXPO_PUBLIC_FIREBASE_*` alignées), `src/services/firebaseRemote.ts`, `firestore.rules` — les notifications locales ne remplacent pas la synchro données.
+- **Terminé pro :** `npm run verify` ; parcours démo validé sur **APK installé** ; pas de régression visuelle majeure sur l’écran prioritaire (menu client, suivi ou gérant selon le focus).

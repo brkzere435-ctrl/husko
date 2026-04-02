@@ -2,6 +2,10 @@
 
 Application **Expo** : commande (menu, panier, suivi), **livreur** (carte + position), **gérant** (commandes, historique, réglages). Thème sombre rouge / or, interface lisible et boutons larges (confort tactile).
 
+**Direction produit (fil unique, critères « terminé ») :** [`src/constants/productDirection.ts`](src/constants/productDirection.ts) — source de vérité ; le README ne duplique pas le détail.
+
+**Agents (humains / IA) :** [`AGENTS.md`](AGENTS.md) — raccourci commandes, liens, phrase type pour Cursor.
+
 **Démarrage :** `npm install` → `npx expo start`
 
 **Builds installables (APK Android, IPA iOS, web, Cloud Run) :** **`DEPLOIEMENT.md`**

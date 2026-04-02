@@ -124,6 +124,7 @@ if (menuIds.length === 0) {
 
 // --- Release pipeline ---
 console.log('4) Release');
+console.log('   • Direction produit / critères terminé : src/constants/productDirection.ts');
 console.log('   • Vérifs code : npm run verify');
 console.log('   • Gate complet : npm run release:gate');
 console.log('   • JS / assets JS uniquement → eas:update:hub | client | gerant | livreur | assistant');

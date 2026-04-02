@@ -293,7 +293,7 @@ export default function ClientMenuScreen() {
           />
           <Animated.View entering={FadeIn.duration(380).delay(60)} style={styles.dockColumn}>
             <LinearGradient
-              colors={['rgba(34,211,238,0.95)', 'rgba(253,230,138,0.65)', 'rgba(244,63,94,0.55)']}
+              colors={['rgba(255,90,56,0.95)', 'rgba(253,230,138,0.65)', 'rgba(220,40,40,0.55)']}
               start={{ x: 0, y: 0.5 }}
               end={{ x: 1, y: 0.5 }}
               style={styles.dockHairline}
@@ -356,7 +356,7 @@ const styles = StyleSheet.create({
     marginTop: 2,
     fontSize: 11,
     fontWeight: '800',
-    color: WC.neonCyan,
+    color: WC.fire,
     letterSpacing: 1.2,
   },
   topBarActions: {
@@ -439,7 +439,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '800',
     letterSpacing: 1,
-    color: WC.neonCyan,
+    color: WC.fire,
     textDecorationLine: 'underline',
   },
   headerBlock: { marginBottom: spacing.sm },
@@ -448,7 +448,7 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
     borderRadius: radius.xl,
     borderWidth: 2,
-    borderColor: 'rgba(34, 211, 238, 0.45)',
+    borderColor: 'rgba(255, 90, 56, 0.5)',
     overflow: 'hidden',
     ...elevation.hero,
   },
@@ -478,9 +478,9 @@ const styles = StyleSheet.create({
     letterSpacing: 6,
     color: WC.white,
     textAlign: 'center',
-    textShadowColor: WC.neonCyan,
+    textShadowColor: WC.fire,
     textShadowOffset: { width: 0, height: 0 },
-    textShadowRadius: 12,
+    textShadowRadius: 14,
   },
   wcSub: {
     marginTop: spacing.sm,
@@ -502,15 +502,15 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   statusOpen: {
-    backgroundColor: 'rgba(34, 211, 238, 0.12)',
-    borderColor: WC.neonCyanDim,
+    backgroundColor: WC.fireGlow,
+    borderColor: WC.fireDim,
   },
   statusClosed: {
     backgroundColor: 'rgba(127, 29, 29, 0.35)',
     borderColor: 'rgba(248, 113, 113, 0.4)',
   },
   statusDot: { width: 8, height: 8, borderRadius: 4 },
-  statusDotOn: { backgroundColor: WC.neonCyan },
+  statusDotOn: { backgroundColor: WC.fire },
   statusDotOff: { backgroundColor: '#fca5a5' },
   statusPillText: {
     color: WC.white,
@@ -523,15 +523,15 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.sm,
     paddingHorizontal: spacing.md,
     borderRadius: radius.lg,
-    backgroundColor: 'rgba(34, 211, 238, 0.08)',
+    backgroundColor: 'rgba(255, 90, 56, 0.08)',
     borderWidth: 1,
-    borderColor: WC.neonCyanDim,
+    borderColor: WC.fireDim,
     alignItems: 'center',
   },
   sureHourLabel: {
     fontSize: 10,
     fontWeight: '800',
-    color: WC.neonCyan,
+    color: WC.fire,
     letterSpacing: 2,
     textTransform: 'uppercase',
   },
@@ -560,7 +560,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     lineHeight: 18,
     fontWeight: '700',
-    color: WC.neonCyan,
+    color: WC.fire,
     textAlign: 'center',
   },
   phoneBtn: { marginTop: spacing.md, alignSelf: 'center', paddingVertical: spacing.xs },
@@ -583,7 +583,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '900',
     letterSpacing: 2,
-    color: WC.neonCyan,
+    color: WC.fire,
     textTransform: 'uppercase',
   },
   row: {
@@ -595,12 +595,12 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(8, 4, 6, 0.72)',
     borderRadius: radius.lg,
     borderWidth: 1,
-    borderColor: 'rgba(34,211,238,0.38)',
+    borderColor: 'rgba(255,90,56,0.42)',
     marginBottom: spacing.sm,
     gap: spacing.sm,
     ...elevation.card,
-    shadowColor: '#22d3ee',
-    shadowOpacity: 0.12,
+    shadowColor: '#ff5a38',
+    shadowOpacity: 0.14,
     shadowRadius: 14,
     shadowOffset: { width: 0, height: 4 },
   },

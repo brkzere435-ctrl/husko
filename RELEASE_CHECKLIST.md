@@ -23,6 +23,8 @@ npm run firebase:env:check:strict
 
 Si tout est **MANQ** alors que tu crois avoir rempli le `.env` : vérifier que le fichier est bien **à la racine du dépôt** (pas un sous-dossier), et que chaque ligne `EXPO_PUBLIC_FIREBASE_*=` a une **valeur non vide** après le `=` (pas seulement des espaces, pas de ligne commentée à la place de la valeur).
 
+**Direction produit** (fil unique) : [src/constants/productDirection.ts](src/constants/productDirection.ts) — critères « terminé » dans `PRODUCT_DEFINITION_OF_DONE` : `npm run verify`, démo du parcours sur **APK installé**, pas de régression visuelle majeure sur l’écran prioritaire.
+
 Avant une release sérieuse :
 
 ```bash

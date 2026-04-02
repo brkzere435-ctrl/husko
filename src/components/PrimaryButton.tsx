@@ -74,7 +74,7 @@ export const PrimaryButton = forwardRef<React.ElementRef<typeof Pressable>, Prop
       >
         <Animated.View style={[styles.primaryOuter, animStyle, style]}>
           <LinearGradient
-            colors={[colors.accentDeep, '#c41e1e', colors.accent]}
+            colors={[colors.accentDeep, colors.accentMid, colors.accent]}
             locations={[0, 0.45, 1]}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}

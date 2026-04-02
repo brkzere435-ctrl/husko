@@ -21,35 +21,35 @@ export type DecorPresetConfig = {
 
 export const DECOR_PRESETS: Record<DecorPreset, DecorPresetConfig> = {
   hub: {
-    baseGradient: ['#1a0306', '#4a0c18', '#0c1828', '#140208'],
+    baseGradient: ['#0a0203', '#2a080f', '#081218', '#0c0305'],
     baseLocations: [0, 0.32, 0.68, 1],
-    neonOverlay: ['transparent', 'rgba(34,211,238,0.1)', 'rgba(244,63,94,0.06)'],
-    neonOpacity: 0.92,
-    ambientOrbs: true,
-  },
-  gerant: {
-    baseGradient: ['#2a0505', '#3d2808', '#1a0c0c', '#2a0505'],
-    baseLocations: [0, 0.38, 0.7, 1],
-    neonOverlay: ['transparent', 'rgba(250,204,21,0.09)', 'transparent'],
-    neonOpacity: 0.88,
-  },
-  client: {
-    baseGradient: ['#180205', '#5c0a1a', '#0a1f2e', '#120308'],
-    baseLocations: [0, 0.34, 0.7, 1],
-    neonOverlay: ['rgba(244,63,94,0.04)', 'rgba(34,211,238,0.09)', 'rgba(253,230,138,0.05)'],
+    neonOverlay: ['transparent', 'rgba(255,90,56,0.08)', 'rgba(34,211,238,0.06)'],
     neonOpacity: 0.94,
     ambientOrbs: true,
   },
-  livreur: {
-    baseGradient: ['#2a0505', '#0f1a2e', '#0c1220', '#2a0505'],
-    baseLocations: [0, 0.35, 0.74, 1],
-    neonOverlay: ['transparent', 'rgba(96,165,250,0.08)', 'transparent'],
+  gerant: {
+    baseGradient: ['#140303', '#2a1008', '#120808', '#140303'],
+    baseLocations: [0, 0.38, 0.7, 1],
+    neonOverlay: ['transparent', 'rgba(255,90,56,0.07)', 'rgba(250,204,21,0.06)'],
     neonOpacity: 0.9,
   },
+  client: {
+    baseGradient: ['#080102', '#3a0a12', '#061018', '#0a0304'],
+    baseLocations: [0, 0.34, 0.7, 1],
+    neonOverlay: ['rgba(255,75,45,0.06)', 'rgba(255,90,56,0.1)', 'rgba(253,230,138,0.04)'],
+    neonOpacity: 0.95,
+    ambientOrbs: true,
+  },
+  livreur: {
+    baseGradient: ['#120303', '#0a1520', '#060c14', '#120303'],
+    baseLocations: [0, 0.35, 0.74, 1],
+    neonOverlay: ['transparent', 'rgba(255,90,56,0.07)', 'rgba(96,165,250,0.06)'],
+    neonOpacity: 0.92,
+  },
   assistant: {
-    baseGradient: ['#2a0505', '#2a1438', '#0f172a', '#2a0505'],
+    baseGradient: ['#120303', '#1e0f28', '#0a121c', '#120303'],
     baseLocations: [0, 0.37, 0.71, 1],
-    neonOverlay: ['transparent', 'rgba(232,121,249,0.08)', 'transparent'],
+    neonOverlay: ['transparent', 'rgba(232,121,249,0.07)', 'rgba(255,90,56,0.05)'],
     neonOpacity: 0.88,
   },
 };

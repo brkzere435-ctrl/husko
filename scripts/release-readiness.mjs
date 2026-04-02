@@ -73,6 +73,12 @@ const fbMin =
 const pid = cfg.extra?.eas?.projectId ?? '(manquant)';
 
 console.log('\n[Husko — release:check]\n');
+console.log(
+  'Objectif livrable (direction produit) : démo client → gérant → livreur → suivi · profil EAS apk-unified · `npm run build:apk:unified` — voir `src/constants/productDirection.ts`.'
+);
+console.log(
+  'Critères « terminé » : `npm run verify` · démo du parcours sur APK réel · pas de régression visuelle majeure sur l’écran prioritaire — détail : `PRODUCT_DEFINITION_OF_DONE` dans ce fichier.'
+);
 console.log('Parcours EAS (ordre conseillé) :');
 console.log('  1. eas login');
 console.log('  2. npm run eas:credentials   — keystores / certificats Apple & Android');
