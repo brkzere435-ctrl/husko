@@ -21,6 +21,7 @@ web-build/
 gradle-9.4.1-all/
 .vscode/
 .DS_Store
+# Logs locaux (Metro, outils, sessions debug Cursor, etc.)
 *.log
 .env
 .env.*
