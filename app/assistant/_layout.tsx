@@ -2,6 +2,7 @@ import { Stack } from 'expo-router';
 import { Platform } from 'react-native';
 
 import { SyncStatusPill } from '@/components/SyncStatusPill';
+import { FONT } from '@/constants/fonts';
 import { WC } from '@/constants/westCoastTheme';
 
 export default function AssistantLayout() {
@@ -11,7 +12,7 @@ export default function AssistantLayout() {
         headerStyle: { backgroundColor: WC.brickDeep },
         headerShadowVisible: false,
         headerTintColor: WC.gold,
-        headerTitleStyle: { fontWeight: '800', color: WC.white },
+        headerTitleStyle: { fontFamily: FONT.bold, color: WC.white },
         contentStyle: { backgroundColor: 'transparent' },
         headerLargeTitle: Platform.OS === 'ios',
         headerBackTitle: '',

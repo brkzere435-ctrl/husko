@@ -103,6 +103,7 @@
     "android:keystore": "node scripts/create-android-keystore.mjs"
   },
   "dependencies": {
+    "@expo-google-fonts/oswald": "^0.4.2",
     "@expo/ngrok": "^4.1.0",
     "@expo/vector-icons": "^15.0.2",
     "@react-native-async-storage/async-storage": "2.2.0",

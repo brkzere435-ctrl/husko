@@ -19,6 +19,7 @@ export function BrandMark({ compact, tagline = VENUE_TAGLINE_CLIENT }: Props) {
     <View style={[styles.wrap, compact && styles.wrapCompact]}>
       <Image
         source={ICON}
+        resizeMode="contain"
         style={[styles.icon, { width: side, height: side, borderRadius: compact ? radius.sm : radius.md }]}
         accessibilityLabel="Logo Husko"
       />

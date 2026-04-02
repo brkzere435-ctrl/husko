@@ -18,6 +18,9 @@ Ce fichier résume **où est la vérité** et **quelles commandes** utiliser. Le
 | Gate qualité (CI locale) | `npm run verify` puis éventuellement `npm run release:gate` |
 | APK hub (EAS) | `npm run build:apk:unified` (après `eas login`, secrets — voir `DEPLOIEMENT.md`) |
 | Checklist release | [`RELEASE_CHECKLIST.md`](RELEASE_CHECKLIST.md) |
+| Régénérer icônes / splash / adaptive (West Coast) | `npm run brand:assets` — écrit sous `assets/` ; **un nouveau `eas build` est obligatoire** pour mettre à jour le logo launcher (l’OTA ne change pas l’icône native). |
+| Vérifier clés Firebase (.env) | `npm run firebase:env:check` — strict : `firebase:env:check:strict` |
+| Pousser Firebase / Maps vers EAS | `npm run eas:sync:firebase` · `npm run eas:sync:maps` |
 
 Déploiement, Maps, Firebase, OTA : **[`DEPLOIEMENT.md`](DEPLOIEMENT.md)**. Vue utilisateur : **[`README.md`](README.md)**.
 

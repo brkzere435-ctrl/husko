@@ -3,6 +3,7 @@ import { Link, Stack } from 'expo-router';
 import { Platform, Pressable, View } from 'react-native';
 
 import { SyncStatusPill } from '@/components/SyncStatusPill';
+import { FONT } from '@/constants/fonts';
 import { WC } from '@/constants/westCoastTheme';
 
 function LivreurHeaderRight({ showSettings }: { showSettings: boolean }) {
@@ -32,7 +33,7 @@ export default function LivreurLayout() {
         headerStyle: { backgroundColor: WC.brickDeep },
         headerShadowVisible: false,
         headerTintColor: WC.gold,
-        headerTitleStyle: { fontWeight: '800', color: WC.white },
+        headerTitleStyle: { fontFamily: FONT.bold, color: WC.white },
         contentStyle: { backgroundColor: 'transparent' },
         headerLargeTitle: Platform.OS === 'ios',
         headerRight: () => <LivreurHeaderRight showSettings />,

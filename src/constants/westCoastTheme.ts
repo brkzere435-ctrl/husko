@@ -1,5 +1,7 @@
 import type { TextStyle } from 'react-native';
 
+import { FONT } from '@/constants/fonts';
+
 /** Palette « West Coast » — brique sombre, feu, nuit (carte / HUD garde du cyan lisible). */
 export const WC = {
   brick: '#3d0808',
@@ -18,8 +20,8 @@ export const WC = {
 
 /** Titre de section (uppercase) — orange / rouge feu. */
 export const wcSectionLabel: TextStyle = {
+  fontFamily: FONT.bold,
   fontSize: 13,
-  fontWeight: '900',
   letterSpacing: 2,
   color: WC.fire,
   textTransform: 'uppercase',

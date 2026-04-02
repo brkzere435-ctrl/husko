@@ -1,11 +1,13 @@
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useEffect } from 'react';
-import { Modal, StyleSheet, Text, View } from 'react-native';
+import { Image, Modal, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { WC } from '@/constants/westCoastTheme';
+import { CLIENT_BOOT_HERO } from '@/constants/brandingAssets';
+import { FONT } from '@/constants/fonts';
 import { spacing } from '@/constants/theme';
+import { WC } from '@/constants/westCoastTheme';
 
 const BOOT_CONTENT_OFFSET = spacing.lg;
 
@@ -14,7 +16,7 @@ type Props = {
   onDone: () => void;
 };
 
-/** Écran d’accueil client — scène « camion + silhouette » façon affiche West Coast. */
+/** Écran d’accueil client — fond sunset + scène icônes façon affiche West Coast. */
 export function ClientBootOverlay({ visible, onDone }: Props) {
   const insets = useSafeAreaInsets();
 
@@ -30,49 +32,64 @@ export function ClientBootOverlay({ visible, onDone }: Props) {
 
   return (
     <Modal visible animationType="fade" statusBarTranslucent transparent>
-      <LinearGradient
-        colors={['#060103', '#5c0e22', '#0c2438', '#140208']}
-        locations={[0, 0.38, 0.72, 1]}
-        style={[styles.fill, { paddingTop: topPad }]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 0.75, y: 1 }}
-      >
-        <View style={styles.brickTexture} />
-        <View style={styles.neonTop} />
-        <Text style={styles.kicker}>HUSKO · BY NIGHT</Text>
-        <Text style={styles.headline}>LE PLUS RAPIDE DES{'\n'}MEILLEURS KEBABS</Text>
-        <Text style={styles.script}>d&apos;Angers</Text>
-
-        <View style={styles.scene}>
-          <View style={styles.truckGlow}>
-            <MaterialCommunityIcons name="truck" size={118} color={WC.neonCyan} style={styles.truckIcon} />
-            <View style={styles.headlightL} />
-            <View style={styles.headlightR} />
-          </View>
-          <View style={styles.person}>
-            <Ionicons name="person" size={72} color={WC.gold} />
-          </View>
-        </View>
-
-        <Text style={styles.banner}>LA RECETTE QUI DOMINE LA VILLE</Text>
-        <Text style={styles.hours}>LIVRAISON LUN – SAM · 20h – 00h</Text>
-        <Text style={styles.snap}>Snap · HUSKOBYNIGHT</Text>
+      <View style={styles.root} accessibilityViewIsModal>
+        <Image source={CLIENT_BOOT_HERO} style={StyleSheet.absoluteFill} resizeMode="cover" />
         <LinearGradient
-          colors={['transparent', 'rgba(0,0,0,0.35)', 'rgba(0,0,0,0.72)']}
-          locations={[0, 0.4, 1]}
-          style={styles.bootVignette}
+          colors={['rgba(12,4,8,0.45)', 'rgba(28,8,12,0.55)', 'rgba(4,1,2,0.88)']}
+          locations={[0, 0.45, 1]}
+          style={StyleSheet.absoluteFill}
           pointerEvents="none"
         />
-      </LinearGradient>
+        <LinearGradient
+          colors={['#1a0a28', '#7c2d12', '#ea580c', '#0c0305']}
+          locations={[0, 0.28, 0.55, 1]}
+          style={[StyleSheet.absoluteFill, styles.tint]}
+          pointerEvents="none"
+        />
+        <View style={[styles.fill, { paddingTop: topPad }]}>
+          <View style={styles.brickTexture} />
+          <View style={styles.neonTop} />
+          <Text style={styles.kicker}>HUSKO · BY NIGHT</Text>
+          <Text style={styles.headline}>LE PLUS RAPIDE DES{'\n'}MEILLEURS KEBABS</Text>
+          <Text style={styles.script}>d&apos;Angers</Text>
+
+          <View style={styles.scene}>
+            <View style={styles.truckGlow}>
+              <MaterialCommunityIcons name="truck" size={118} color={WC.neonCyan} style={styles.truckIcon} />
+              <View style={styles.headlightL} />
+              <View style={styles.headlightR} />
+            </View>
+            <View style={styles.person}>
+              <Ionicons name="person" size={72} color={WC.gold} />
+            </View>
+          </View>
+
+          <Text style={styles.banner}>LA RECETTE QUI DOMINE LA VILLE</Text>
+          <Text style={styles.hours}>LIVRAISON LUN – SAM · 20h – 00h</Text>
+          <Text style={styles.snap}>Snap · HUSKOBYNIGHT</Text>
+          <LinearGradient
+            colors={['transparent', 'rgba(0,0,0,0.35)', 'rgba(0,0,0,0.72)']}
+            locations={[0, 0.4, 1]}
+            style={styles.bootVignette}
+            pointerEvents="none"
+          />
+        </View>
+      </View>
     </Modal>
   );
 }
 
 const styles = StyleSheet.create({
-  fill: { flex: 1, paddingHorizontal: spacing.lg, justifyContent: 'flex-start' },
+  root: { flex: 1, backgroundColor: '#0c0305' },
+  tint: { opacity: 0.42 },
+  fill: {
+    flex: 1,
+    paddingHorizontal: spacing.lg,
+    justifyContent: 'flex-start',
+  },
   brickTexture: {
     ...StyleSheet.absoluteFillObject,
-    opacity: 0.12,
+    opacity: 0.1,
     backgroundColor: '#7f1d1d',
   },
   neonTop: {
@@ -85,16 +102,16 @@ const styles = StyleSheet.create({
     opacity: 0.85,
   },
   kicker: {
+    fontFamily: FONT.bold,
     color: WC.neonCyan,
-    fontWeight: '900',
     letterSpacing: 4,
     fontSize: 11,
     textAlign: 'center',
     marginBottom: spacing.md,
   },
   headline: {
+    fontFamily: FONT.bold,
     color: WC.white,
-    fontWeight: '900',
     fontSize: 26,
     lineHeight: 30,
     textAlign: 'center',
@@ -104,10 +121,10 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
   script: {
+    fontFamily: FONT.medium,
     marginTop: spacing.sm,
-    color: '#fca5a5',
+    color: '#fef3c7',
     fontSize: 28,
-    fontWeight: '700',
     textAlign: 'center',
     fontStyle: 'italic',
   },
@@ -156,27 +173,27 @@ const styles = StyleSheet.create({
     opacity: 0.98,
   },
   banner: {
+    fontFamily: FONT.bold,
     marginTop: spacing.xl,
     color: WC.white,
-    fontWeight: '800',
     fontSize: 13,
     textAlign: 'center',
     letterSpacing: 1,
     opacity: 0.95,
   },
   hours: {
+    fontFamily: FONT.bold,
     marginTop: spacing.md,
     color: WC.gold,
-    fontWeight: '900',
     fontSize: 15,
     textAlign: 'center',
     letterSpacing: 0.8,
   },
   snap: {
+    fontFamily: FONT.medium,
     marginTop: spacing.lg,
     color: WC.neonCyan,
     fontSize: 12,
-    fontWeight: '700',
     textAlign: 'center',
   },
   bootVignette: {

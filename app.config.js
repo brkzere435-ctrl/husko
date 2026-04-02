@@ -160,7 +160,8 @@ function huskoPlugins() {
         /** Image requise : sans drawable, le merge Android échoue (splashscreen_logo introuvable — build EAS 53beb348). */
         backgroundColor: '#120404',
         image: './assets/splash.png',
-        imageWidth: 220,
+        /** Écrans haute densité (ex. S25+) : logo natif un peu plus large. */
+        imageWidth: 300,
       },
     ],
     [

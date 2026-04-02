@@ -1,3 +1,9 @@
+import {
+  Oswald_400Regular,
+  Oswald_500Medium,
+  Oswald_700Bold,
+  useFonts,
+} from '@expo-google-fonts/oswald';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
@@ -9,6 +15,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { VariantGate } from '@/components/VariantGate';
+import { FONT } from '@/constants/fonts';
 import { colors } from '@/constants/theme';
 import {
   isRemoteSyncEnabled,
@@ -30,10 +37,18 @@ import { readHuskoExpoExtra } from '@/utils/readHuskoExpoExtra';
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
 export default function RootLayout() {
+  const [fontsLoaded, fontError] = useFonts({
+    Oswald_400Regular,
+    Oswald_500Medium,
+    Oswald_700Bold,
+  });
+  const appReady = fontsLoaded || fontError;
+
   const tickRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const otaRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
+    if (!appReady) return;
     if (isBootDebugEnabled()) {
       const cfg = Constants.expoConfig;
       const extra = readHuskoExpoExtra();
@@ -49,9 +64,9 @@ export default function RootLayout() {
     }
 
     configureNotificationHandler();
-    SystemUI.setBackgroundColorAsync(colors.bg);
-    SplashScreen.hideAsync();
-  }, []);
+    void SystemUI.setBackgroundColorAsync(colors.bg);
+    void SplashScreen.hideAsync();
+  }, [appReady]);
 
   useEffect(() => {
     const run = () => useHuskoStore.getState().expireStalePendingOrders();
@@ -91,6 +106,10 @@ export default function RootLayout() {
     };
   }, []);
 
+  if (!appReady) {
+    return null;
+  }
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
     <SafeAreaProvider>
@@ -105,7 +124,7 @@ export default function RootLayout() {
             headerBackTitle: '',
             contentStyle: { backgroundColor: 'transparent' },
             headerTitleStyle: {
-              fontWeight: '800',
+              fontFamily: FONT.bold,
               fontSize: 17,
               color: colors.text,
             },

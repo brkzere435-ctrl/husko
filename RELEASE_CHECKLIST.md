@@ -72,5 +72,7 @@ npm run release:chantiers
 
 - **JS / UI uniquement** : `npm run verify` puis le bon `npm run eas:update:hub` (ou `client`, `gerant`, `livreur`, `assistant`).
 - **Clés Maps, changement natif** : `npm run verify` puis `npm run build:apk:unified` ou `build:apk:client`, etc.
+- **Icône / splash / adaptive** : toute modification de `assets/icon.png`, `adaptive-icon.png`, `splash.png` (ou `npm run brand:assets`) impose un **nouveau build natif** (`eas build`), pas seulement une OTA — sinon le launcher garde l’ancien visuel.
+- **Vitrine sur appareil réel** : après installation de l’APK sur la cible (ex. Galaxy S25+), vérifier cold start (splash), icône dans le tiroir, puis parcours hub ou rôle (client / livreur / gérant) pour confirmer l’alignement avec la direction produit.
 
 **Synthèse** : `.env` + Google + Firebase, sync EAS, photos menu, puis `verify` et soit **OTA** soit **rebuild APK**.

@@ -4,6 +4,7 @@ import { Platform } from 'react-native';
 
 import { ClientBootOverlay } from '@/components/westcoast/ClientBootOverlay';
 import { SyncStatusPill } from '@/components/SyncStatusPill';
+import { FONT } from '@/constants/fonts';
 import { colors } from '@/constants/theme';
 
 export default function ClientLayout() {
@@ -16,7 +17,7 @@ export default function ClientLayout() {
         headerStyle: { backgroundColor: colors.bgLift },
         headerShadowVisible: false,
         headerTintColor: colors.gold,
-        headerTitleStyle: { fontWeight: '800', color: colors.text },
+        headerTitleStyle: { fontFamily: FONT.bold, color: colors.text },
         contentStyle: { backgroundColor: 'transparent' },
         headerLargeTitle: Platform.OS === 'ios',
         headerRight: () => <SyncStatusPill />,
