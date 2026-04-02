@@ -9,7 +9,7 @@
  *   node scripts/download-latest-apk.mjs all
  *
  * Sortie : dist/Husko-{Client|Gerant|Livreur}-latest.apk (gitignore)
- * Prérequis : eas login, même compte que les builds.
+ * Prérequis : eas login (ou EXPO_TOKEN en CI), même compte que les builds.
  */
 import { mkdirSync, writeFileSync, statSync } from 'fs';
 import { join } from 'path';
@@ -28,38 +28,57 @@ const VARIANTS = {
 };
 
 function runEasBuildList(profile) {
-  return execSync(
-    [
-      'npx',
-      'eas',
-      'build:list',
-      '--platform',
-      'android',
-      '-e',
-      profile,
-      '--status',
-      'finished',
-      '--limit',
-      '1',
-      '--json',
-      '--non-interactive',
-    ].join(' '),
-    {
+  const cmd = [
+    'npx',
+    'eas',
+    'build:list',
+    '--platform',
+    'android',
+    '-e',
+    profile,
+    '--status',
+    'finished',
+    '--limit',
+    '1',
+    '--json',
+    '--non-interactive',
+  ].join(' ');
+  try {
+    // stdio: ne pas laisser stderr du child sur la console (PowerShell affiche une erreur pour les messages EAS type « update available »).
+    return execSync(cmd, {
       cwd: ROOT,
       encoding: 'utf8',
       maxBuffer: 20 * 1024 * 1024,
       shell: true,
       env: { ...process.env, EAS_BUILD_NO_EXPO_GO_WARNING: 'true' },
-    }
-  ).trim();
+      stdio: ['ignore', 'pipe', 'pipe'],
+    }).trim();
+  } catch (e) {
+    const errText = [e.stderr, e.stdout].filter(Boolean).join('\n').trim();
+    throw new Error(
+      errText ||
+        `eas build:list a échoué (profil ${profile}). Vérifiez « eas login » ou EXPO_TOKEN, puis qu’un build Android « finished » existe pour ce profil.`
+    );
+  }
 }
 
 async function downloadUrl(url, dest) {
-  const res = await fetch(url, { redirect: 'follow' });
-  if (!res.ok) throw new Error(`HTTP ${res.status} ${url}`);
-  mkdirSync(join(ROOT, 'dist'), { recursive: true });
-  const buf = Buffer.from(await res.arrayBuffer());
-  writeFileSync(dest, buf);
+  let lastErr;
+  for (let attempt = 1; attempt <= 2; attempt++) {
+    try {
+      const res = await fetch(url, { redirect: 'follow' });
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}`);
+      }
+      mkdirSync(join(ROOT, 'dist'), { recursive: true });
+      const buf = Buffer.from(await res.arrayBuffer());
+      writeFileSync(dest, buf);
+      return;
+    } catch (err) {
+      lastErr = err;
+    }
+  }
+  throw new Error(`${lastErr?.message || lastErr} — ${url}`);
 }
 
 async function downloadOne(key) {
@@ -68,10 +87,24 @@ async function downloadOne(key) {
     throw new Error(`Profil inconnu : ${key} (unified | assistant | client | gerant | livreur | all)`);
 
   const raw = runEasBuildList(v.profile);
-  const arr = JSON.parse(raw);
+  let arr;
+  try {
+    arr = JSON.parse(raw);
+  } catch {
+    throw new Error(
+      `Réponse « eas build:list » invalide (pas du JSON). Aperçu : ${raw.slice(0, 200)}…`
+    );
+  }
+  if (!Array.isArray(arr) || arr.length === 0) {
+    throw new Error(
+      `Aucun build Android terminé pour le profil « ${v.profile} ». Lancez : npm run build:apk:unified — ou attendez la fin du build sur expo.dev.`
+    );
+  }
   const build = arr[0];
   if (!build?.artifacts?.applicationArchiveUrl) {
-    throw new Error(`Aucun build ${v.profile} terminé avec artefact APK.`);
+    throw new Error(
+      `Build ${v.profile} sans URL d’artefact (statut ou artefacts indisponibles). Vérifiez le build sur expo.dev.`
+    );
   }
   const url = build.artifacts.applicationArchiveUrl;
   const dest = join(ROOT, 'dist', v.file);
