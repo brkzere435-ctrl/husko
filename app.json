@@ -3,7 +3,7 @@
     "slug": "husko",
     "android": {
       "package": "com.husko.app",
-      "versionCode": 39
+      "versionCode": 40
     },
     "extra": {
       "eas": {
