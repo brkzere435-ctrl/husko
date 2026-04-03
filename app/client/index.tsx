@@ -249,10 +249,10 @@ export default function ClientMenuScreen() {
             viewabilityConfig={viewabilityConfig}
             onViewableItemsChanged={onViewableItemsChanged}
             style={styles.listFlex}
-            drawDistance={280}
+            drawDistance={200}
             ListHeaderComponent={
               <View style={styles.headerBlock}>
-                <DeploymentHints mode="alerts" mapsRelevant={false} style={styles.hint} />
+                <DeploymentHints mode="alerts" mapsRelevant style={styles.hint} />
                 <MenuHero />
                 <ScrollView
                   horizontal
@@ -601,7 +601,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
   },
   rowPressed: { opacity: 0.9 },
-  rowText: { flex: 1, paddingRight: spacing.sm },
+  rowText: { flex: 1, minWidth: 0, paddingRight: spacing.sm },
   rowTitle: {
     ...typography.body,
     color: WC.white,

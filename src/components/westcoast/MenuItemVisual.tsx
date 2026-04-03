@@ -1,5 +1,5 @@
 import type { ComponentProps } from 'react';
-import { memo } from 'react';
+import { memo, useEffect, useState } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -38,17 +38,27 @@ function MenuItemVisualInner({ item, size }: Props) {
   const g = CAT_GRAD[item.category];
   const icon = CAT_ICON[item.category];
   const photo = getMenuImage(item);
+  const [imageFailed, setImageFailed] = useState(false);
 
-  if (photo) {
+  useEffect(() => {
+    setImageFailed(false);
+  }, [item.id]);
+
+  if (photo && !imageFailed) {
     const placeholderBg = CAT_GRAD[item.category][0];
+    const thumb = size === 'sm';
     return (
       <View style={[styles.wrap, { width: side, height: side, backgroundColor: placeholderBg }]}>
         <Image
           source={photo}
+          recyclingKey={item.id}
           style={styles.photo}
           contentFit="cover"
-          transition={220}
+          transition={thumb ? 0 : 220}
           cachePolicy="memory-disk"
+          priority={thumb ? 'low' : 'high'}
+          allowDownscaling
+          onError={() => setImageFailed(true)}
           accessibilityLabel={item.name}
           accessibilityIgnoresInvertColors
         />

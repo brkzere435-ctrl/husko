@@ -1,7 +1,7 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { Link, router } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { Button, Dialog, Portal, Text, TextInput } from 'react-native-paper';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -22,7 +22,13 @@ import { ANGERS_DEFAULT, useHuskoStore } from '@/stores/useHuskoStore';
 import { fitMapRegion } from '@/utils/fitMapRegion';
 import { hapticSuccess } from '@/utils/haptics';
 
+/** Sous cette largeur (dp), carte GTA + légende passent en colonne pour éviter l’étirement horizontal. */
+const MAP_STACK_BREAKPOINT = 420;
+
 export default function PanierScreen() {
+  const { width: windowW } = useWindowDimensions();
+  const mapStackVertical = windowW < MAP_STACK_BREAKPOINT;
+
   const cart = useHuskoStore((s) => s.cart);
   const clearCart = useHuskoStore((s) => s.clearCart);
   const placeOrder = useHuskoStore((s) => s.placeOrder);
@@ -85,7 +91,7 @@ export default function PanierScreen() {
               ) : null}
             </>
           ) : null}
-          <View style={styles.mapRow}>
+          <View style={[styles.mapRow, mapStackVertical && styles.mapRowStack]}>
             <GTAMiniMap
               region={region}
               driver={driver}
@@ -94,7 +100,7 @@ export default function PanierScreen() {
               showDest
               hudFooter="PREVIEW MAP · ANGERS"
             />
-            <View style={styles.mapLegend}>
+            <View style={[styles.mapLegend, mapStackVertical && styles.mapLegendStacked]}>
               <Text style={typography.bodyMuted}>
                 QG Husko : bâtiment en H (néon) · pin rouge = adresse de livraison · lowrider = livreur.
               </Text>
@@ -129,10 +135,10 @@ export default function PanierScreen() {
             ) : (
               cart.map((line) => (
                 <View key={line.item.id} style={styles.line}>
-                  <Text style={typography.body}>
+                  <Text style={[typography.body, styles.lineName]} numberOfLines={4}>
                     {line.item.name} × {line.qty}
                   </Text>
-                  <Text style={typography.price}>
+                  <Text style={[typography.price, styles.linePrice]}>
                     {(line.item.price * line.qty).toFixed(2)} €
                   </Text>
                 </View>
@@ -148,8 +154,10 @@ export default function PanierScreen() {
             style={styles.totalRow}
           >
             <View style={styles.totalRowInner}>
-              <Text style={styles.totalLabel}>Total</Text>
-              <Text style={[typography.price, styles.totalBig]}>{total.toFixed(2)} €</Text>
+              <Text style={[styles.totalLabel, styles.totalLabelShrink]}>Total</Text>
+              <Text style={[typography.price, styles.totalBig, styles.totalAmount]}>
+                {total.toFixed(2)} €
+              </Text>
             </View>
           </LinearGradient>
 
@@ -273,7 +281,18 @@ const styles = StyleSheet.create({
   emptyCartBtn: { marginTop: spacing.sm },
   infra: { marginTop: spacing.lg },
   mapRow: { flexDirection: 'row', marginBottom: spacing.lg, alignItems: 'flex-start', gap: spacing.md },
-  mapLegend: { flex: 1, justifyContent: 'center' },
+  mapRowStack: {
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: spacing.md,
+  },
+  mapLegend: { flex: 1, minWidth: 0, justifyContent: 'center' },
+  mapLegendStacked: {
+    flex: 0,
+    flexGrow: 0,
+    alignSelf: 'stretch',
+    width: '100%',
+  },
   input: {
     marginTop: spacing.xs,
     backgroundColor: colors.cardElevated,
@@ -281,10 +300,14 @@ const styles = StyleSheet.create({
   line: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    gap: spacing.sm,
     paddingVertical: spacing.sm,
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderColor: colors.borderSubtle,
   },
+  lineName: { flex: 1, minWidth: 0 },
+  linePrice: { flexShrink: 0 },
   totalRow: {
     marginBottom: spacing.lg,
     marginTop: spacing.sm,
@@ -298,6 +321,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    gap: spacing.sm,
     paddingVertical: spacing.md,
     paddingHorizontal: spacing.md,
   },
@@ -306,7 +330,9 @@ const styles = StyleSheet.create({
     fontSize: 18,
     letterSpacing: 0.5,
   },
+  totalLabelShrink: { flex: 1, minWidth: 0 },
   totalBig: { fontSize: 28 },
+  totalAmount: { flexShrink: 0 },
   paymentBox: {
     backgroundColor: colors.glass,
     borderRadius: radius.xl,

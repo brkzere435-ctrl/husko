@@ -5,7 +5,7 @@ Ce fichier résume **où est la vérité** et **quelles commandes** utiliser. Le
 ## Direction produit et technique (fil unique)
 
 - **Source de vérité :** [`src/constants/productDirection.ts`](src/constants/productDirection.ts) — `PRODUCT_DIRECTION`, `PRODUCT_DEFINITION_OF_DONE`, `PRODUCT_DELIVERABLE`.
-- **Stack :** Expo Router + React Native (ce dépôt). UI : tokens **West Coast / Lowrider** dans `src/constants/theme.ts` et `src/constants/westCoastTheme.ts`.
+- **Stack :** Expo Router + React Native (ce dépôt). UI : tokens **West Coast / Lowrider** dans `src/constants/theme.ts` et `src/constants/westCoastTheme.ts`. **Pas de Flutter** dans ce dépôt (pas de `pubspec.yaml` / Dart) : pour un projet Flutter, ouvrir dans Cursor **l’autre dossier** racine qui contient `pubspec.yaml`.
 - **Données multi-appareils :** Firestore (`EXPO_PUBLIC_FIREBASE_*`), `src/services/firebaseRemote.ts`, `firestore.rules`.
 - **Critères « terminé » typiques :** `npm run verify` ; parcours démo sur **APK installé** ; pas de régression visuelle majeure sur l’écran prioritaire (voir le même fichier TS).
 
@@ -22,7 +22,7 @@ Ce fichier résume **où est la vérité** et **quelles commandes** utiliser. Le
 | Vérifier clés Firebase (.env) | `npm run firebase:env:check` — strict : `firebase:env:check:strict` |
 | Pousser Firebase / Maps vers EAS | `npm run eas:sync:firebase` · `npm run eas:sync:maps` |
 
-Déploiement, Maps, Firebase, OTA : **[`DEPLOIEMENT.md`](DEPLOIEMENT.md)**. Vue utilisateur : **[`README.md`](README.md)**.
+Déploiement, Maps, Firebase, OTA : **[`DEPLOIEMENT.md`](DEPLOIEMENT.md)**. Parcours démo (builds, canaux, synchro) : **[`docs/parcours-demo-firebase.md`](docs/parcours-demo-firebase.md)**. Visuel West Coast (Maps, HUD, photos) : **[`docs/visuel-west-coast-checklist.md`](docs/visuel-west-coast-checklist.md)**. Vue utilisateur : **[`README.md`](README.md)**.
 
 ## Cursor / assistant
 

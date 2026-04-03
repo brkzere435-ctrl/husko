@@ -1,7 +1,7 @@
 import * as Clipboard from 'expo-clipboard';
 import * as Linking from 'expo-linking';
 import { memo, useEffect, useMemo, useState } from 'react';
-import { Image, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Image, Pressable, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { Button, Dialog, Portal, Snackbar, Text } from 'react-native-paper';
 import QRCode from 'react-native-qrcode-svg';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -127,6 +127,14 @@ const DistributionRoleTab = memo(function DistributionRoleTab({
 });
 
 export default function DistributionScreen() {
+  const { width: screenW } = useWindowDimensions();
+  const qrFrameSide = useMemo(
+    () => Math.max(160, Math.min(280, Math.floor(screenW - spacing.md * 2))),
+    [screenW]
+  );
+  const qrPngSide = Math.max(120, qrFrameSide - 20);
+  const qrVectorSize = Math.max(120, Math.min(200, qrFrameSide - spacing.md * 2));
+
   const urls = useMemo(() => getDistributionApkUrls(), []);
   const { client, livreur, gerant, unified, assistant } = urls;
   /** APK gérant seul : pas de QR hub unifié ni Copilote (rôles déjà couverts ailleurs). */
@@ -264,10 +272,15 @@ export default function DistributionScreen() {
                     <Text style={styles.qrFileLabel}>
                       PNG haute définition · assets/distribution-qr/{tab}.png
                     </Text>
-                    <View style={[styles.pngFrame, { borderColor: roleStyle.accent }]}>
+                    <View
+                      style={[
+                        styles.pngFrame,
+                        { width: qrFrameSide, height: qrFrameSide, borderColor: roleStyle.accent },
+                      ]}
+                    >
                       <Image
                         source={DISTRIBUTION_QR_IMAGES[tab]}
-                        style={styles.qrPng}
+                        style={{ width: qrPngSide, height: qrPngSide }}
                         resizeMode="contain"
                         accessibilityLabel={`QR installation ${roleStyle.shortLabel}`}
                       />
@@ -277,7 +290,7 @@ export default function DistributionScreen() {
                 <View style={[styles.qrInner, { borderColor: roleStyle.accent }]}>
                   <QRCode
                     value={activeUrl}
-                    size={200}
+                    size={qrVectorSize}
                     backgroundColor={colors.cardElevated}
                     color={roleStyle.qrDark}
                   />
@@ -446,8 +459,6 @@ const styles = StyleSheet.create({
     marginBottom: spacing.sm,
   },
   pngFrame: {
-    width: 280,
-    height: 280,
     marginBottom: spacing.lg,
     borderRadius: radius.md,
     borderWidth: 2,
@@ -456,7 +467,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  qrPng: { width: 260, height: 260 },
   qrInner: {
     padding: spacing.md,
     borderRadius: radius.md,

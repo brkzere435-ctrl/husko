@@ -53,7 +53,7 @@ export function GTAHudFrame({ children, size = 156, style, footerTag = 'WESTSIDE
             <Text style={styles.hudCompass}>▲</Text>
           </View>
           <View style={styles.bottomHud}>
-            <Text style={styles.hudFooter} numberOfLines={1}>
+            <Text style={styles.hudFooter} numberOfLines={2}>
               {footerTag}
             </Text>
           </View>

@@ -216,5 +216,5 @@ const styles = StyleSheet.create({
     backgroundColor: colors.glass,
   },
   row: { flexDirection: 'row', gap: spacing.sm, alignItems: 'center' },
-  send: { flex: 1 },
+  send: { flex: 1, minWidth: 0 },
 });

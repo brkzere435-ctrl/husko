@@ -67,6 +67,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     gap: spacing.md,
   },
-  rowLabel: { flex: 1 },
+  rowLabel: { flex: 1, minWidth: 0 },
   hint: { marginTop: spacing.xs, color: colors.textMuted, lineHeight: 18 },
 });
