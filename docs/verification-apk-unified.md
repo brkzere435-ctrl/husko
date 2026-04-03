@@ -2,7 +2,7 @@
 
 Procédure pour confirmer qu’une APK installée correspond au profil EAS **`apk-unified`** (variante **all**, canal OTA **`hub`**). Référence code : [`src/components/OtaUpdateSection.tsx`](../src/components/OtaUpdateSection.tsx), profil [`eas.json`](../eas.json) (`apk-unified`).
 
-**Référence versionCode :** après un `npm run build:apk:unified` réussi, la valeur attendue pour **Build natif (APK / store)** sur l’appareil est celle de `expo.android.versionCode` dans [`app.json`](../app.json) (bump automatique EAS à chaque build). Elle augmente à chaque nouveau build ; ne pas se fier à un numéro figé dans une ancienne doc.
+**Référence versionCode :** le profil **`apk-unified`** n’utilise pas `autoIncrement` dans [`eas.json`](../eas.json). La valeur embarquée dans l’APK est celle de **`expo.android.versionCode` dans [`app.json`](../app.json) au moment du commit** qui part sur EAS (incrément **manuel** +1 avant chaque nouveau build hub, puis commit — voir tableau « Risques courants » dans [`DEPLOIEMENT.md`](../DEPLOIEMENT.md)). Sur l’appareil, **Build natif (APK / store)** doit correspondre à ce `versionCode`.
 
 ## Ce que tu installes
 
@@ -24,7 +24,7 @@ Procédure pour confirmer qu’une APK installée correspond au profil EAS **`ap
 | Pastille mode | **Build installé** (pas « développement (Metro) ») |
 | **Variante app (extra)** | **`all`** |
 | **Canal EAS Update** | **`hub`** |
-| **Build natif (APK / store)** | **Identique** au `versionCode` dans `app.json` après le dernier build EAS (ex. **49** si le dépôt est aligné sur le dernier build unifié) |
+| **Build natif (APK / store)** | **Identique** au `expo.android.versionCode` de `app.json` **tel que commité** pour le build EAS que tu viens d’installer (pas un numéro figé dans une doc ; lire la valeur courante dans le dépôt ou l’écran Réglages) |
 | Dernier bundle OTA | Peut être vide ou « bundle embarqué » tant qu’aucun `eas update` n’a été poussé sur `hub` |
 
 Si **variante ≠ all** ou **canal ≠ hub**, ce n’est pas l’APK du profil `apk-unified` (ou une ancienne installation).
