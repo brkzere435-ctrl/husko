@@ -16,6 +16,8 @@ Ce fichier résume **où est la vérité** et **quelles commandes** utiliser. Le
 | Installer les deps | `npm install` |
 | Lancer l’app (dev) | `npx expo start` (variantes : `npm run start:client` / `start:gerant` / `start:livreur` / `start:hub`) |
 | Gate qualité (CI locale) | `npm run verify` puis éventuellement `npm run release:gate` |
+| Gate + **photos menu distinctes** (pas de placeholders dupliqués) | `npm run release:gate:pro` — échoue si les PNG `assets/menu/` sont encore majoritairement identiques en taille ; sinon `verify:menu-visual-pro` / `verify:menu-visual-pro:strict` |
+| Après changement d’images menu (flyer / stock) | `npm run assets:menu:verify` — présence des fichiers + diversité des tailles (pas un seul PNG dupliqué 27×) |
 | APK hub (EAS), attente jusqu’à la fin | `npm run build:apk:unified` (après `eas login`, secrets — voir `DEPLOIEMENT.md`) |
 | APK hub (EAS), **sans bloquer** le terminal / l’IDE (Cursor) | `npm run build:apk:unified:queue` — même build avec `--no-wait` ; suivre la fin avec `npx eas build:list --platform android --limit 5 --non-interactive` ou le dashboard Expo, puis `npm run apk:download:unified` si besoin |
 | Checklist release | [`RELEASE_CHECKLIST.md`](RELEASE_CHECKLIST.md) |

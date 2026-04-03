@@ -3,6 +3,7 @@
  * Sortie 0 ; avertissements seulement (ne casse pas les clones sans .env).
  * Usage : npm run chantiers:check
  */
+import { execSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'fs';
 import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
@@ -117,6 +118,11 @@ if (menuIds.length === 0) {
   console.log('   • Impossible de lire les ids depuis menuImages.ts\n');
 } else if (missing.length === 0) {
   console.log(`   • ${menuIds.length} fichiers attendus : présents\n`);
+  try {
+    execSync('node scripts/check-menu-visual-pro.mjs', { cwd: root, stdio: 'inherit' });
+  } catch {
+    /* script sort normalement en 0 ; garder la checklist vivante */
+  }
 } else {
   console.log(`   • Manquants (${missing.length}) : ${missing.join(', ')}`);
   console.log('   • Remplacer ou ajouter les PNG (voir assets/menu/README.txt)\n');

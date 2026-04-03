@@ -66,7 +66,12 @@ npm run release:chantiers
 
 ## 4. Photos menu
 
-- Fichiers `assets/menu/<id>.png` (voir [assets/menu/README.txt](assets/menu/README.txt) et `src/constants/menuImages.ts`).
+- Fichiers `assets/menu/<id>.png` (voir [assets/menu/README.txt](assets/menu/README.txt), [docs/client-menu-assets.md](docs/client-menu-assets.md) et `src/constants/menuImages.ts`).
+- **Présence des fichiers** : `npm run verify:menu-assets` (déjà dans `npm run verify`).
+- **Pas de doublons « un export recopié 27 fois »** : si la majorité des PNG ont la **même taille en octets**, les vignettes resteront visuellement identiques — ce n’est pas corrigible par du code UI seul. Détection : `npm run verify:menu-visual-pro` (avertissement, sortie 0).
+- **Avant une release où le menu doit être « pro »** : remplacer chaque PNG par une vraie photo (même nom de fichier), puis lancer **`npm run verify:menu-visual-pro:strict`** (échoue tant que les placeholders massifs restent).
+- **Gate release complète + visuels menu stricts** : `npm run release:gate:pro` (enchaîne `release:gate` et la vérification stricte ci-dessus). Tant que les assets ne sont pas refaits, cette commande échouera — utiliser `release:gate` seul si tu livres encore avec des visuels temporaires.
+- Dérogation locale exceptionnelle : `HUSKO_ALLOW_MENU_PLACEHOLDERS=1` (voir [docs/client-menu-assets.md](docs/client-menu-assets.md)).
 
 ## 5. Livrer
 

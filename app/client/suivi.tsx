@@ -325,9 +325,9 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.md,
     paddingHorizontal: spacing.md,
     borderRadius: radius.lg,
-    backgroundColor: 'rgba(127, 29, 29, 0.35)',
+    backgroundColor: 'rgba(251, 146, 60, 0.22)',
     borderWidth: 1,
-    borderColor: 'rgba(248, 113, 113, 0.35)',
+    borderColor: 'rgba(253, 224, 71, 0.35)',
     alignItems: 'center',
   },
   etaHeroKicker: {

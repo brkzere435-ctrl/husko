@@ -5,18 +5,17 @@
 import { WC } from '@/constants/westCoastTheme';
 import { colors } from '@/constants/theme';
 
-/** Bloc hero (carte néon sous le header de liste) — tons brique / nuit / cyan profond. */
+/** Bloc hero — dégradé crépuscule prune / corail (sunset West Coast). */
 export const clientMenuHero = {
-  gradientColors: ['rgba(10, 3, 6, 0.97)', 'rgba(72, 12, 28, 0.92)', 'rgba(8, 32, 48, 0.95)'] as const,
+  gradientColors: ['rgba(45, 32, 58, 0.95)', 'rgba(120, 72, 88, 0.9)', 'rgba(40, 52, 72, 0.92)'] as const,
   gradientLocations: [0, 0.48, 1] as const,
-  /** Bordure carte hero — légèrement plus marquée que `WC.fireDim` pour le cadre néon. */
-  cardBorder: 'rgba(255, 90, 56, 0.5)',
-  innerGlowBorder: 'rgba(253, 230, 138, 0.12)',
+  cardBorder: 'rgba(251, 146, 60, 0.42)',
+  innerGlowBorder: 'rgba(253, 224, 71, 0.14)',
   wcBrandTextShadow: WC.shadow,
-  statusClosedBg: 'rgba(127, 29, 29, 0.35)',
-  statusClosedBorder: 'rgba(248, 113, 113, 0.4)',
-  statusDotOff: '#fca5a5',
-  sureHourBannerBg: 'rgba(255, 90, 56, 0.08)',
+  statusClosedBg: 'rgba(180, 83, 9, 0.28)',
+  statusClosedBorder: 'rgba(251, 191, 36, 0.35)',
+  statusDotOff: '#fcd34d',
+  sureHourBannerBg: 'rgba(251, 146, 60, 0.08)',
   textMuted: 'rgba(250, 250, 250, 0.65)',
   textMutedStrong: 'rgba(250, 250, 250, 0.75)',
   descMuted: 'rgba(250, 250, 250, 0.6)',
@@ -24,46 +23,46 @@ export const clientMenuHero = {
 
 /** Barre titre + séparateur sous le statut système. */
 export const clientMenuChrome = {
-  borderBottom: 'rgba(253, 230, 138, 0.15)',
-  background: 'rgba(6, 2, 5, 0.72)',
+  borderBottom: 'rgba(253, 224, 71, 0.18)',
+  background: 'rgba(28, 22, 30, 0.78)',
 } as const;
 
 /** Bouton panier header + pastille quantité. */
 export const clientMenuCart = {
-  btnBorder: 'rgba(253, 230, 138, 0.35)',
-  btnBg: 'rgba(0, 0, 0, 0.35)',
+  btnBorder: 'rgba(253, 224, 71, 0.38)',
+  btnBg: 'rgba(28, 22, 30, 0.45)',
   badgeBg: colors.accentMid,
   badgeBorder: 'rgba(255, 255, 255, 0.85)',
 } as const;
 
 /** Chips de filtre catégorie. */
 export const clientMenuChips = {
-  onBg: 'rgba(250, 250, 250, 0.96)',
-  onBorder: 'rgba(250, 250, 250, 0.96)',
-  offBg: 'rgba(127, 29, 29, 0.55)',
-  offBorder: 'rgba(248, 113, 113, 0.45)',
-  txt: 'rgba(250, 250, 250, 0.92)',
-  txtOn: '#1c1917',
+  onBg: 'rgba(255, 247, 237, 0.96)',
+  onBorder: 'rgba(255, 247, 237, 0.96)',
+  offBg: 'rgba(124, 58, 237, 0.28)',
+  offBorder: 'rgba(251, 146, 60, 0.35)',
+  txt: 'rgba(255, 247, 237, 0.92)',
+  txtOn: '#292524',
 } as const;
 
 /** Rangée produit (FlashList). */
 export const clientMenuRow = {
-  background: 'rgba(8, 4, 6, 0.72)',
+  background: 'rgba(36, 30, 38, 0.82)',
   border: WC.fireDim,
   shadowColor: WC.fire,
-  shadowOpacity: 0.14,
+  shadowOpacity: 0.12,
   shadowRadius: 14,
   shadowOffset: { width: 0, height: 4 } as const,
-  pricePillBg: 'rgba(127, 29, 29, 0.92)',
-  pricePillBorder: 'rgba(253, 230, 138, 0.85)',
+  pricePillBg: 'rgba(194, 65, 12, 0.75)',
+  pricePillBorder: 'rgba(253, 224, 71, 0.75)',
 } as const;
 
 /** Dock bas (résumé panier + CTA). */
 export const clientMenuDock = {
   hairlineColors: [
-    'rgba(255, 90, 56, 0.95)',
-    'rgba(253, 230, 138, 0.65)',
-    'rgba(220, 40, 40, 0.55)',
+    'rgba(251, 146, 60, 0.85)',
+    'rgba(253, 224, 71, 0.7)',
+    'rgba(167, 139, 250, 0.45)',
   ] as const,
-  barBg: 'rgba(6, 2, 4, 0.97)',
+  barBg: 'rgba(22, 18, 26, 0.96)',
 } as const;

@@ -1,8 +1,6 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { StyleSheet, View } from 'react-native';
 
-import { WC } from '@/constants/westCoastTheme';
-
 /**
  * Halos doux en fond (bokeh) — ajoute de la profondeur sans images lourdes.
  * Reste sous le contenu ; ne capte pas les touches.
@@ -14,7 +12,7 @@ export function HuskoAmbientGlow() {
       <View style={[styles.orb, styles.orbCyan]} />
       <View style={[styles.orb, styles.orbGold]} />
       <LinearGradient
-        colors={['transparent', 'rgba(0,0,0,0.35)', 'rgba(0,0,0,0.55)']}
+        colors={['transparent', 'rgba(45, 28, 40, 0.22)', 'rgba(28, 18, 26, 0.38)']}
         locations={[0, 0.55, 1]}
         style={styles.vignette}
       />
@@ -31,31 +29,31 @@ const styles = StyleSheet.create({
     position: 'absolute',
     borderRadius: 999,
   },
-  /** Haut-gauche — chaleur brique / rose */
+  /** Haut-gauche — halo pêche / corail sunset */
   orbRose: {
     width: 320,
     height: 320,
     top: -80,
     left: -100,
-    backgroundColor: 'rgba(220, 38, 38, 0.14)',
+    backgroundColor: 'rgba(251, 146, 60, 0.14)',
     transform: [{ scaleX: 1.15 }],
   },
-  /** Centre-droit — reflet néon */
+  /** Centre-droit — reflet ciel crépusculaire (lavande / cyan doux) */
   orbCyan: {
     width: 220,
     height: 220,
     top: '28%',
     right: -70,
-    backgroundColor: WC.neonCyanDim,
-    opacity: 0.45,
+    backgroundColor: 'rgba(167, 139, 250, 0.12)',
+    opacity: 0.55,
   },
-  /** Bas — halo or */
+  /** Bas — halo miel / golden hour */
   orbGold: {
     width: 280,
     height: 200,
     bottom: -60,
     left: '12%',
-    backgroundColor: 'rgba(253, 230, 138, 0.07)',
+    backgroundColor: 'rgba(253, 224, 71, 0.09)',
   },
   /** Assombrit légèrement les bords pour centrer le regard */
   vignette: {

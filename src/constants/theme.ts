@@ -1,32 +1,33 @@
 /**
- * Design system Husko — dark mode marqué, brique / noir profond, accents feu (affiche lowrider).
+ * Design system Husko — ambiance coucher de soleil West Coast / GTA dusk :
+ * tons chauds adoucis (prune, corail, pêche), pas de rouge sang ni noir pur.
  */
 export const colors = {
-  bg: '#020101',
-  bgLift: '#0c0404',
+  bg: '#1a1418',
+  bgLift: '#261e24',
   /** Cartes et listes */
-  card: '#140606',
-  cardElevated: '#1c0a0a',
+  card: '#2e262e',
+  cardElevated: '#3a3238',
   /** Bordures */
-  border: '#4a1818',
-  borderSubtle: 'rgba(74, 24, 24, 0.5)',
-  borderGlow: 'rgba(255, 120, 72, 0.38)',
-  /** Marque — rouge / orange feu */
-  accent: '#ff4d2a',
-  accentMid: '#e02818',
-  accentDeep: '#5c0a06',
-  accentDim: '#3d0808',
-  text: '#faf8f6',
-  textMuted: '#b0a0a0',
-  gold: '#f2d45c',
-  goldDim: '#c9a028',
-  posterRed: '#d42828',
+  border: 'rgba(251, 191, 176, 0.28)',
+  borderSubtle: 'rgba(244, 200, 180, 0.2)',
+  borderGlow: 'rgba(251, 146, 60, 0.42)',
+  /** Marque — corail / orange sunset */
+  accent: '#fb923c',
+  accentMid: '#ea580c',
+  accentDeep: '#c2410c',
+  accentDim: '#5c2d24',
+  text: '#fff7ed',
+  textMuted: '#d4c4c8',
+  gold: '#fcd34d',
+  goldDim: '#d97706',
+  posterRed: '#e85d4a',
   /** Dock / overlays */
-  mapOverlay: 'rgba(4, 1, 1, 0.94)',
-  glass: 'rgba(12, 4, 4, 0.9)',
-  brandGlow: 'rgba(255, 90, 56, 0.14)',
-  /** Fond écran (LinearGradient) */
-  gradient: ['#010000', '#100505', '#1a0806', '#040101'] as const,
+  mapOverlay: 'rgba(22, 16, 22, 0.92)',
+  glass: 'rgba(38, 30, 38, 0.88)',
+  brandGlow: 'rgba(251, 146, 60, 0.12)',
+  /** Fond écran (LinearGradient) — crépuscule prune → corail doux */
+  gradient: ['#2d1f35', '#4a3042', '#5c3d4a', '#1e1619'] as const,
 };
 
 export const spacing = {
@@ -98,17 +99,17 @@ export const surface = {
   },
   /** Cartes / blocs néon (hub, menu, distribution) — bordure feu légère + ombre. */
   neonPanel: {
-    backgroundColor: 'rgba(0,0,0,0.52)',
+    backgroundColor: 'rgba(28, 22, 30, 0.72)',
     borderRadius: radius.xl,
     borderWidth: 1,
-    borderColor: 'rgba(255, 90, 56, 0.3)',
+    borderColor: 'rgba(251, 146, 60, 0.28)',
     ...elevation.card,
   },
   neonPanelStrong: {
-    backgroundColor: 'rgba(0,0,0,0.55)',
+    backgroundColor: 'rgba(30, 24, 32, 0.78)',
     borderRadius: radius.xl,
     borderWidth: 2,
-    borderColor: 'rgba(255, 90, 56, 0.42)',
+    borderColor: 'rgba(251, 146, 60, 0.38)',
     ...elevation.card,
   },
 } as const;

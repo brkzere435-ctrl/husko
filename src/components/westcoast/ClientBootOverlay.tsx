@@ -35,13 +35,13 @@ export function ClientBootOverlay({ visible, onDone }: Props) {
       <View style={styles.root} accessibilityViewIsModal>
         <Image source={CLIENT_BOOT_HERO} style={StyleSheet.absoluteFill} resizeMode="cover" />
         <LinearGradient
-          colors={['rgba(12,4,8,0.45)', 'rgba(28,8,12,0.55)', 'rgba(4,1,2,0.88)']}
+          colors={['rgba(60, 40, 72, 0.35)', 'rgba(180, 90, 70, 0.4)', 'rgba(24, 18, 22, 0.82)']}
           locations={[0, 0.45, 1]}
           style={StyleSheet.absoluteFill}
           pointerEvents="none"
         />
         <LinearGradient
-          colors={['#1a0a28', '#7c2d12', '#ea580c', '#0c0305']}
+          colors={['#4c3d60', '#c07868', '#fbbf77', '#1e1618']}
           locations={[0, 0.28, 0.55, 1]}
           style={[StyleSheet.absoluteFill, styles.tint]}
           pointerEvents="none"
@@ -61,7 +61,7 @@ export function ClientBootOverlay({ visible, onDone }: Props) {
           <Text style={styles.hours}>LIVRAISON LUN – SAM · 20h – 00h</Text>
           <Text style={styles.snap}>Snap · HUSKOBYNIGHT</Text>
           <LinearGradient
-            colors={['transparent', 'rgba(0,0,0,0.35)', 'rgba(0,0,0,0.72)']}
+            colors={['transparent', 'rgba(40, 28, 38, 0.25)', 'rgba(24, 18, 24, 0.55)']}
             locations={[0, 0.4, 1]}
             style={styles.bootVignette}
             pointerEvents="none"
@@ -73,8 +73,8 @@ export function ClientBootOverlay({ visible, onDone }: Props) {
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: '#0c0305' },
-  tint: { opacity: 0.42 },
+  root: { flex: 1, backgroundColor: '#1e1618' },
+  tint: { opacity: 0.38 },
   fill: {
     flex: 1,
     paddingHorizontal: spacing.lg,
@@ -82,8 +82,8 @@ const styles = StyleSheet.create({
   },
   brickTexture: {
     ...StyleSheet.absoluteFillObject,
-    opacity: 0.1,
-    backgroundColor: '#7f1d1d',
+    opacity: 0.08,
+    backgroundColor: '#c084fc',
   },
   neonTop: {
     position: 'absolute',

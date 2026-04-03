@@ -9,7 +9,7 @@ export function resolveDecorPreset(role: AppVariant): DecorPreset {
 }
 
 export type DecorPresetConfig = {
-  /** Gradient principal (4 stops, coin brick → nuit). */
+  /** Gradient principal (4 stops, ciel crépusculaire → horizon corail → base chaude). */
   baseGradient: readonly [string, string, string, string];
   baseLocations: readonly [number, number, number, number];
   /** Voile néon diagonal (3 stops). */
@@ -21,35 +21,35 @@ export type DecorPresetConfig = {
 
 export const DECOR_PRESETS: Record<DecorPreset, DecorPresetConfig> = {
   hub: {
-    baseGradient: ['#12040a', '#5c1a0a', '#1a3050', '#0a0305'],
-    baseLocations: [0, 0.3, 0.65, 1],
-    neonOverlay: ['transparent', 'rgba(255,90,56,0.1)', 'rgba(34,211,238,0.07)'],
-    neonOpacity: 0.94,
+    baseGradient: ['#3d2f4a', '#7c4e6e', '#d97757', '#1e1619'],
+    baseLocations: [0, 0.3, 0.62, 1],
+    neonOverlay: ['transparent', 'rgba(251,146,60,0.09)', 'rgba(167,139,250,0.08)'],
+    neonOpacity: 0.9,
     ambientOrbs: true,
   },
   gerant: {
-    baseGradient: ['#140303', '#3a1208', '#1a0a0c', '#140303'],
-    baseLocations: [0, 0.36, 0.72, 1],
-    neonOverlay: ['transparent', 'rgba(255,90,56,0.08)', 'rgba(250,204,21,0.07)'],
-    neonOpacity: 0.9,
+    baseGradient: ['#2e2435', '#5c3d52', '#b4533a', '#1c1418'],
+    baseLocations: [0, 0.36, 0.7, 1],
+    neonOverlay: ['transparent', 'rgba(251,146,60,0.07)', 'rgba(253,224,71,0.06)'],
+    neonOpacity: 0.88,
   },
   client: {
-    baseGradient: ['#1a0a28', '#5c0e18', '#0a1828', '#0c0405'],
-    baseLocations: [0, 0.32, 0.66, 1],
-    neonOverlay: ['rgba(255,75,45,0.07)', 'rgba(255,140,60,0.12)', 'rgba(253,230,138,0.05)'],
-    neonOpacity: 0.95,
+    baseGradient: ['#4a3560', '#8b5a6e', '#e8956a', '#221820'],
+    baseLocations: [0, 0.32, 0.64, 1],
+    neonOverlay: ['rgba(251,146,60,0.06)', 'rgba(252,211,77,0.1)', 'rgba(196,181,253,0.06)'],
+    neonOpacity: 0.88,
     ambientOrbs: true,
   },
   livreur: {
-    baseGradient: ['#140308', '#0a1828', '#0c1420', '#120305'],
-    baseLocations: [0, 0.34, 0.72, 1],
-    neonOverlay: ['transparent', 'rgba(255,90,56,0.08)', 'rgba(96,165,250,0.07)'],
-    neonOpacity: 0.92,
+    baseGradient: ['#2a3048', '#4a5a78', '#f0ab7c', '#18141c'],
+    baseLocations: [0, 0.34, 0.68, 1],
+    neonOverlay: ['transparent', 'rgba(251,146,60,0.07)', 'rgba(125,211,252,0.08)'],
+    neonOpacity: 0.86,
   },
   assistant: {
-    baseGradient: ['#120303', '#1e0f28', '#0a121c', '#120303'],
-    baseLocations: [0, 0.37, 0.71, 1],
-    neonOverlay: ['transparent', 'rgba(232,121,249,0.07)', 'rgba(255,90,56,0.05)'],
-    neonOpacity: 0.88,
+    baseGradient: ['#352848', '#6b4a6e', '#fbbf77', '#1a1418'],
+    baseLocations: [0, 0.37, 0.68, 1],
+    neonOverlay: ['transparent', 'rgba(232,121,249,0.06)', 'rgba(251,146,60,0.05)'],
+    neonOpacity: 0.85,
   },
 };

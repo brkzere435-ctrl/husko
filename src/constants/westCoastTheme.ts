@@ -2,23 +2,23 @@ import type { TextStyle } from 'react-native';
 
 import { FONT } from '@/constants/fonts';
 
-/** Palette « West Coast » — brique sombre, feu, nuit (carte / HUD garde du cyan lisible). */
+/** Palette « West Coast sunset » — crépuscule LA, corail / pêche, HUD cyan adouci. */
 export const WC = {
-  brick: '#3d0808',
-  brickDeep: '#120303',
-  /** Accent feu — titres, hero menu, CTA */
-  fire: '#ff5a38',
-  fireDim: 'rgba(255, 90, 56, 0.4)',
-  fireGlow: 'rgba(255, 90, 56, 0.14)',
-  /** Cartes, itinéraire, repères techniques */
-  neonCyan: '#22d3ee',
-  neonCyanDim: 'rgba(34, 211, 238, 0.35)',
+  brick: '#4a3542',
+  brickDeep: '#1e161c',
+  /** Accent sunset — hero, CTA (corail doux, pas rouge agressif) */
+  fire: '#fb923c',
+  fireDim: 'rgba(251, 146, 60, 0.38)',
+  fireGlow: 'rgba(251, 146, 60, 0.12)',
+  /** Carte / HUD — cyan ciel plus doux */
+  neonCyan: '#5eead4',
+  neonCyanDim: 'rgba(94, 234, 212, 0.32)',
   gold: '#fde68a',
-  white: '#fafafa',
-  shadow: 'rgba(0,0,0,0.6)',
+  white: '#fff7ed',
+  shadow: 'rgba(30, 18, 28, 0.45)',
 } as const;
 
-/** Titre de section (uppercase) — orange / rouge feu. */
+/** Titre de section (uppercase) — corail sunset. */
 export const wcSectionLabel: TextStyle = {
   fontFamily: FONT.bold,
   fontSize: 13,

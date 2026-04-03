@@ -129,7 +129,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: 'rgba(255,255,255,0.06)',
     borderWidth: 1,
-    borderColor: 'rgba(34, 211, 238, 0.22)',
+    borderColor: 'rgba(94, 234, 212, 0.28)',
   },
   row: {
     flexDirection: 'row',
