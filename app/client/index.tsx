@@ -207,8 +207,11 @@ export default function ClientMenuScreen() {
   return (
     <WestCoastBackground preset="client">
       <SafeAreaView style={styles.root} edges={['bottom']}>
-        <View style={[styles.topChrome, { paddingTop: insets.top + spacing.xs }]}>
-          <Text style={styles.clientKicker}>client</Text>
+        <View
+          style={[styles.topChrome, { paddingTop: insets.top + spacing.xs }]}
+          accessibilityRole="header"
+          accessibilityLabel="Husko client, à la carte"
+        >
           <View style={styles.topBarRow}>
             <BrandMark compact />
             <View style={styles.topTitleCol}>
@@ -326,14 +329,6 @@ export default function ClientMenuScreen() {
 
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: 'transparent' },
-  clientKicker: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: 'rgba(250,250,250,0.45)',
-    letterSpacing: 1,
-    marginBottom: 4,
-    marginLeft: 2,
-  },
   topChrome: {
     paddingHorizontal: spacing.md,
     paddingBottom: spacing.sm,

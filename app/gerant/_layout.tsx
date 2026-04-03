@@ -1,5 +1,4 @@
 import { Stack } from 'expo-router';
-import { Platform } from 'react-native';
 
 import { AutonomousDemoRunner } from '@/components/AutonomousDemoRunner';
 import { SyncStatusPill } from '@/components/SyncStatusPill';
@@ -17,7 +16,9 @@ export default function GerantLayout() {
           headerTintColor: WC.gold,
           headerTitleStyle: { fontFamily: FONT.bold, color: WC.white },
           contentStyle: { backgroundColor: 'transparent' },
-          headerLargeTitle: Platform.OS === 'ios',
+          headerLargeTitle: false,
+          headerBackTitle: '',
+          headerBackButtonDisplayMode: 'minimal',
           headerRight: () => <SyncStatusPill />,
         }}
       >

@@ -16,7 +16,6 @@ import { PaperProvider } from 'react-native-paper';
 
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { VariantGate } from '@/components/VariantGate';
-import { FONT } from '@/constants/fonts';
 import { huskoPaperTheme } from '@/constants/paperTheme';
 import { colors } from '@/constants/theme';
 import {
@@ -119,23 +118,13 @@ export default function RootLayout() {
       <ErrorBoundary>
         <VariantGate />
         <StatusBar style="light" />
+        {/* Stack racine : screenOptions s’appliquent à toutes les routes fichier ; pas d’en-tête ici (les _layout enfants ont le leur). */}
         <Stack
           screenOptions={{
-            headerStyle: { backgroundColor: colors.bgLift },
-            headerShadowVisible: false,
-            headerTintColor: colors.gold,
-            headerBackTitle: '',
+            headerShown: false,
             contentStyle: { backgroundColor: 'transparent' },
-            headerTitleStyle: {
-              fontFamily: FONT.bold,
-              fontSize: 17,
-              color: colors.text,
-            },
-            animation: 'slide_from_right',
           }}
-        >
-          <Stack.Screen name="index" options={{ headerShown: false }} />
-        </Stack>
+        />
       </ErrorBoundary>
       </PaperProvider>
     </SafeAreaProvider>

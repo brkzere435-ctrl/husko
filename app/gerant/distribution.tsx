@@ -58,7 +58,7 @@ function apkTitle(tab: DistributionTabKey): string {
 function apkHint(tab: DistributionTabKey): string {
   switch (tab) {
     case 'unified':
-      return 'QR cyan · une seule app : client, livreur, gérant, Copilote (profil EAS apk-unified, OTA canal hub).';
+      return 'QR cyan · une seule app : client, livreur, gérant, Copilote (profil EAS apk-unified, OTA canal hub). Sur la page Expo, touchez Installer.';
     case 'assistant':
       return 'QR magenta · application Copilote seule (profil apk-assistant).';
     case 'gerant':
@@ -184,13 +184,16 @@ export default function DistributionScreen() {
               <>
                 Cette app <Text style={styles.em}>gérant</Text> sert aux QR <Text style={styles.em}>or / vert / bleu</Text>{' '}
                 uniquement (pas hub unifié ni Copilote). Les QR ouvrent la{' '}
-                <Text style={styles.em}>page Expo</Text>. Fichiers <Text style={styles.mono}>.apk</Text> sur PC :{' '}
+                <Text style={styles.em}>page Expo</Text> : sur le téléphone, utilisez le bouton d’installation sur
+                cette page (le navigateur ne télécharge pas un fichier .apk directement). Fichiers{' '}
+                <Text style={styles.mono}>.apk</Text> sur PC :{' '}
                 <Text style={styles.mono}>npm run apk:download:gerant</Text>, client, livreur ou all.
               </>
             ) : (
               <>
                 Couleurs : cyan = APK unique (hub), magenta = Copilote, puis or / vert / bleu pour les APK
-                dédiés. Les QR ouvrent la <Text style={styles.em}>page Expo</Text>. Fichiers{' '}
+                dédiés. Les QR ouvrent la <Text style={styles.em}>page Expo</Text> : sur le téléphone, utilisez le
+                bouton d’installation (pas de téléchargement direct du .apk dans le navigateur). Fichiers{' '}
                 <Text style={styles.mono}>.apk</Text> sur PC :{' '}
                 <Text style={styles.mono}>npm run apk:download:unified</Text>,{' '}
                 <Text style={styles.mono}>npm run apk:download:assistant</Text>, ou client / gerant / livreur / all.

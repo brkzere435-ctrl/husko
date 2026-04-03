@@ -1,6 +1,5 @@
 import { Stack } from 'expo-router';
 import { useState } from 'react';
-import { Platform } from 'react-native';
 
 import { ClientBootOverlay } from '@/components/westcoast/ClientBootOverlay';
 import { SyncStatusPill } from '@/components/SyncStatusPill';
@@ -19,7 +18,9 @@ export default function ClientLayout() {
         headerTintColor: colors.gold,
         headerTitleStyle: { fontFamily: FONT.bold, color: colors.text },
         contentStyle: { backgroundColor: 'transparent' },
-        headerLargeTitle: Platform.OS === 'ios',
+        headerLargeTitle: false,
+        headerBackTitle: '',
+        headerBackButtonDisplayMode: 'minimal',
         headerRight: () => <SyncStatusPill />,
       }}
     >

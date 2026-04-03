@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Link, Stack } from 'expo-router';
-import { Platform, Pressable, View } from 'react-native';
+import { Pressable, View } from 'react-native';
 
 import { SyncStatusPill } from '@/components/SyncStatusPill';
 import { FONT } from '@/constants/fonts';
@@ -35,7 +35,9 @@ export default function LivreurLayout() {
         headerTintColor: WC.gold,
         headerTitleStyle: { fontFamily: FONT.bold, color: WC.white },
         contentStyle: { backgroundColor: 'transparent' },
-        headerLargeTitle: Platform.OS === 'ios',
+        headerLargeTitle: false,
+        headerBackTitle: '',
+        headerBackButtonDisplayMode: 'minimal',
         headerRight: () => <LivreurHeaderRight showSettings />,
       }}
     >

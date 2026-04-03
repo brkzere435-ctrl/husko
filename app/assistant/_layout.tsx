@@ -1,5 +1,4 @@
 import { Stack } from 'expo-router';
-import { Platform } from 'react-native';
 
 import { SyncStatusPill } from '@/components/SyncStatusPill';
 import { FONT } from '@/constants/fonts';
@@ -14,8 +13,9 @@ export default function AssistantLayout() {
         headerTintColor: WC.gold,
         headerTitleStyle: { fontFamily: FONT.bold, color: WC.white },
         contentStyle: { backgroundColor: 'transparent' },
-        headerLargeTitle: Platform.OS === 'ios',
+        headerLargeTitle: false,
         headerBackTitle: '',
+        headerBackButtonDisplayMode: 'minimal',
         headerRight: () => <SyncStatusPill />,
       }}
     >
