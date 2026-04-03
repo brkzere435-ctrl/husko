@@ -20,6 +20,7 @@
     "build:android": "node node_modules/cross-env/src/bin/cross-env.js EAS_BUILD_NO_EXPO_GO_WARNING=true EAS_BUILD_AUTOCOMMIT=1 eas build -p android --profile apk-unified",
     "build:apk": "node node_modules/cross-env/src/bin/cross-env.js EAS_BUILD_NO_EXPO_GO_WARNING=true EAS_BUILD_AUTOCOMMIT=1 eas build -p android --profile apk-unified --non-interactive",
     "build:apk:unified": "node node_modules/cross-env/src/bin/cross-env.js EAS_BUILD_NO_EXPO_GO_WARNING=true EAS_BUILD_AUTOCOMMIT=1 eas build -p android --profile apk-unified --non-interactive",
+    "build:apk:unified:queue": "node node_modules/cross-env/src/bin/cross-env.js EAS_BUILD_NO_EXPO_GO_WARNING=true EAS_BUILD_AUTOCOMMIT=1 eas build -p android --profile apk-unified --non-interactive --no-wait",
     "build:apk:gerant": "node node_modules/cross-env/src/bin/cross-env.js EAS_BUILD_NO_EXPO_GO_WARNING=true EAS_BUILD_AUTOCOMMIT=1 eas build -p android --profile apk-gerant --non-interactive",
     "build:apk:client": "node node_modules/cross-env/src/bin/cross-env.js EAS_BUILD_NO_EXPO_GO_WARNING=true EAS_BUILD_AUTOCOMMIT=1 eas build -p android --profile apk-client --non-interactive",
     "apk:client": "npm run build:apk:client",

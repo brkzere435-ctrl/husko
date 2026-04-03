@@ -46,7 +46,7 @@ Pour un essai **d’une variante seule** (client, livreur, etc.), utilise plutô
     2. `npm run eas:credentials` si keystore / certificats à vérifier
     3. `npm run eas:sync:maps` si les clés Maps du `.env` doivent être sur Expo
     4. `npm run eas:sync:firebase` si les `EXPO_PUBLIC_FIREBASE_*` du `.env` doivent être sur Expo (synchro client / gérant / livreur)
-    5. `npm run build:apk:unified` (hub) ou autre profil (`build:matrix` pour la liste)
+    5. `npm run build:apk:unified` (hub) ou autre profil (`build:matrix` pour la liste). **Depuis Cursor / IDE** qui coupe les commandes longues : `npm run build:apk:unified:queue` (`--no-wait`), puis suivre le build sur expo.dev ou `eas build:list`, et `npm run apk:download:unified` une fois terminé.
     6. Mettre à jour `distribution.defaults.json` puis `npm run qr:generate`
     7. Optionnel avant `eas build` : `npm run firebase:env:check:strict` (échoue si une clé Firebase manque dans `.env`)
     - **`npm run release:next`** affiche cette checklist et exécute `eas whoami` (échoue si pas connecté à Expo).

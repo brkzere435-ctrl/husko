@@ -16,7 +16,8 @@ Ce fichier résume **où est la vérité** et **quelles commandes** utiliser. Le
 | Installer les deps | `npm install` |
 | Lancer l’app (dev) | `npx expo start` (variantes : `npm run start:client` / `start:gerant` / `start:livreur` / `start:hub`) |
 | Gate qualité (CI locale) | `npm run verify` puis éventuellement `npm run release:gate` |
-| APK hub (EAS) | `npm run build:apk:unified` (après `eas login`, secrets — voir `DEPLOIEMENT.md`) |
+| APK hub (EAS), attente jusqu’à la fin | `npm run build:apk:unified` (après `eas login`, secrets — voir `DEPLOIEMENT.md`) |
+| APK hub (EAS), **sans bloquer** le terminal / l’IDE (Cursor) | `npm run build:apk:unified:queue` — même build avec `--no-wait` ; suivre la fin avec `npx eas build:list --platform android --limit 5 --non-interactive` ou le dashboard Expo, puis `npm run apk:download:unified` si besoin |
 | Checklist release | [`RELEASE_CHECKLIST.md`](RELEASE_CHECKLIST.md) |
 | Régénérer icônes / splash / adaptive (West Coast) | `npm run brand:assets` — écrit sous `assets/` ; **un nouveau `eas build` est obligatoire** pour mettre à jour le logo launcher (l’OTA ne change pas l’icône native). |
 | Vérifier clés Firebase (.env) | `npm run firebase:env:check` — strict : `firebase:env:check:strict` |
