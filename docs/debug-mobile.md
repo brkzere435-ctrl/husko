@@ -2,54 +2,57 @@
 
 ## Pourquoi `localhost` depuis l’APK ne rejoint pas ton PC
 
-Sur un **téléphone**, `127.0.0.1` désigne **l’appareil lui-même**, pas la machine qui lance Metro. Une requête HTTP vers `http://127.0.0.1:…` (par ex. un serveur de debug sur le poste de dev) **ne sort pas** vers le PC. Ce n’est pas un bug Husko : c’est le réseau loopback.
+Sur un **téléphone**, `127.0.0.1` désigne **l’appareil lui-même**, pas la machine qui lance Metro. Une requête HTTP vers `http://127.0.0.1:…` vers un serveur sur le poste de dev **ne sort pas** vers le PC. Ce n’est pas un bug Husko : c’est le loopback.
 
-**Exception** : émulateur Android sur la même machine (souvent `10.0.2.2` pour joindre le host) — le comportement diffère du téléphone physique.
+**Exception** : émulateur Android sur la même machine (souvent `10.0.2.2` pour joindre le host).
+
+**Production** : l’app utilise **Firebase (Firestore)** et les clés `EXPO_PUBLIC_FIREBASE_*` injectées au build — pas de dépendance à un serveur local pour les commandes ou la synchro cloud.
+
+## Complétude — éviter de passer à côté d’une erreur
+
+| Source | Ce qu’elle attrape |
+|--------|---------------------|
+| **Terminal Metro** | Échecs de bundle, erreurs React/JS au chargement. |
+| **Console F12 (web)** | Erreurs runtime du bundle web. |
+| **`npm run verify`** | Régression TypeScript / lint / règles projet. |
+| **`adb logcat`** | Crashs natifs ou logs sur **APK** sans Metro (voir ci-dessous). |
+
+### Ne pas confondre
+
+[`src/utils/debugProbe.ts`](../src/utils/debugProbe.ts) : sondes boot optionnelles (port **7781** / `EXPO_PUBLIC_DEBUG_INGEST_URL`), désactivées sauf flag explicite — distinct de tout outil d’éditeur.
 
 ## Pistes pratiques
 
 ### 1. `console.log` + Metro (développement)
 
-- Lancer le bundler avec la variante voulue, par ex. `npm run start:client` (voir `package.json`).
-- Faire charger l’app depuis le **même bundle** que Metro (QR / USB selon le flux Expo).
-- Les logs JS apparaissent dans le **terminal Metro** (ou l’UI Expo Dev Tools).
+- `npm run start:client` (ou `start:gerant`, `start:hub`, etc.) — voir `package.json`.
+- Les logs JS apparaissent dans le **terminal Metro**.
 
-**Limite** : ne s’applique pas à un **APK EAS standalone** utilisé sans connexion au bundler.
+**Limite** : ne s’applique pas à un **APK EAS** utilisé sans bundler.
 
 ### 2. Réseau : LAN ou tunnel
 
-Scripts utiles dans `package.json` :
+- `npm run start:lan` — même Wi‑Fi que le téléphone.
+- `npm run start:tunnel` — si le LAN est bloqué.
 
-- `npm run start:lan` — `expo start --lan` : téléphone et PC sur le **même Wi‑Fi** (souvent le plus simple).
-- `npm run start:tunnel` — `expo start --tunnel` : utile si le LAN est bloqué (firewall, réseaux isolés).
-
-Objectif : que l’app charge le JS depuis ton PC **sans** utiliser `localhost` côté appareil.
+Objectif : charger le JS depuis le PC **sans** pointer `localhost` depuis l’appareil.
 
 ### 3. Logs natifs Android (APK sans Metro)
 
-Pour un build **sans** JS servi par Metro au moment du test :
+- `adb logcat` ou Android Studio **Logcat**.
 
-- `adb logcat` filtré sur React Native / un tag applicatif, ou
-- Android Studio **Logcat** avec l’appareil en USB.
+### 4. Logger distant (production)
 
-Utile pour les crashs natifs ou pour vérifier si des logs JS sont encore émis (selon release vs debug).
-
-### 4. `expo-dev-client` (optionnel)
-
-Le dépôt n’inclut pas `expo-dev-client` par défaut. L’ajouter permet un **development build** (`expo run:android` / EAS) qui se connecte à Metro comme un flux de dev proche d’Expo Go, avec tes modules natifs. **Pas obligatoire** si LAN / tunnel + `expo start` suffisent.
-
-### 5. Logger distant (production / APK « réel »)
-
-Pour instrumenter un APK distribué sans PC à côté : service tiers (Sentry, etc.) ou **endpoint HTTPS** contrôlé (attention secrets, RGPD, volume). À réserver au staging / prod, pas au simple debug UI local.
+Sentry ou endpoint HTTPS dédié — hors scope du debug local.
 
 ## Synthèse
 
 | Contexte | Approche |
 |----------|----------|
-| Dev avec Metro | `console.log` → terminal Metro ; réseau via `start:lan` ou `start:tunnel` |
-| APK EAS sur téléphone sans Metro | `adb logcat` / captures d’écran ; pas d’ingest `127.0.0.1` sur le PC |
-| Logs structurés hors poste local | Logger distant ou endpoint dédié |
+| Dev avec Metro | `console.log` → terminal Metro ; `start:lan` / `start:tunnel` |
+| APK EAS sans Metro | `adb logcat` ; captures d’écran |
+| Données commandes / multi-appareils | Firestore (`EXPO_PUBLIC_FIREBASE_*`), voir `DEPLOIEMENT.md` |
 
 ## Signaler un bug UI
 
-Une **capture** (ou courte vidéo) avec l’écran et le chemin (ex. À la carte → scroll) reste le signal le plus fiable quand l’appareil ne peut pas parler à ton poste de développement.
+Capture (ou courte vidéo) avec l’écran et le chemin de navigation.

@@ -74,7 +74,11 @@ function MenuItemVisualInner({ item, size }: Props) {
   }
 
   return (
-    <View style={[styles.wrap, size === 'sm' && styles.wrapThumb, { width: side, height: side }]}>
+    <View
+      style={[styles.wrap, size === 'sm' && styles.wrapThumb, { width: side, height: side }]}
+      accessibilityRole="image"
+      accessibilityLabel={item.name}
+    >
       <LinearGradient colors={g} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.grad}>
         <View style={[styles.neon, size === 'lg' && styles.neonLg]} />
         <Ionicons name={icon} size={iconSz} color={WC.gold} style={styles.iconShadow} />

@@ -32,6 +32,14 @@ import {
   isDeliveryOpen,
   SURE_DELIVERY_WINDOW,
 } from '@/constants/hours';
+import {
+  clientMenuCart,
+  clientMenuChips,
+  clientMenuChrome,
+  clientMenuDock,
+  clientMenuHero,
+  clientMenuRow,
+} from '@/constants/clientMenuVisual';
 import { typography } from '@/constants/typography';
 import { WC } from '@/constants/westCoastTheme';
 import { elevation, radius, spacing } from '@/constants/theme';
@@ -83,8 +91,8 @@ function MenuHero() {
   const open = isDeliveryOpen();
   return (
     <LinearGradient
-      colors={['rgba(10, 3, 6, 0.97)', 'rgba(72, 12, 28, 0.92)', 'rgba(8, 32, 48, 0.95)']}
-      locations={[0, 0.48, 1]}
+      colors={[...clientMenuHero.gradientColors]}
+      locations={[...clientMenuHero.gradientLocations]}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
       style={styles.hero}
@@ -296,7 +304,7 @@ export default function ClientMenuScreen() {
           />
           <Animated.View entering={FadeIn.duration(380).delay(60)} style={styles.dockColumn}>
             <LinearGradient
-              colors={['rgba(255,90,56,0.95)', 'rgba(253,230,138,0.65)', 'rgba(220,40,40,0.55)']}
+              colors={[...clientMenuDock.hairlineColors]}
               start={{ x: 0, y: 0.5 }}
               end={{ x: 1, y: 0.5 }}
               style={styles.dockHairline}
@@ -332,8 +340,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     paddingBottom: spacing.sm,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(253, 230, 138, 0.15)',
-    backgroundColor: 'rgba(6, 2, 5, 0.72)',
+    borderBottomColor: clientMenuChrome.borderBottom,
+    backgroundColor: clientMenuChrome.background,
   },
   topBarRow: {
     flexDirection: 'row',
@@ -364,8 +372,8 @@ const styles = StyleSheet.create({
     height: 44,
     borderRadius: radius.md,
     borderWidth: 1,
-    borderColor: 'rgba(253, 230, 138, 0.35)',
-    backgroundColor: 'rgba(0,0,0,0.35)',
+    borderColor: clientMenuCart.btnBorder,
+    backgroundColor: clientMenuCart.btnBg,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -378,9 +386,9 @@ const styles = StyleSheet.create({
     height: 18,
     borderRadius: 9,
     paddingHorizontal: 4,
-    backgroundColor: '#b91c1c',
+    backgroundColor: clientMenuCart.badgeBg,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.85)',
+    borderColor: clientMenuCart.badgeBorder,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -404,22 +412,22 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   chipOn: {
-    backgroundColor: 'rgba(250, 250, 250, 0.96)',
-    borderColor: 'rgba(250, 250, 250, 0.96)',
+    backgroundColor: clientMenuChips.onBg,
+    borderColor: clientMenuChips.onBorder,
   },
   chipOff: {
-    backgroundColor: 'rgba(127, 29, 29, 0.55)',
-    borderColor: 'rgba(248, 113, 113, 0.45)',
+    backgroundColor: clientMenuChips.offBg,
+    borderColor: clientMenuChips.offBorder,
   },
   chipPressed: { opacity: 0.92 },
   chipTxt: {
     fontSize: 12,
     fontWeight: '800',
     letterSpacing: 0.4,
-    color: 'rgba(250,250,250,0.92)',
+    color: clientMenuChips.txt,
   },
   chipTxtOn: {
-    color: '#1c1917',
+    color: clientMenuChips.txtOn,
   },
   screenBody: { flex: 1 },
   listFlex: { flex: 1 },
@@ -443,7 +451,7 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
     borderRadius: radius.xl,
     borderWidth: 2,
-    borderColor: 'rgba(255, 90, 56, 0.5)',
+    borderColor: clientMenuHero.cardBorder,
     overflow: 'hidden',
     ...elevation.hero,
   },
@@ -452,7 +460,7 @@ const styles = StyleSheet.create({
     margin: 12,
     borderRadius: radius.lg,
     borderWidth: 1,
-    borderColor: 'rgba(253, 230, 138, 0.12)',
+    borderColor: clientMenuHero.innerGlowBorder,
   },
   wcBrand: {
     fontSize: 34,
@@ -460,7 +468,7 @@ const styles = StyleSheet.create({
     letterSpacing: 4,
     color: WC.white,
     textAlign: 'center',
-    textShadowColor: 'rgba(0,0,0,0.5)',
+    textShadowColor: clientMenuHero.wcBrandTextShadow,
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 8,
   },
@@ -488,12 +496,12 @@ const styles = StyleSheet.create({
     borderColor: WC.fireDim,
   },
   statusClosed: {
-    backgroundColor: 'rgba(127, 29, 29, 0.35)',
-    borderColor: 'rgba(248, 113, 113, 0.4)',
+    backgroundColor: clientMenuHero.statusClosedBg,
+    borderColor: clientMenuHero.statusClosedBorder,
   },
   statusDot: { width: 8, height: 8, borderRadius: 4 },
   statusDotOn: { backgroundColor: WC.fire },
-  statusDotOff: { backgroundColor: '#fca5a5' },
+  statusDotOff: { backgroundColor: clientMenuHero.statusDotOff },
   statusPillText: {
     color: WC.white,
     fontWeight: '800',
@@ -505,7 +513,7 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.sm,
     paddingHorizontal: spacing.md,
     borderRadius: radius.lg,
-    backgroundColor: 'rgba(255, 90, 56, 0.08)',
+    backgroundColor: clientMenuHero.sureHourBannerBg,
     borderWidth: 1,
     borderColor: WC.fireDim,
     alignItems: 'center',
@@ -526,13 +534,13 @@ const styles = StyleSheet.create({
   hoursSmall: {
     marginTop: spacing.sm,
     textAlign: 'center',
-    color: 'rgba(250,250,250,0.65)',
+    color: clientMenuHero.textMuted,
     fontSize: 12,
     fontWeight: '600',
   },
   menuHint: {
     marginTop: spacing.md,
-    color: 'rgba(250,250,250,0.75)',
+    color: clientMenuHero.textMutedStrong,
     fontSize: 14,
     lineHeight: 20,
     textAlign: 'center',
@@ -574,17 +582,17 @@ const styles = StyleSheet.create({
     minHeight: 80,
     paddingVertical: spacing.sm,
     paddingHorizontal: spacing.md,
-    backgroundColor: 'rgba(8, 4, 6, 0.72)',
+    backgroundColor: clientMenuRow.background,
     borderRadius: radius.lg,
     borderWidth: 1,
-    borderColor: 'rgba(255,90,56,0.42)',
+    borderColor: clientMenuRow.border,
     marginBottom: spacing.sm,
     gap: spacing.sm,
     ...elevation.card,
-    shadowColor: '#ff5a38',
-    shadowOpacity: 0.14,
-    shadowRadius: 14,
-    shadowOffset: { width: 0, height: 4 },
+    shadowColor: clientMenuRow.shadowColor,
+    shadowOpacity: clientMenuRow.shadowOpacity,
+    shadowRadius: clientMenuRow.shadowRadius,
+    shadowOffset: clientMenuRow.shadowOffset,
   },
   rowPressed: { opacity: 0.9 },
   rowText: { flex: 1, minWidth: 0, paddingRight: spacing.sm },
@@ -595,14 +603,14 @@ const styles = StyleSheet.create({
     fontSize: 16,
     letterSpacing: 0.2,
   },
-  desc: { marginTop: 4, lineHeight: 18, color: 'rgba(250,250,250,0.6)', fontSize: 12 },
+  desc: { marginTop: 4, lineHeight: 18, color: clientMenuHero.descMuted, fontSize: 12 },
   pricePill: {
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
     borderRadius: radius.md,
-    backgroundColor: 'rgba(127, 29, 29, 0.92)',
+    backgroundColor: clientMenuRow.pricePillBg,
     borderWidth: 1,
-    borderColor: 'rgba(253, 230, 138, 0.85)',
+    borderColor: clientMenuRow.pricePillBorder,
   },
   priceTxt: {
     fontSize: 17,
@@ -620,7 +628,7 @@ const styles = StyleSheet.create({
   },
   bar: {
     padding: spacing.md,
-    backgroundColor: 'rgba(6, 2, 4, 0.97)',
+    backgroundColor: clientMenuDock.barBg,
     gap: spacing.sm,
   },
   barText: {
