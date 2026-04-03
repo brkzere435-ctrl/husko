@@ -30,9 +30,14 @@ const CAT_GRAD: Record<MenuCategory, [string, string, string]> = {
   boisson: ['#0e7490', '#164e63', '#0c4a6e'],
 };
 
-type Props = { item: MenuItem; size: 'sm' | 'lg' };
+type Props = {
+  item: MenuItem;
+  size: 'sm' | 'lg';
+  /** Fiche produit : cadre plus discret pour éviter double bordure avec la carte. */
+  emphasizeFrame?: boolean;
+};
 
-function MenuItemVisualInner({ item, size }: Props) {
+function MenuItemVisualInner({ item, size, emphasizeFrame = true }: Props) {
   const side = size === 'lg' ? 220 : 72;
   const iconSz = size === 'lg' ? 88 : 32;
   const g = CAT_GRAD[item.category];
@@ -44,6 +49,8 @@ function MenuItemVisualInner({ item, size }: Props) {
     setImageFailed(false);
   }, [item.id]);
 
+  const frameSoft = size === 'lg' && emphasizeFrame === false;
+
   if (photo && !imageFailed) {
     const placeholderBg = CAT_GRAD[item.category][0];
     const thumb = size === 'sm';
@@ -52,6 +59,7 @@ function MenuItemVisualInner({ item, size }: Props) {
         style={[
           styles.wrap,
           thumb && styles.wrapThumb,
+          frameSoft && styles.wrapHero,
           { width: side, height: side, backgroundColor: placeholderBg },
         ]}
       >
@@ -68,19 +76,27 @@ function MenuItemVisualInner({ item, size }: Props) {
           accessibilityLabel={item.name}
           accessibilityIgnoresInvertColors
         />
-        <View style={[styles.neon, size === 'lg' && styles.neonLg]} pointerEvents="none" />
+        <View
+          style={[styles.neon, size === 'lg' && !frameSoft && styles.neonLg, frameSoft && styles.neonHero]}
+          pointerEvents="none"
+        />
       </View>
     );
   }
 
   return (
     <View
-      style={[styles.wrap, size === 'sm' && styles.wrapThumb, { width: side, height: side }]}
+      style={[
+        styles.wrap,
+        size === 'sm' && styles.wrapThumb,
+        frameSoft && styles.wrapHero,
+        { width: side, height: side },
+      ]}
       accessibilityRole="image"
       accessibilityLabel={item.name}
     >
       <LinearGradient colors={g} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.grad}>
-        <View style={[styles.neon, size === 'lg' && styles.neonLg]} />
+        <View style={[styles.neon, size === 'lg' && !frameSoft && styles.neonLg, frameSoft && styles.neonHero]} />
         <Ionicons name={icon} size={iconSz} color={WC.gold} style={styles.iconShadow} />
       </LinearGradient>
     </View>
@@ -107,6 +123,15 @@ const styles = StyleSheet.create({
     shadowOpacity: 0,
     shadowRadius: 0,
   },
+  /** Fiche produit : une seule lecture de cadre, pas de double néon. */
+  wrapHero: {
+    borderWidth: 1,
+    borderColor: 'rgba(34, 211, 238, 0.28)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.14,
+    shadowRadius: 6,
+  },
   photo: {
     ...StyleSheet.absoluteFillObject,
     width: '100%',
@@ -127,6 +152,11 @@ const styles = StyleSheet.create({
   neonLg: {
     margin: spacing.sm,
     borderWidth: 2,
+  },
+  neonHero: {
+    margin: spacing.xs,
+    borderWidth: 1,
+    borderColor: 'rgba(34, 211, 238, 0.2)',
   },
   iconShadow: {
     shadowColor: WC.neonCyan,

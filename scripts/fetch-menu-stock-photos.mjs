@@ -23,8 +23,8 @@ const SIZE = 800;
 const MENU_LOREM = {
   'smash-1': ['burger', 21001],
   'smash-2': ['burger', 21002],
-  'smash-3': ['hamburger', 21003],
-  'smash-4': ['cheeseburger', 21004],
+  'smash-3': ['burger', 41003],
+  'smash-4': ['burger', 41004],
   'frites-s': ['frenchfries', 22001],
   'frites-m': ['fries', 22002],
   'frites-l': ['potato', 22003],
@@ -68,8 +68,8 @@ async function downloadBuffer(url) {
   return Buffer.from(await res.arrayBuffer());
 }
 
-/** Une nouvelle tentative évite les faux négatifs (timeout / 5xx ponctuel). */
-async function downloadBufferRetry(url, attempts = 2) {
+/** Nouvelles tentatives + backoff léger (502/500 Lorem Flickr ponctuels). */
+async function downloadBufferRetry(url, attempts = 5) {
   let last;
   for (let i = 0; i < attempts; i++) {
     try {
@@ -80,6 +80,7 @@ async function downloadBufferRetry(url, attempts = 2) {
       return buf;
     } catch (e) {
       last = e;
+      await new Promise((r) => setTimeout(r, 400 * (i + 1)));
     }
   }
   throw last;
@@ -87,7 +88,18 @@ async function downloadBufferRetry(url, attempts = 2) {
 
 async function main() {
   mkdirSync(outDir, { recursive: true });
-  const ids = Object.keys(MENU_LOREM);
+  const argvIds = process.argv.slice(2).filter((a) => !a.startsWith('-'));
+  const allKeys = Object.keys(MENU_LOREM);
+  const ids =
+    argvIds.length > 0
+      ? argvIds.filter((id) => {
+          if (!MENU_LOREM[id]) {
+            console.error(`fetch-menu-stock-photos: id inconnu : ${id}`);
+            process.exit(1);
+          }
+          return true;
+        })
+      : allKeys;
   let ok = 0;
   for (const id of ids) {
     const [tag, lock] = MENU_LOREM[id];

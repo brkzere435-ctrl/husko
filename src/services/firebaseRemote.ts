@@ -9,8 +9,15 @@ import {
 } from 'firebase/firestore';
 
 import type { LatLng, Order } from '@/stores/useHuskoStore';
+import { debugAgentLog } from '@/utils/debugAgentLog';
 import { coerceOrderFromRemote } from '@/utils/orderNormalize';
 import { readHuskoExpoExtra } from '@/utils/readHuskoExpoExtra';
+
+/** Métadonnées snapshot Firestore `orders` (diagnostic synchro). */
+export type OrdersRemoteSnapshotMeta = {
+  snapDocCount: number;
+  coercedCount: number;
+};
 
 export type RemoteAutonomousDemo = { enabled: boolean; stepMs: number };
 
@@ -53,11 +60,41 @@ export function isRemoteSyncEnabled(): boolean {
   return buildConfig() !== null;
 }
 
+/** Debug : identifiant projet Firebase (public, non secret). */
+export function debugFirebaseProjectId(): string | null {
+  const c = buildConfig();
+  return c?.projectId ?? null;
+}
+
 export async function remotePushOrder(order: Order): Promise<void> {
   const firestore = ensureDb();
+  const pid = debugFirebaseProjectId();
+  debugAgentLog({
+    location: 'firebaseRemote.ts:remotePushOrder:entry',
+    message: 'remotePushOrder entry',
+    hypothesisId: 'H1',
+    data: { orderId: order.id, hasDb: !!firestore, projectId: pid },
+  });
   if (!firestore) return;
   const payload = JSON.parse(JSON.stringify(order)) as Record<string, unknown>;
-  await setDoc(doc(firestore, 'orders', order.id), payload);
+  try {
+    await setDoc(doc(firestore, 'orders', order.id), payload);
+    debugAgentLog({
+      location: 'firebaseRemote.ts:remotePushOrder:success',
+      message: 'setDoc orders ok',
+      hypothesisId: 'H1',
+      data: { orderId: order.id, projectId: pid },
+    });
+  } catch (e) {
+    debugAgentLog({
+      location: 'firebaseRemote.ts:remotePushOrder:catch',
+      message: 'setDoc failed',
+      hypothesisId: 'H1',
+      data: { orderId: order.id, err: e instanceof Error ? e.message : String(e) },
+    });
+    const msg = e instanceof Error ? e.message : String(e);
+    throw new Error(`Écriture commande cloud : ${msg}`);
+  }
 }
 
 /** Synchronise le mode auto + rythme pour l’ETA côté client (même projet Firebase). */
@@ -121,7 +158,10 @@ export function remotePushDriverDebounced(pos: LatLng | null, heading: number): 
   }, 1800);
 }
 
-export function subscribeToRemoteOrders(onOrders: (orders: Order[]) => void): () => void {
+export function subscribeToRemoteOrders(
+  onOrders: (orders: Order[], meta: OrdersRemoteSnapshotMeta) => void,
+  onListenError?: (err: Error) => void
+): () => void {
   const firestore = ensureDb();
   if (!firestore) return () => {};
 
@@ -135,10 +175,38 @@ export function subscribeToRemoteOrders(onOrders: (orders: Order[]) => void): ()
         if (order) list.push(order);
       });
       list.sort((a, b) => b.createdAt - a.createdAt);
-      onOrders(list);
+      const pid = debugFirebaseProjectId();
+      const meta: OrdersRemoteSnapshotMeta = {
+        snapDocCount: snap.size,
+        coercedCount: list.length,
+      };
+      debugAgentLog({
+        location: 'firebaseRemote.ts:subscribeToRemoteOrders:snapshot',
+        message: 'orders snapshot',
+        hypothesisId: 'H2',
+        data: {
+          projectId: pid,
+          snapDocCount: meta.snapDocCount,
+          coercedCount: meta.coercedCount,
+          sampleIds: list.slice(0, 8).map((o) => o.id),
+        },
+      });
+      onOrders(list, meta);
     },
     (err) => {
       if (__DEV__) console.warn('[Husko Firestore orders]', err.message);
+      debugAgentLog({
+        location: 'firebaseRemote.ts:subscribeToRemoteOrders:onError',
+        message: 'orders listener error',
+        hypothesisId: 'H2',
+        data: {
+          projectId: debugFirebaseProjectId(),
+          err: err instanceof Error ? err.message : String(err),
+        },
+      });
+      const wrapped =
+        err instanceof Error ? err : new Error(typeof err === 'string' ? err : 'Erreur Firestore');
+      onListenError?.(wrapped);
     }
   );
 }

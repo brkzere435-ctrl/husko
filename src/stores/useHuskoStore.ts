@@ -10,12 +10,14 @@ import {
 } from '@/constants/autonomousDelivery';
 import { DEFAULT_ROLE_PIN } from '@/constants/devicePin';
 import {
+  debugFirebaseProjectId,
   isRemoteSyncEnabled,
   remotePushAutonomousDemoMeta,
   remotePushDriverDebounced,
   remotePushOrder,
   type RemoteAutonomousDemo,
 } from '@/services/firebaseRemote';
+import { debugAgentLog } from '@/utils/debugAgentLog';
 import { normalizeOrderStatus } from '@/utils/orderNormalize';
 import { PENDING_VALIDATION_MS } from '@/constants/orderPolicy';
 import {
@@ -53,6 +55,15 @@ export type LatLng = { latitude: number; longitude: number };
 
 export type OrderActor = 'gerant' | 'livreur';
 
+/** Dernier état diagnostic listener + fusion (Réglages · diagnostic synchro). */
+export type OrdersSyncDebug = {
+  updatedAt: number;
+  snapDocCount: number;
+  coercedCount: number;
+  sampleIds: string[];
+  lastMerge: { remoteN: number; localN: number; mergedN: number };
+};
+
 type State = {
   cart: OrderLine[];
   orders: Order[];
@@ -70,6 +81,13 @@ type State = {
   autonomousPacePreset: AutonomousPacePresetId;
   /** Copie distante (Firestore meta) pour l’ETA côté client ; non persisté localement. */
   remoteAutonomousDemo: RemoteAutonomousDemo | null;
+  /** Dernière erreur d’écriture Firestore (commande non synchronisée). */
+  cloudSyncWriteError: string | null;
+  /** Dernière erreur du listener Firestore (liste commandes). */
+  cloudSyncListenError: string | null;
+  /** Dernière fusion listener `orders` (null si jamais reçu ou sans Firebase). */
+  ordersSyncDebug: OrdersSyncDebug | null;
+  clearCloudSyncErrors: () => void;
   addToCart: (item: MenuItem, qty?: number) => void;
   removeFromCart: (itemId: string) => void;
   clearCart: () => void;
@@ -137,6 +155,21 @@ async function fireTransitionNotifications(
 export const useHuskoStore = create<State>()(
   persist(
     (set, get) => {
+      const pushOrderRemote = (order: Order) => {
+        if (!isRemoteSyncEnabled()) {
+          void remotePushOrder(order);
+          return;
+        }
+        void remotePushOrder(order).then(
+          () => set({ cloudSyncWriteError: null }),
+          (e: unknown) => {
+            const msg = e instanceof Error ? e.message : 'Erreur synchro cloud';
+            set({ cloudSyncWriteError: msg });
+            if (__DEV__) console.warn('[Husko remotePushOrder]', msg);
+          }
+        );
+      };
+
       const applyOrderTransition = (orderId: string, next: OrderStatus): boolean => {
         const { orders, notificationsEnabled } = get();
         const order = orders.find((o) => o.id === orderId);
@@ -147,7 +180,7 @@ export const useHuskoStore = create<State>()(
           orders: s.orders.map((o) => (o.id === orderId ? { ...o, status: next } : o)),
         }));
         const updated = { ...order, status: next };
-        void remotePushOrder(updated);
+        pushOrderRemote(updated);
         void fireTransitionNotifications(prev, next, updated, notificationsEnabled);
         return true;
       };
@@ -166,6 +199,11 @@ export const useHuskoStore = create<State>()(
       autonomousDemoEnabled: false,
       autonomousPacePreset: 'demo',
       remoteAutonomousDemo: null,
+      cloudSyncWriteError: null,
+      cloudSyncListenError: null,
+      ordersSyncDebug: null,
+
+      clearCloudSyncErrors: () => set({ cloudSyncWriteError: null, cloudSyncListenError: null }),
 
       addToCart: (item, qty = 1) => {
         set((s) => {
@@ -198,7 +236,17 @@ export const useHuskoStore = create<State>()(
           destLng: dest.longitude,
         };
         set((s) => ({ orders: [order, ...s.orders], cart: [] }));
-        void remotePushOrder(order);
+        debugAgentLog({
+          location: 'useHuskoStore.ts:placeOrder',
+          message: 'placeOrder committed locally',
+          hypothesisId: 'H1',
+          data: {
+            orderId: order.id,
+            projectId: debugFirebaseProjectId(),
+            remoteEnabled: isRemoteSyncEnabled(),
+          },
+        });
+        pushOrderRemote(order);
         if (notificationsEnabled) {
           notifyGerantNewOrder(order).catch(() => {});
         }
@@ -269,7 +317,7 @@ export const useHuskoStore = create<State>()(
         set({ orders: next });
         for (const id of toCancel) {
           const o = next.find((x) => x.id === id);
-          if (o) void remotePushOrder(o);
+          if (o) pushOrderRemote(o);
           if (notificationsEnabled) {
             void notifyClientOrderCancelledTimeout(id);
           }

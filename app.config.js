@@ -218,6 +218,11 @@ module.exports = (ctx = {}) => {
     googleMapsAndroidKey,
   });
 
+  /** HTTP vers IP LAN (ingest debug Cursor) : sans ça Android bloque le cleartext ; iOS exige ATS local. */
+  const debugIngestUrl = (process.env.EXPO_PUBLIC_DEBUG_INGEST_URL || '').trim();
+  const allowDebugHttpToLan =
+    debugIngestUrl.length > 0 && debugIngestUrl.startsWith('http://');
+
   const android = {
     adaptiveIcon: {
       foregroundImage: './assets/adaptive-icon.png',
@@ -232,6 +237,7 @@ module.exports = (ctx = {}) => {
         apiKey: googleMapsAndroidKey,
       },
     },
+    ...(allowDebugHttpToLan ? { usesCleartextTraffic: true } : {}),
   };
   if (hasGoogleServicesJson) {
     android.googleServicesFile = GOOGLE_SERVICES_REL;
@@ -249,6 +255,13 @@ module.exports = (ctx = {}) => {
         'Husko utilise votre position pour afficher la carte et le suivi de livraison.',
       NSLocationAlwaysAndWhenInUseUsageDescription:
         'Les livreurs ont besoin de la position pour la navigation et le suivi.',
+      ...(allowDebugHttpToLan
+        ? {
+            NSAppTransportSecurity: {
+              NSAllowsLocalNetworking: true,
+            },
+          }
+        : {}),
     },
   };
 

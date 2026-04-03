@@ -601,9 +601,15 @@ const styles = StyleSheet.create({
     color: WC.white,
     fontWeight: '900',
     fontSize: 16,
-    letterSpacing: 0.2,
+    letterSpacing: 0.15,
   },
-  desc: { marginTop: 4, lineHeight: 18, color: clientMenuHero.descMuted, fontSize: 12 },
+  desc: {
+    marginTop: 5,
+    lineHeight: 19,
+    color: clientMenuHero.descMuted,
+    fontSize: 12.5,
+    opacity: 0.92,
+  },
   pricePill: {
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,

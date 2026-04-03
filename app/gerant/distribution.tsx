@@ -211,6 +211,18 @@ export default function DistributionScreen() {
 
           <DeploymentHints mode="alerts" mapsRelevant={false} style={styles.infra} />
 
+          <View style={styles.anywhereBox} accessibilityRole="text">
+            <Text style={styles.anywhereTitle}>Téléchargement · n’importe où</Text>
+            <Text style={[typography.bodyMuted, styles.anywhereBody]}>
+              Le QR et le lien vers la page Expo fonctionnent avec la <Text style={styles.em}>données mobiles</Text> ou
+              un <Text style={styles.em}>Wi‑Fi quelconque</Text> (y compris à l’étranger) : vous n’avez pas besoin d’être
+              sur le même réseau qu’un PC de développement. Sur un ordinateur,{' '}
+              <Text style={styles.mono}>npm run apk:download:…</Text> fonctionne partout avec Internet si le compte Expo
+              est disponible (<Text style={styles.mono}>eas login</Text> ou variable{' '}
+              <Text style={styles.mono}>EXPO_TOKEN</Text> pour les environnements sans fenêtre de connexion).
+            </Text>
+          </View>
+
           <View style={[surface.neonPanel, styles.tabRows]}>
             <View style={styles.tabRow}>
               <DistributionRoleTab
@@ -398,6 +410,23 @@ const styles = StyleSheet.create({
   intro: { marginTop: spacing.sm, marginBottom: spacing.lg },
   em: { fontWeight: '700', color: colors.goldDim },
   infra: { marginBottom: spacing.md },
+  anywhereBox: {
+    marginBottom: spacing.lg,
+    padding: spacing.md,
+    borderRadius: radius.lg,
+    borderWidth: 2,
+    borderColor: 'rgba(74, 222, 128, 0.35)',
+    backgroundColor: 'rgba(20, 50, 35, 0.35)',
+    alignSelf: 'stretch',
+  },
+  anywhereTitle: {
+    color: colors.gold,
+    fontWeight: '900',
+    fontSize: 13,
+    letterSpacing: 0.8,
+    marginBottom: spacing.sm,
+  },
+  anywhereBody: { lineHeight: 20 },
   tabRows: {
     marginBottom: spacing.lg,
     gap: spacing.sm,

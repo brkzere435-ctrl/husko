@@ -8,6 +8,7 @@ import { DeploymentHints } from '@/components/DeploymentHints';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { OtaUpdateSection } from '@/components/OtaUpdateSection';
 import { SettingsSection, SettingsSwitchRow } from '@/components/settings/SettingsSection';
+import { SyncDiagnosticsSection } from '@/components/settings/SyncDiagnosticsSection';
 import { WestCoastBackground } from '@/components/westcoast/WestCoastBackground';
 import {
   CLIENT_PHONE_DISPLAY,
@@ -78,6 +79,7 @@ export default function ClientReglagesScreen() {
             </Link>
           </SettingsSection>
 
+          <SyncDiagnosticsSection />
           <OtaUpdateSection />
           <DeploymentHints mode="settings" mapsRelevant={false} style={styles.hint} />
         </ScrollView>

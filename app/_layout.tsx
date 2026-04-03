@@ -24,6 +24,7 @@ import {
   subscribeToRemoteDriver,
   subscribeToRemoteOrders,
 } from '@/services/firebaseRemote';
+import { mergeRemoteOrdersWithLocal } from '@/utils/mergeRemoteOrders';
 import {
   OTA_PERIODIC_CHECK_MS,
   checkAndReloadUpdatesAsync,
@@ -32,6 +33,7 @@ import { configureNotificationHandler } from '@/services/orderNotifications';
 import { useHuskoStore } from '@/stores/useHuskoStore';
 import Constants from 'expo-constants';
 
+import { debugAgentLog } from '@/utils/debugAgentLog';
 import { emitBootDebugProbes, isBootDebugEnabled } from '@/utils/debugProbe';
 import { readHuskoExpoExtra } from '@/utils/readHuskoExpoExtra';
 
@@ -91,9 +93,49 @@ export default function RootLayout() {
 
   useEffect(() => {
     if (!isRemoteSyncEnabled()) return;
-    const unsubOrders = subscribeToRemoteOrders((orders) => {
-      useHuskoStore.setState({ orders });
-    });
+    const unsubOrders = subscribeToRemoteOrders(
+      (remoteOrders, meta) => {
+        useHuskoStore.setState((state) => {
+          const merged = mergeRemoteOrdersWithLocal(remoteOrders, state.orders);
+          debugAgentLog({
+            location: 'app/_layout.tsx:mergeRemoteOrders',
+            message: 'after merge',
+            hypothesisId: 'H4',
+            data: {
+              remoteN: remoteOrders.length,
+              localN: state.orders.length,
+              mergedN: merged.length,
+              snapDocCount: meta.snapDocCount,
+              coercedCount: meta.coercedCount,
+            },
+          });
+          return {
+            orders: merged,
+            cloudSyncListenError: null,
+            ordersSyncDebug: {
+              updatedAt: Date.now(),
+              snapDocCount: meta.snapDocCount,
+              coercedCount: meta.coercedCount,
+              sampleIds: remoteOrders.slice(0, 8).map((o) => o.id),
+              lastMerge: {
+                remoteN: remoteOrders.length,
+                localN: state.orders.length,
+                mergedN: merged.length,
+              },
+            },
+          };
+        });
+      },
+      (err) => {
+        debugAgentLog({
+          location: 'app/_layout.tsx:onListenError',
+          message: 'layout listen error',
+          hypothesisId: 'H2',
+          data: { err: err.message },
+        });
+        useHuskoStore.setState({ cloudSyncListenError: err.message });
+      }
+    );
     const unsubDriver = subscribeToRemoteDriver((driver, driverHeading) => {
       useHuskoStore.setState({ driver, driverHeading });
     });

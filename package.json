@@ -46,6 +46,8 @@
     "assets:menu:stock": "node scripts/fetch-menu-stock-photos.mjs",
     "assets:menu:flyers": "node scripts/extract-menu-from-flyers.mjs",
     "assets:menu:verify": "npm run verify:menu-assets && npm run verify:menu-visual-pro",
+    "assets:menu:stock:smash": "node scripts/fetch-menu-stock-photos.mjs smash-1 smash-2 smash-3 smash-4",
+    "verify:prebuild-recette:menu": "node scripts/print-prebuild-recette-menu.mjs",
     "build:apk:mono": "node scripts/eas-build-all-apk.mjs --mono",
     "build:apk:preview": "node node_modules/cross-env/src/bin/cross-env.js EAS_BUILD_NO_EXPO_GO_WARNING=true EAS_BUILD_AUTOCOMMIT=1 eas build -p android --profile preview --non-interactive",
     "start:gerant": "node node_modules/cross-env/src/bin/cross-env.js EXPO_PUBLIC_APP_VARIANT=gerant expo start",

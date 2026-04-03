@@ -46,7 +46,7 @@ export default function ProductDetailScreen() {
           <Animated.View entering={FadeInDown.duration(420).springify()}>
             <Card mode="elevated" style={styles.heroCard}>
               <Card.Content style={styles.heroCardContent}>
-                <MenuItemVisual item={item} size="lg" />
+                <MenuItemVisual item={item} size="lg" emphasizeFrame={false} />
                 <Text variant="headlineSmall" style={styles.name}>
                   {item.name}
                 </Text>
@@ -80,9 +80,9 @@ const styles = StyleSheet.create({
   heroCard: {
     marginBottom: spacing.xl,
     borderRadius: radius.xl,
-    borderWidth: 2,
-    borderColor: WC.neonCyanDim,
-    backgroundColor: 'rgba(0,0,0,0.35)',
+    borderWidth: 1,
+    borderColor: 'rgba(34, 211, 238, 0.22)',
+    backgroundColor: 'rgba(0,0,0,0.28)',
   },
   heroCardContent: {
     alignItems: 'center',

@@ -8,6 +8,7 @@ import { DeploymentHints } from '@/components/DeploymentHints';
 import { OtaUpdateSection } from '@/components/OtaUpdateSection';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { SettingsSection, SettingsSwitchRow } from '@/components/settings/SettingsSection';
+import { SyncDiagnosticsSection } from '@/components/settings/SyncDiagnosticsSection';
 import { WestCoastBackground } from '@/components/westcoast/WestCoastBackground';
 import { AUTONOMOUS_PACE_ORDER, AUTONOMOUS_PACE_PRESETS } from '@/constants/autonomousDelivery';
 import { typography } from '@/constants/typography';
@@ -133,6 +134,7 @@ export default function ReglagesScreen() {
             />
           </SettingsSection>
 
+          <SyncDiagnosticsSection />
           <OtaUpdateSection />
           <DeploymentHints mode="settings" style={styles.hintBlock} />
         </ScrollView>
