@@ -58,6 +58,7 @@ Pour un essai **d’une variante seule** (client, livreur, etc.), utilise plutô
 |--------|---------------------------|
 | Clé API ou `.env` commité par erreur | `.gitignore` inclut `.env` ; `npm run security:check` échoue si `.env` est suivi par Git. |
 | `eas build` refusé ou **APK sans tes derniers fichiers** | EAS archive Git : le non commité part souvent pas. `npm run security:check:strict` ou `release:doctor` bloquent si l’arbre est sale ; urgence : `HUSKO_SKIP_DIRTY_GIT=1` (à éviter). |
+| **`fatal: could not open '.git/COMMIT_EDITMSG'`** (Windows / OneDrive / IDE) | Le profil **`apk-unified`** n’utilise plus `autoIncrement` + commit auto : incrémente **`versionCode`** dans [`app.json`](app.json) (`expo.android.versionCode`) avant chaque nouveau build hub, puis commit. Évite le verrouillage de `.git` par le hook EAS. |
 | Carte grise après « mise à jour » | Les clés Maps sont **natives** : un **`eas update` JS ne suffit pas** ; refaire un **build APK** après avoir mis les clés dans EAS. |
 | Client / gérant / livreur pas synchronisés | Firebase incomplet → données locales seules ; suivre la section **Liaison directe entre appareils** ci‑dessous. |
 | Perte du keystore Android | Sauvegarder ce qu’EAS ou `npm run android:keystore` génère ; sinon nouvelle signature = nouvelle app côté magasin. |

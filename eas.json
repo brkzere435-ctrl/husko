@@ -27,12 +27,10 @@
       "distribution": "internal",
       "channel": "hub",
       "android": {
-        "buildType": "apk",
-        "autoIncrement": "versionCode"
+        "buildType": "apk"
       },
       "env": {
-        "EXPO_PUBLIC_APP_VARIANT": "all",
-        "EAS_BUILD_AUTOCOMMIT": "1"
+        "EXPO_PUBLIC_APP_VARIANT": "all"
       }
     },
     "apk-gerant": {
