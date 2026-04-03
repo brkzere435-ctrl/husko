@@ -91,21 +91,6 @@ export default function PanierScreen() {
               ) : null}
             </>
           ) : null}
-          <View style={[styles.mapRow, mapStackVertical && styles.mapRowStack]}>
-            <GTAMiniMap
-              region={region}
-              driver={driver}
-              headingDeg={driverHeading}
-              dest={ANGERS_DEFAULT}
-              showDest
-              hudFooter="PREVIEW MAP · ANGERS"
-            />
-            <View style={[styles.mapLegend, mapStackVertical && styles.mapLegendStacked]}>
-              <Text style={typography.bodyMuted}>
-                QG Husko : bâtiment en H (néon) · pin rouge = adresse de livraison · lowrider = livreur.
-              </Text>
-            </View>
-          </View>
 
           <ScreenSection title="Adresse">
             <TextInput
@@ -144,6 +129,24 @@ export default function PanierScreen() {
                 </View>
               ))
             )}
+          </ScreenSection>
+
+          <ScreenSection title="Aperçu zone">
+            <View style={[styles.mapRow, mapStackVertical && styles.mapRowStack]}>
+              <GTAMiniMap
+                region={region}
+                driver={driver}
+                headingDeg={driverHeading}
+                dest={ANGERS_DEFAULT}
+                showDest
+                hudFooter="APERÇU · ANGERS"
+              />
+              <View style={[styles.mapLegend, mapStackVertical && styles.mapLegendStacked]}>
+                <Text style={typography.caption}>
+                  QG (néon) · pin = livraison · véhicule = livreur si suivi actif.
+                </Text>
+              </View>
+            </View>
           </ScreenSection>
 
           <LinearGradient

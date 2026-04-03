@@ -48,7 +48,13 @@ function MenuItemVisualInner({ item, size }: Props) {
     const placeholderBg = CAT_GRAD[item.category][0];
     const thumb = size === 'sm';
     return (
-      <View style={[styles.wrap, { width: side, height: side, backgroundColor: placeholderBg }]}>
+      <View
+        style={[
+          styles.wrap,
+          thumb && styles.wrapThumb,
+          { width: side, height: side, backgroundColor: placeholderBg },
+        ]}
+      >
         <Image
           source={photo}
           recyclingKey={item.id}
@@ -68,7 +74,7 @@ function MenuItemVisualInner({ item, size }: Props) {
   }
 
   return (
-    <View style={[styles.wrap, { width: side, height: side }]}>
+    <View style={[styles.wrap, size === 'sm' && styles.wrapThumb, { width: side, height: side }]}>
       <LinearGradient colors={g} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.grad}>
         <View style={[styles.neon, size === 'lg' && styles.neonLg]} />
         <Ionicons name={icon} size={iconSz} color={WC.gold} style={styles.iconShadow} />
@@ -89,6 +95,13 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.2,
     shadowRadius: 8,
+  },
+  /** Liste menu : cadre discret pour ne pas surcharger visuellement. */
+  wrapThumb: {
+    borderWidth: 1,
+    borderColor: 'rgba(253, 230, 138, 0.22)',
+    shadowOpacity: 0,
+    shadowRadius: 0,
   },
   photo: {
     ...StyleSheet.absoluteFillObject,

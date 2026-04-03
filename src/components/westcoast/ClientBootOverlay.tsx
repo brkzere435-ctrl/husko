@@ -1,9 +1,9 @@
-import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useEffect } from 'react';
 import { Image, Modal, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { BrandMark } from '@/components/BrandMark';
 import { CLIENT_BOOT_HERO } from '@/constants/brandingAssets';
 import { FONT } from '@/constants/fonts';
 import { spacing } from '@/constants/theme';
@@ -51,17 +51,10 @@ export function ClientBootOverlay({ visible, onDone }: Props) {
           <View style={styles.neonTop} />
           <Text style={styles.kicker}>HUSKO · BY NIGHT</Text>
           <Text style={styles.headline}>LE PLUS RAPIDE DES{'\n'}MEILLEURS KEBABS</Text>
-          <Text style={styles.script}>d&apos;Angers</Text>
+          <Text style={styles.script}>Angers · livraison nocturne</Text>
 
           <View style={styles.scene}>
-            <View style={styles.truckGlow}>
-              <MaterialCommunityIcons name="truck" size={118} color={WC.neonCyan} style={styles.truckIcon} />
-              <View style={styles.headlightL} />
-              <View style={styles.headlightR} />
-            </View>
-            <View style={styles.person}>
-              <Ionicons name="person" size={72} color={WC.gold} />
-            </View>
+            <BrandMark compact />
           </View>
 
           <Text style={styles.banner}>LA RECETTE QUI DOMINE LA VILLE</Text>
@@ -123,54 +116,16 @@ const styles = StyleSheet.create({
   script: {
     fontFamily: FONT.medium,
     marginTop: spacing.sm,
-    color: '#fef3c7',
-    fontSize: 28,
+    color: 'rgba(254, 243, 199, 0.92)',
+    fontSize: 15,
     textAlign: 'center',
-    fontStyle: 'italic',
+    letterSpacing: 0.6,
   },
   scene: {
-    marginTop: spacing.xl,
+    marginTop: spacing.lg,
     alignItems: 'center',
     justifyContent: 'center',
-    minHeight: 200,
-  },
-  truckGlow: {
-    position: 'relative',
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: WC.neonCyan,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.95,
-    shadowRadius: 28,
-  },
-  truckIcon: {
-    opacity: 0.95,
-  },
-  headlightL: {
-    position: 'absolute',
-    left: 18,
-    bottom: 28,
-    width: 22,
-    height: 14,
-    borderRadius: 6,
-    backgroundColor: '#fde047',
-    opacity: 0.95,
-  },
-  headlightR: {
-    position: 'absolute',
-    right: 18,
-    bottom: 28,
-    width: 22,
-    height: 14,
-    borderRadius: 6,
-    backgroundColor: '#fde047',
-    opacity: 0.95,
-  },
-  person: {
-    position: 'absolute',
-    right: 36,
-    bottom: -8,
-    opacity: 0.98,
+    minHeight: 100,
   },
   banner: {
     fontFamily: FONT.bold,

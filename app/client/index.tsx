@@ -93,7 +93,6 @@ function MenuHero() {
       <View style={styles.heroInnerGlow} pointerEvents="none" />
       <Text style={styles.wcBrand}>HUSKO</Text>
       <Text style={styles.wcSub}>{VENUE_TAGLINE_CLIENT}</Text>
-      <Text style={styles.wcScript}>d&apos;Angers</Text>
       <View style={[styles.statusPill, open ? styles.statusOpen : styles.statusClosed]}>
         <View style={[styles.statusDot, open ? styles.statusDotOn : styles.statusDotOff]} />
         <Text style={styles.statusPillText}>{open ? clientStrings.openNow : clientStrings.closedNow}</Text>
@@ -455,28 +454,15 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(253, 230, 138, 0.12)',
   },
-  wcScript: {
-    marginTop: 8,
-    marginBottom: 2,
-    fontSize: 22,
-    fontStyle: 'italic',
-    fontWeight: '700',
-    color: '#fda4af',
-    textAlign: 'center',
-    letterSpacing: 0.4,
-    textShadowColor: 'rgba(0,0,0,0.45)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 6,
-  },
   wcBrand: {
-    fontSize: 36,
+    fontSize: 34,
     fontWeight: '900',
-    letterSpacing: 6,
+    letterSpacing: 4,
     color: WC.white,
     textAlign: 'center',
-    textShadowColor: WC.fire,
-    textShadowOffset: { width: 0, height: 0 },
-    textShadowRadius: 14,
+    textShadowColor: 'rgba(0,0,0,0.5)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 8,
   },
   wcSub: {
     marginTop: spacing.sm,
