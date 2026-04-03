@@ -69,6 +69,7 @@
     "eas:sync:maps": "node scripts/eas-sync-maps-env.mjs",
     "eas:sync:maps:verify": "npm run eas:sync:maps && npm run release:check",
     "eas:sync:firebase": "node scripts/eas-sync-firebase-env.mjs",
+    "eas:sync:secrets": "npm run eas:sync:firebase && npm run eas:sync:maps",
     "firebase:env:check": "node scripts/check-firebase-env.mjs",
     "firebase:env:check:strict": "node scripts/check-firebase-env.mjs --strict",
     "google-services:check": "node scripts/check-google-services.mjs",
