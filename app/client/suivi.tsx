@@ -22,10 +22,13 @@ import { CLIENT_PHONE_DISPLAY, CLIENT_PHONE_TEL, clientStrings } from '@/constan
 import { PENDING_VALIDATION_MS } from '@/constants/orderPolicy';
 import { CLIENT_TIMELINE, timelineStepIndex } from '@/constants/orderFlow';
 import { PAYMENT_NOTICE_SHORT } from '@/constants/paymentPolicy';
+import { FONT } from '@/constants/fonts';
 import { typography } from '@/constants/typography';
 import { HUSKO_DEPARTURE_HUB } from '@/constants/huskoDepartureHub';
 import { colors, elevation, radius, spacing } from '@/constants/theme';
+import { WC } from '@/constants/westCoastTheme';
 import { useHuskoStore } from '@/stores/useHuskoStore';
+import { formatEuro } from '@/utils/formatEuro';
 import { fitMapRegion } from '@/utils/fitMapRegion';
 
 export default function SuiviScreen() {
@@ -118,7 +121,7 @@ export default function SuiviScreen() {
                       <Ionicons
                         name={done || current ? 'flame' : 'flame-outline'}
                         size={current ? 26 : 20}
-                        color={current ? '#f87171' : done ? colors.gold : colors.textMuted}
+                        color={current ? WC.fire : done ? colors.gold : colors.textMuted}
                         style={current ? styles.stepperFlameHot : undefined}
                       />
                       <Text
@@ -164,7 +167,7 @@ export default function SuiviScreen() {
               ) : null}
 
               <Text style={[typography.body, styles.addr]}>{active.addressLabel}</Text>
-              <Text style={typography.price}>{active.total.toFixed(2)} €</Text>
+              <Text style={typography.price}>{formatEuro(active.total)}</Text>
               <Text style={[typography.caption, styles.pay]}>{PAYMENT_NOTICE_SHORT}</Text>
 
               {active.status === 'awaiting_livreur' ? (
@@ -212,7 +215,7 @@ export default function SuiviScreen() {
                   onPress={() => void Linking.openURL('https://snapchat.com/add/HUSKOBYNIGHT')}
                   style={styles.contactChip}
                 >
-                  <Ionicons name="logo-snapchat" size={18} color="#67e8f9" />
+                  <Ionicons name="logo-snapchat" size={18} color={WC.neonCyan} />
                   <Text style={styles.contactChipTxt}>HUSKOBYNIGHT</Text>
                 </Pressable>
                 <Pressable
@@ -288,9 +291,8 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(248, 113, 113, 0.45)',
   },
   cancelTitle: {
-    fontSize: 22,
-    fontWeight: '900',
-    color: '#fca5a5',
+    ...typography.title,
+    color: colors.posterRed,
     letterSpacing: 0.5,
   },
   cancelBody: { lineHeight: 22 },
@@ -302,8 +304,7 @@ const styles = StyleSheet.create({
     borderColor: colors.borderGlow,
   },
   merciTitle: {
-    fontSize: 22,
-    fontWeight: '900',
+    ...typography.title,
     color: colors.gold,
     letterSpacing: 0.5,
   },
@@ -331,23 +332,24 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   etaHeroKicker: {
+    ...typography.caption,
+    fontFamily: FONT.bold,
     fontSize: 11,
-    fontWeight: '900',
     letterSpacing: 2,
     color: 'rgba(250,250,250,0.75)',
     textTransform: 'uppercase',
   },
   etaHeroTime: {
     marginTop: spacing.xs,
+    fontFamily: FONT.bold,
     fontSize: 40,
-    fontWeight: '900',
     color: colors.gold,
     fontVariant: ['tabular-nums'],
   },
   etaHeroSub: {
     marginTop: spacing.xs,
+    ...typography.bodyMuted,
     fontSize: 13,
-    color: colors.textMuted,
     fontWeight: '600',
   },
   stepperRow: {
@@ -368,12 +370,13 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   stepperFlameHot: {
-    shadowColor: '#f87171',
+    shadowColor: WC.fire,
     shadowOpacity: 0.9,
     shadowRadius: 10,
     shadowOffset: { width: 0, height: 0 },
   },
   stepperLbl: {
+    fontFamily: FONT.medium,
     fontSize: 9,
     fontWeight: '700',
     color: colors.textMuted,
@@ -381,7 +384,7 @@ const styles = StyleSheet.create({
     lineHeight: 12,
   },
   stepperLblDone: { color: colors.text },
-  stepperLblCurrent: { color: '#fca5a5', fontWeight: '900' },
+  stepperLblCurrent: { color: WC.fire, fontFamily: FONT.bold, fontWeight: '800' },
   contactStrip: {
     marginTop: spacing.lg,
     paddingTop: spacing.md,
@@ -391,8 +394,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   contactStripLbl: {
+    fontFamily: FONT.bold,
     fontSize: 10,
-    fontWeight: '900',
     letterSpacing: 3,
     color: 'rgba(250,250,250,0.45)',
   },
@@ -408,6 +411,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.25)',
   },
   contactChipTxt: {
+    fontFamily: FONT.bold,
     fontSize: 14,
     fontWeight: '800',
     color: colors.text,
@@ -415,34 +419,35 @@ const styles = StyleSheet.create({
   badgeRow: { marginTop: spacing.sm, marginBottom: spacing.sm },
   pendingHint: {
     marginBottom: spacing.md,
-    color: '#67e8f9',
+    color: WC.neonCyan,
     fontSize: 13,
     lineHeight: 19,
+    fontFamily: FONT.medium,
     fontWeight: '600',
   },
   etaLine: { marginBottom: spacing.md, color: colors.textMuted, fontSize: 14, lineHeight: 20 },
-  etaStrong: { color: colors.gold, fontWeight: '800' },
+  etaStrong: { color: colors.gold, fontFamily: FONT.bold, fontWeight: '800' },
   addr: { marginTop: spacing.xs },
   pay: { marginTop: spacing.md, fontStyle: 'italic' },
   mapHint: { marginTop: spacing.md },
   mapTitle: {
+    ...typography.section,
     marginBottom: spacing.xs,
     marginTop: spacing.sm,
     alignSelf: 'stretch',
     textAlign: 'center',
     color: colors.gold,
     fontSize: 13,
-    fontWeight: '900',
     letterSpacing: 1.4,
-    textTransform: 'uppercase',
   },
   mapSub: {
+    fontFamily: FONT.medium,
     textAlign: 'center',
-    color: '#67e8f9',
+    color: WC.neonCyan,
     fontSize: 11,
     fontWeight: '600',
     marginBottom: spacing.sm,
-    opacity: 0.9,
+    opacity: 0.92,
   },
   mapWrap: { marginTop: spacing.lg, alignItems: 'center' },
   historiqueLinkWrap: { marginTop: spacing.md, marginBottom: spacing.sm },

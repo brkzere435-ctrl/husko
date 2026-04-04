@@ -14,6 +14,7 @@ import { deliveryHoursLabel } from '@/constants/hours';
 import { VENUE_TAGLINE_HUB } from '@/constants/venue';
 import { colors, elevation, radius, spacing, surface } from '@/constants/theme';
 import { WC, wcSectionLabel } from '@/constants/westCoastTheme';
+import { FONT } from '@/constants/fonts';
 import { typography } from '@/constants/typography';
 
 export default function HubScreen() {
@@ -105,8 +106,8 @@ const styles = StyleSheet.create({
   },
   header: { marginBottom: spacing.lg, alignItems: 'center' },
   wcKicker: {
+    fontFamily: FONT.bold,
     fontSize: 11,
-    fontWeight: '900',
     letterSpacing: 4,
     color: WC.neonCyan,
     marginBottom: spacing.xs,
@@ -114,6 +115,7 @@ const styles = StyleSheet.create({
   },
   unifiedTag: {
     ...typography.caption,
+    fontFamily: FONT.medium,
     color: WC.gold,
     fontWeight: '700',
     letterSpacing: 0.8,
@@ -158,8 +160,8 @@ const styles = StyleSheet.create({
   },
   phonePressed: { opacity: 0.88 },
   phone: {
+    fontFamily: FONT.bold,
     color: WC.gold,
-    fontWeight: '800',
     fontSize: 22,
     letterSpacing: 0.6,
   },

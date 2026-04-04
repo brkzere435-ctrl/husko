@@ -1,5 +1,6 @@
 import { Platform, StyleSheet, Text, View, type ViewStyle } from 'react-native';
 
+import { FONT } from '@/constants/fonts';
 import { typography } from '@/constants/typography';
 import { colors, radius, spacing } from '@/constants/theme';
 import { isRemoteSyncEnabled } from '@/services/firebaseRemote';
@@ -104,9 +105,9 @@ const styles = StyleSheet.create({
   },
   alertGap: { marginTop: spacing.xs },
   warnTitle: {
+    fontFamily: FONT.bold,
     color: colors.gold,
     fontSize: 11,
-    fontWeight: '900',
     letterSpacing: 0.6,
     textTransform: 'uppercase',
     flexShrink: 1,

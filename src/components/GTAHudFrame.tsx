@@ -2,6 +2,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import type { ReactNode } from 'react';
 import { StyleSheet, Text, View, type ViewStyle } from 'react-native';
 
+import { FONT } from '@/constants/fonts';
 import { WC } from '@/constants/westCoastTheme';
 import { radius, spacing } from '@/constants/theme';
 
@@ -113,17 +114,17 @@ const styles = StyleSheet.create({
     zIndex: 5,
   },
   hudMini: {
+    fontFamily: FONT.bold,
     color: WC.gold,
     fontSize: 9,
-    fontWeight: '900',
     letterSpacing: 2,
     textShadowColor: '#000',
     textShadowRadius: 3,
   },
   hudCompass: {
+    fontFamily: FONT.bold,
     color: WC.neonCyan,
     fontSize: 10,
-    fontWeight: '900',
   },
   bottomHud: {
     position: 'absolute',
@@ -138,9 +139,9 @@ const styles = StyleSheet.create({
     zIndex: 5,
   },
   hudFooter: {
+    fontFamily: FONT.bold,
     color: WC.gold,
     fontSize: 8,
-    fontWeight: '900',
     letterSpacing: 0.8,
     textAlign: 'center',
   },

@@ -15,6 +15,7 @@ import {
   CLIENT_PHONE_TEL,
   clientStrings,
 } from '@/constants/clientExperience';
+import { FONT } from '@/constants/fonts';
 import { typography } from '@/constants/typography';
 import { colors, radius, spacing } from '@/constants/theme';
 import { VENUE_TAGLINE_CLIENT } from '@/constants/venue';
@@ -94,15 +95,14 @@ const styles = StyleSheet.create({
   screenTitle: {
     ...typography.title,
     color: WC.white,
-    fontWeight: '900',
     letterSpacing: 0.5,
   },
   screenSubtitle: { marginBottom: spacing.sm, lineHeight: 20 },
   heroInner: { gap: spacing.xs },
   brand: {
     ...typography.title,
+    fontFamily: FONT.bold,
     color: WC.white,
-    fontWeight: '900',
     letterSpacing: 4,
   },
   heroHint: { color: colors.textMuted, lineHeight: 18 },
@@ -117,6 +117,7 @@ const styles = StyleSheet.create({
   phoneBtnPressed: { opacity: 0.88 },
   phoneBtnText: {
     ...typography.body,
+    fontFamily: FONT.bold,
     fontWeight: '800',
     color: WC.gold,
   },

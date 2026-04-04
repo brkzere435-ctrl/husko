@@ -20,6 +20,7 @@ import { colors, elevation, radius, spacing, surface } from '@/constants/theme';
 import { WC, wcSectionLabel } from '@/constants/westCoastTheme';
 import type { Order } from '@/stores/useHuskoStore';
 import { useHuskoStore } from '@/stores/useHuskoStore';
+import { formatEuro } from '@/utils/formatEuro';
 import { hapticLight } from '@/utils/haptics';
 import { openSiblingApp } from '@/utils/siblingApps';
 
@@ -222,7 +223,7 @@ export default function GerantDashboardScreen() {
                   </Text>
                   <OrderLinesPreview lines={o.lines} />
                   <Text variant="bodySmall" style={[typography.caption, styles.meta]}>
-                    {o.total.toFixed(2)} €
+                    {formatEuro(o.total)}
                   </Text>
                   <View style={styles.actions}>
                     <GerantOrderActions
@@ -282,11 +283,12 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.35)',
   },
   autoBannerTitle: {
-    color: colors.gold,
-    fontWeight: '800',
+    ...typography.section,
     fontSize: 13,
     letterSpacing: 0.6,
     marginBottom: spacing.xs,
+    textTransform: 'none',
+    color: colors.gold,
   },
   autoBannerText: { fontSize: 13, lineHeight: 19 },
   links: { gap: spacing.sm, marginBottom: spacing.lg, padding: spacing.md },
@@ -312,8 +314,8 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: colors.cardElevated,
     borderRadius: radius.xl,
-    borderWidth: 2,
-    borderColor: 'rgba(34, 211, 238, 0.35)',
+    borderWidth: 1,
+    borderColor: colors.borderGlow,
     marginBottom: spacing.md,
     ...elevation.card,
   },

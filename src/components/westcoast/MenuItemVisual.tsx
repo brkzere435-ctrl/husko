@@ -7,8 +7,8 @@ import { StyleSheet, View } from 'react-native';
 
 import type { MenuCategory, MenuItem } from '@/constants/menu';
 import { getMenuImage } from '@/constants/menuImages';
+import { colors, radius, spacing } from '@/constants/theme';
 import { WC } from '@/constants/westCoastTheme';
-import { radius, spacing } from '@/constants/theme';
 
 const CAT_ICON: Record<MenuCategory, ComponentProps<typeof Ionicons>['name']> = {
   smash: 'flame',
@@ -20,13 +20,14 @@ const CAT_ICON: Record<MenuCategory, ComponentProps<typeof Ionicons>['name']> = 
   boisson: 'water',
 };
 
+/** Repli sans photo — dégradés calés sur theme + WC (pas de violet isolé). */
 const CAT_GRAD: Record<MenuCategory, [string, string, string]> = {
-  smash: ['#7f1d1d', '#3b0764', '#0c0a09'],
-  frites: ['#78350f', '#7f1d1d', '#1c1917'],
-  baguette: ['#854d0e', '#451a03', '#0c0a09'],
-  sandwich: ['#991b1b', '#134e4a', '#0f172a'],
-  four: ['#9a3412', '#7c2d12', '#1c1917'],
-  dessert: ['#831843', '#4c0519', '#0f172a'],
+  smash: [colors.accentDeep, WC.brick, colors.bg],
+  frites: ['#78350f', colors.accentMid, colors.bg],
+  baguette: ['#854d0e', WC.brickDeep, colors.bg],
+  sandwich: [colors.accentMid, '#134e4a', colors.bg],
+  four: ['#9a3412', colors.accentDeep, colors.bg],
+  dessert: [WC.brick, '#4c0519', colors.bg],
   boisson: ['#0e7490', '#164e63', '#0c4a6e'],
 };
 

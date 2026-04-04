@@ -7,9 +7,11 @@ import { WestCoastBackground } from '@/components/westcoast/WestCoastBackground'
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { revolutPayUrlForTier } from '@/constants/revolutLinks';
 import { SUBSCRIPTION_PLANS, type SubscriptionTierId } from '@/constants/subscriptionPlans';
+import { FONT } from '@/constants/fonts';
 import { colors, radius, spacing, surface } from '@/constants/theme';
 import { typography } from '@/constants/typography';
 import { useAssistantStore } from '@/stores/useAssistantStore';
+import { formatEuro } from '@/utils/formatEuro';
 
 export default function AssistantAbonnementScreen() {
   const setTier = useAssistantStore((s) => s.setTier);
@@ -68,7 +70,7 @@ export default function AssistantAbonnementScreen() {
                     ) : null}
                   </View>
                   <Text variant="headlineSmall" style={styles.price}>
-                    {p.priceEur} €
+                    {formatEuro(p.priceEur)}
                   </Text>
                 </View>
                 <Text variant="bodyMedium" style={styles.tag}>
@@ -137,6 +139,7 @@ const styles = StyleSheet.create({
   reco: {
     marginTop: 4,
     fontSize: 11,
+    fontFamily: FONT.bold,
     fontWeight: '800',
     color: colors.gold,
     textTransform: 'uppercase',

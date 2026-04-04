@@ -1,6 +1,7 @@
 import { StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { FONT } from '@/constants/fonts';
 import { typography } from '@/constants/typography';
 import { WC } from '@/constants/westCoastTheme';
 import { spacing } from '@/constants/theme';
@@ -36,8 +37,8 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.sm,
   },
   title: {
+    fontFamily: FONT.bold,
     color: WC.gold,
-    fontWeight: '900',
     fontSize: 12,
     letterSpacing: 0.8,
     textTransform: 'uppercase',

@@ -1,6 +1,6 @@
 /**
- * Génère les PNG des QR depuis distribution.defaults.json (unified, assistant, gerant, client, livreur)
- * Couleurs distinctes par rôle (or / vert / bleu).
+ * Génère les PNG des QR depuis distribution.defaults.json (unified, development, assistant, gerant, client, livreur)
+ * Couleurs distinctes par rôle (or / vert / bleu / dev).
  */
 import { mkdirSync, readFileSync, existsSync } from 'fs';
 import { dirname, join } from 'path';
@@ -15,6 +15,8 @@ const defaultsPath = join(root, 'distribution.defaults.json');
 /** dark (modules QR) + light (fond) par rôle — génère aussi unified / assistant si URL http dans .json */
 const ROLE_QR = {
   unified: { dark: '#22d3ee', light: '#081a1c' },
+  /** development-husko (dev client + Metro) */
+  development: { dark: '#fb923c', light: '#1c0f08' },
   assistant: { dark: '#e879f9', light: '#1a0c18' },
   gerant: { dark: '#f0d050', light: '#1a0808' },
   client: { dark: '#4ade80', light: '#0a1a12' },
@@ -51,5 +53,5 @@ for (const [name, url] of entries) {
 }
 
 console.log(
-  '\nTerminé. Fichiers dans assets/distribution-qr/ (unified, assistant, gerant, client, livreur si URL http renseignées).'
+  '\nTerminé. Fichiers dans assets/distribution-qr/ (unified, development, assistant, gerant, client, livreur si URL http renseignées).'
 );

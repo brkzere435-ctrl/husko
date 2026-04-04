@@ -6,9 +6,11 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { WestCoastBackground } from '@/components/westcoast/WestCoastBackground';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { SUBSCRIPTION_PLANS } from '@/constants/subscriptionPlans';
+import { FONT } from '@/constants/fonts';
 import { colors, radius, spacing, surface } from '@/constants/theme';
 import { typography } from '@/constants/typography';
 import { useAssistantStore } from '@/stores/useAssistantStore';
+import { formatEuro } from '@/utils/formatEuro';
 
 export default function AssistantHomeScreen() {
   const tier = useAssistantStore((s) => s.tier);
@@ -32,7 +34,7 @@ export default function AssistantHomeScreen() {
               Forfait
             </Text>
             <Text variant="titleMedium" style={styles.planValue}>
-              {plan ? `${plan.name} · ${plan.priceEur} €` : '—'}
+              {plan ? `${plan.name} · ${formatEuro(plan.priceEur)}` : '—'}
             </Text>
           </Card.Content>
         </Card>
@@ -78,8 +80,13 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  planLabel: { ...typography.caption, color: colors.textMuted, fontWeight: '700' },
-  planValue: { ...typography.body, fontWeight: '800', color: colors.gold },
+  planLabel: {
+    ...typography.caption,
+    fontFamily: FONT.medium,
+    color: colors.textMuted,
+    fontWeight: '700',
+  },
+  planValue: { ...typography.body, fontFamily: FONT.bold, fontWeight: '800', color: colors.gold },
   actions: { gap: spacing.md, marginTop: 'auto', paddingBottom: spacing.xl },
   btn: { width: '100%' },
 });

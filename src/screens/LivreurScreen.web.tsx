@@ -10,6 +10,7 @@ import { GTAMiniMap } from '@/components/GTAMiniMap';
 import { WestCoastBackground } from '@/components/westcoast/WestCoastBackground';
 import { LivreurAppGate } from '@/components/LivreurAppGate';
 import { LivreurOrderPanel } from '@/components/LivreurOrderPanel';
+import { FONT } from '@/constants/fonts';
 import { colors, radius, spacing } from '@/constants/theme';
 import { WC } from '@/constants/westCoastTheme';
 import type { MapRegion } from '@/types/mapRegion';
@@ -164,8 +165,8 @@ const styles = StyleSheet.create({
   },
   bigMarker: { marginBottom: spacing.md },
   placeholderTitle: {
+    fontFamily: FONT.bold,
     color: colors.gold,
-    fontWeight: '900',
     fontSize: 16,
     marginTop: spacing.sm,
     textAlign: 'center',
@@ -199,5 +200,5 @@ const styles = StyleSheet.create({
     borderColor: WC.neonCyanDim,
   },
   hudPulse: { opacity: 0.95 },
-  hudText: { color: colors.gold, fontWeight: '900', fontSize: 11, letterSpacing: 2 },
+  hudText: { fontFamily: FONT.bold, color: colors.gold, fontSize: 11, letterSpacing: 2 },
 });

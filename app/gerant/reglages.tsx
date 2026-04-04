@@ -11,6 +11,7 @@ import { SettingsSection, SettingsSwitchRow } from '@/components/settings/Settin
 import { SyncDiagnosticsSection } from '@/components/settings/SyncDiagnosticsSection';
 import { WestCoastBackground } from '@/components/westcoast/WestCoastBackground';
 import { AUTONOMOUS_PACE_ORDER, AUTONOMOUS_PACE_PRESETS } from '@/constants/autonomousDelivery';
+import { FONT } from '@/constants/fonts';
 import { typography } from '@/constants/typography';
 import { colors, radius, spacing } from '@/constants/theme';
 import { WC } from '@/constants/westCoastTheme';
@@ -149,7 +150,6 @@ const styles = StyleSheet.create({
   screenTitle: {
     ...typography.title,
     color: WC.white,
-    fontWeight: '900',
     letterSpacing: 0.5,
   },
   screenSubtitle: { marginBottom: spacing.sm, lineHeight: 20 },
@@ -162,7 +162,7 @@ const styles = StyleSheet.create({
     gap: spacing.xs,
   },
   shortcutPressed: { opacity: 0.85 },
-  shortcutTitle: { ...typography.body, fontWeight: '800', color: WC.gold },
+  shortcutTitle: { ...typography.body, fontFamily: FONT.bold, fontWeight: '800', color: WC.gold },
   presetRow: {
     padding: spacing.md,
     borderRadius: radius.lg,
@@ -175,7 +175,7 @@ const styles = StyleSheet.create({
     borderColor: WC.neonCyan,
     backgroundColor: 'rgba(0,0,0,0.4)',
   },
-  presetLabelOn: { color: colors.gold, fontWeight: '800' },
+  presetLabelOn: { color: colors.gold, fontFamily: FONT.bold, fontWeight: '800' },
   syncEta: { marginTop: spacing.sm, color: colors.textMuted, lineHeight: 18 },
   input: {
     marginTop: spacing.xs,

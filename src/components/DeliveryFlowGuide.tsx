@@ -1,5 +1,6 @@
 import { StyleSheet, Text, View } from 'react-native';
 
+import { FONT } from '@/constants/fonts';
 import { typography } from '@/constants/typography';
 import { colors, radius, spacing } from '@/constants/theme';
 import { WC, wcSectionLabel } from '@/constants/westCoastTheme';
@@ -41,9 +42,9 @@ const styles = StyleSheet.create({
   },
   row: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.sm },
   num: {
+    fontFamily: FONT.bold,
     width: 22,
     textAlign: 'center',
-    fontWeight: '900',
     fontSize: 11,
     color: WC.neonCyan,
     marginTop: 1,

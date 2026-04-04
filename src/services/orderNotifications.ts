@@ -3,6 +3,7 @@ import { Platform } from 'react-native';
 
 import { getAppVariant } from '@/constants/appVariant';
 import type { Order } from '@/stores/useHuskoStore';
+import { formatEuro } from '@/utils/formatEuro';
 
 function canNotify() {
   return Platform.OS !== 'web';
@@ -58,22 +59,22 @@ export async function notifyAppUpdateReady(): Promise<boolean> {
 /** Nouvelle commande : notif locale dans l’app qui appelle `placeOrder` (souvent le client) — pas un push vers l’APK gérant. */
 export async function notifyGerantNewOrder(order: Order) {
   const variant = getAppVariant();
-  const total = order.total.toFixed(2);
+  const totalLbl = formatEuro(order.total);
   if (variant === 'client') {
     await schedule(
       'Husko · Commande envoyée',
-      `Commande ${order.id} — ${total} €. Le restaurant la reçoit par synchronisation (Firebase).`
+      `Commande ${order.id} — ${totalLbl}. Le restaurant la reçoit par synchronisation (Firebase).`
     );
     return;
   }
   if (variant === 'all') {
     await schedule(
       'Husko · Nouvelle commande',
-      `${order.id} — ${total} €. Ouvrez l’espace gérant pour valider.`
+      `${order.id} — ${totalLbl}. Ouvrez l’espace gérant pour valider.`
     );
     return;
   }
-  await schedule('Husko · Gérant', `Nouvelle commande ${order.id} — ${total} €`);
+  await schedule('Husko · Gérant', `Nouvelle commande ${order.id} — ${totalLbl}`);
 }
 
 /** Gérant a validé → client */

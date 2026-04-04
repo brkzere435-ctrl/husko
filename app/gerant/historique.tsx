@@ -13,6 +13,7 @@ import { spacing, surface } from '@/constants/theme';
 import { WC, wcSectionLabel } from '@/constants/westCoastTheme';
 import type { Order } from '@/stores/useHuskoStore';
 import { useHuskoStore } from '@/stores/useHuskoStore';
+import { formatEuro } from '@/utils/formatEuro';
 
 export default function HistoriqueScreen() {
   const orders = useHuskoStore((s) => s.orders);
@@ -33,6 +34,7 @@ export default function HistoriqueScreen() {
           keyExtractor={(o) => o.id}
           drawDistance={200}
           style={styles.listFlex}
+          showsVerticalScrollIndicator={false}
           ListHeaderComponent={
             <DeploymentHints mode="alerts" mapsRelevant={false} style={styles.infra} />
           }
@@ -63,7 +65,7 @@ export default function HistoriqueScreen() {
                   {new Date(o.createdAt).toLocaleString('fr-FR')}
                 </Text>
                 <Text variant="titleMedium" style={typography.price}>
-                  {o.total.toFixed(2)} €
+                  {formatEuro(o.total)}
                 </Text>
                 <OrderLinesPreview lines={o.lines} compact />
                 <Text variant="bodyMedium" style={[typography.bodyMuted, styles.addr]}>

@@ -1,5 +1,7 @@
 Photos produit pour le menu client.
 
+Référence design (couleurs, typo, Maps, rebuild) : docs/design-tokens-reference.md
+
 Jeu de photos distinctes (stock Lorem Flickr, recadrage carré) : npm run assets:menu:stock
 (voir scripts/fetch-menu-stock-photos.mjs — remplacer par vos shoots pour la prod).
 

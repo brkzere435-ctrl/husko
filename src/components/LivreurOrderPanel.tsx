@@ -10,6 +10,7 @@ import { colors, elevation, radius, spacing } from '@/constants/theme';
 import { WC, wcSectionLabel } from '@/constants/westCoastTheme';
 import { openTechnicalFeedback } from '@/navigation/openTechnicalFeedback';
 import { useHuskoStore } from '@/stores/useHuskoStore';
+import { formatEuro } from '@/utils/formatEuro';
 import { hapticLight, hapticSuccess } from '@/utils/haptics';
 
 type ActionFailDialog = {
@@ -44,7 +45,7 @@ export function LivreurOrderPanel() {
           <StatusBadge status={o.status} />
           <OrderLinesPreview lines={o.lines} compact />
           <Text style={[typography.body, styles.addr]}>{o.addressLabel}</Text>
-          <Text style={typography.price}>{o.total.toFixed(2)} €</Text>
+          <Text style={typography.price}>{formatEuro(o.total)}</Text>
           <PrimaryButton
             title="Prendre en charge · en route"
             onPress={() => {
@@ -69,7 +70,7 @@ export function LivreurOrderPanel() {
           <StatusBadge status={o.status} />
           <OrderLinesPreview lines={o.lines} compact />
           <Text style={[typography.body, styles.addr]}>{o.addressLabel}</Text>
-          <Text style={typography.price}>{o.total.toFixed(2)} €</Text>
+          <Text style={typography.price}>{formatEuro(o.total)}</Text>
           <PrimaryButton
             title="Confirmer la livraison"
             onPress={() => {

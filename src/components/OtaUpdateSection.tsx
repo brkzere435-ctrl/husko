@@ -2,6 +2,7 @@ import Constants from 'expo-constants';
 import * as Updates from 'expo-updates';
 import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { FONT } from '@/constants/fonts';
 import { typography } from '@/constants/typography';
 import { colors, radius, spacing } from '@/constants/theme';
 import { OTA_PERIODIC_CHECK_MS, checkUpdatesWithUserFeedbackAsync } from '@/services/checkAppUpdates';
@@ -155,8 +156,8 @@ const styles = StyleSheet.create({
     gap: spacing.xs,
   },
   hintTitle: {
+    fontFamily: FONT.bold,
     fontSize: 12,
-    fontWeight: '900',
     color: colors.gold,
     letterSpacing: 0.6,
     textTransform: 'uppercase',

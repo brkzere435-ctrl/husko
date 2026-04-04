@@ -9,10 +9,12 @@ import { WestCoastBackground } from '@/components/westcoast/WestCoastBackground'
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { StatusBadge } from '@/components/StatusBadge';
 import { clientStrings } from '@/constants/clientExperience';
+import { FONT } from '@/constants/fonts';
 import { typography } from '@/constants/typography';
 import { colors, elevation, radius, spacing } from '@/constants/theme';
 import type { Order } from '@/stores/useHuskoStore';
 import { useHuskoStore } from '@/stores/useHuskoStore';
+import { formatEuro } from '@/utils/formatEuro';
 
 function formatWhen(createdAt: number) {
   try {
@@ -41,7 +43,7 @@ function PastOrderRow({ order }: { order: Order }) {
           <StatusBadge status={order.status} />
         </View>
         <Text variant="titleMedium" style={styles.rowTotal}>
-          {order.total.toFixed(2)} €
+          {formatEuro(order.total)}
         </Text>
         <Text variant="bodySmall" style={[typography.caption, styles.rowAddr]} numberOfLines={2}>
           {order.addressLabel}
@@ -81,6 +83,7 @@ export default function ClientHistoriqueScreen() {
           renderItem={({ item }) => <PastOrderRow order={item} />}
           drawDistance={200}
           style={styles.listFlex}
+          showsVerticalScrollIndicator={false}
           ListHeaderComponent={headerIntro}
           ListFooterComponent={footerBack}
           ListEmptyComponent={
@@ -108,14 +111,14 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
     borderRadius: radius.xl,
     borderWidth: 1,
-    borderColor: colors.borderSubtle,
+    borderColor: colors.borderGlow,
     backgroundColor: colors.cardElevated,
   },
   emptyText: { textAlign: 'center', lineHeight: 22 },
   row: {
     borderRadius: radius.xl,
     borderWidth: 1,
-    borderColor: colors.borderSubtle,
+    borderColor: colors.borderGlow,
     backgroundColor: colors.cardElevated,
     marginBottom: spacing.md,
   },
@@ -127,10 +130,10 @@ const styles = StyleSheet.create({
   rowWhen: { color: colors.textMuted },
   rowBadge: { alignSelf: 'flex-start', marginTop: spacing.xs },
   rowTotal: {
+    ...typography.price,
+    fontFamily: FONT.bold,
     fontSize: 18,
-    fontWeight: '800',
     color: colors.gold,
-    fontVariant: ['tabular-nums'],
   },
   rowAddr: { color: colors.textMuted, marginTop: spacing.xs },
   btn: { marginTop: spacing.md },

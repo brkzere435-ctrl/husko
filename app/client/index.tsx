@@ -40,11 +40,13 @@ import {
   clientMenuHero,
   clientMenuRow,
 } from '@/constants/clientMenuVisual';
+import { FONT } from '@/constants/fonts';
 import { typography } from '@/constants/typography';
 import { WC } from '@/constants/westCoastTheme';
 import { elevation, radius, spacing } from '@/constants/theme';
 import { useHuskoStore } from '@/stores/useHuskoStore';
 import { buildClientMenuRows, type ClientMenuRow } from '@/utils/clientMenuRows';
+import { formatEuro } from '@/utils/formatEuro';
 import { hapticLight } from '@/utils/haptics';
 
 const MenuProductRow = memo(function MenuProductRow({ item }: { item: MenuItem }) {
@@ -67,7 +69,7 @@ const MenuProductRow = memo(function MenuProductRow({ item }: { item: MenuItem }
         {item.description ? <Text style={styles.desc}>{item.description}</Text> : null}
       </View>
       <View style={styles.pricePill}>
-        <Text style={styles.priceTxt}>{item.price.toFixed(2)} €</Text>
+        <Text style={styles.priceTxt}>{formatEuro(item.price)}</Text>
       </View>
     </Pressable>
   );
@@ -257,6 +259,7 @@ export default function ClientMenuScreen() {
             onViewableItemsChanged={onViewableItemsChanged}
             style={styles.listFlex}
             drawDistance={200}
+            showsVerticalScrollIndicator={false}
             ListHeaderComponent={
               <View style={styles.headerBlock}>
                 <DeploymentHints mode="alerts" mapsRelevant style={styles.hint} />
@@ -315,10 +318,11 @@ export default function ClientMenuScreen() {
                 elevation.dock,
                 { paddingBottom: spacing.lg + Math.max(insets.bottom, 0) },
               ]}
+              accessibilityLabel="Résumé panier et actions"
             >
               <Text style={styles.barText}>
                 {cartCount} article{cartCount !== 1 ? 's' : ''}
-                {cartTotal > 0 ? ` · ${cartTotal.toFixed(2)} €` : ''}
+                {cartTotal > 0 ? ` · ${formatEuro(cartTotal)}` : ''}
               </Text>
               <Link href="/client/panier" asChild>
                 <PrimaryButton title="Panier" style={styles.barBtn} />
@@ -350,13 +354,13 @@ const styles = StyleSheet.create({
   },
   topTitleCol: { flex: 1, minWidth: 0 },
   screenTitle: {
-    fontSize: 22,
-    fontWeight: '900',
+    ...typography.title,
     color: WC.white,
-    letterSpacing: 0.3,
+    letterSpacing: 0.35,
   },
   screenKicker: {
     marginTop: 2,
+    fontFamily: FONT.medium,
     fontSize: 11,
     fontWeight: '800',
     color: WC.fire,
@@ -393,8 +397,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   cartBadgeTxt: {
+    fontFamily: FONT.bold,
     fontSize: 10,
-    fontWeight: '900',
+    fontWeight: '800',
     color: '#fff',
   },
   chipsWrap: { marginTop: spacing.md, marginHorizontal: -spacing.md },
@@ -421,6 +426,7 @@ const styles = StyleSheet.create({
   },
   chipPressed: { opacity: 0.92 },
   chipTxt: {
+    fontFamily: FONT.bold,
     fontSize: 12,
     fontWeight: '800',
     letterSpacing: 0.4,
@@ -439,6 +445,7 @@ const styles = StyleSheet.create({
   },
   footerLink: { paddingVertical: spacing.xs, paddingHorizontal: spacing.md },
   footerLinkText: {
+    fontFamily: FONT.bold,
     fontSize: 13,
     fontWeight: '800',
     letterSpacing: 1,
@@ -463,8 +470,7 @@ const styles = StyleSheet.create({
     borderColor: clientMenuHero.innerGlowBorder,
   },
   wcBrand: {
-    fontSize: 34,
-    fontWeight: '900',
+    ...typography.heroBrand,
     letterSpacing: 4,
     color: WC.white,
     textAlign: 'center',
@@ -473,9 +479,8 @@ const styles = StyleSheet.create({
     textShadowRadius: 8,
   },
   wcSub: {
+    ...typography.heroTagline,
     marginTop: spacing.sm,
-    fontSize: 14,
-    fontWeight: '700',
     color: WC.gold,
     textAlign: 'center',
     letterSpacing: 1,
@@ -503,6 +508,7 @@ const styles = StyleSheet.create({
   statusDotOn: { backgroundColor: WC.fire },
   statusDotOff: { backgroundColor: clientMenuHero.statusDotOff },
   statusPillText: {
+    fontFamily: FONT.medium,
     color: WC.white,
     fontWeight: '800',
     fontSize: 12,
@@ -519,6 +525,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   sureHourLabel: {
+    fontFamily: FONT.bold,
     fontSize: 10,
     fontWeight: '800',
     color: WC.fire,
@@ -526,9 +533,9 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
   },
   sureHourValue: {
+    fontFamily: FONT.bold,
     marginTop: 4,
     fontSize: 22,
-    fontWeight: '900',
     color: WC.gold,
   },
   hoursSmall: {
@@ -555,6 +562,7 @@ const styles = StyleSheet.create({
   },
   phoneBtn: { marginTop: spacing.md, alignSelf: 'center', paddingVertical: spacing.xs },
   phoneBtnText: {
+    fontFamily: FONT.bold,
     color: WC.gold,
     fontWeight: '800',
     fontSize: 13,
@@ -568,13 +576,12 @@ const styles = StyleSheet.create({
     marginTop: 0,
   },
   sectionLabel: {
+    ...typography.section,
+    fontSize: 13,
     marginBottom: spacing.sm,
     marginLeft: 2,
-    fontSize: 13,
-    fontWeight: '900',
     letterSpacing: 2,
     color: WC.fire,
-    textTransform: 'uppercase',
   },
   row: {
     flexDirection: 'row',
@@ -598,8 +605,8 @@ const styles = StyleSheet.create({
   rowText: { flex: 1, minWidth: 0, paddingRight: spacing.sm },
   rowTitle: {
     ...typography.body,
+    fontFamily: FONT.bold,
     color: WC.white,
-    fontWeight: '900',
     fontSize: 16,
     letterSpacing: 0.15,
   },
@@ -619,10 +626,10 @@ const styles = StyleSheet.create({
     borderColor: clientMenuRow.pricePillBorder,
   },
   priceTxt: {
+    ...typography.price,
+    fontFamily: FONT.bold,
     fontSize: 17,
-    fontWeight: '900',
     color: WC.white,
-    fontVariant: ['tabular-nums'],
   },
   dockColumn: {
     width: '100%',
@@ -636,6 +643,8 @@ const styles = StyleSheet.create({
     padding: spacing.md,
     backgroundColor: clientMenuDock.barBg,
     gap: spacing.sm,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: WC.fireDim,
   },
   barText: {
     ...typography.caption,

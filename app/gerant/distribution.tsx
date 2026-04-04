@@ -16,6 +16,7 @@ import {
   DISTRIBUTION_ROLE_STYLE,
   type DistributionTabKey,
 } from '@/constants/distributionRoles';
+import { FONT } from '@/constants/fonts';
 import { typography } from '@/constants/typography';
 import { colors, elevation, radius, spacing, surface } from '@/constants/theme';
 import { WC, wcSectionLabel } from '@/constants/westCoastTheme';
@@ -408,7 +409,7 @@ const styles = StyleSheet.create({
   scroll: { padding: spacing.md, paddingBottom: spacing.xl },
   kicker: { marginTop: spacing.sm, marginBottom: spacing.sm },
   intro: { marginTop: spacing.sm, marginBottom: spacing.lg },
-  em: { fontWeight: '700', color: colors.goldDim },
+  em: { fontFamily: FONT.medium, fontWeight: '700', color: colors.goldDim },
   infra: { marginBottom: spacing.md },
   anywhereBox: {
     marginBottom: spacing.lg,
@@ -420,8 +421,8 @@ const styles = StyleSheet.create({
     alignSelf: 'stretch',
   },
   anywhereTitle: {
+    fontFamily: FONT.bold,
     color: colors.gold,
-    fontWeight: '900',
     fontSize: 13,
     letterSpacing: 0.8,
     marginBottom: spacing.sm,
@@ -451,9 +452,21 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.55)',
   },
   tabEmoji: { fontSize: 11, color: colors.textMuted, marginBottom: 4 },
-  tabTxt: { color: colors.textMuted, fontWeight: '800', fontSize: 12, letterSpacing: 0.3 },
+  tabTxt: {
+    fontFamily: FONT.bold,
+    color: colors.textMuted,
+    fontWeight: '800',
+    fontSize: 12,
+    letterSpacing: 0.3,
+  },
   tabTxtOn: { color: colors.gold },
-  tabHint: { fontSize: 9, color: colors.textMuted, marginTop: 2, fontWeight: '600' },
+  tabHint: {
+    fontFamily: FONT.medium,
+    fontSize: 9,
+    color: colors.textMuted,
+    marginTop: 2,
+    fontWeight: '600',
+  },
   card: {
     padding: spacing.lg,
     marginBottom: spacing.lg,
@@ -466,11 +479,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   roleBannerText: {
+    fontFamily: FONT.bold,
     fontSize: 22,
-    fontWeight: '900',
     letterSpacing: 3,
   },
   roleBannerSub: {
+    fontFamily: FONT.medium,
     marginTop: spacing.xs,
     fontSize: 12,
     color: colors.textMuted,
@@ -479,6 +493,7 @@ const styles = StyleSheet.create({
   hint: { marginBottom: spacing.md },
   qrWrap: { alignItems: 'center' },
   qrFileLabel: {
+    fontFamily: FONT.bold,
     alignSelf: 'stretch',
     textAlign: 'center',
     color: colors.gold,
@@ -522,7 +537,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.lg,
     borderWidth: 1,
     borderStyle: 'dashed',
-    borderColor: colors.borderSubtle,
+    borderColor: colors.border,
     backgroundColor: colors.bgLift,
   },
   both: {
@@ -533,6 +548,7 @@ const styles = StyleSheet.create({
     borderColor: WC.neonCyanDim,
   },
   bothTitle: {
+    fontFamily: FONT.bold,
     color: colors.textMuted,
     fontWeight: '800',
     fontSize: 12,
@@ -540,7 +556,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
   summaryRow: { marginBottom: spacing.md },
-  summaryLabel: { fontWeight: '800', marginBottom: 4 },
+  summaryLabel: { fontFamily: FONT.bold, fontWeight: '800', marginBottom: 4 },
   summaryUrl: { color: colors.text, fontSize: 11 },
   mono: { fontFamily: 'monospace', fontSize: 11, color: colors.goldDim },
 });

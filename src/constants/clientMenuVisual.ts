@@ -39,7 +39,8 @@ export const clientMenuCart = {
 export const clientMenuChips = {
   onBg: 'rgba(255, 247, 237, 0.96)',
   onBorder: 'rgba(255, 247, 237, 0.96)',
-  offBg: 'rgba(124, 58, 237, 0.28)',
+  /** Hors sélection : brick sunset (plus de violet isolé — aligné WC.brick). */
+  offBg: 'rgba(74, 53, 66, 0.55)',
   offBorder: 'rgba(251, 146, 60, 0.35)',
   txt: 'rgba(255, 247, 237, 0.92)',
   txtOn: '#292524',
@@ -62,7 +63,7 @@ export const clientMenuDock = {
   hairlineColors: [
     'rgba(251, 146, 60, 0.85)',
     'rgba(253, 224, 71, 0.7)',
-    'rgba(167, 139, 250, 0.45)',
+    'rgba(94, 234, 212, 0.35)',
   ] as const,
   barBg: 'rgba(22, 18, 26, 0.96)',
 } as const;

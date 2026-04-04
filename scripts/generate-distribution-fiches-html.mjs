@@ -30,6 +30,12 @@ function esc(s) {
 
 const ROLE_QR = {
   unified: { dark: '#22d3ee', light: '#081a1c', title: 'UNIFIÉ (cyan)', border: 'rgba(34, 211, 238, 0.5)' },
+  development: {
+    dark: '#fb923c',
+    light: '#1c0f08',
+    title: 'DEV CLIENT (orange)',
+    border: 'rgba(251, 146, 60, 0.5)',
+  },
   assistant: { dark: '#e879f9', light: '#1a0c18', title: 'COPILOTE (magenta)', border: 'rgba(232, 121, 249, 0.5)' },
   gerant: { dark: '#f0d050', light: '#1a0808', title: 'GÉRANT (or)', border: 'rgba(240, 208, 80, 0.55)' },
   client: { dark: '#4ade80', light: '#0a1a12', title: 'CLIENT (vert)', border: 'rgba(74, 222, 128, 0.55)' },
@@ -43,15 +49,17 @@ for (const [key, url] of entries) {
   const label =
     key === 'unified'
       ? 'APK unifié (hub) — page Expo'
-      : key === 'assistant'
-        ? 'APK Copilote — page Expo'
-        : key === 'gerant'
-          ? 'APK Gérant — page Expo'
-          : key === 'client'
-            ? 'APK Client — page Expo'
-            : key === 'livreur'
-              ? 'APK Livreur — page Expo'
-              : key;
+      : key === 'development'
+        ? 'APK dev client (development-husko) — page Expo'
+        : key === 'assistant'
+          ? 'APK Copilote — page Expo'
+          : key === 'gerant'
+            ? 'APK Gérant — page Expo'
+            : key === 'client'
+              ? 'APK Client — page Expo'
+              : key === 'livreur'
+                ? 'APK Livreur — page Expo'
+                : key;
   const dataUrl = await QRCode.toDataURL(url, {
     width: 320,
     margin: 2,

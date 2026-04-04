@@ -8,6 +8,7 @@ import { OtaUpdateSection } from '@/components/OtaUpdateSection';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { SettingsSection, SettingsSwitchRow } from '@/components/settings/SettingsSection';
 import { WestCoastBackground } from '@/components/westcoast/WestCoastBackground';
+import { FONT } from '@/constants/fonts';
 import { typography } from '@/constants/typography';
 import { colors, spacing } from '@/constants/theme';
 import { WC } from '@/constants/westCoastTheme';
@@ -106,7 +107,6 @@ const styles = StyleSheet.create({
   screenTitle: {
     ...typography.title,
     color: WC.white,
-    fontWeight: '900',
     letterSpacing: 0.5,
   },
   screenSubtitle: { marginBottom: spacing.sm, lineHeight: 20 },
@@ -115,8 +115,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-  on: { color: WC.neonCyan, fontWeight: '800' },
-  off: { color: colors.textMuted, fontWeight: '700' },
+  on: { color: WC.neonCyan, fontFamily: FONT.bold, fontWeight: '800' },
+  off: { color: colors.textMuted, fontFamily: FONT.medium, fontWeight: '700' },
   muted: { color: colors.textMuted, lineHeight: 18 },
   input: {
     marginTop: spacing.xs,

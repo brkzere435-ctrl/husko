@@ -8,10 +8,12 @@ import { MenuItemVisual } from '@/components/westcoast/MenuItemVisual';
 import { WestCoastBackground } from '@/components/westcoast/WestCoastBackground';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { MENU } from '@/constants/menu';
+import { FONT } from '@/constants/fonts';
 import { typography } from '@/constants/typography';
+import { colors, radius, spacing } from '@/constants/theme';
 import { WC } from '@/constants/westCoastTheme';
-import { radius, spacing } from '@/constants/theme';
 import { useHuskoStore } from '@/stores/useHuskoStore';
+import { formatEuroAmount } from '@/utils/formatEuro';
 import { hapticSuccess } from '@/utils/haptics';
 
 export default function ProductDetailScreen() {
@@ -55,17 +57,17 @@ export default function ProductDetailScreen() {
                     {item.description}
                   </Text>
                 ) : null}
-                <View style={styles.priceRow}>
-                  <Text style={styles.euro}>{item.price.toFixed(2)}</Text>
+                <View style={styles.priceRow} accessibilityLabel={`Prix ${formatEuroAmount(item.price)} euros`}>
+                  <Text style={styles.euro}>{formatEuroAmount(item.price)}</Text>
                   <Text style={styles.eurSym}>€</Text>
                 </View>
                 <Text variant="labelSmall" style={styles.tag}>
-                  West Coast street food · Angers
+                  Prix TTC · livraison selon créneau affiché au menu
                 </Text>
               </Card.Content>
             </Card>
           </Animated.View>
-          <PrimaryButton title="Valider & ajouter au panier" onPress={add} style={styles.btn} />
+          <PrimaryButton title="Ajouter au panier" onPress={add} style={styles.btn} />
           <PrimaryButton title="Retour au menu" variant="ghost" onPress={() => router.back()} />
         </ScrollView>
       </SafeAreaView>
@@ -81,17 +83,17 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xl,
     borderRadius: radius.xl,
     borderWidth: 1,
-    borderColor: 'rgba(34, 211, 238, 0.22)',
+    borderColor: colors.borderGlow,
     backgroundColor: 'rgba(0,0,0,0.28)',
   },
   heroCardContent: {
     alignItems: 'center',
   },
   name: {
+    ...typography.title,
     marginTop: spacing.lg,
-    color: WC.white,
     fontSize: 26,
-    fontWeight: '900',
+    color: WC.white,
     textAlign: 'center',
     letterSpacing: 0.5,
     textShadowColor: WC.shadow,
@@ -106,24 +108,27 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   euro: {
+    fontFamily: FONT.bold,
     fontSize: 44,
-    fontWeight: '900',
     color: WC.neonCyan,
     fontVariant: ['tabular-nums'],
   },
   eurSym: {
+    fontFamily: FONT.bold,
     fontSize: 22,
     fontWeight: '800',
     color: WC.gold,
     marginBottom: 8,
   },
   tag: {
+    ...typography.caption,
     marginTop: spacing.md,
-    fontSize: 11,
-    fontWeight: '700',
-    color: WC.neonCyan,
-    letterSpacing: 1.2,
-    textTransform: 'uppercase',
+    fontFamily: FONT.medium,
+    color: WC.neonCyanDim,
+    letterSpacing: 0.8,
+    textAlign: 'center',
+    textTransform: 'none',
+    lineHeight: 16,
   },
   btn: { marginBottom: spacing.sm },
 });

@@ -14,9 +14,11 @@ import { WestCoastBackground } from '@/components/westcoast/WestCoastBackground'
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { ASSISTANT_MAX_MESSAGE_CHARS } from '@/constants/assistantLimits';
 import { ASSISTANT_PROMPT_HINTS } from '@/constants/assistantPromptHints';
+import { FONT } from '@/constants/fonts';
 import { SUBSCRIPTION_PLANS } from '@/constants/subscriptionPlans';
 import { colors, radius, spacing } from '@/constants/theme';
 import { typography } from '@/constants/typography';
+import { WC } from '@/constants/westCoastTheme';
 import { sendAssistantMessage } from '@/services/assistantChat';
 import { useAssistantStore, type ChatMessage } from '@/stores/useAssistantStore';
 
@@ -115,7 +117,7 @@ export default function AssistantChatScreen() {
           ))}
           {busy ? (
             <View style={styles.rowBusy}>
-              <ActivityIndicator color={colors.gold} />
+              <ActivityIndicator color={WC.gold} />
               <Text style={styles.busyTxt}>…</Text>
             </View>
           ) : null}
@@ -161,6 +163,7 @@ const styles = StyleSheet.create({
   emptyLine: { ...typography.bodyMuted, fontSize: 15 },
   hintLabel: {
     ...typography.caption,
+    fontFamily: FONT.bold,
     fontWeight: '800',
     color: colors.textMuted,
     marginTop: spacing.md,
@@ -171,10 +174,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     borderRadius: radius.pill,
     borderWidth: 1,
-    borderColor: colors.borderSubtle,
+    borderColor: colors.border,
     backgroundColor: colors.glass,
   },
-  hintChipPressed: { borderColor: colors.gold },
+  hintChipPressed: { borderColor: WC.gold },
   hintChipTxt: { ...typography.body, fontSize: 14, color: colors.text },
   bubble: {
     padding: spacing.md,
@@ -189,10 +192,16 @@ const styles = StyleSheet.create({
   },
   bubbleBot: {
     alignSelf: 'flex-start',
-    borderColor: colors.borderSubtle,
+    borderColor: colors.border,
     backgroundColor: colors.glass,
   },
-  bubbleRole: { ...typography.caption, fontWeight: '800', color: colors.gold, marginBottom: 4 },
+  bubbleRole: {
+    ...typography.caption,
+    fontFamily: FONT.bold,
+    fontWeight: '800',
+    color: WC.gold,
+    marginBottom: 4,
+  },
   bubbleText: { ...typography.body, color: colors.text },
   rowBusy: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
   busyTxt: { ...typography.caption, color: colors.textMuted },
@@ -202,11 +211,12 @@ const styles = StyleSheet.create({
     paddingTop: spacing.md,
     gap: spacing.sm,
     borderTopWidth: 1,
-    borderTopColor: colors.borderSubtle,
-    backgroundColor: 'rgba(18, 4, 4, 0.94)',
+    borderTopColor: colors.border,
+    backgroundColor: colors.mapOverlay,
   },
   meta: {
     ...typography.caption,
+    fontFamily: FONT.medium,
     color: colors.textMuted,
     fontWeight: '700',
   },

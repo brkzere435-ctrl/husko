@@ -9,11 +9,13 @@ import { PrimaryButton } from '@/components/PrimaryButton';
 import { SettingsSection, SettingsSwitchRow } from '@/components/settings/SettingsSection';
 import { WestCoastBackground } from '@/components/westcoast/WestCoastBackground';
 import { SUBSCRIPTION_PLANS } from '@/constants/subscriptionPlans';
+import { FONT } from '@/constants/fonts';
 import { typography } from '@/constants/typography';
 import { colors, radius, spacing } from '@/constants/theme';
 import { WC } from '@/constants/westCoastTheme';
 import { useAssistantStore } from '@/stores/useAssistantStore';
 import { useHuskoStore } from '@/stores/useHuskoStore';
+import { formatEuro } from '@/utils/formatEuro';
 
 export default function AssistantReglagesScreen() {
   const tier = useAssistantStore((s) => s.tier);
@@ -57,7 +59,7 @@ export default function AssistantReglagesScreen() {
             <View style={styles.planRow}>
               <Text style={typography.body}>Offre</Text>
               <Text style={styles.planValue}>
-                {plan ? `${plan.name} · ${plan.priceEur} €` : '—'}
+                {plan ? `${plan.name} · ${formatEuro(plan.priceEur)}` : '—'}
               </Text>
             </View>
             {plan ? (
@@ -131,15 +133,14 @@ const styles = StyleSheet.create({
   screenTitle: {
     ...typography.title,
     color: WC.white,
-    fontWeight: '900',
     letterSpacing: 0.5,
   },
   screenSubtitle: { marginBottom: spacing.sm, lineHeight: 20 },
   heroInner: { gap: spacing.sm },
   brand: {
     ...typography.title,
+    fontFamily: FONT.bold,
     color: WC.white,
-    fontWeight: '900',
     letterSpacing: 2,
   },
   muted: { color: colors.textMuted, lineHeight: 18 },
@@ -149,7 +150,14 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     gap: spacing.md,
   },
-  planValue: { ...typography.body, fontWeight: '800', color: WC.gold, flexShrink: 1, textAlign: 'right' },
+  planValue: {
+    ...typography.body,
+    fontFamily: FONT.bold,
+    fontWeight: '800',
+    color: WC.gold,
+    flexShrink: 1,
+    textAlign: 'right',
+  },
   shortcut: {
     padding: spacing.md,
     borderRadius: radius.md,
@@ -159,6 +167,6 @@ const styles = StyleSheet.create({
     gap: spacing.xs,
   },
   shortcutPressed: { opacity: 0.85 },
-  shortcutTitle: { ...typography.body, fontWeight: '800', color: WC.gold },
+  shortcutTitle: { ...typography.body, fontFamily: FONT.bold, fontWeight: '800', color: WC.gold },
   hint: { marginTop: spacing.sm },
 });

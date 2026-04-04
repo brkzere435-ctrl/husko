@@ -1,6 +1,7 @@
 import { StyleSheet, Text, View } from 'react-native';
 
 import { HuskoDepartureBuilding } from '@/components/HuskoDepartureBuilding';
+import { FONT } from '@/constants/fonts';
 import { HUSKO_DEPARTURE_HUB } from '@/constants/huskoDepartureHub';
 import { colors } from '@/constants/theme';
 
@@ -93,9 +94,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   hubTag: {
+    fontFamily: FONT.bold,
     marginTop: 2,
     fontSize: 7,
-    fontWeight: '900',
     letterSpacing: 1,
     color: colors.gold,
     opacity: 0.95,
@@ -118,5 +119,5 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     zIndex: 3,
   },
-  destX: { color: '#fff', fontWeight: '900', fontSize: 14 },
+  destX: { fontFamily: FONT.bold, color: '#fff', fontSize: 14 },
 });

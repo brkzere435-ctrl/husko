@@ -28,5 +28,6 @@ Ce document explique **où** le rendu « néon / HUD / Cadillac » est implémen
 
 ## Voir aussi
 
+- [docs/design-tokens-reference.md](design-tokens-reference.md) — tableau tokens couleur / typo / assets / Maps.
 - [docs/parcours-demo-firebase.md](parcours-demo-firebase.md) — synchro commandes et matrice de builds.
 - [DEPLOIEMENT.md](../DEPLOIEMENT.md) — détail EAS, Firebase, Maps.

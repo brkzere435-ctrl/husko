@@ -13,6 +13,7 @@ import { GTAMiniMap } from '@/components/GTAMiniMap';
 import { WestCoastBackground } from '@/components/westcoast/WestCoastBackground';
 import { LivreurAppGate } from '@/components/LivreurAppGate';
 import { LivreurOrderPanel } from '@/components/LivreurOrderPanel';
+import { FONT } from '@/constants/fonts';
 import { mapDarkStyle } from '@/constants/mapDarkStyle';
 import { colors, elevation, radius, spacing } from '@/constants/theme';
 import { WC } from '@/constants/westCoastTheme';
@@ -121,6 +122,8 @@ export default function LivreurScreenNative() {
               onRegionChangeComplete={setRegion}
               showsUserLocation={false}
               showsMyLocationButton={false}
+              loadingEnabled
+              toolbarEnabled={false}
               customMapStyle={useGoogleStyle ? mapDarkStyle : undefined}
               mapType={Platform.OS === 'ios' ? 'mutedStandard' : 'standard'}
             >
@@ -182,7 +185,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(8, 2, 4, 0.96)',
     ...elevation.card,
   },
-  toolbarLabel: { color: WC.neonCyan, fontWeight: '900', fontSize: 13, letterSpacing: 1.2 },
+  toolbarLabel: { fontFamily: FONT.bold, color: WC.neonCyan, fontSize: 13, letterSpacing: 1.2 },
   mapContainer: { flex: 1, position: 'relative' },
   map: { ...StyleSheet.absoluteFillObject },
   miniWrap: {
@@ -207,5 +210,5 @@ const styles = StyleSheet.create({
     ...elevation.card,
   },
   hudPulse: { opacity: 0.95 },
-  hudText: { color: colors.gold, fontWeight: '900', fontSize: 11, letterSpacing: 2.5 },
+  hudText: { fontFamily: FONT.bold, color: colors.gold, fontSize: 11, letterSpacing: 2.5 },
 });

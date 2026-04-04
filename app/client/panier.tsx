@@ -15,12 +15,15 @@ import { ScreenSection } from '@/components/ScreenSection';
 import { clientStrings, outsideDeliveryHoursBanner } from '@/constants/clientExperience';
 import { isDeliveryOpen } from '@/constants/hours';
 import { PAYMENT_NOTICE_LONG, PAYMENT_NOTICE_SHORT } from '@/constants/paymentPolicy';
+import { FONT } from '@/constants/fonts';
 import { typography } from '@/constants/typography';
 import { colors, elevation, radius, spacing } from '@/constants/theme';
+import { WC } from '@/constants/westCoastTheme';
 import { HUSKO_DEPARTURE_HUB } from '@/constants/huskoDepartureHub';
 import { openTechnicalFeedback } from '@/navigation/openTechnicalFeedback';
 import { ANGERS_DEFAULT, useHuskoStore } from '@/stores/useHuskoStore';
 import { formatCloudSyncErrorForUser } from '@/utils/cloudSyncUserMessage';
+import { formatEuro } from '@/utils/formatEuro';
 import { fitMapRegion } from '@/utils/fitMapRegion';
 import { hapticSuccess } from '@/utils/haptics';
 
@@ -136,9 +139,7 @@ export default function PanierScreen() {
                   <Text style={[typography.body, styles.lineName]} numberOfLines={4}>
                     {line.item.name} × {line.qty}
                   </Text>
-                  <Text style={[typography.price, styles.linePrice]}>
-                    {(line.item.price * line.qty).toFixed(2)} €
-                  </Text>
+                  <Text style={[typography.price, styles.linePrice]}>{formatEuro(line.item.price * line.qty)}</Text>
                 </View>
               ))
             )}
@@ -163,7 +164,11 @@ export default function PanierScreen() {
           </ScreenSection>
 
           <LinearGradient
-            colors={['rgba(55, 10, 20, 0.96)', 'rgba(12, 6, 10, 0.98)', 'rgba(8, 24, 36, 0.94)']}
+            colors={[
+              'rgba(45, 31, 53, 0.96)',
+              'rgba(30, 22, 28, 0.98)',
+              'rgba(30, 24, 32, 0.94)',
+            ]}
             locations={[0, 0.55, 1]}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
@@ -171,9 +176,7 @@ export default function PanierScreen() {
           >
             <View style={styles.totalRowInner}>
               <Text style={[styles.totalLabel, styles.totalLabelShrink]}>Total</Text>
-              <Text style={[typography.price, styles.totalBig, styles.totalAmount]}>
-                {total.toFixed(2)} €
-              </Text>
+              <Text style={[typography.price, styles.totalBig, styles.totalAmount]}>{formatEuro(total)}</Text>
             </View>
           </LinearGradient>
 
@@ -288,19 +291,19 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
     padding: spacing.md,
     borderRadius: radius.lg,
-    backgroundColor: 'rgba(34, 211, 238, 0.1)',
+    backgroundColor: 'rgba(94, 234, 212, 0.1)',
     borderWidth: 1,
-    borderColor: 'rgba(34, 211, 238, 0.45)',
+    borderColor: 'rgba(94, 234, 212, 0.38)',
   },
   outsideBannerTitle: {
-    color: '#67e8f9',
-    fontWeight: '900',
+    ...typography.section,
     fontSize: 13,
     letterSpacing: 0.8,
-    textTransform: 'uppercase',
     marginBottom: spacing.xs,
+    color: WC.neonCyan,
   },
   outsideBannerBody: {
+    fontFamily: FONT.medium,
     color: colors.textMuted,
     fontSize: 13,
     lineHeight: 20,
@@ -315,14 +318,14 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(250, 204, 21, 0.45)',
   },
   cloudBannerTitle: {
-    color: colors.gold,
-    fontWeight: '900',
+    ...typography.section,
     fontSize: 13,
     letterSpacing: 0.6,
-    textTransform: 'uppercase',
     marginBottom: spacing.xs,
+    color: colors.gold,
   },
   cloudBannerBody: {
+    fontFamily: FONT.medium,
     fontSize: 13,
     lineHeight: 20,
     fontWeight: '600',
@@ -378,11 +381,12 @@ const styles = StyleSheet.create({
   },
   totalLabel: {
     ...typography.title,
+    fontFamily: FONT.bold,
     fontSize: 18,
     letterSpacing: 0.5,
   },
   totalLabelShrink: { flex: 1, minWidth: 0 },
-  totalBig: { fontSize: 28 },
+  totalBig: { fontSize: 28, fontFamily: FONT.bold },
   totalAmount: { flexShrink: 0 },
   paymentBox: {
     backgroundColor: colors.glass,

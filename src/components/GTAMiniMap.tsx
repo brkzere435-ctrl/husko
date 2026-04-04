@@ -81,6 +81,8 @@ export function GTAMiniMap({
           pitchEnabled={false}
           scrollEnabled={false}
           zoomEnabled={false}
+          loadingEnabled
+          toolbarEnabled={false}
           customMapStyle={useGoogleStyle ? mapDarkStyle : undefined}
           mapType={Platform.OS === 'ios' ? 'mutedStandard' : 'standard'}
         >

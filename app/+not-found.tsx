@@ -5,6 +5,7 @@ import { Card, Text } from 'react-native-paper';
 
 import { WestCoastBackground } from '@/components/westcoast/WestCoastBackground';
 import { PrimaryButton } from '@/components/PrimaryButton';
+import { FONT } from '@/constants/fonts';
 import { typography } from '@/constants/typography';
 import { colors, spacing, surface } from '@/constants/theme';
 import { WC } from '@/constants/westCoastTheme';
@@ -65,7 +66,7 @@ const styles = StyleSheet.create({
   },
   code: {
     fontSize: 13,
-    fontWeight: '900',
+    fontFamily: FONT.bold,
     letterSpacing: 4,
     color: colors.goldDim,
   },
