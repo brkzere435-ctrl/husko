@@ -150,7 +150,7 @@
     "expo-splash-screen": "~55.0.13",
     "expo-status-bar": "~55.0.4",
     "expo-system-ui": "~55.0.11",
-    "expo-updates": "~55.0.16",
+    "expo-updates": "~55.0.18",
     "firebase": "^12.11.0",
     "memoize-one": "^6.0.0",
     "react": "19.2.0",
