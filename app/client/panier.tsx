@@ -45,8 +45,8 @@ export default function PanierScreen() {
   const [address, setAddress] = useState('Angers centre');
   const [dialog, setDialog] = useState<
     | { type: 'empty' }
-    | { type: 'cloud' }
     | { type: 'success'; orderId: string }
+    | { type: 'successLocal'; orderId: string }
     | { type: 'pushFailed' }
     | null
   >(null);
@@ -65,16 +65,16 @@ export default function PanierScreen() {
       setDialog({ type: 'empty' });
       return;
     }
-    if (!isRemoteSyncEnabled()) {
-      setDialog({ type: 'cloud' });
-      return;
-    }
     setSubmitting(true);
     try {
       const order = await placeOrder(address.trim() || 'Adresse', ANGERS_DEFAULT);
       if (order) {
         hapticSuccess();
-        setDialog({ type: 'success', orderId: order.id });
+        if (isRemoteSyncEnabled()) {
+          setDialog({ type: 'success', orderId: order.id });
+        } else {
+          setDialog({ type: 'successLocal', orderId: order.id });
+        }
       }
     } catch {
       setDialog({ type: 'pushFailed' });
@@ -209,14 +209,25 @@ export default function PanierScreen() {
                 </Dialog.Actions>
               </>
             ) : null}
-            {dialog?.type === 'cloud' ? (
+            {dialog?.type === 'successLocal' ? (
               <>
-                <Dialog.Title>{clientStrings.cloudCheckoutBlockedTitle}</Dialog.Title>
+                <Dialog.Title>{clientStrings.orderSentLocalTitle}</Dialog.Title>
                 <Dialog.Content>
-                  <Text variant="bodyMedium">{clientStrings.cloudCheckoutBlockedBody}</Text>
+                  <Text variant="bodyMedium">
+                    {`${clientStrings.orderSentLocalMessage(dialog.orderId)}\n\n${PAYMENT_NOTICE_SHORT}`}
+                  </Text>
                 </Dialog.Content>
                 <Dialog.Actions>
-                  <Button onPress={() => setDialog(null)}>OK</Button>
+                  <Button onPress={() => setDialog(null)}>Fermer</Button>
+                  <Button
+                    mode="contained"
+                    onPress={() => {
+                      setDialog(null);
+                      router.replace('/client/suivi');
+                    }}
+                  >
+                    Voir le suivi
+                  </Button>
                 </Dialog.Actions>
               </>
             ) : null}

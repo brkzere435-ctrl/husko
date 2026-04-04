@@ -28,6 +28,10 @@ export const clientStrings = {
   orderSentTitle: 'Merci, c’est parti !',
   orderSentMessage: (ref: string) =>
     `Votre commande ${ref} est bien arrivée au restaurant. Vous pouvez suivre chaque étape dans l’onglet Suivi.`,
+  /** Build sans Firebase : commande enregistrée uniquement sur l’appareil (démo / secours). */
+  orderSentLocalTitle: 'Commande enregistrée sur ce téléphone',
+  orderSentLocalMessage: (ref: string) =>
+    `Réf. ${ref} — le restaurant ne reçoit pas la commande sur un autre appareil tant que l’APK n’est pas construite avec Firebase (eas:sync:firebase + rebuild). Vous pouvez quand même suivre le flux sur cet appareil.`,
   suiviEmptyTitle: 'Aucune commande en cours',
   suiviEmptyBody: 'Quand vous validez une commande depuis le panier, son suivi apparaît ici.',
   suiviMerciTitle: 'Bon appétit !',
