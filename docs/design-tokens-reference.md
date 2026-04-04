@@ -51,4 +51,14 @@ Fil unique avec [`src/constants/productDirection.ts`](../src/constants/productDi
 2. Valider sur **APK installé** + parcours prioritaire (menu client, suivi ou gérant selon focus).
 3. `npm run verify` avant commit.
 
-**Suite logique (écrans poussés un par un) :** (1) Menu — `app/client/index.tsx` ; (2) Suivi — `app/client/suivi.tsx` ; (3) Gérant dashboard — `app/gerant/index.tsx` ; (4) **Panier** — `app/client/panier.tsx` (bannières `WC` / `typography.section`, total **Oswald**) ; (5) **Historique** — `app/client/historique.tsx` (`borderGlow`, prix via `typography.price`) ; (6) **Réglages gérant** — `app/gerant/reglages.tsx` (`FONT.bold` sur raccourcis / presets).
+### Suite logique (alignée [`productDirection.ts`](../src/constants/productDirection.ts))
+
+1. **Contenu & crédibilité (hors code)** — Remplacer les PNG sous `assets/menu/` par des photos **1:1** (noms inchangés, voir § Photos produit). Puis `verify:menu-assets` → `assets:menu:verify` → `verify`. Avant une release « pro » : `release:gate:pro` ou `verify:menu-visual-pro:strict` (détail [RELEASE_CHECKLIST.md](../RELEASE_CHECKLIST.md) § Photos menu).
+
+2. **Gate produit** — `npm run verify`, puis **démo sur APK installé** : parcours décrit dans `PRODUCT_DELIVERABLE` / `PRODUCT_DEFINITION_OF_DONE.apkDemo` (client → gérant → livreur → suivi, Firestore si configuré).
+
+3. **Finition UI par écran** — Pousser un écran à la fois, **tokens uniquement** ; éviter une régression forte sur l’écran prioritaire du moment. Ordre suggéré : (1) Menu — `app/client/index.tsx` ; (2) Suivi — `app/client/suivi.tsx` ; (3) Dashboard gérant — `app/gerant/index.tsx` ; (4) Panier — `app/client/panier.tsx` (bannières `WC` / `typography.section`, total **Oswald**) ; (5) Historique — `app/client/historique.tsx` (`borderGlow`, prix via `typography.price`) ; (6) Réglages gérant — `app/gerant/reglages.tsx` (`FONT.bold` sur raccourcis / presets).
+
+4. **Coquille native si besoin** — `npm run brand:assets` (icône, splash, boot hero) ; **nouveau `eas build`** pour voir launcher / splash à jour sur l’appareil (l’OTA ne suffit pas).
+
+**Résumé** : photos réelles + vérifs → `verify` + APK démo → polish écran par écran → rebuild natif seulement si les assets brand / natifs changent.

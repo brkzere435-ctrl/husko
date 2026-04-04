@@ -80,6 +80,6 @@ Le mapping `id` → `require(...)` est dans `src/constants/menuImages.ts`. Pour 
 |----------|------|
 | [`src/constants/menuImages.ts`](../src/constants/menuImages.ts) | Liste technique `require` + grille export |
 | [`docs/client-menu-assets.md`](client-menu-assets.md) | Bundling, scripts stock/flyers, alerte placeholders |
-| [`docs/design-tokens-reference.md`](design-tokens-reference.md) | Tokens + rappel photos / brand |
+| [`docs/design-tokens-reference.md`](design-tokens-reference.md) | Tokens + photos / brand ; **§ 6 Suite logique** (ordre de travail global) |
 | [`docs/visuel-west-coast-checklist.md`](visuel-west-coast-checklist.md) | GTA / Maps / photos dans l’app |
 | [`assets/menu/README.txt`](../assets/menu/README.txt) | Raccourci dossier `assets/menu/` |
