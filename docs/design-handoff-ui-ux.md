@@ -60,7 +60,7 @@ Le mapping `id` → `require(...)` est dans `src/constants/menuImages.ts`. Pour 
 | bois-canette | Canette |
 | bois-50 | Bouteille 50cl |
 
-**Livrable photo** : cadrage et lumière **homogènes** entre les items ; ratio adapté aux vignettes liste (l’app gère l’affichage ; viser un carré ou léger 4:3 exportable en PNG).
+**Livrable photo** : cadrage et lumière **homogènes** entre les items. **Ratio source conseillé : 1:1** (carré), sujet centré, marge ~10 % sur les bords — l’app affiche en carré avec recadrage (`cover`). Export **900–1200 px** de côté, PNG sRGB. Détail : en-tête de `src/constants/menuImages.ts`.
 
 ## Branding plein écran (optionnel)
 
@@ -68,5 +68,7 @@ Le mapping `id` → `require(...)` est dans `src/constants/menuImages.ts`. Pour 
 
 ## Après livraison des assets
 
-- `npm run verify` (inclut la cohérence fichiers menu si le script `verify:menu-assets` est branché).
+- **Menu (fichiers + ids)** : `npm run verify:menu-assets` — présence des PNG et alignement `menu.ts` ↔ `menuImages.ts`.
+- **Menu (pas de doublons massifs)** : `npm run assets:menu:verify` — inclut `verify:menu-assets` + contrôle de diversité des tailles (gate « pro »).
+- **CI locale complète** : `npm run verify`.
 - Build APK : `DEPLOIEMENT.md` et `npm run build:apk:unified:queue`.
