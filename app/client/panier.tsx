@@ -18,7 +18,9 @@ import { PAYMENT_NOTICE_LONG, PAYMENT_NOTICE_SHORT } from '@/constants/paymentPo
 import { typography } from '@/constants/typography';
 import { colors, elevation, radius, spacing } from '@/constants/theme';
 import { HUSKO_DEPARTURE_HUB } from '@/constants/huskoDepartureHub';
+import { openTechnicalFeedback } from '@/navigation/openTechnicalFeedback';
 import { ANGERS_DEFAULT, useHuskoStore } from '@/stores/useHuskoStore';
+import { formatCloudSyncErrorForUser } from '@/utils/cloudSyncUserMessage';
 import { fitMapRegion } from '@/utils/fitMapRegion';
 import { hapticSuccess } from '@/utils/haptics';
 
@@ -32,6 +34,7 @@ export default function PanierScreen() {
   const cart = useHuskoStore((s) => s.cart);
   const clearCart = useHuskoStore((s) => s.clearCart);
   const placeOrder = useHuskoStore((s) => s.placeOrder);
+  const cloudSyncWriteError = useHuskoStore((s) => s.cloudSyncWriteError);
   const driver = useHuskoStore((s) => s.driver);
   const driverHeading = useHuskoStore((s) => s.driverHeading);
 
@@ -229,6 +232,22 @@ export default function PanierScreen() {
                 </Dialog.Content>
                 <Dialog.Actions>
                   <Button onPress={() => setDialog(null)}>OK</Button>
+                  <Button
+                    onPress={() => {
+                      const detail = cloudSyncWriteError?.trim() || undefined;
+                      const body =
+                        formatCloudSyncErrorForUser(detail ?? null) ??
+                        'La synchronisation avec le restaurant a échoué après plusieurs essais.';
+                      setDialog(null);
+                      openTechnicalFeedback({
+                        title: 'Envoi vers le restaurant',
+                        body,
+                        detail,
+                      });
+                    }}
+                  >
+                    Détail technique
+                  </Button>
                 </Dialog.Actions>
               </>
             ) : null}

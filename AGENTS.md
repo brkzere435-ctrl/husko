@@ -24,8 +24,10 @@ Ce fichier résume **où est la vérité** et **quelles commandes** utiliser. Le
 | Régénérer icônes / splash / adaptive (West Coast) | `npm run brand:assets` — écrit sous `assets/` ; **un nouveau `eas build` est obligatoire** pour mettre à jour le logo launcher (l’OTA ne change pas l’icône native). |
 | Vérifier clés Firebase (.env) | `npm run firebase:env:check` — strict : `firebase:env:check:strict` |
 | Pousser Firebase / Maps vers EAS | `npm run eas:sync:firebase` · `npm run eas:sync:maps` |
+| Perf : lister écrans avec listes | `npm run perf:list-screens` |
+| Perf : modèle de rapport (matrice appareils) | [`docs/PERFORMANCE_REPORT_TEMPLATE.md`](docs/PERFORMANCE_REPORT_TEMPLATE.md) |
 
-Déploiement, Maps, Firebase, OTA : **[`DEPLOIEMENT.md`](DEPLOIEMENT.md)**. Parcours démo (builds, canaux, synchro) : **[`docs/parcours-demo-firebase.md`](docs/parcours-demo-firebase.md)**. Visuel West Coast (Maps, HUD, photos) : **[`docs/visuel-west-coast-checklist.md`](docs/visuel-west-coast-checklist.md)**. Vue utilisateur : **[`README.md`](README.md)**.
+Déploiement, Maps, Firebase, OTA : **[`DEPLOIEMENT.md`](DEPLOIEMENT.md)**. Parcours démo (builds, canaux, synchro) : **[`docs/parcours-demo-firebase.md`](docs/parcours-demo-firebase.md)**. Visuel West Coast (Maps, HUD, photos) : **[`docs/visuel-west-coast-checklist.md`](docs/visuel-west-coast-checklist.md)**. Architecture runtime (New Arch, Hermes, FlashList, Skia) : **[`docs/ARCHITECTURE_RUNTIME.md`](docs/ARCHITECTURE_RUNTIME.md)**. Roadmap technique : **[`docs/ROADMAP_TECHNIQUE.md`](docs/ROADMAP_TECHNIQUE.md)**. Vue utilisateur : **[`README.md`](README.md)**.
 
 ## Cursor / assistant
 
