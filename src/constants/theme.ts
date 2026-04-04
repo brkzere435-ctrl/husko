@@ -3,6 +3,11 @@
  * tons chauds adoucis (prune, corail, pêche), pas de rouge sang ni noir pur.
  */
 export const colors = {
+  /**
+   * Fond « shell » Android/iOS : splash, barres système, adaptive icon (voir app.config.js).
+   * Ne pas diverger sans regénérer les assets natifs.
+   */
+  shellBackground: '#120404',
   bg: '#1a1418',
   bgLift: '#261e24',
   /** Cartes et listes */
@@ -80,7 +85,8 @@ export const colors = {
   bootSunset2: '#c07868',
   bootSunset3: '#fbbf77',
   bootSunset4: '#1e1618',
-  bootRootBg: '#1e1618',
+  /** Aligné sur shellBackground pour enchaînement splash → overlay client. */
+  bootRootBg: '#120404',
   bootBrickTexture: '#c084fc',
   /** QG carte (`HuskoDepartureBuilding`) */
   departureFacade0: 'rgba(8,2,4,0.95)',

@@ -1,4 +1,4 @@
-import { Image, StyleSheet, Text, View } from 'react-native';
+import { Image, Platform, StyleSheet, Text, View } from 'react-native';
 
 import { colors, radius, spacing } from '@/constants/theme';
 import { typography } from '@/constants/typography';
@@ -45,7 +45,17 @@ const styles = StyleSheet.create({
   icon: {
     borderWidth: 1,
     borderColor: colors.borderGlow,
-    backgroundColor: colors.bgLift,
+    backgroundColor: colors.shellBackground,
+    ...Platform.select({
+      ios: {
+        shadowColor: colors.shadowPure,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.35,
+        shadowRadius: 10,
+      },
+      android: { elevation: 6 },
+      default: {},
+    }),
   },
   textCol: { alignItems: 'center', marginTop: spacing.sm },
 });

@@ -3,7 +3,7 @@ import { memo, useEffect, useState } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
-import { StyleSheet, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
 import type { MenuCategory, MenuItem } from '@/constants/menu';
 import { menuCategoryGradientTriples } from '@/constants/clientMenuVisual';
@@ -35,9 +35,11 @@ function MenuItemVisualInner({ item, size, emphasizeFrame = true }: Props) {
   const icon = CAT_ICON[item.category];
   const photo = getMenuImage(item);
   const [imageFailed, setImageFailed] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
 
   useEffect(() => {
     setImageFailed(false);
+    setImageLoaded(false);
   }, [item.id]);
 
   const frameSoft = size === 'lg' && emphasizeFrame === false;
@@ -57,16 +59,25 @@ function MenuItemVisualInner({ item, size, emphasizeFrame = true }: Props) {
         <Image
           source={photo}
           recyclingKey={item.id}
-          style={styles.photo}
+          style={[
+            styles.photo,
+            { opacity: imageLoaded ? 1 : thumb ? 0.94 : 0.92 },
+          ]}
           contentFit="cover"
           transition={thumb ? 0 : 220}
           cachePolicy="memory-disk"
           priority={thumb ? 'low' : 'high'}
           allowDownscaling
+          onLoad={() => setImageLoaded(true)}
           onError={() => setImageFailed(true)}
           accessibilityLabel={item.name}
           accessibilityIgnoresInvertColors
         />
+        {!thumb && !imageLoaded ? (
+          <View style={styles.photoLoading} pointerEvents="none">
+            <ActivityIndicator size="small" color={WC.gold} />
+          </View>
+        ) : null}
         <View
           style={[styles.neon, size === 'lg' && !frameSoft && styles.neonLg, frameSoft && styles.neonHero]}
           pointerEvents="none"
@@ -127,6 +138,12 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
     width: '100%',
     height: '100%',
+  },
+  photoLoading: {
+    ...StyleSheet.absoluteFillObject,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(18, 4, 4, 0.22)',
   },
   grad: {
     flex: 1,

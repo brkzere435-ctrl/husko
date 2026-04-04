@@ -144,10 +144,16 @@ function bootHeroSvg(w, h) {
         <feMergeNode in="SourceGraphic"/>
       </feMerge>
     </filter>
+    <radialGradient id="bhVignette" cx="50%" cy="42%" r="72%">
+      <stop offset="0%" stop-color="#120404" stop-opacity="0"/>
+      <stop offset="72%" stop-color="#120404" stop-opacity="0.22"/>
+      <stop offset="100%" stop-color="#0a0203" stop-opacity="0.58"/>
+    </radialGradient>
   </defs>
   <rect width="100%" height="100%" fill="url(#bhSky)"/>
   <circle cx="${sunCx}" cy="${sunCy}" r="${sunR}" fill="url(#bhSun)" opacity="0.62" filter="url(#bhGlow)"/>
-  <rect x="0" y="${Math.round(h * 0.62)}" width="${w}" height="${Math.round(h * 0.38)}" fill="#1e161c" opacity="0.48"/>
+  <rect x="0" y="${Math.round(h * 0.62)}" width="${w}" height="${Math.round(h * 0.38)}" fill="#120404" opacity="0.42"/>
+  <rect width="100%" height="100%" fill="url(#bhVignette)"/>
 </svg>`;
 }
 

@@ -95,7 +95,7 @@ export function ClientBootOverlay({ visible, onDone }: Props) {
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: colors.bootRootBg },
+  root: { flex: 1, backgroundColor: colors.shellBackground },
   tint: { opacity: 0.38 },
   fill: {
     flex: 1,
