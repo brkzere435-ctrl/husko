@@ -1,4 +1,6 @@
+import { Fragment, useState } from 'react';
 import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Button, Dialog, Portal, Text as PaperText } from 'react-native-paper';
 
 import { OrderLinesPreview } from '@/components/OrderLinesPreview';
 import { PrimaryButton } from '@/components/PrimaryButton';
@@ -6,17 +8,26 @@ import { StatusBadge } from '@/components/StatusBadge';
 import { typography } from '@/constants/typography';
 import { colors, elevation, radius, spacing } from '@/constants/theme';
 import { WC, wcSectionLabel } from '@/constants/westCoastTheme';
+import { openTechnicalFeedback } from '@/navigation/openTechnicalFeedback';
 import { useHuskoStore } from '@/stores/useHuskoStore';
 import { hapticLight, hapticSuccess } from '@/utils/haptics';
+
+type ActionFailDialog = {
+  title: string;
+  body: string;
+  detail: string;
+};
 
 export function LivreurOrderPanel() {
   const orders = useHuskoStore((s) => s.orders);
   const transitionOrder = useHuskoStore((s) => s.transitionOrder);
+  const [failDialog, setFailDialog] = useState<ActionFailDialog | null>(null);
 
   const pickup = orders.filter((o) => o.status === 'awaiting_livreur');
   const enRoute = orders.filter((o) => o.status === 'on_way');
 
   return (
+    <Fragment>
     <ScrollView
       style={styles.wrap}
       contentContainerStyle={styles.inner}
@@ -39,11 +50,13 @@ export function LivreurOrderPanel() {
             onPress={() => {
               const ok = transitionOrder(o.id, 'on_way', 'livreur');
               if (ok) hapticLight();
-              else
-                Alert.alert(
-                  'Action impossible',
-                  'Vérifiez que la commande est bien « attente livreur » et réessayez.'
-                );
+              else {
+                setFailDialog({
+                  title: 'Action impossible',
+                  body: 'Vérifiez que la commande est bien « attente livreur » et réessayez.',
+                  detail: `orderId=${o.id} status=${o.status} transition=on_way actor=livreur`,
+                });
+              }
             }}
             style={styles.btn}
           />
@@ -70,11 +83,13 @@ export function LivreurOrderPanel() {
                     onPress: () => {
                       const ok = transitionOrder(o.id, 'delivered', 'livreur');
                       if (ok) hapticSuccess();
-                      else
-                        Alert.alert(
-                          'Action impossible',
-                          'La commande doit être « en livraison » pour être clôturée.'
-                        );
+                      else {
+                        setFailDialog({
+                          title: 'Action impossible',
+                          body: 'La commande doit être « en livraison » pour être clôturée.',
+                          detail: `orderId=${o.id} status=${o.status} transition=delivered actor=livreur`,
+                        });
+                      }
                     },
                   },
                 ]
@@ -85,6 +100,31 @@ export function LivreurOrderPanel() {
         </View>
       ))}
     </ScrollView>
+      <Portal>
+        <Dialog visible={failDialog !== null} onDismiss={() => setFailDialog(null)}>
+          {failDialog ? (
+            <>
+              <Dialog.Title>{failDialog.title}</Dialog.Title>
+              <Dialog.Content>
+                <PaperText variant="bodyMedium">{failDialog.body}</PaperText>
+              </Dialog.Content>
+              <Dialog.Actions>
+                <Button onPress={() => setFailDialog(null)}>OK</Button>
+                <Button
+                  onPress={() => {
+                    const { title, body, detail } = failDialog;
+                    setFailDialog(null);
+                    openTechnicalFeedback({ title, body, detail });
+                  }}
+                >
+                  Détail technique
+                </Button>
+              </Dialog.Actions>
+            </>
+          ) : null}
+        </Dialog>
+      </Portal>
+    </Fragment>
   );
 }
 

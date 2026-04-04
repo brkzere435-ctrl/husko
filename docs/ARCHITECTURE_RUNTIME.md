@@ -6,7 +6,7 @@
 |--------|-------------|
 | Navigation | Expo Router (fichiers sous `app/`) |
 | UI | React Native (`View`, `Text`, `StyleSheet`), React Native Paper (composants ponctuels) |
-| Listes performantes | `@shopify/flash-list` : menu client (`app/client/index.tsx`), historique gérant (`app/gerant/historique.tsx`) |
+| Listes performantes | `@shopify/flash-list` : menu client (`app/client/index.tsx`), historique client (`app/client/historique.tsx`), historique gérant (`app/gerant/historique.tsx`) |
 | Animations | `react-native-reanimated` |
 | Images | `expo-image` |
 | Thème produit | `src/constants/theme.ts`, `westCoastTheme.ts` |
@@ -31,6 +31,7 @@ Le rendu **principal** de l’app reste en **React Native classique**. La dépen
 - **ErrorBoundary** racine propose un accès « Détail technique » vers cet écran.
 - **Pastille synchro** (erreur cloud) : appui long → même écran (`SyncStatusPill`).
 - **Panier client** : si l’envoi Firestore échoue après validation, le dialogue « Envoi incomplet » propose **Détail technique** (message utilisateur + erreur brute côté store).
+- **Livreur** (`LivreurOrderPanel`) : si une transition de statut est refusée (machine d’état), dialogue **Détail technique** avec identifiants commande / statut pour le support.
 
 ## Références
 

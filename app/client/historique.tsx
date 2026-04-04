@@ -1,6 +1,7 @@
+import { FlashList } from '@shopify/flash-list';
 import { Link } from 'expo-router';
 import { useMemo } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { Card, Text } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -58,16 +59,31 @@ export default function ClientHistoriqueScreen() {
     return [...list].sort((a, b) => b.createdAt - a.createdAt);
   }, [orders]);
 
+  const headerIntro = (
+    <Text variant="bodyMedium" style={[typography.bodyMuted, styles.intro]}>
+      Historique des commandes terminées sur cet appareil (synchronisé avec le restaurant lorsque la
+      connexion en ligne est active).
+    </Text>
+  );
+
+  const footerBack = (
+    <Link href="/client" asChild>
+      <PrimaryButton title={clientStrings.suiviGoMenu} style={styles.btn} />
+    </Link>
+  );
+
   return (
     <WestCoastBackground preset="client">
       <SafeAreaView style={styles.root} edges={['bottom']}>
-        <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
-          <Text variant="bodyMedium" style={[typography.bodyMuted, styles.intro]}>
-            Historique des commandes terminées sur cet appareil (synchronisé avec le restaurant lorsque la
-            connexion en ligne est active).
-          </Text>
-
-          {past.length === 0 ? (
+        <FlashList<Order>
+          data={past}
+          keyExtractor={(o) => o.id}
+          renderItem={({ item }) => <PastOrderRow order={item} />}
+          drawDistance={200}
+          style={styles.listFlex}
+          ListHeaderComponent={headerIntro}
+          ListFooterComponent={footerBack}
+          ListEmptyComponent={
             <Card mode="outlined" style={[styles.empty, elevation.card]}>
               <Card.Content>
                 <Text variant="bodyMedium" style={[typography.bodyMuted, styles.emptyText]}>
@@ -75,14 +91,9 @@ export default function ClientHistoriqueScreen() {
                 </Text>
               </Card.Content>
             </Card>
-          ) : (
-            past.map((o) => <PastOrderRow key={o.id} order={o} />)
-          )}
-
-          <Link href="/client" asChild>
-            <PrimaryButton title={clientStrings.suiviGoMenu} style={styles.btn} />
-          </Link>
-        </ScrollView>
+          }
+          contentContainerStyle={styles.scroll}
+        />
       </SafeAreaView>
     </WestCoastBackground>
   );
@@ -90,6 +101,7 @@ export default function ClientHistoriqueScreen() {
 
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: 'transparent' },
+  listFlex: { flex: 1 },
   scroll: { padding: spacing.md, paddingBottom: spacing.xl, gap: spacing.md },
   intro: { marginBottom: spacing.sm, lineHeight: 20 },
   empty: {
@@ -105,6 +117,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.borderSubtle,
     backgroundColor: colors.cardElevated,
+    marginBottom: spacing.md,
   },
   rowContent: {
     gap: spacing.xs,
