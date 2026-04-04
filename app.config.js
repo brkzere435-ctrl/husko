@@ -131,6 +131,8 @@ function huskoPlugins() {
   );
 
   return [
+    /** Client de développement : remplace Expo Go pour modules natifs (ex. expo-notifications). */
+    'expo-dev-client',
     [
       'expo-build-properties',
       {

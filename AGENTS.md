@@ -20,6 +20,7 @@ Ce fichier résume **où est la vérité** et **quelles commandes** utiliser. Le
 | Après changement d’images menu (flyer / stock) | `npm run assets:menu:verify` — présence des fichiers + diversité des tailles (pas un seul PNG dupliqué 27×) |
 | APK hub (EAS), attente jusqu’à la fin | `npm run build:apk:unified` (après `eas login`, secrets — voir `DEPLOIEMENT.md`) |
 | APK hub (EAS), **sans bloquer** le terminal / l’IDE (Cursor) | `npm run build:apk:unified:queue` — même build avec `--no-wait` ; suivre la fin avec `npx eas build:list --platform android --limit 5 --non-interactive` ou le dashboard Expo, puis `npm run apk:download:unified` si besoin |
+| **Development build** Android (remplace Expo Go pour notifs / natif) | `npm run build:dev:android` puis `npm run start:dev` ou `start:dev:hub` — voir [`DEPLOIEMENT.md`](DEPLOIEMENT.md) |
 | Checklist release | [`RELEASE_CHECKLIST.md`](RELEASE_CHECKLIST.md) |
 | Régénérer icônes / splash / adaptive (West Coast) | `npm run brand:assets` — écrit sous `assets/` ; **un nouveau `eas build` est obligatoire** pour mettre à jour le logo launcher (l’OTA ne change pas l’icône native). |
 | Vérifier clés Firebase (.env) | `npm run firebase:env:check` — strict : `firebase:env:check:strict` |

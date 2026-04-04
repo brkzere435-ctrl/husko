@@ -11,6 +11,17 @@ Checklist release (commandes synthétiques) : [RELEASE_CHECKLIST.md](RELEASE_CHE
 3. `npm run validate:expo` puis **`npm run build:android`** (profil `apk-unified`, canal **hub**).
 4. Sur [expo.dev](https://expo.dev) → **Builds** → télécharger l’**APK** ou en local : `npm run apk:download:last` puis `npm run apk:install:unified` (adb). Firebase pour la synchro multi-appareils : section **Liaison directe** ci‑dessous.
 
+### Build de développement (development client) — notifications & modules natifs
+
+**Expo Go** embarque un socle d’apps limité : des modules comme **`expo-notifications`** (canaux Android, comportement proche de la prod) peuvent **ne pas correspondre** à ton APK réel et provoquer des erreurs ou des permissions incomplètes. Pour le même JS que Metro mais avec **ton code natif** (icône notif, `POST_NOTIFICATIONS`, etc.), utilise un **development build** ([Expo dev client](https://docs.expo.dev/develop/development-builds/introduction/)).
+
+1. Secrets EAS alignés avec `.env` (Firebase, Maps, etc.), comme pour un APK unifié.
+2. **`npm run build:dev:android`** (profil `development` dans `eas.json` : `developmentClient: true`, variante **hub** `all`, canal **`development`**). Variante sans bloquer le terminal : **`npm run build:dev:android:queue`**.
+3. Télécharger l’APK sur [expo.dev](https://expo.dev) → Builds → installer sur l’appareil (adb ou partage du fichier).
+4. Lancer le bundler pour ce client : **`npm run start:dev`** ou **`npm run start:dev:hub`** (équivalent `expo start --dev-client`). Ouvrir le projet depuis l’app **Husko** installée (pas Expo Go).
+
+Après changement de dépendances **natifs** (nouveau module, plugin), refaire un build `development` ou unifié.
+
 ### Chemin express — APK « Client » seul (téléphone du client)
 
 1. Mêmes prérequis que ci‑dessus.
@@ -35,7 +46,7 @@ Pour un essai **d’une variante seule** (client, livreur, etc.), utilise plutô
 ## 1. Prérequis
 
 - **Node.js LTS** · `npm install` à la racine (le fichier `.npmrc` active `legacy-peer-deps` pour les paires Expo / React 19)
-- **Expo Go** aligné sur **SDK 55** (mettre à jour l’app Expo Go sur le téléphone) ou émulateurs : `npx expo start`
+- **Expo Go** (SDK 55) ou **`npm run start:dev`** avec un **development build** installé : pour **notifications locales** / `expo-notifications` proches de la prod, préférer le **development build** (section *Build de développement* ci‑dessus), pas Expo Go.
 - **Google Maps** (appareils réels) : définir `EXPO_PUBLIC_GOOGLE_MAPS_ANDROID_API_KEY` et `EXPO_PUBLIC_GOOGLE_MAPS_IOS_API_KEY` dans `.env` ou les **variables d’environnement EAS** (voir `env.example`). Sans clés valides, l’app affiche une **vue radar GTA** (sans tuiles satellite) ; avec clés valides, **tuiles Google** dans la mini-carte. Procédure détaillée : section **« Google Maps — obtenir et installer les clés »** ci‑dessous.
 - **Contrôle avant build (ordre logique, sans sauter d’étape)** :
   1. **`npm run release:gate`** — `preflight` → `security:check` → `verify` → `release:check`.

@@ -8,8 +8,12 @@
     "development": {
       "developmentClient": true,
       "distribution": "internal",
+      "channel": "development",
       "android": { "buildType": "apk" },
-      "ios": { "simulator": true }
+      "ios": { "simulator": true },
+      "env": {
+        "EXPO_PUBLIC_APP_VARIANT": "all"
+      }
     },
     "preview": {
       "distribution": "internal",
