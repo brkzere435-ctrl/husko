@@ -15,12 +15,14 @@ Checklist release (commandes synthétiques) : [RELEASE_CHECKLIST.md](RELEASE_CHE
 
 **Expo Go** embarque un socle d’apps limité : des modules comme **`expo-notifications`** (canaux Android, comportement proche de la prod) peuvent **ne pas correspondre** à ton APK réel et provoquer des erreurs ou des permissions incomplètes. Pour le même JS que Metro mais avec **ton code natif** (icône notif, `POST_NOTIFICATIONS`, etc.), utilise un **development build** ([Expo dev client](https://docs.expo.dev/develop/development-builds/introduction/)).
 
-1. Secrets EAS alignés avec `.env` (Firebase, Maps, etc.), comme pour un APK unifié.
-2. **`npm run build:dev:android`** (profil `development` dans `eas.json` : `developmentClient: true`, variante **hub** `all`, canal **`development`**). Variante sans bloquer le terminal : **`npm run build:dev:android:queue`**.
-3. Télécharger l’APK sur [expo.dev](https://expo.dev) → Builds → installer sur l’appareil (adb ou partage du fichier).
-4. Lancer le bundler pour ce client : **`npm run start:dev`** ou **`npm run start:dev:hub`** (équivalent `expo start --dev-client`). Ouvrir le projet depuis l’app **Husko** installée (pas Expo Go).
+**Profil recommandé : `development-husko`** — il **étend `apk-unified`** (`"extends": "apk-unified"` dans `eas.json`) : même **pile Gradle / Android** que l’APK hub qui fonctionne en prod interne, avec en plus **`developmentClient: true`**. Le profil minimal `development` (sans extends) peut diverger et a causé des **échecs Gradle** sur certains builds ; pour un **APK dev fiable**, utiliser **`development-husko`**.
 
-Après changement de dépendances **natifs** (nouveau module, plugin), refaire un build `development` ou unifié.
+1. Secrets EAS alignés avec `.env` (Firebase, Maps, etc.), comme pour un APK unifié (`eas:sync:firebase` / `eas:sync:maps` si besoin).
+2. **`npm run build:dev:android`** → profil **`development-husko`**, canal OTA **`development`**, variante hub **`all`**. Sans bloquer le terminal : **`npm run build:dev:android:queue`**.
+3. **Récupérer l’APK** : [expo.dev](https://expo.dev) → Builds, ou en local **`npm run apk:download:dev`** → fichier `dist/Husko-DevClient-hub-latest.apk`, puis **`npm run apk:install:dev`** (USB + adb).
+4. Bundler : **`npm run start:dev`** ou **`npm run start:dev:hub`**, ouvrir depuis l’app **Husko** installée (pas Expo Go).
+
+Ancien profil seul `development` (iOS simulateur / config minimale) : **`npm run build:dev:android:legacy`** si besoin. Après changement de dépendances **natifs**, refaire un build dev ou unifié.
 
 ### Chemin express — APK « Client » seul (téléphone du client)
 

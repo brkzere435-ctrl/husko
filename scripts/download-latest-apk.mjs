@@ -21,6 +21,8 @@ const ROOT = join(__dirname, '..');
 
 const VARIANTS = {
   unified: { profile: 'apk-unified', file: 'Husko-ByNight-unified-latest.apk' },
+  /** Dev client : même base native que apk-unified (Gradle aligné), + expo-dev-client. */
+  development: { profile: 'development-husko', file: 'Husko-DevClient-hub-latest.apk' },
   assistant: { profile: 'apk-assistant', file: 'Husko-Copilote-latest.apk' },
   client: { profile: 'apk-client', file: 'Husko-Client-latest.apk' },
   gerant: { profile: 'apk-gerant', file: 'Husko-Gerant-latest.apk' },
@@ -84,7 +86,9 @@ async function downloadUrl(url, dest) {
 async function downloadOne(key) {
   const v = VARIANTS[key];
   if (!v)
-    throw new Error(`Profil inconnu : ${key} (unified | assistant | client | gerant | livreur | all)`);
+    throw new Error(
+      `Profil inconnu : ${key} (unified | development | assistant | client | gerant | livreur | all)`
+    );
 
   const raw = runEasBuildList(v.profile);
   let arr;
@@ -97,7 +101,7 @@ async function downloadOne(key) {
   }
   if (!Array.isArray(arr) || arr.length === 0) {
     throw new Error(
-      `Aucun build Android terminé pour le profil « ${v.profile} ». Lancez : npm run build:apk:unified — ou attendez la fin du build sur expo.dev.`
+      `Aucun build Android terminé pour le profil « ${v.profile} ». Lancez : npm run build:apk:unified (ou npm run build:dev:android pour le dev client) — ou attendez la fin du build sur expo.dev.`
     );
   }
   const build = arr[0];
@@ -132,7 +136,7 @@ async function main() {
 
   if (!VARIANTS[arg]) {
     console.error(
-      'Usage : node scripts/download-latest-apk.mjs [ unified | assistant | client | gerant | livreur | all ]'
+      'Usage : node scripts/download-latest-apk.mjs [ unified | development | assistant | client | gerant | livreur | all ]'
     );
     process.exit(1);
   }

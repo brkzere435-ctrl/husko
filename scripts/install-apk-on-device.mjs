@@ -1,6 +1,6 @@
 /**
  * adb install -r dist/Husko-*-latest.apk (USB ou émulateur).
- * Usage : node scripts/install-apk-on-device.mjs [unified|assistant|client|gerant|livreur]
+ * Usage : node scripts/install-apk-on-device.mjs [unified|dev|assistant|client|gerant|livreur]
  * Défaut : unified
  */
 import { existsSync } from 'fs';
@@ -13,6 +13,7 @@ const ROOT = join(__dirname, '..');
 
 const FILES = {
   unified: 'Husko-ByNight-unified-latest.apk',
+  dev: 'Husko-DevClient-hub-latest.apk',
   assistant: 'Husko-Copilote-latest.apk',
   client: 'Husko-Client-latest.apk',
   gerant: 'Husko-Gerant-latest.apk',
@@ -22,7 +23,7 @@ const FILES = {
 const variant = (process.argv[2] || 'unified').toLowerCase();
 const name = FILES[variant];
 if (!name) {
-  console.error('[Husko] Usage : npm run apk:install:device -- [unified|assistant|client|gerant|livreur]');
+  console.error('[Husko] Usage : npm run apk:install:device -- [unified|dev|assistant|client|gerant|livreur]');
   process.exit(1);
 }
 
