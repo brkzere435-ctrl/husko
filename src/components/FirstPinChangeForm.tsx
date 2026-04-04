@@ -3,6 +3,7 @@ import { Alert, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { DEFAULT_ROLE_PIN, isPinValidFormat } from '@/constants/devicePin';
+import { appScreenVisual } from '@/constants/appScreenVisual';
 import { typography } from '@/constants/typography';
 import { colors, radius, spacing } from '@/constants/theme';
 import { WC } from '@/constants/westCoastTheme';
@@ -64,7 +65,7 @@ export function FirstPinChangeForm({ title, subtitle, onSubmit }: Props) {
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: 'rgba(0,0,0,0.45)',
+    backgroundColor: appScreenVisual.overlay045,
     borderRadius: radius.lg,
     borderWidth: 2,
     borderColor: WC.neonCyanDim,

@@ -3,8 +3,9 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { FONT } from '@/constants/fonts';
 import { typography } from '@/constants/typography';
-import { WC } from '@/constants/westCoastTheme';
+import { networkOfflineVisual } from '@/constants/infraAlertsVisual';
 import { spacing } from '@/constants/theme';
+import { WC } from '@/constants/westCoastTheme';
 
 type Props = { visible: boolean };
 
@@ -30,9 +31,9 @@ export function NetworkOfflineBanner({ visible }: Props) {
 
 const styles = StyleSheet.create({
   bar: {
-    backgroundColor: 'rgba(80, 25, 25, 0.95)',
+    backgroundColor: networkOfflineVisual.barBg,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(248, 113, 113, 0.45)',
+    borderBottomColor: networkOfflineVisual.barBorderBottom,
     paddingHorizontal: spacing.md,
     paddingBottom: spacing.sm,
   },
@@ -45,7 +46,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   body: {
-    color: 'rgba(254, 243, 199, 0.92)',
+    color: networkOfflineVisual.bodyText,
     fontSize: 12,
     lineHeight: 17,
   },

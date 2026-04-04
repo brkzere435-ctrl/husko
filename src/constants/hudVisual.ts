@@ -12,3 +12,8 @@ export const gtaMapFallbackVisual = {
   gridLine: 'rgba(34, 211, 238, 0.15)',
   palmSilhouette: 'rgba(0, 0, 0, 0.25)',
 } as const;
+
+/** Fenêtres néon du QG (`HuskoDepartureBuilding`). */
+export const departureBuildingVisual = {
+  windowFill: 'rgba(34, 211, 238, 0.55)',
+} as const;

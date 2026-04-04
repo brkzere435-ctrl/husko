@@ -5,6 +5,7 @@ import { Text } from 'react-native-paper';
 
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { SettingsSection } from '@/components/settings/SettingsSection';
+import { syncDiagnosticsToneVisual } from '@/constants/infraAlertsVisual';
 import { typography } from '@/constants/typography';
 import { colors, spacing } from '@/constants/theme';
 import { debugFirebaseProjectId, isRemoteSyncEnabled } from '@/services/firebaseRemote';
@@ -126,8 +127,8 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xs,
   },
   muted: { color: colors.textMuted, lineHeight: 18 },
-  ok: { color: 'rgba(120, 220, 160, 0.95)', marginBottom: spacing.xs },
-  err: { color: 'rgba(255, 160, 160, 0.95)', marginBottom: spacing.xs },
+  ok: { color: syncDiagnosticsToneVisual.ok, marginBottom: spacing.xs },
+  err: { color: syncDiagnosticsToneVisual.err, marginBottom: spacing.xs },
   label: { fontWeight: '800', marginBottom: 4, color: colors.goldDim },
   block: { marginTop: spacing.sm, gap: 4 },
   copyBtn: { marginTop: spacing.md },

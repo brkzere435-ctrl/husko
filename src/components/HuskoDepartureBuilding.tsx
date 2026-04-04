@@ -1,8 +1,9 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { StyleSheet, View } from 'react-native';
 
-import { WC } from '@/constants/westCoastTheme';
+import { departureBuildingVisual } from '@/constants/hudVisual';
 import { colors } from '@/constants/theme';
+import { WC } from '@/constants/westCoastTheme';
 
 type Props = {
   /** Largeur de référence (hauteur adaptée). Défaut ~carte mini-map. */
@@ -159,7 +160,7 @@ const styles = StyleSheet.create({
     width: 5,
     height: 6,
     borderRadius: 1,
-    backgroundColor: 'rgba(34,211,238,0.55)',
+    backgroundColor: departureBuildingVisual.windowFill,
     borderWidth: 1,
     borderColor: WC.neonCyan,
   },

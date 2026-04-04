@@ -2,6 +2,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
 import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 
+import { huskoRootBackgroundVisual } from '@/constants/huskoRootBackgroundVisual';
 import { colors } from '@/constants/theme';
 
 type Props = {
@@ -19,14 +20,14 @@ export function HuskoBackground({ children, style }: Props) {
       style={[styles.fill, style]}
     >
       <LinearGradient
-        colors={['rgba(240, 208, 80, 0.07)', 'transparent']}
+        colors={[...huskoRootBackgroundVisual.topGoldWash]}
         start={{ x: 0.5, y: 0 }}
         end={{ x: 0.5, y: 1 }}
         style={styles.topGlow}
         pointerEvents="none"
       />
       <LinearGradient
-        colors={['transparent', 'rgba(0,0,0,0.55)']}
+        colors={[...huskoRootBackgroundVisual.bottomVignette]}
         style={styles.bottomVignette}
         pointerEvents="none"
       />
@@ -54,6 +55,6 @@ const styles = StyleSheet.create({
   },
   dim: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0,0,0,0.12)',
+    backgroundColor: huskoRootBackgroundVisual.dimOverlay,
   },
 });

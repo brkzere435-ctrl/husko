@@ -17,8 +17,12 @@ Fil unique avec [`src/constants/productDirection.ts`](../src/constants/productDi
 | [`src/constants/gerantDistributionVisual.ts`](../src/constants/gerantDistributionVisual.ts) | Onglets + QR **distribution APK** |
 | [`src/constants/livreurScreenVisual.ts`](../src/constants/livreurScreenVisual.ts) | Barre outils + HUD **écran livreur** (native / web) |
 | [`src/constants/statusVisual.ts`](../src/constants/statusVisual.ts) | **`StatusBadge`** (fonds par statut) · **`SyncStatusPill`** (en ligne / erreur / local) |
-| [`src/constants/hudVisual.ts`](../src/constants/hudVisual.ts) | **`GTAHudFrame`** (dégradé bordure, scanlines, bandeau) · **`GTAMiniMapFallbackInterior`** (grille radar) |
+| [`src/constants/hudVisual.ts`](../src/constants/hudVisual.ts) | **`GTAHudFrame`** · **`GTAMiniMapFallbackInterior`** · **`HuskoDepartureBuilding`** (fenêtre QG) |
 | [`src/constants/clientBootVisual.ts`](../src/constants/clientBootVisual.ts) | Dégradés + textes **`ClientBootOverlay`** |
+| [`src/constants/infraAlertsVisual.ts`](../src/constants/infraAlertsVisual.ts) | **`DeploymentHints`** · **`NetworkOfflineBanner`** · **`SyncDiagnosticsSection`** (tons OK/erreur) |
+| [`src/constants/westCoastAmbientVisual.ts`](../src/constants/westCoastAmbientVisual.ts) | Halos **`HuskoAmbientGlow`** |
+| [`src/constants/screenSectionVisual.ts`](../src/constants/screenSectionVisual.ts) | Cartes **`ScreenSection`** (panier, etc.) |
+| [`src/constants/huskoRootBackgroundVisual.ts`](../src/constants/huskoRootBackgroundVisual.ts) | **`HuskoBackground`** (lavis or, vignette, voile) |
 | [`src/constants/paperTheme.ts`](../src/constants/paperTheme.ts) | Thème React Native Paper (aligné Husko) |
 
 ## 2. Typographie
@@ -57,7 +61,7 @@ Fil unique avec [`src/constants/productDirection.ts`](../src/constants/productDi
 
 ## 6. Amélioration continue du design
 
-1. Modifier d’abord **tokens** (`theme` / `WC` / `appScreenVisual` / `componentsVisual` / `clientMenuVisual` / `clientSuiviVisual` / `clientPanierVisual` / `clientBootVisual` / `gerantDashboardVisual` / `gerantDistributionVisual` / `livreurScreenVisual` / `statusVisual` / `hudVisual`) plutôt que des hex dans les écrans.
+1. Modifier d’abord **tokens** (`theme` / `WC` / `appScreenVisual` / `componentsVisual` / `clientMenuVisual` / `clientSuiviVisual` / `clientPanierVisual` / `clientBootVisual` / `gerantDashboardVisual` / `gerantDistributionVisual` / `livreurScreenVisual` / `statusVisual` / `hudVisual` / `infraAlertsVisual` / `westCoastAmbientVisual` / `screenSectionVisual` / `huskoRootBackgroundVisual`) plutôt que des hex dans les écrans.
 2. Valider sur **APK installé** + parcours prioritaire (menu client, suivi ou gérant selon focus).
 3. `npm run verify` avant commit.
 
@@ -67,7 +71,7 @@ Fil unique avec [`src/constants/productDirection.ts`](../src/constants/productDi
 
 2. **Gate produit** — `npm run verify`, puis **démo sur APK installé** : parcours décrit dans `PRODUCT_DELIVERABLE` / `PRODUCT_DEFINITION_OF_DONE.apkDemo` (client → gérant → livreur → suivi, Firestore si configuré).
 
-3. **Finition UI par écran** — Pousser un écran à la fois, **tokens uniquement** ; éviter une régression forte sur l’écran prioritaire du moment. Ordre suggéré : (1) Menu — `app/client/index.tsx` ; (2) Suivi — `app/client/suivi.tsx` ; (3) Dashboard gérant — `app/gerant/index.tsx` ; (4) Panier — `app/client/panier.tsx` (bannières `WC` / `typography.section`, total **Oswald**) ; (5) Historique — `app/client/historique.tsx` (`borderGlow`, prix via `typography.price`) ; (6) Réglages gérant — `app/gerant/reglages.tsx` (`FONT.bold` sur raccourcis / presets).
+3. **Finition UI par écran** — Pousser un écran à la fois, **tokens uniquement** ; éviter une régression forte sur l’écran prioritaire du moment. Ordre suggéré : (1) Menu — `app/client/index.tsx` ; (2) Suivi — `app/client/suivi.tsx` ; (3) Dashboard gérant — `app/gerant/index.tsx` ; (4) Panier — `app/client/panier.tsx` (bannières `WC` / `typography.section`, total **Oswald**) ; (5) Historique — `app/client/historique.tsx` (`borderGlow`, prix via `typography.price`) ; (6) Réglages gérant — `app/gerant/reglages.tsx` (`FONT.bold` sur raccourcis / presets). *État dépôt : couches communes (`ScreenSection`, `HuskoBackground`, halos, infra) déjà centralisées dans les fichiers `*Visual` du tableau § 1.*
 
 4. **Coquille native si besoin** — `npm run brand:assets` (icône, splash, boot hero) ; **nouveau `eas build`** pour voir launcher / splash à jour sur l’appareil (l’OTA ne suffit pas).
 

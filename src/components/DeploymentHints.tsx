@@ -2,6 +2,7 @@ import { Platform, StyleSheet, Text, View, type ViewStyle } from 'react-native';
 
 import { FONT } from '@/constants/fonts';
 import { typography } from '@/constants/typography';
+import { deploymentHintsVisual } from '@/constants/infraAlertsVisual';
 import { colors, radius, spacing } from '@/constants/theme';
 import { isRemoteSyncEnabled } from '@/services/firebaseRemote';
 import { isMapsKeyConfiguredForPlatform } from '@/utils/mapsBuildInfo';
@@ -83,15 +84,15 @@ export function DeploymentHints({ mode = 'settings', mapsRelevant = true, style 
 const styles = StyleSheet.create({
   settings: { gap: spacing.md, alignSelf: 'stretch', width: '100%' },
   hint: { color: colors.textMuted, flexShrink: 1 },
-  hintDev: { color: 'rgba(160, 160, 200, 0.85)', fontSize: 11, flexShrink: 1 },
+  hintDev: { color: deploymentHintsVisual.hintDev, fontSize: 11, flexShrink: 1 },
   alerts: { gap: spacing.sm, alignSelf: 'stretch', width: '100%' },
   alertFirebase: {
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
     borderRadius: radius.md,
-    backgroundColor: 'rgba(60, 15, 15, 0.92)',
+    backgroundColor: deploymentHintsVisual.alertFirebaseBg,
     borderLeftWidth: 3,
-    borderLeftColor: 'rgba(248, 113, 113, 0.95)',
+    borderLeftColor: deploymentHintsVisual.alertFirebaseBorder,
     gap: spacing.xs,
   },
   alertMaps: {
@@ -100,7 +101,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.md,
     backgroundColor: colors.mapOverlay,
     borderLeftWidth: 3,
-    borderLeftColor: 'rgba(34, 211, 238, 0.55)',
+    borderLeftColor: deploymentHintsVisual.alertMapsBorder,
     gap: spacing.xs,
   },
   alertGap: { marginTop: spacing.xs },

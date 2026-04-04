@@ -2,6 +2,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import type { ReactNode } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
+import { screenSectionVisual } from '@/constants/screenSectionVisual';
 import { typography } from '@/constants/typography';
 import { elevation, radius, spacing } from '@/constants/theme';
 
@@ -11,12 +12,14 @@ export function ScreenSection({ title, children }: Props) {
   return (
     <View style={styles.wrap}>
       <LinearGradient
-        colors={['rgba(253,230,138,0.95)', 'rgba(224,40,40,0.55)', 'rgba(253,230,138,0.4)']}
+        colors={[...screenSectionVisual.titleBarGradient]}
         start={{ x: 0, y: 0.5 }}
         end={{ x: 1, y: 0.5 }}
         style={styles.titleAccent}
       />
-      <Text style={[typography.section, styles.title]}>{title}</Text>
+      <Text style={[typography.section, styles.title]} accessibilityRole="header">
+        {title}
+      </Text>
       {children}
     </View>
   );
@@ -25,10 +28,10 @@ export function ScreenSection({ title, children }: Props) {
 const styles = StyleSheet.create({
   wrap: {
     marginBottom: spacing.lg,
-    backgroundColor: 'rgba(22, 8, 10, 0.72)',
+    backgroundColor: screenSectionVisual.cardBg,
     borderRadius: radius.xl,
     borderWidth: 1,
-    borderColor: 'rgba(253, 230, 138, 0.12)',
+    borderColor: screenSectionVisual.cardBorder,
     paddingHorizontal: spacing.md,
     paddingBottom: spacing.md,
     paddingTop: spacing.sm + 4,

@@ -6,6 +6,7 @@ import { FirstPinChangeForm } from '@/components/FirstPinChangeForm';
 import { WestCoastBackground } from '@/components/westcoast/WestCoastBackground';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { DEFAULT_ROLE_PIN } from '@/constants/devicePin';
+import { appScreenVisual } from '@/constants/appScreenVisual';
 import { typography } from '@/constants/typography';
 import { colors, radius, spacing } from '@/constants/theme';
 import { WC } from '@/constants/westCoastTheme';
@@ -86,7 +87,7 @@ const styles = StyleSheet.create({
   },
   setupRoot: { flex: 1, backgroundColor: 'transparent', justifyContent: 'center', padding: spacing.lg },
   lockCard: {
-    backgroundColor: 'rgba(0,0,0,0.45)',
+    backgroundColor: appScreenVisual.overlay045,
     borderRadius: radius.lg,
     borderWidth: 2,
     borderColor: WC.neonCyanDim,
