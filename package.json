@@ -8,6 +8,8 @@
   },
   "scripts": {
     "start": "expo start",
+    "start:clean": "expo start -c",
+    "start:hub:clean": "node node_modules/cross-env/src/bin/cross-env.js EXPO_PUBLIC_APP_VARIANT=all expo start -c",
     "start:lan": "expo start --lan",
     "start:tunnel": "expo start --tunnel",
     "android": "expo run:android",
