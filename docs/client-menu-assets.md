@@ -1,6 +1,12 @@
 # Assets visuels — menu client
 
-Ce document complète [`assets/menu/README.txt`](../assets/menu/README.txt) pour le plan « visuel client ».
+Ce document complète [`assets/menu/README.txt`](../assets/menu/README.txt) pour le plan « visuel client ». **Brief freelance / tableau des noms affichés :** [`docs/design-handoff-ui-ux.md`](design-handoff-ui-ux.md). **Grille technique détaillée (ratio, export, cadrage) :** en-tête de [`src/constants/menuImages.ts`](../src/constants/menuImages.ts).
+
+## Grille export (alignée code)
+
+- **Ratio** : **1:1** (carré), sujet centré, marge ~10 % — l’UI recadre en carré (`MenuItemVisual`, `cover`).
+- **Taille** : **900–1200 px** de côté, PNG **sRGB**.
+- **Nom** : `assets/menu/<id>.png` = `MenuItem.id` dans [`menu.ts`](../src/constants/menu.ts) ; mapping dans [`menuImages.ts`](../src/constants/menuImages.ts).
 
 ## Bundling (Expo)
 
@@ -20,13 +26,17 @@ Un PNG par entrée de `MENU_IMAGES` (même nom que l’`id` dans [`src/constants
 | `des-daim.png`, `des-tiramisu.png`, `des-mystere.png` | Desserts |
 | `bois-eau.png`, `bois-capri.png`, `bois-canette.png`, `bois-50.png` | Boissons |
 
-**Remplacement sans toucher au code :** garder le nom de fichier, écraser le PNG (idéalement même dimensions, carré pour les vignettes liste).
+**Remplacement sans toucher au code :** garder le nom de fichier, écraser le PNG (idéalement **carré 1:1**, voir grille ci-dessus).
 
 **Jeu de photos distinctes (stock générique, réseau requis) :** `npm run assets:menu:stock` → [`scripts/fetch-menu-stock-photos.mjs`](../scripts/fetch-menu-stock-photos.mjs) (recadrage 800×800 ; remplacer ensuite par vos shoots pour la prod).
 
 **Captures flyer / Snapchat (visuels Husko réels) :** `npm run assets:menu:flyers` → [`scripts/extract-menu-from-flyers.mjs`](../scripts/extract-menu-from-flyers.mjs) — recadre automatiquement depuis les PNG du dossier projet Cursor (`HUSKO_FLYER_DIR` ou chemin par défaut avec `os.homedir()`). Surcouche : `HUSKO_FLYER_472` / `HUSKO_FLYER_571` pour forcer un fichier source précis (dimensions **strictement** 472×1024 et 571×1024). `node scripts/extract-menu-from-flyers.mjs --dry-run` affiche les recadrages sans écrire. Ajuster les pourcentages dans le script si la mise en page flyer change.
 
-**Contrôle rapide après import :** `npm run assets:menu:verify` (présence + `verify:menu-visual-pro`).
+**Contrôle après import / remplacement :**
+
+1. `npm run verify:menu-assets` — fichiers présents, ids `menu.ts` ↔ `menuImages.ts`.
+2. `npm run assets:menu:verify` — inclut la commande ci-dessus + **diversité des tailles** (gate « pro », pas un seul PNG dupliqué 27×).
+3. `npm run verify` — gate locale complète.
 
 **Afficher uniquement dégradé + icône :** retirer la ligne correspondante dans `menuImages.ts` (voir README dans `assets/menu/`).
 

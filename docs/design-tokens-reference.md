@@ -35,9 +35,10 @@ Fil unique avec [`src/constants/productDirection.ts`](../src/constants/productDi
 ## 4. Photos produit
 
 - Fichiers : `assets/menu/<id>.png` (voir [`assets/menu/README.txt`](../assets/menu/README.txt)).
-- Mapping : [`src/constants/menuImages.ts`](../src/constants/menuImages.ts) — `require` statiques.
+- Mapping : [`src/constants/menuImages.ts`](../src/constants/menuImages.ts) — `require` statiques ; **grille** (1:1, 900–1200 px, etc.) : en-tête du même fichier.
 - Remplacer les PNG **sans renommer** : mêmes noms = pas de changement de code.
-- Vérif : `npm run assets:menu:verify` (après remplacement).
+- **Brief photographe / UX** (parcours, liste des ids) : [`docs/design-handoff-ui-ux.md`](design-handoff-ui-ux.md). Détail pipeline : [`docs/client-menu-assets.md`](client-menu-assets.md).
+- **Vérifs** : `npm run verify:menu-assets` puis `npm run assets:menu:verify` (inclut contrôle « pas de doublons massifs ») ; en CI locale : `npm run verify`.
 
 ## 5. Logo, splash, icône lanceur
 

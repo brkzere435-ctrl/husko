@@ -28,7 +28,7 @@ Ce fichier résume **où est la vérité** et **quelles commandes** utiliser. Le
 | Perf : lister écrans avec listes | `npm run perf:list-screens` |
 | Perf : modèle de rapport (matrice appareils) | [`docs/PERFORMANCE_REPORT_TEMPLATE.md`](docs/PERFORMANCE_REPORT_TEMPLATE.md) |
 
-Déploiement, Maps, Firebase, OTA : **[`DEPLOIEMENT.md`](DEPLOIEMENT.md)**. Parcours démo (builds, canaux, synchro) : **[`docs/parcours-demo-firebase.md`](docs/parcours-demo-firebase.md)**. Visuel West Coast (Maps, HUD, photos) : **[`docs/visuel-west-coast-checklist.md`](docs/visuel-west-coast-checklist.md)**. Architecture runtime (New Arch, Hermes, FlashList, Skia) : **[`docs/ARCHITECTURE_RUNTIME.md`](docs/ARCHITECTURE_RUNTIME.md)**. Roadmap technique : **[`docs/ROADMAP_TECHNIQUE.md`](docs/ROADMAP_TECHNIQUE.md)**. Vue utilisateur : **[`README.md`](README.md)**.
+Déploiement, Maps, Firebase, OTA : **[`DEPLOIEMENT.md`](DEPLOIEMENT.md)**. Parcours démo (builds, canaux, synchro) : **[`docs/parcours-demo-firebase.md`](docs/parcours-demo-firebase.md)**. Visuel West Coast (Maps, HUD, photos) : **[`docs/visuel-west-coast-checklist.md`](docs/visuel-west-coast-checklist.md)**. Briefs UI/photos menu : **[`docs/design-handoff-ui-ux.md`](docs/design-handoff-ui-ux.md)** · **[`docs/client-menu-assets.md`](docs/client-menu-assets.md)** (`menuImages.ts` = liste technique). Brief notifications client/gérant : **[`docs/briefing-rdv-client-notifications.md`](docs/briefing-rdv-client-notifications.md)**. Architecture runtime (New Arch, Hermes, FlashList, Skia) : **[`docs/ARCHITECTURE_RUNTIME.md`](docs/ARCHITECTURE_RUNTIME.md)**. Roadmap technique : **[`docs/ROADMAP_TECHNIQUE.md`](docs/ROADMAP_TECHNIQUE.md)**. Vue utilisateur : **[`README.md`](README.md)**.
 
 ## Cursor / assistant
 

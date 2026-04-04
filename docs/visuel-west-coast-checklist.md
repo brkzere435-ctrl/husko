@@ -16,8 +16,10 @@ Ce document explique **où** le rendu « néon / HUD / Cadillac » est implémen
 ## 3. Photos des sandwichs / articles
 
 - **Source** : fichiers PNG sous `assets/menu/` mappés dans [`src/constants/menuImages.ts`](../src/constants/menuImages.ts) (requires statiques). Toutes les lignes du [`MENU`](../src/constants/menu.ts) ont une entrée image.
+- **Cadrage attendu** : export **1:1** recommandé (~900–1200 px), voir en-tête de `menuImages.ts` et [`docs/design-handoff-ui-ux.md`](design-handoff-ui-ux.md).
 - **Affichage** : [`src/components/westcoast/MenuItemVisual.tsx`](../src/components/westcoast/MenuItemVisual.tsx). En cas d’échec de décodage, repli automatique sur dégradé + icône (comportement préférable à une case vide).
 - Les images sont dans le **bundle JS / assets** ; un OTA les met à jour comme le reste du JS. Si tu ne vois que des icônes : vérifier un **build récent** et le bon **canal** EAS Update.
+- **Après changement des PNG** : `npm run verify:menu-assets` · `npm run assets:menu:verify` — voir [`docs/client-menu-assets.md`](client-menu-assets.md).
 
 ## 4. Réglages à vérifier (ordre recommandé)
 

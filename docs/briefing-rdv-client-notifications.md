@@ -2,6 +2,8 @@
 
 Document de préparation : expliquer ce qui a été corrigé, comment l’app fonctionne réellement, et les limites honnêtes. La procédure technique détaillée reste dans [`DEPLOIEMENT.md`](../DEPLOIEMENT.md).
 
+**Autres briefs (hors sujet notifications)** : photos menu / freelance UI — [`design-handoff-ui-ux.md`](design-handoff-ui-ux.md) ; pipeline assets menu — [`client-menu-assets.md`](client-menu-assets.md).
+
 ---
 
 ## 1. Contexte

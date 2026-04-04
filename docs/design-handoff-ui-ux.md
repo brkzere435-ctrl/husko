@@ -71,4 +71,15 @@ Le mapping `id` → `require(...)` est dans `src/constants/menuImages.ts`. Pour 
 - **Menu (fichiers + ids)** : `npm run verify:menu-assets` — présence des PNG et alignement `menu.ts` ↔ `menuImages.ts`.
 - **Menu (pas de doublons massifs)** : `npm run assets:menu:verify` — inclut `verify:menu-assets` + contrôle de diversité des tailles (gate « pro »).
 - **CI locale complète** : `npm run verify`.
+- **Release / gate menu strict** : `npm run verify:menu-visual-pro:strict` ou `npm run release:gate:pro` — voir [`RELEASE_CHECKLIST.md`](../RELEASE_CHECKLIST.md) § Photos menu et [`docs/client-menu-assets.md`](client-menu-assets.md).
 - Build APK : `DEPLOIEMENT.md` et `npm run build:apk:unified:queue`.
+
+## Documents liés (même vérité, angles différents)
+
+| Document | Rôle |
+|----------|------|
+| [`src/constants/menuImages.ts`](../src/constants/menuImages.ts) | Liste technique `require` + grille export |
+| [`docs/client-menu-assets.md`](client-menu-assets.md) | Bundling, scripts stock/flyers, alerte placeholders |
+| [`docs/design-tokens-reference.md`](design-tokens-reference.md) | Tokens + rappel photos / brand |
+| [`docs/visuel-west-coast-checklist.md`](visuel-west-coast-checklist.md) | GTA / Maps / photos dans l’app |
+| [`assets/menu/README.txt`](../assets/menu/README.txt) | Raccourci dossier `assets/menu/` |

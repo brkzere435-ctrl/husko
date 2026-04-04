@@ -22,4 +22,6 @@ Application **Expo** : commande (menu, panier, suivi), **livreur** (carte + posi
 
 **Briefing client (notifications locales vs Firestore, synchro client–gérant) :** [`docs/briefing-rdv-client-notifications.md`](docs/briefing-rdv-client-notifications.md).
 
+**Brief UI/UX + photos menu (freelance, ids, vérifs) :** [`docs/design-handoff-ui-ux.md`](docs/design-handoff-ui-ux.md) — complété par [`docs/client-menu-assets.md`](docs/client-menu-assets.md).
+
 **CI GitHub :** `release:gate` sur chaque push/PR (voir [`.github/workflows/ci.yml`](.github/workflows/ci.yml)).

@@ -66,8 +66,10 @@ npm run release:chantiers
 
 ## 4. Photos menu
 
-- Fichiers `assets/menu/<id>.png` (voir [assets/menu/README.txt](assets/menu/README.txt), [docs/client-menu-assets.md](docs/client-menu-assets.md) et `src/constants/menuImages.ts`).
+- Fichiers `assets/menu/<id>.png` — **brief photographe / UX** : [docs/design-handoff-ui-ux.md](docs/design-handoff-ui-ux.md) ; détail pipeline : [docs/client-menu-assets.md](docs/client-menu-assets.md) ; vérité des noms : `src/constants/menuImages.ts`.
+- **Grille** : ratio **1:1**, export ~900–1200 px (voir en-tête `menuImages.ts`).
 - **Présence des fichiers** : `npm run verify:menu-assets` (déjà dans `npm run verify`).
+- **Contrôle combiné (présence + diversité des tailles)** : `npm run assets:menu:verify` — à lancer après remplacement des PNG.
 - **Pas de doublons « un export recopié 27 fois »** : si la majorité des PNG ont la **même taille en octets**, les vignettes resteront visuellement identiques — ce n’est pas corrigible par du code UI seul. Détection : `npm run verify:menu-visual-pro` (avertissement, sortie 0).
 - **Avant une release où le menu doit être « pro »** : remplacer chaque PNG par une vraie photo (même nom de fichier), puis lancer **`npm run verify:menu-visual-pro:strict`** (échoue tant que les placeholders massifs restent).
 - **Gate release complète + visuels menu stricts** : `npm run release:gate:pro` (enchaîne `release:gate` et la vérification stricte ci-dessus). Tant que les assets ne sont pas refaits, cette commande échouera — utiliser `release:gate` seul si tu livres encore avec des visuels temporaires.
