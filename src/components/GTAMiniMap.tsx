@@ -39,6 +39,7 @@ export function GTAMiniMap({
 }: Props) {
   const mapsConfigured = isMapsKeyConfiguredForPlatform();
   const useFallback = !mapsConfigured;
+  const footerTag = useFallback ? `${hudFooter} · RADAR` : hudFooter;
   const useGoogleStyle = Platform.OS === 'android';
 
   const driverTrackKey = useMemo(
@@ -56,7 +57,7 @@ export function GTAMiniMap({
   if (useFallback) {
     return (
       <View style={elevation.hero}>
-        <GTAHudFrame size={HUD_SIZE} footerTag={hudFooter}>
+        <GTAHudFrame size={HUD_SIZE} footerTag={footerTag}>
           <GTAMiniMapFallbackInterior
             driver={driver}
             headingDeg={headingDeg}
@@ -72,7 +73,7 @@ export function GTAMiniMap({
 
   return (
     <View style={elevation.hero}>
-      <GTAHudFrame size={HUD_SIZE} footerTag={hudFooter}>
+      <GTAHudFrame size={HUD_SIZE} footerTag={footerTag}>
         <MapView
           style={styles.map}
           provider={Platform.OS === 'android' ? PROVIDER_GOOGLE : undefined}

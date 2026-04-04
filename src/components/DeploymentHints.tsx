@@ -45,8 +45,9 @@ export function DeploymentHints({ mode = 'settings', mapsRelevant = true, style 
           <View style={[styles.alertMaps, !remote && styles.alertGap]} accessibilityRole="alert">
             <Text style={[typography.caption, styles.warnTitle]}>Carte</Text>
             <Text style={[typography.caption, styles.warn]}>
-              La carte peut s’afficher en mode simplifié. Vérifiez votre connexion internet ; la vue
-              détaillée dépend aussi de la configuration de l’application.
+              Mode radar GTA (contours néon) : normal sans clé Google Maps dans le build. Tuiles
+              réelles + style nuit : ajoute EXPO_PUBLIC_GOOGLE_MAPS_ANDROID_API_KEY, eas:sync:maps,
+              puis rebuild APK (l’OTA JS ne suffit pas).
             </Text>
           </View>
         ) : null}
@@ -63,8 +64,8 @@ export function DeploymentHints({ mode = 'settings', mapsRelevant = true, style 
       </Text>
       {showMapsLine ? (
         <Text style={[typography.caption, styles.hint]}>
-          Si la carte reste vide ou simplifiée après une mise à jour, vérifiez la connexion puis
-          redémarrez l’application.
+          Mini-carte : mode radar GTA (contours néon) tant que la clé Google Maps n’est pas dans
+          l’APK. Clé + eas:sync:maps + rebuild pour les tuiles et le style nuit.
         </Text>
       ) : null}
       {__DEV__ && !remote ? (

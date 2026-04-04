@@ -14,6 +14,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { PaperProvider } from 'react-native-paper';
 
+import { HuskoBootSplash } from '@/components/HuskoBootSplash';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { NetworkOfflineBanner } from '@/components/NetworkOfflineBanner';
 import { VariantGate } from '@/components/VariantGate';
@@ -155,7 +156,7 @@ export default function RootLayout() {
   }, []);
 
   if (!appReady) {
-    return null;
+    return <HuskoBootSplash />;
   }
 
   return (

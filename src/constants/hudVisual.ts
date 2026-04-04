@@ -11,6 +11,10 @@ export const gtaHudFrameVisual = {
 export const gtaMapFallbackVisual = {
   gridLine: 'rgba(34, 211, 238, 0.15)',
   palmSilhouette: 'rgba(0, 0, 0, 0.25)',
+  /** Contour « zone » façon minimap GTA (sans tuiles Google). */
+  zoneBorder: 'rgba(34, 211, 238, 0.42)',
+  zoneBorderDim: 'rgba(34, 211, 238, 0.14)',
+  cornerBracket: 'rgba(250, 204, 21, 0.55)',
 } as const;
 
 /** Fenêtres néon du QG (`HuskoDepartureBuilding`). */

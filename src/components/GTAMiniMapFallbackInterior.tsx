@@ -31,6 +31,11 @@ export function GTAMiniMapFallbackInterior({
 }: Props) {
   return (
     <View style={styles.fakeMap}>
+      <View style={styles.zoneRing} pointerEvents="none" />
+      <View style={[styles.corner, styles.cornerTL]} />
+      <View style={[styles.corner, styles.cornerTR]} />
+      <View style={[styles.corner, styles.cornerBL]} />
+      <View style={[styles.corner, styles.cornerBR]} />
       <View style={styles.gridLine} />
       <View style={[styles.gridLine, styles.gridV]} />
       <View style={styles.palmSilhouette} />
@@ -60,6 +65,51 @@ const styles = StyleSheet.create({
     backgroundColor: colors.mapRadarBg,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  zoneRing: {
+    position: 'absolute',
+    top: '7%',
+    left: '7%',
+    right: '7%',
+    bottom: '14%',
+    borderRadius: 10,
+    borderWidth: 1.5,
+    borderColor: gtaMapFallbackVisual.zoneBorder,
+    backgroundColor: 'transparent',
+  },
+  corner: {
+    position: 'absolute',
+    width: 12,
+    height: 12,
+    borderColor: gtaMapFallbackVisual.cornerBracket,
+  },
+  cornerTL: {
+    top: '5%',
+    left: '5%',
+    borderTopWidth: 2,
+    borderLeftWidth: 2,
+    borderTopLeftRadius: 2,
+  },
+  cornerTR: {
+    top: '5%',
+    right: '5%',
+    borderTopWidth: 2,
+    borderRightWidth: 2,
+    borderTopRightRadius: 2,
+  },
+  cornerBL: {
+    bottom: '12%',
+    left: '5%',
+    borderBottomWidth: 2,
+    borderLeftWidth: 2,
+    borderBottomLeftRadius: 2,
+  },
+  cornerBR: {
+    bottom: '12%',
+    right: '5%',
+    borderBottomWidth: 2,
+    borderRightWidth: 2,
+    borderBottomRightRadius: 2,
   },
   gridLine: {
     position: 'absolute',
