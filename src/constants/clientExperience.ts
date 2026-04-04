@@ -1,4 +1,11 @@
 /** Textes côté client — ton chaleureux et rassurant. */
+
+/** Intro plein écran au 1er lancement client (`ClientBootOverlay`) — durée max. avant passage auto au menu. */
+export const CLIENT_BOOT_DURATION_MS = 1600;
+
+/** Texte discret — l’utilisateur peut aussi appuyer pour zapper sans attendre. */
+export const CLIENT_BOOT_SKIP_HINT = 'Appuyer pour continuer';
+
 export const CLIENT_PHONE_DISPLAY = '06 29 39 74 30';
 export const CLIENT_PHONE_TEL = '+33629397430';
 

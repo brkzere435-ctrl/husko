@@ -1,10 +1,14 @@
 import { LinearGradient } from 'expo-linear-gradient';
-import { useEffect } from 'react';
-import { Image, Modal, StyleSheet, Text, View } from 'react-native';
+import { useCallback, useEffect, useRef } from 'react';
+import { Image, Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { BrandMark } from '@/components/BrandMark';
 import { CLIENT_BOOT_HERO } from '@/constants/brandingAssets';
+import {
+  CLIENT_BOOT_DURATION_MS,
+  CLIENT_BOOT_SKIP_HINT,
+} from '@/constants/clientExperience';
 import { FONT } from '@/constants/fonts';
 import { colors, spacing } from '@/constants/theme';
 import { WC } from '@/constants/westCoastTheme';
@@ -19,20 +23,37 @@ type Props = {
 /** Écran d’accueil client — fond sunset + scène icônes façon affiche West Coast. */
 export function ClientBootOverlay({ visible, onDone }: Props) {
   const insets = useSafeAreaInsets();
+  const doneRef = useRef(onDone);
+  doneRef.current = onDone;
+
+  const finish = useCallback(() => {
+    doneRef.current();
+  }, []);
 
   useEffect(() => {
     if (!visible) return;
-    const t = setTimeout(onDone, 2800);
+    const t = setTimeout(finish, CLIENT_BOOT_DURATION_MS);
     return () => clearTimeout(t);
-  }, [visible, onDone]);
+  }, [visible, finish]);
 
   if (!visible) return null;
 
   const topPad = insets.top + BOOT_CONTENT_OFFSET;
 
   return (
-    <Modal visible animationType="fade" statusBarTranslucent transparent>
-      <View style={styles.root} accessibilityViewIsModal>
+    <Modal
+      visible
+      animationType="fade"
+      statusBarTranslucent
+      transparent
+      accessibilityViewIsModal
+    >
+      <Pressable
+        style={styles.root}
+        onPress={finish}
+        accessibilityRole="button"
+        accessibilityLabel={`${CLIENT_BOOT_SKIP_HINT}. Ouvre le menu.`}
+      >
         <Image source={CLIENT_BOOT_HERO} style={StyleSheet.absoluteFill} resizeMode="cover" />
         <LinearGradient
           colors={['rgba(60, 40, 72, 0.35)', 'rgba(180, 90, 70, 0.4)', 'rgba(24, 18, 22, 0.82)']}
@@ -60,6 +81,7 @@ export function ClientBootOverlay({ visible, onDone }: Props) {
           <Text style={styles.banner}>LA RECETTE QUI DOMINE LA VILLE</Text>
           <Text style={styles.hours}>LIVRAISON LUN – SAM · 20h – 00h</Text>
           <Text style={styles.snap}>Snap · HUSKOBYNIGHT</Text>
+          <Text style={styles.skipHint}>{CLIENT_BOOT_SKIP_HINT}</Text>
           <LinearGradient
             colors={['transparent', 'rgba(40, 28, 38, 0.25)', 'rgba(24, 18, 24, 0.55)']}
             locations={[0, 0.4, 1]}
@@ -67,7 +89,7 @@ export function ClientBootOverlay({ visible, onDone }: Props) {
             pointerEvents="none"
           />
         </View>
-      </View>
+      </Pressable>
     </Modal>
   );
 }
@@ -150,6 +172,14 @@ const styles = StyleSheet.create({
     color: WC.neonCyan,
     fontSize: 12,
     textAlign: 'center',
+  },
+  skipHint: {
+    fontFamily: FONT.medium,
+    marginTop: spacing.md,
+    color: 'rgba(255, 247, 237, 0.55)',
+    fontSize: 12,
+    textAlign: 'center',
+    letterSpacing: 0.4,
   },
   bootVignette: {
     position: 'absolute',

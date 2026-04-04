@@ -18,6 +18,17 @@ const branding = join(assets, 'branding');
 mkdirSync(assets, { recursive: true });
 mkdirSync(branding, { recursive: true });
 
+/**
+ * Même ciel que `linearGradient id="sky"` dans iconSvg — garder synchro avec bootHeroSvg et theme.gradient.
+ * Modifier ici regénère icon / splash / adaptive / hero boot cohérents (`npm run brand:assets`).
+ */
+const SKY_STOPS_ICON = `
+      <stop offset="0%" stop-color="#4a3542"/>
+      <stop offset="22%" stop-color="#6b4d5c"/>
+      <stop offset="48%" stop-color="#d97757"/>
+      <stop offset="72%" stop-color="#c2410c"/>
+      <stop offset="100%" stop-color="#1e161c"/>`;
+
 /** Ciel + horizon — crépuscule WC (brick / fire / brickDeep), aligné westCoastTheme.ts */
 function iconSvg(size, titlePx, subPx) {
   const s = size;
@@ -27,12 +38,7 @@ function iconSvg(size, titlePx, subPx) {
   return `
 <svg width="${s}" height="${s}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${s} ${s}">
   <defs>
-    <linearGradient id="sky" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#4a3542"/>
-      <stop offset="22%" stop-color="#6b4d5c"/>
-      <stop offset="48%" stop-color="#d97757"/>
-      <stop offset="72%" stop-color="#c2410c"/>
-      <stop offset="100%" stop-color="#1e161c"/>
+    <linearGradient id="sky" x1="0%" y1="0%" x2="0%" y2="100%">${SKY_STOPS_ICON}
     </linearGradient>
     <linearGradient id="chrome" x1="0%" y1="0%" x2="0%" y2="100%">
       <stop offset="0%" stop-color="#fff7ed"/>
@@ -117,7 +123,7 @@ async function writePng(svg, outName, size) {
   await sharp(buf).resize(size, size).png({ compressionLevel: 9 }).toFile(join(assets, outName));
 }
 
-/** Fond portrait 9:16 — boot client / bandeau hub (sunset + horizon). */
+/** Fond portrait 9:16 — boot client (même ciel que l’icône / splash générés). */
 function bootHeroSvg(w, h) {
   const sunCx = Math.round(w * 0.5);
   const sunCy = Math.round(h * 0.38);
@@ -125,12 +131,7 @@ function bootHeroSvg(w, h) {
   return `
 <svg width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}">
   <defs>
-    <linearGradient id="bhSky" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#4a3542"/>
-      <stop offset="30%" stop-color="#8b5a6e"/>
-      <stop offset="52%" stop-color="#f0ab7c"/>
-      <stop offset="78%" stop-color="#c2410c"/>
-      <stop offset="100%" stop-color="#1e161c"/>
+    <linearGradient id="bhSky" x1="0%" y1="0%" x2="0%" y2="100%">${SKY_STOPS_ICON}
     </linearGradient>
     <linearGradient id="bhSun" x1="0%" y1="0%" x2="0%" y2="100%">
       <stop offset="0%" stop-color="#fef3c7"/>
