@@ -91,7 +91,8 @@ type State = {
   addToCart: (item: MenuItem, qty?: number) => void;
   removeFromCart: (itemId: string) => void;
   clearCart: () => void;
-  placeOrder: (addressLabel: string, dest: LatLng) => Order | null;
+  /** Crée la commande localement et tente l’envoi cloud (retries dans remotePushOrder). */
+  placeOrder: (addressLabel: string, dest: LatLng) => Promise<Order | null>;
   /** Transitions autorisées uniquement (gérant / livreur). */
   transitionOrder: (orderId: string, next: OrderStatus, actor: OrderActor) => boolean;
   /** Une étape du flux, sans contrôle d’acteur (mode autonome). */
@@ -221,7 +222,7 @@ export const useHuskoStore = create<State>()(
 
       clearCart: () => set({ cart: [] }),
 
-      placeOrder: (addressLabel, dest) => {
+      placeOrder: async (addressLabel, dest) => {
         const { cart, notificationsEnabled } = get();
         if (!cart.length) return null;
         const total = cart.reduce((a, l) => a + l.item.price * l.qty, 0);
@@ -246,7 +247,15 @@ export const useHuskoStore = create<State>()(
             remoteEnabled: isRemoteSyncEnabled(),
           },
         });
-        pushOrderRemote(order);
+        try {
+          await remotePushOrder(order);
+          set({ cloudSyncWriteError: null });
+        } catch (e: unknown) {
+          const msg = e instanceof Error ? e.message : 'Erreur synchro cloud';
+          set({ cloudSyncWriteError: msg });
+          if (__DEV__) console.warn('[Husko placeOrder remotePush]', msg);
+          throw e instanceof Error ? e : new Error(msg);
+        }
         if (notificationsEnabled) {
           notifyGerantNewOrder(order).catch(() => {});
         }

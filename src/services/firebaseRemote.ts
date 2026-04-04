@@ -66,6 +66,13 @@ export function debugFirebaseProjectId(): string | null {
   return c?.projectId ?? null;
 }
 
+function sleep(ms: number): Promise<void> {
+  return new Promise((r) => setTimeout(r, ms));
+}
+
+const REMOTE_PUSH_MAX_ATTEMPTS = 3;
+const REMOTE_PUSH_BACKOFF_MS = [0, 500, 1400];
+
 export async function remotePushOrder(order: Order): Promise<void> {
   const firestore = ensureDb();
   const pid = debugFirebaseProjectId();
@@ -77,24 +84,38 @@ export async function remotePushOrder(order: Order): Promise<void> {
   });
   if (!firestore) return;
   const payload = JSON.parse(JSON.stringify(order)) as Record<string, unknown>;
-  try {
-    await setDoc(doc(firestore, 'orders', order.id), payload);
-    debugAgentLog({
-      location: 'firebaseRemote.ts:remotePushOrder:success',
-      message: 'setDoc orders ok',
-      hypothesisId: 'H1',
-      data: { orderId: order.id, projectId: pid },
-    });
-  } catch (e) {
-    debugAgentLog({
-      location: 'firebaseRemote.ts:remotePushOrder:catch',
-      message: 'setDoc failed',
-      hypothesisId: 'H1',
-      data: { orderId: order.id, err: e instanceof Error ? e.message : String(e) },
-    });
-    const msg = e instanceof Error ? e.message : String(e);
-    throw new Error(`Écriture commande cloud : ${msg}`);
+  let lastErr: unknown;
+  for (let attempt = 0; attempt < REMOTE_PUSH_MAX_ATTEMPTS; attempt++) {
+    if (attempt > 0) {
+      await sleep(REMOTE_PUSH_BACKOFF_MS[attempt] ?? 1000);
+      debugAgentLog({
+        location: 'firebaseRemote.ts:remotePushOrder:retry',
+        message: 'setDoc retry',
+        hypothesisId: 'H1',
+        data: { orderId: order.id, attempt: attempt + 1 },
+      });
+    }
+    try {
+      await setDoc(doc(firestore, 'orders', order.id), payload);
+      debugAgentLog({
+        location: 'firebaseRemote.ts:remotePushOrder:success',
+        message: 'setDoc orders ok',
+        hypothesisId: 'H1',
+        data: { orderId: order.id, projectId: pid, attempts: attempt + 1 },
+      });
+      return;
+    } catch (e) {
+      lastErr = e;
+      debugAgentLog({
+        location: 'firebaseRemote.ts:remotePushOrder:catch',
+        message: 'setDoc failed',
+        hypothesisId: 'H1',
+        data: { orderId: order.id, err: e instanceof Error ? e.message : String(e), attempt: attempt + 1 },
+      });
+    }
   }
+  const msg = lastErr instanceof Error ? lastErr.message : String(lastErr);
+  throw new Error(`Écriture commande cloud : ${msg}`);
 }
 
 /** Synchronise le mode auto + rythme pour l’ETA côté client (même projet Firebase). */

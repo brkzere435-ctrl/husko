@@ -40,8 +40,10 @@ export default function PanierScreen() {
     | { type: 'empty' }
     | { type: 'cloud' }
     | { type: 'success'; orderId: string }
+    | { type: 'pushFailed' }
     | null
   >(null);
+  const [submitting, setSubmitting] = useState(false);
 
   const total = cart.reduce((a, l) => a + l.item.price * l.qty, 0);
   const cloudOk = isRemoteSyncEnabled();
@@ -51,7 +53,7 @@ export default function PanierScreen() {
     []
   );
 
-  function checkout() {
+  async function checkout() {
     if (!cart.length) {
       setDialog({ type: 'empty' });
       return;
@@ -60,10 +62,17 @@ export default function PanierScreen() {
       setDialog({ type: 'cloud' });
       return;
     }
-    const order = placeOrder(address.trim() || 'Adresse', ANGERS_DEFAULT);
-    if (order) {
-      hapticSuccess();
-      setDialog({ type: 'success', orderId: order.id });
+    setSubmitting(true);
+    try {
+      const order = await placeOrder(address.trim() || 'Adresse', ANGERS_DEFAULT);
+      if (order) {
+        hapticSuccess();
+        setDialog({ type: 'success', orderId: order.id });
+      }
+    } catch {
+      setDialog({ type: 'pushFailed' });
+    } finally {
+      setSubmitting(false);
     }
   }
 
@@ -172,7 +181,11 @@ export default function PanierScreen() {
 
           {cart.length > 0 ? (
             <Animated.View entering={FadeIn.duration(360)} style={styles.ctaBlock}>
-              <PrimaryButton title="Valider la commande" onPress={checkout} />
+              <PrimaryButton
+                title={submitting ? 'Envoi en cours…' : 'Valider la commande'}
+                onPress={() => void checkout()}
+                disabled={submitting}
+              />
               <PrimaryButton title="Vider le panier" variant="ghost" onPress={() => clearCart()} />
             </Animated.View>
           ) : null}
@@ -198,6 +211,21 @@ export default function PanierScreen() {
                 <Dialog.Title>{clientStrings.cloudCheckoutBlockedTitle}</Dialog.Title>
                 <Dialog.Content>
                   <Text variant="bodyMedium">{clientStrings.cloudCheckoutBlockedBody}</Text>
+                </Dialog.Content>
+                <Dialog.Actions>
+                  <Button onPress={() => setDialog(null)}>OK</Button>
+                </Dialog.Actions>
+              </>
+            ) : null}
+            {dialog?.type === 'pushFailed' ? (
+              <>
+                <Dialog.Title>Envoi incomplet</Dialog.Title>
+                <Dialog.Content>
+                  <Text variant="bodyMedium">
+                    La commande est enregistrée sur cet appareil, mais la synchronisation avec le restaurant
+                    a échoué après plusieurs essais. Vérifiez le réseau, puis réessayez depuis le suivi ou
+                    contactez le restaurant.
+                  </Text>
                 </Dialog.Content>
                 <Dialog.Actions>
                   <Button onPress={() => setDialog(null)}>OK</Button>

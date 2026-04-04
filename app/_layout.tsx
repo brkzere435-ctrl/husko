@@ -15,7 +15,9 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { PaperProvider } from 'react-native-paper';
 
 import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { NetworkOfflineBanner } from '@/components/NetworkOfflineBanner';
 import { VariantGate } from '@/components/VariantGate';
+import { useNetworkState } from '@/hooks/useNetworkState';
 import { huskoPaperTheme } from '@/constants/paperTheme';
 import { colors } from '@/constants/theme';
 import {
@@ -40,6 +42,7 @@ import { readHuskoExpoExtra } from '@/utils/readHuskoExpoExtra';
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
 export default function RootLayout() {
+  const { showOfflineBanner } = useNetworkState();
   const [fontsLoaded, fontError] = useFonts({
     Oswald_400Regular,
     Oswald_500Medium,
@@ -156,6 +159,7 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
     <SafeAreaProvider>
+      <NetworkOfflineBanner visible={showOfflineBanner} />
       <PaperProvider theme={huskoPaperTheme}>
       <ErrorBoundary>
         <VariantGate />
