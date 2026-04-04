@@ -11,6 +11,7 @@ import { SettingsSection, SettingsSwitchRow } from '@/components/settings/Settin
 import { SyncDiagnosticsSection } from '@/components/settings/SyncDiagnosticsSection';
 import { WestCoastBackground } from '@/components/westcoast/WestCoastBackground';
 import { AUTONOMOUS_PACE_ORDER, AUTONOMOUS_PACE_PRESETS } from '@/constants/autonomousDelivery';
+import { gerantDashboardVisual } from '@/constants/gerantDashboardVisual';
 import { FONT } from '@/constants/fonts';
 import { typography } from '@/constants/typography';
 import { colors, radius, spacing } from '@/constants/theme';
@@ -38,7 +39,9 @@ export default function ReglagesScreen() {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          <Text style={styles.screenTitle}>Réglages gérant</Text>
+          <Text style={styles.screenTitle} accessibilityRole="header">
+            Réglages gérant
+          </Text>
           <Text style={[typography.bodyMuted, styles.screenSubtitle]}>
             Mode démo, sécurité, notifications et déploiement — tout au même endroit.
           </Text>
@@ -158,7 +161,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.md,
     borderWidth: 1,
     borderColor: colors.border,
-    backgroundColor: 'rgba(0,0,0,0.25)',
+    backgroundColor: gerantDashboardVisual.reglagesShortcutBg,
     gap: spacing.xs,
   },
   shortcutPressed: { opacity: 0.85 },
@@ -173,7 +176,7 @@ const styles = StyleSheet.create({
   },
   presetRowOn: {
     borderColor: WC.neonCyan,
-    backgroundColor: 'rgba(0,0,0,0.4)',
+    backgroundColor: gerantDashboardVisual.reglagesPresetSelectedBg,
   },
   presetLabelOn: { color: colors.gold, fontFamily: FONT.bold, fontWeight: '800' },
   syncEta: { marginTop: spacing.sm, color: colors.textMuted, lineHeight: 18 },

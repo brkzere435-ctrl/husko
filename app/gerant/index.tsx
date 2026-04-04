@@ -11,9 +11,10 @@ import { WestCoastBackground } from '@/components/westcoast/WestCoastBackground'
 import { OrderLinesPreview } from '@/components/OrderLinesPreview';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { StatusBadge } from '@/components/StatusBadge';
-import { DEFAULT_ROLE_PIN } from '@/constants/devicePin';
 import { getAppVariant } from '@/constants/appVariant';
 import { AUTONOMOUS_PACE_PRESETS } from '@/constants/autonomousDelivery';
+import { DEFAULT_ROLE_PIN } from '@/constants/devicePin';
+import { gerantDashboardVisual } from '@/constants/gerantDashboardVisual';
 import { typography } from '@/constants/typography';
 import { isRemoteSyncEnabled } from '@/services/firebaseRemote';
 import { colors, elevation, radius, spacing, surface } from '@/constants/theme';
@@ -184,7 +185,9 @@ export default function GerantDashboardScreen() {
 
           {variant === 'gerant' ? (
             <View style={styles.siblingBox}>
-              <Text style={styles.sectionTitle}>Applications liées (Client & Livreur)</Text>
+              <Text style={styles.sectionTitle} accessibilityRole="header">
+                Applications liées (Client & Livreur)
+              </Text>
               <Text style={[typography.bodyMuted, styles.siblingHint]}>
                 {isRemoteSyncEnabled()
                   ? 'Liaison Firestore active : commandes et livreur synchronisés entre appareils (APK unifié hub ou apps Client / Livreur / Gérant). Ouvrez Client ou Livreur depuis ici.'
@@ -205,7 +208,9 @@ export default function GerantDashboardScreen() {
             </View>
           ) : null}
 
-          <Text style={styles.sectionTitle}>Commandes actives · {live.length}</Text>
+          <Text style={styles.sectionTitle} accessibilityRole="header">
+            Commandes actives · {live.length}
+          </Text>
           {live.length === 0 ? (
             <Text style={typography.bodyMuted}>Aucune commande.</Text>
           ) : (
@@ -252,7 +257,7 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
   },
   lockCard: {
-    backgroundColor: 'rgba(0,0,0,0.45)',
+    backgroundColor: gerantDashboardVisual.lockCardBg,
     borderRadius: radius.lg,
     borderWidth: 2,
     borderColor: WC.neonCyanDim,
@@ -280,7 +285,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.xl,
     borderWidth: 2,
     borderColor: WC.neonCyanDim,
-    backgroundColor: 'rgba(0,0,0,0.35)',
+    backgroundColor: gerantDashboardVisual.panelBg,
   },
   autoBannerTitle: {
     ...typography.section,
@@ -299,7 +304,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.xl,
     borderWidth: 2,
     borderColor: WC.neonCyanDim,
-    backgroundColor: 'rgba(0,0,0,0.35)',
+    backgroundColor: gerantDashboardVisual.panelBg,
     gap: spacing.sm,
     ...elevation.card,
   },

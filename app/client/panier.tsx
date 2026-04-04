@@ -13,6 +13,7 @@ import { GTAMiniMap } from '@/components/GTAMiniMap';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { ScreenSection } from '@/components/ScreenSection';
 import { clientStrings, outsideDeliveryHoursBanner } from '@/constants/clientExperience';
+import { clientPanierVisual } from '@/constants/clientPanierVisual';
 import { isDeliveryOpen } from '@/constants/hours';
 import { PAYMENT_NOTICE_LONG, PAYMENT_NOTICE_SHORT } from '@/constants/paymentPolicy';
 import { FONT } from '@/constants/fonts';
@@ -164,12 +165,8 @@ export default function PanierScreen() {
           </ScreenSection>
 
           <LinearGradient
-            colors={[
-              'rgba(45, 31, 53, 0.96)',
-              'rgba(30, 22, 28, 0.98)',
-              'rgba(30, 24, 32, 0.94)',
-            ]}
-            locations={[0, 0.55, 1]}
+            colors={[...clientPanierVisual.totalGradientColors]}
+            locations={[...clientPanierVisual.totalGradientLocations]}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={styles.totalRow}
@@ -291,9 +288,9 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
     padding: spacing.md,
     borderRadius: radius.lg,
-    backgroundColor: 'rgba(94, 234, 212, 0.1)',
+    backgroundColor: clientPanierVisual.outsideBannerBg,
     borderWidth: 1,
-    borderColor: 'rgba(94, 234, 212, 0.38)',
+    borderColor: clientPanierVisual.outsideBannerBorder,
   },
   outsideBannerTitle: {
     ...typography.section,
@@ -313,9 +310,9 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
     padding: spacing.md,
     borderRadius: radius.lg,
-    backgroundColor: 'rgba(250, 204, 21, 0.08)',
+    backgroundColor: clientPanierVisual.cloudBannerBg,
     borderWidth: 1,
-    borderColor: 'rgba(250, 204, 21, 0.45)',
+    borderColor: clientPanierVisual.cloudBannerBorder,
   },
   cloudBannerTitle: {
     ...typography.section,
@@ -367,7 +364,7 @@ const styles = StyleSheet.create({
     marginTop: spacing.sm,
     borderRadius: radius.xl,
     borderWidth: 1,
-    borderColor: 'rgba(253, 230, 138, 0.22)',
+    borderColor: clientPanierVisual.totalRowBorder,
     overflow: 'hidden',
     ...elevation.card,
   },
