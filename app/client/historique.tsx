@@ -63,7 +63,8 @@ export default function ClientHistoriqueScreen() {
       <SafeAreaView style={styles.root} edges={['bottom']}>
         <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
           <Text variant="bodyMedium" style={[typography.bodyMuted, styles.intro]}>
-            Commandes terminées sur cet appareil (synchronisées avec le restaurant si Firebase est actif).
+            Historique des commandes terminées sur cet appareil (synchronisé avec le restaurant lorsque la
+            connexion en ligne est active).
           </Text>
 
           {past.length === 0 ? (

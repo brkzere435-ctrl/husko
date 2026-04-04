@@ -28,27 +28,23 @@ export function DeploymentHints({ mode = 'settings', mapsRelevant = true, style 
   if (mode === 'alerts') {
     if (remote && !showMapsLine) return null;
     return (
-      <View style={[styles.alerts, style]} accessibilityLabel="État technique liaison Firebase et carte">
+      <View style={[styles.alerts, style]} accessibilityLabel="Avertissements connexion et carte">
         {!remote ? (
           <View style={styles.alertFirebase} accessibilityRole="alert">
-            <Text style={[typography.caption, styles.warnTitle]}>Firebase · synchro commandes</Text>
+            <Text style={[typography.caption, styles.warnTitle]}>Commandes entre appareils</Text>
             <Text style={[typography.caption, styles.warn]}>
-              Les commandes et le suivi livreur ne sont pas envoyés vers le restaurant sur les autres
-              téléphones : cet APK n’a pas les clés Firebase du projet au moment du build. Ce message ne
-              concerne pas la mini-carte au-dessus ou en dessous.
-            </Text>
-            <Text style={[typography.caption, styles.warnMuted]}>
-              Côté équipe : secrets EAS (`eas:sync:firebase`) puis rebuild — voir DEPLOIEMENT.md. Rappel
-              aussi sous « App & mises à jour ».
+              La liaison avec le restaurant en ligne n’est pas active sur cette installation : les
+              commandes restent sur ce téléphone. Pour un test multi-téléphones, utilisez une version
+              fournie par l’équipe avec la configuration adaptée.
             </Text>
           </View>
         ) : null}
         {showMapsLine ? (
           <View style={[styles.alertMaps, !remote && styles.alertGap]} accessibilityRole="alert">
-            <Text style={[typography.caption, styles.warnTitle]}>Google Maps · tuiles</Text>
+            <Text style={[typography.caption, styles.warnTitle]}>Carte</Text>
             <Text style={[typography.caption, styles.warn]}>
-              Clés absentes ou placeholder dans ce build — `eas:sync:maps`, rebuild natif. Tuiles grises
-              avec clé : API Maps SDK, facturation, restrictions SHA-1 / package dans Google Cloud.
+              La carte peut s’afficher en mode simplifié. Vérifiez votre connexion internet ; la vue
+              détaillée dépend aussi de la configuration de l’application.
             </Text>
           </View>
         ) : null}
@@ -60,15 +56,23 @@ export function DeploymentHints({ mode = 'settings', mapsRelevant = true, style 
     <View style={[styles.settings, style]}>
       <Text style={[typography.caption, styles.hint]}>
         {remote
-          ? 'Liaison cloud Firebase active : commandes et livreur synchronisés entre appareils (APK unifié hub ou apps mono-rôle).'
-          : 'Sans Firebase au build, les données restent sur cet appareil (voir DEPLOIEMENT.md et secrets EAS).'}
-
+          ? 'Lorsque le réseau est disponible, les commandes et le suivi peuvent être partagés entre les appareils du restaurant.'
+          : 'Mode hors ligne étendu : les commandes enregistrées sur cet appareil ne sont pas envoyées aux autres téléphones.'}
       </Text>
       {showMapsLine ? (
         <Text style={[typography.caption, styles.hint]}>
-          Carte Google : EXPO_PUBLIC_GOOGLE_MAPS_ANDROID_API_KEY / IOS dans .env ou secrets EAS, puis build
-          natif. Si la carte reste grise : vérifier API Maps SDK, facturation et restrictions de clé (package /
-          SHA-1). Voir docs/visuel-west-coast-checklist.md.
+          Si la carte reste vide ou simplifiée après une mise à jour, vérifiez la connexion puis
+          redémarrez l’application.
+        </Text>
+      ) : null}
+      {__DEV__ && !remote ? (
+        <Text style={[typography.caption, styles.hintDev]}>
+          [Dev] Clés cloud absentes au build — eas:sync:firebase + rebuild pour multi-appareils.
+        </Text>
+      ) : null}
+      {__DEV__ && showMapsLine ? (
+        <Text style={[typography.caption, styles.hintDev]}>
+          [Dev] Clés Maps : .env / EAS, rebuild natif — restrictions SHA-1 / package.
         </Text>
       ) : null}
     </View>
@@ -78,6 +82,7 @@ export function DeploymentHints({ mode = 'settings', mapsRelevant = true, style 
 const styles = StyleSheet.create({
   settings: { gap: spacing.md, alignSelf: 'stretch', width: '100%' },
   hint: { color: colors.textMuted, flexShrink: 1 },
+  hintDev: { color: 'rgba(160, 160, 200, 0.85)', fontSize: 11, flexShrink: 1 },
   alerts: { gap: spacing.sm, alignSelf: 'stretch', width: '100%' },
   alertFirebase: {
     paddingHorizontal: spacing.md,

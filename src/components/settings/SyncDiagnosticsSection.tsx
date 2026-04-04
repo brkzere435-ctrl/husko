@@ -9,6 +9,7 @@ import { typography } from '@/constants/typography';
 import { colors, spacing } from '@/constants/theme';
 import { debugFirebaseProjectId, isRemoteSyncEnabled } from '@/services/firebaseRemote';
 import { useHuskoStore } from '@/stores/useHuskoStore';
+import { formatCloudSyncErrorForUser } from '@/utils/cloudSyncUserMessage';
 
 /**
  * Diagnostic synchro Firestore (plan : interpréter H1–H4 sans Metro).
@@ -41,11 +42,11 @@ export function SyncDiagnosticsSection() {
     return (
       <SettingsSection
         title="Diagnostic synchro"
-        subtitle="Non disponible : ce build n’embarque pas les clés Firebase."
+        subtitle="Réservé aux installations avec service en ligne activé."
       >
         <Text style={[typography.caption, styles.muted]}>
-          Installez un APK avec Firebase (voir DEPLOIEMENT.md) pour voir le projet et les compteurs
-          listener.
+          Cette version n’affiche pas les détails de synchronisation entre appareils. Utilisez le build
+          fourni par l’équipe pour un test multi-téléphones.
         </Text>
       </SettingsSection>
     );
@@ -54,22 +55,32 @@ export function SyncDiagnosticsSection() {
   return (
     <SettingsSection
       title="Diagnostic synchro"
-      subtitle="Comparez le projectId avec la console Firebase et l’autre téléphone. Si la console montre des documents mais que « parsés » reste bas, un document est rejeté par le parseur."
+      subtitle="État technique pour le support. Les clients voient un message court en cas de problème réseau."
     >
       <Text style={styles.mono}>projectId · {projectId ?? '—'}</Text>
       {cloudSyncWriteError ? (
-        <Text style={[typography.caption, styles.err]} selectable>
-          Écriture : {cloudSyncWriteError}
-        </Text>
+        <View style={styles.errBlock}>
+          <Text style={[typography.caption, styles.err]} selectable>
+            Écriture (affichage app) : {formatCloudSyncErrorForUser(cloudSyncWriteError) ?? '—'}
+          </Text>
+          <Text style={[styles.mono, styles.monoMuted]} selectable>
+            Détail technique : {cloudSyncWriteError}
+          </Text>
+        </View>
       ) : (
         <Text style={[typography.caption, styles.ok]}>Écriture : aucune erreur signalée</Text>
       )}
       {cloudSyncListenError ? (
-        <Text style={[typography.caption, styles.err]} selectable>
-          Listener : {cloudSyncListenError}
-        </Text>
+        <View style={styles.errBlock}>
+          <Text style={[typography.caption, styles.err]} selectable>
+            Réception (affichage app) : {formatCloudSyncErrorForUser(cloudSyncListenError) ?? '—'}
+          </Text>
+          <Text style={[styles.mono, styles.monoMuted]} selectable>
+            Détail technique : {cloudSyncListenError}
+          </Text>
+        </View>
       ) : (
-        <Text style={[typography.caption, styles.ok]}>Listener : aucune erreur signalée</Text>
+        <Text style={[typography.caption, styles.ok]}>Réception : aucune erreur signalée</Text>
       )}
       {ordersSyncDebug ? (
         <View style={styles.block}>
@@ -101,7 +112,7 @@ export function SyncDiagnosticsSection() {
         style={styles.copyBtn}
       />
       <Text style={[typography.caption, styles.muted]}>
-        Collez le JSON dans le chat support ou gardez-le avec une capture de la console Firebase.
+        Collez le rapport pour le support (inclut le détail technique).
       </Text>
     </SettingsSection>
   );
@@ -120,4 +131,6 @@ const styles = StyleSheet.create({
   label: { fontWeight: '800', marginBottom: 4, color: colors.goldDim },
   block: { marginTop: spacing.sm, gap: 4 },
   copyBtn: { marginTop: spacing.md },
+  errBlock: { marginBottom: spacing.xs, gap: 4 },
+  monoMuted: { color: colors.textMuted, fontSize: 10, marginBottom: spacing.xs },
 });

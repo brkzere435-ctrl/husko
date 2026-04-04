@@ -4,6 +4,7 @@ import { colors, radius, spacing } from '@/constants/theme';
 import { typography } from '@/constants/typography';
 import { isRemoteSyncEnabled } from '@/services/firebaseRemote';
 import { useHuskoStore } from '@/stores/useHuskoStore';
+import { formatCloudSyncErrorForUser } from '@/utils/cloudSyncUserMessage';
 
 /** Pastille header : état liaison Firestore (visible sur tous les écrans du rôle). */
 export function SyncStatusPill() {
@@ -12,13 +13,14 @@ export function SyncStatusPill() {
   const listenErr = useHuskoStore((s) => s.cloudSyncListenError);
   const clearCloudSyncErrors = useHuskoStore((s) => s.clearCloudSyncErrors);
   const syncErr = writeErr || listenErr;
+  const syncErrUser = formatCloudSyncErrorForUser(syncErr);
 
   const a11y =
     syncErr != null && syncErr.length > 0
-      ? `Erreur synchronisation : ${syncErr}. Touchez pour effacer le message.`
+      ? `${syncErrUser ?? 'Problème de connexion'}. Touchez pour masquer l’indicateur.`
       : cloud
-        ? 'Synchronisation Firebase active, commandes partagées entre appareils'
-        : 'Mode local, pas de synchronisation cloud';
+        ? 'Synchronisation active : commandes partagées entre appareils'
+        : 'Mode hors ligne : pas de synchronisation entre téléphones';
 
   return (
     <Pressable
@@ -29,7 +31,7 @@ export function SyncStatusPill() {
     >
       <View style={[styles.dot, cloud ? (syncErr ? styles.dotErr : styles.dotOn) : styles.dotOff]} />
       <Text style={[typography.caption, styles.label, syncErr ? styles.labelErr : null]}>
-        {syncErr ? 'Erreur sync' : cloud ? 'Cloud' : 'Local'}
+        {syncErr ? 'Connexion' : cloud ? 'En ligne' : 'Local'}
       </Text>
     </Pressable>
   );

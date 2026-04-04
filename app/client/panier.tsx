@@ -82,10 +82,11 @@ export default function PanierScreen() {
               ) : null}
               {!cloudOk ? (
                 <View style={styles.cloudBanner}>
-                  <Text style={styles.cloudBannerTitle}>Liaison cloud inactive</Text>
+                  <Text style={styles.cloudBannerTitle}>Envoi vers le restaurant</Text>
                   <Text style={[typography.bodyMuted, styles.cloudBannerBody]}>
-                    Le gérant ne recevra pas la commande sur un autre appareil tant que Firebase n’est pas
-                    configuré au build (EAS). Voir App & mises à jour.
+                    Cette installation ne transmet pas les commandes aux autres appareils du restaurant. La
+                    commande reste visible sur ce téléphone. Pour la caisse / cuisine sur un autre
+                    téléphone, utilisez la version fournie par l’équipe (voir aussi App & mises à jour).
                   </Text>
                 </View>
               ) : null}
