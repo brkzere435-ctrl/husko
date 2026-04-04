@@ -108,7 +108,7 @@ export default function LivreurScreenNative() {
             <Switch
               value={livreurOnline}
               onValueChange={setLivreurOnline}
-              trackColor={{ false: '#333', true: colors.accentDim }}
+              trackColor={{ false: colors.switchTrackOff, true: colors.accentDim }}
             />
           </View>
 

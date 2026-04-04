@@ -8,24 +8,34 @@ const TONE: Partial<Record<OrderStatus, { bg: string; border: string; text: stri
   pending: { bg: 'rgba(240,208,80,0.12)', border: colors.goldDim, text: colors.gold, dot: colors.gold },
   preparing: {
     bg: 'rgba(200, 120, 40, 0.2)',
-    border: '#c9a020',
-    text: '#ffd78a',
-    dot: '#ffb347',
+    border: colors.statusPreparingBorder,
+    text: colors.statusPreparingText,
+    dot: colors.statusPreparingDot,
   },
   awaiting_livreur: {
     bg: 'rgba(80, 140, 220, 0.2)',
-    border: '#6a9ee8',
-    text: '#b8d4ff',
-    dot: '#6a9ee8',
+    border: colors.statusAwaitingBorder,
+    text: colors.statusAwaitingText,
+    dot: colors.statusAwaitingDot,
   },
   on_way: {
     bg: 'rgba(212, 40, 40, 0.22)',
     border: colors.posterRed,
-    text: '#ffb4b4',
+    text: colors.statusOnWayText,
     dot: colors.posterRed,
   },
-  delivered: { bg: 'rgba(80, 80, 90, 0.35)', border: '#666', text: colors.textMuted, dot: '#888' },
-  cancelled: { bg: 'rgba(40, 40, 40, 0.5)', border: '#444', text: colors.textMuted, dot: '#555' },
+  delivered: {
+    bg: 'rgba(80, 80, 90, 0.35)',
+    border: colors.statusNeutralBorder,
+    text: colors.textMuted,
+    dot: colors.statusNeutralDot,
+  },
+  cancelled: {
+    bg: 'rgba(40, 40, 40, 0.5)',
+    border: colors.statusCancelledBorder,
+    text: colors.textMuted,
+    dot: colors.statusCancelledDot,
+  },
 };
 
 type Props = { status: OrderStatus };

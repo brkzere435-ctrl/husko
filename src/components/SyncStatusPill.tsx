@@ -79,9 +79,9 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.25)',
   },
   dot: { width: 7, height: 7, borderRadius: 4 },
-  dotOn: { backgroundColor: '#5fd98a' },
-  dotErr: { backgroundColor: '#ff6b6b' },
+  dotOn: { backgroundColor: colors.syncDotOk },
+  dotErr: { backgroundColor: colors.syncDotErr },
   dotOff: { backgroundColor: colors.textMuted },
   label: { fontSize: 11, fontWeight: '800', color: colors.textMuted },
-  labelErr: { color: '#ffb4b4' },
+  labelErr: { color: colors.syncLabelErr },
 });

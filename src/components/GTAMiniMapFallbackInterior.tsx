@@ -56,7 +56,7 @@ export function GTAMiniMapFallbackInterior({
 const styles = StyleSheet.create({
   fakeMap: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: '#0d0408',
+    backgroundColor: colors.mapRadarBg,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -119,5 +119,5 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     zIndex: 3,
   },
-  destX: { fontFamily: FONT.bold, color: '#fff', fontSize: 14 },
+  destX: { fontFamily: FONT.bold, color: colors.text, fontSize: 14 },
 });

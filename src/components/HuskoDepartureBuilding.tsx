@@ -27,7 +27,7 @@ export function HuskoDepartureBuilding({ size = 46 }: Props) {
     <View style={[styles.wrap, { width: w, height: h + 6 }]} accessibilityLabel="Départ Husko, bâtiment H">
       <View style={[styles.glow, { width: w * 1.15, height: h * 0.35, bottom: -2 }]} />
       <LinearGradient
-        colors={['rgba(8,2,4,0.95)', '#140808', '#0a0404']}
+        colors={[colors.departureFacade0, colors.departureBrick1, colors.departureBrick2]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={[styles.facade, { width: w, height: h }]}
@@ -35,7 +35,7 @@ export function HuskoDepartureBuilding({ size = 46 }: Props) {
         <View style={[styles.roofLine, { top: 2, left: '6%', right: '6%' }]} />
         {/* H : tour gauche */}
         <LinearGradient
-          colors={['#1f0a0c', '#0d0404', '#120606']}
+          colors={[colors.departureTower1, colors.departureTower2, colors.departureTower3]}
           style={[styles.tower, { width: tw, height: th, left: pad, top: h * 0.12 }]}
         >
           <View style={styles.towerEdgeL} />
@@ -46,7 +46,7 @@ export function HuskoDepartureBuilding({ size = 46 }: Props) {
         </LinearGradient>
         {/* H : tour droite */}
         <LinearGradient
-          colors={['#1f0a0c', '#0d0404', '#120606']}
+          colors={[colors.departureTower1, colors.departureTower2, colors.departureTower3]}
           style={[styles.tower, { width: tw, height: th, right: pad, top: h * 0.12 }]}
         >
           <View style={styles.towerEdgeR} />
@@ -57,7 +57,7 @@ export function HuskoDepartureBuilding({ size = 46 }: Props) {
         </LinearGradient>
         {/* H : barre centrale (pont) */}
         <LinearGradient
-          colors={[WC.neonCyan + '66', '#1a0808', WC.neonCyan + '55']}
+          colors={[WC.neonCyan + '66', colors.departureBridgeMid, WC.neonCyan + '55']}
           start={{ x: 0, y: 0.5 }}
           end={{ x: 1, y: 0.5 }}
           style={[

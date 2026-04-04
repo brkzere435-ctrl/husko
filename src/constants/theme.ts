@@ -28,6 +28,68 @@ export const colors = {
   brandGlow: 'rgba(251, 146, 60, 0.12)',
   /** Fond écran (LinearGradient) — crépuscule prune → corail doux */
   gradient: ['#2d1f35', '#4a3042', '#5c3d4a', '#1e1619'] as const,
+  /** Ombres portées (évite #000 épars) */
+  shadowPure: '#000000',
+  /** Switch React Native — piste « off » (répété iOS/Android) */
+  switchTrackOff: '#333333',
+  /** HUD GTA / radar secours carte */
+  hudVoid: '#050308',
+  mapRadarBg: '#0d0408',
+  /** Pastille synchro Firestore */
+  syncDotOk: '#5fd98a',
+  syncDotErr: '#ff6b6b',
+  syncLabelErr: '#ffb4b4',
+  /** Bloc diagnostic OTA (code monospace) */
+  codeTerminalCyan: '#67e8f9',
+  /** Cadre néon liste menu (ombre) */
+  neonFrameGlow: '#22d3ee',
+  /** Badges statut commande (StatusBadge) */
+  statusPreparingBorder: '#c9a020',
+  statusPreparingText: '#ffd78a',
+  statusPreparingDot: '#ffb347',
+  statusAwaitingBorder: '#6a9ee8',
+  statusAwaitingText: '#b8d4ff',
+  statusAwaitingDot: '#6a9ee8',
+  statusOnWayText: '#ffb4b4',
+  statusNeutralBorder: '#666666',
+  statusNeutralDot: '#888888',
+  statusCancelledBorder: '#444444',
+  statusCancelledDot: '#555555',
+  /** CarMarkerIcon — illustration véhicule */
+  carHood: '#1c1c1c',
+  carCabin: '#2a1515',
+  carCabinLow: '#1a0a12',
+  carTrunk: '#1a1a1a',
+  carWheel: '#0a0a0a',
+  carWheelBorder: '#333333',
+  carRimFill: '#111111',
+  carFogLamp: '#ffffff',
+  /** Repli photo menu — stops dégradés (MenuItemVisual) */
+  menuCatFritesDeep: '#78350f',
+  menuCatBaguetteDeep: '#854d0e',
+  menuCatSandwichTeal: '#134e4a',
+  menuCatFourRust: '#9a3412',
+  menuCatDessertWine: '#4c0519',
+  menuCatBoisson1: '#0e7490',
+  menuCatBoisson2: '#164e63',
+  menuCatBoisson3: '#0c4a6e',
+  /** Chip catégorie — texte sélectionné sur fond clair */
+  menuChipTxtOn: '#292524',
+  /** Boot overlay client (`ClientBootOverlay`) */
+  bootSunset1: '#4c3d60',
+  bootSunset2: '#c07868',
+  bootSunset3: '#fbbf77',
+  bootSunset4: '#1e1618',
+  bootRootBg: '#1e1618',
+  bootBrickTexture: '#c084fc',
+  /** QG carte (`HuskoDepartureBuilding`) */
+  departureFacade0: 'rgba(8,2,4,0.95)',
+  departureBrick1: '#140808',
+  departureBrick2: '#0a0404',
+  departureTower1: '#1f0a0c',
+  departureTower2: '#0d0404',
+  departureTower3: '#120606',
+  departureBridgeMid: '#1a0808',
 };
 
 export const spacing = {
@@ -50,14 +112,14 @@ export const radius = {
 /** Profondeur — dock flottant, cartes produit */
 export const elevation = {
   dock: {
-    shadowColor: '#000',
+    shadowColor: colors.shadowPure,
     shadowOffset: { width: 0, height: -8 },
     shadowOpacity: 0.5,
     shadowRadius: 20,
     elevation: 22,
   },
   card: {
-    shadowColor: '#000',
+    shadowColor: colors.shadowPure,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.4,
     shadowRadius: 10,

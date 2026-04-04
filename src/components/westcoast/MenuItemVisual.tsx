@@ -6,6 +6,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { StyleSheet, View } from 'react-native';
 
 import type { MenuCategory, MenuItem } from '@/constants/menu';
+import { menuCategoryGradientTriples } from '@/constants/clientMenuVisual';
 import { getMenuImage } from '@/constants/menuImages';
 import { colors, radius, spacing } from '@/constants/theme';
 import { WC } from '@/constants/westCoastTheme';
@@ -20,17 +21,6 @@ const CAT_ICON: Record<MenuCategory, ComponentProps<typeof Ionicons>['name']> = 
   boisson: 'water',
 };
 
-/** Repli sans photo — dégradés calés sur theme + WC (pas de violet isolé). */
-const CAT_GRAD: Record<MenuCategory, [string, string, string]> = {
-  smash: [colors.accentDeep, WC.brick, colors.bg],
-  frites: ['#78350f', colors.accentMid, colors.bg],
-  baguette: ['#854d0e', WC.brickDeep, colors.bg],
-  sandwich: [colors.accentMid, '#134e4a', colors.bg],
-  four: ['#9a3412', colors.accentDeep, colors.bg],
-  dessert: [WC.brick, '#4c0519', colors.bg],
-  boisson: ['#0e7490', '#164e63', '#0c4a6e'],
-};
-
 type Props = {
   item: MenuItem;
   size: 'sm' | 'lg';
@@ -41,7 +31,7 @@ type Props = {
 function MenuItemVisualInner({ item, size, emphasizeFrame = true }: Props) {
   const side = size === 'lg' ? 220 : 72;
   const iconSz = size === 'lg' ? 88 : 32;
-  const g = CAT_GRAD[item.category];
+  const g = menuCategoryGradientTriples[item.category];
   const icon = CAT_ICON[item.category];
   const photo = getMenuImage(item);
   const [imageFailed, setImageFailed] = useState(false);
@@ -53,7 +43,7 @@ function MenuItemVisualInner({ item, size, emphasizeFrame = true }: Props) {
   const frameSoft = size === 'lg' && emphasizeFrame === false;
 
   if (photo && !imageFailed) {
-    const placeholderBg = CAT_GRAD[item.category][0];
+    const placeholderBg = menuCategoryGradientTriples[item.category][0];
     const thumb = size === 'sm';
     return (
       <View
@@ -112,7 +102,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     borderWidth: 2,
     borderColor: 'rgba(34, 211, 238, 0.5)',
-    shadowColor: '#22d3ee',
+    shadowColor: colors.neonFrameGlow,
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.2,
     shadowRadius: 8,
@@ -128,7 +118,7 @@ const styles = StyleSheet.create({
   wrapHero: {
     borderWidth: 1,
     borderColor: 'rgba(34, 211, 238, 0.28)',
-    shadowColor: '#000',
+    shadowColor: colors.shadowPure,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.14,
     shadowRadius: 6,

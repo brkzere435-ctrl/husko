@@ -6,7 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BrandMark } from '@/components/BrandMark';
 import { CLIENT_BOOT_HERO } from '@/constants/brandingAssets';
 import { FONT } from '@/constants/fonts';
-import { spacing } from '@/constants/theme';
+import { colors, spacing } from '@/constants/theme';
 import { WC } from '@/constants/westCoastTheme';
 
 const BOOT_CONTENT_OFFSET = spacing.lg;
@@ -41,7 +41,7 @@ export function ClientBootOverlay({ visible, onDone }: Props) {
           pointerEvents="none"
         />
         <LinearGradient
-          colors={['#4c3d60', '#c07868', '#fbbf77', '#1e1618']}
+          colors={[colors.bootSunset1, colors.bootSunset2, colors.bootSunset3, colors.bootSunset4]}
           locations={[0, 0.28, 0.55, 1]}
           style={[StyleSheet.absoluteFill, styles.tint]}
           pointerEvents="none"
@@ -73,7 +73,7 @@ export function ClientBootOverlay({ visible, onDone }: Props) {
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: '#1e1618' },
+  root: { flex: 1, backgroundColor: colors.bootRootBg },
   tint: { opacity: 0.38 },
   fill: {
     flex: 1,
@@ -83,7 +83,7 @@ const styles = StyleSheet.create({
   brickTexture: {
     ...StyleSheet.absoluteFillObject,
     opacity: 0.08,
-    backgroundColor: '#c084fc',
+    backgroundColor: colors.bootBrickTexture,
   },
   neonTop: {
     position: 'absolute',

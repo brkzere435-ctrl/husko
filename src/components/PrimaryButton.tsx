@@ -13,6 +13,7 @@ import {
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 
 import { colors, radius } from '@/constants/theme';
+import { WC } from '@/constants/westCoastTheme';
 
 const MIN_TOUCH = 52;
 
@@ -104,7 +105,7 @@ const styles = StyleSheet.create({
     minHeight: MIN_TOUCH,
     ...Platform.select({
       ios: {
-        shadowColor: '#fde68a',
+        shadowColor: WC.gold,
         shadowOffset: { width: 0, height: 0 },
         shadowOpacity: 0.35,
         shadowRadius: 16,

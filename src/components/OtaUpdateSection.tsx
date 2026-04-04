@@ -165,7 +165,7 @@ const styles = StyleSheet.create({
   code: {
     fontFamily: Platform.select({ ios: 'Menlo', android: 'monospace', default: 'monospace' }),
     fontSize: 11,
-    color: '#67e8f9',
+    color: colors.codeTerminalCyan,
     fontWeight: '700',
   },
   mono: {

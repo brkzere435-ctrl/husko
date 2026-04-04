@@ -38,7 +38,7 @@ export function SettingsSwitchRow({ label, value, onValueChange, hint }: SwitchR
         <Switch
           value={value}
           onValueChange={onValueChange}
-          trackColor={{ false: '#333', true: colors.accentDim }}
+          trackColor={{ false: colors.switchTrackOff, true: colors.accentDim }}
         />
       </View>
       {hint ? (

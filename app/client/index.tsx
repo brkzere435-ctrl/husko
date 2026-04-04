@@ -400,7 +400,7 @@ const styles = StyleSheet.create({
     fontFamily: FONT.bold,
     fontSize: 10,
     fontWeight: '800',
-    color: '#fff',
+    color: WC.white,
   },
   chipsWrap: { marginTop: spacing.md, marginHorizontal: -spacing.md },
   chipsScroll: {

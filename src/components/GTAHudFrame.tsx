@@ -3,8 +3,8 @@ import type { ReactNode } from 'react';
 import { StyleSheet, Text, View, type ViewStyle } from 'react-native';
 
 import { FONT } from '@/constants/fonts';
+import { colors, radius, spacing } from '@/constants/theme';
 import { WC } from '@/constants/westCoastTheme';
-import { radius, spacing } from '@/constants/theme';
 
 type Props = {
   children: ReactNode;
@@ -74,7 +74,7 @@ const styles = StyleSheet.create({
   },
   inner: {
     flex: 1,
-    backgroundColor: '#050308',
+    backgroundColor: colors.hudVoid,
     overflow: 'hidden',
   },
   bracket: {
@@ -118,7 +118,7 @@ const styles = StyleSheet.create({
     color: WC.gold,
     fontSize: 9,
     letterSpacing: 2,
-    textShadowColor: '#000',
+    textShadowColor: colors.shadowPure,
     textShadowRadius: 3,
   },
   hudCompass: {

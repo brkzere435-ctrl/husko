@@ -2,6 +2,7 @@
  * Tokens visuels — écran client « À la carte » (`app/client/index.tsx`).
  * Centralise dégradés et rgba pour rester aligné WC + theme (évite hex épars).
  */
+import type { MenuCategory } from '@/constants/menu';
 import { WC } from '@/constants/westCoastTheme';
 import { colors } from '@/constants/theme';
 
@@ -14,7 +15,7 @@ export const clientMenuHero = {
   wcBrandTextShadow: WC.shadow,
   statusClosedBg: 'rgba(180, 83, 9, 0.28)',
   statusClosedBorder: 'rgba(251, 191, 36, 0.35)',
-  statusDotOff: '#fcd34d',
+  statusDotOff: colors.gold,
   sureHourBannerBg: 'rgba(251, 146, 60, 0.08)',
   textMuted: 'rgba(250, 250, 250, 0.65)',
   textMutedStrong: 'rgba(250, 250, 250, 0.75)',
@@ -43,7 +44,7 @@ export const clientMenuChips = {
   offBg: 'rgba(74, 53, 66, 0.55)',
   offBorder: 'rgba(251, 146, 60, 0.35)',
   txt: 'rgba(255, 247, 237, 0.92)',
-  txtOn: '#292524',
+  txtOn: colors.menuChipTxtOn,
 } as const;
 
 /** Rangée produit (FlashList). */
@@ -67,3 +68,14 @@ export const clientMenuDock = {
   ] as const,
   barBg: 'rgba(22, 18, 26, 0.96)',
 } as const;
+
+/** Repli sans photo — triplets de dégradés (`MenuItemVisual`), stops depuis `colors`. */
+export const menuCategoryGradientTriples = {
+  smash: [colors.accentDeep, WC.brick, colors.bg],
+  frites: [colors.menuCatFritesDeep, colors.accentMid, colors.bg],
+  baguette: [colors.menuCatBaguetteDeep, WC.brickDeep, colors.bg],
+  sandwich: [colors.accentMid, colors.menuCatSandwichTeal, colors.bg],
+  four: [colors.menuCatFourRust, colors.accentDeep, colors.bg],
+  dessert: [WC.brick, colors.menuCatDessertWine, colors.bg],
+  boisson: [colors.menuCatBoisson1, colors.menuCatBoisson2, colors.menuCatBoisson3],
+} as const satisfies Record<MenuCategory, readonly [string, string, string]>;
