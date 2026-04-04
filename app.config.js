@@ -267,6 +267,8 @@ module.exports = (ctx = {}) => {
 
   return {
     ...base,
+    /** React Native New Architecture (Fabric / TurboModules). Rebuild natif (EAS) obligatoire après changement. */
+    newArchEnabled: true,
     name: v.name,
     // Slug unique = même projet EAS (projectId) ; les APK se distinguent par android.package / name.
     slug: DEFAULT_VARIANT.slug,

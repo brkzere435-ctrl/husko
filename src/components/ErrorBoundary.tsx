@@ -3,19 +3,20 @@ import { Component, type ErrorInfo, type ReactNode } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { colors, radius, spacing } from '@/constants/theme';
+import { openTechnicalFeedback } from '@/navigation/openTechnicalFeedback';
 
 type Props = { children: ReactNode };
 
-type State = { hasError: boolean };
+type State = { hasError: boolean; lastError: Error | null };
 
 /**
  * Évite un écran blanc si une erreur React remonte jusqu’à la racine (prod).
  */
 export class ErrorBoundary extends Component<Props, State> {
-  state: State = { hasError: false };
+  state: State = { hasError: false, lastError: null };
 
-  static getDerivedStateFromError(): State {
-    return { hasError: true };
+  static getDerivedStateFromError(error: Error): Partial<State> {
+    return { hasError: true, lastError: error };
   }
 
   componentDidCatch(error: Error, info: ErrorInfo): void {
@@ -34,7 +35,7 @@ export class ErrorBoundary extends Component<Props, State> {
           <View style={styles.actions}>
             <Pressable
               style={({ pressed }) => [styles.btn, pressed && styles.btnPressed]}
-              onPress={() => this.setState({ hasError: false })}
+              onPress={() => this.setState({ hasError: false, lastError: null })}
               accessibilityRole="button"
               accessibilityLabel="Réessayer sans quitter l’application"
             >
@@ -49,6 +50,21 @@ export class ErrorBoundary extends Component<Props, State> {
               accessibilityLabel="Relancer l’application"
             >
               <Text style={styles.btnSecondaryText}>Relancer</Text>
+            </Pressable>
+            <Pressable
+              style={({ pressed }) => [styles.btnSecondary, pressed && styles.btnPressed]}
+              onPress={() => {
+                const err = this.state.lastError;
+                openTechnicalFeedback({
+                  title: 'Détail technique',
+                  body: 'Informations destinées au support ou à l’équipe technique. En production, évitez de partager des captures contenant des données personnelles.',
+                  detail: err ? `${err.name}: ${err.message}` : undefined,
+                });
+              }}
+              accessibilityRole="button"
+              accessibilityLabel="Voir le détail de l’erreur"
+            >
+              <Text style={styles.btnSecondaryText}>Détail technique</Text>
             </Pressable>
           </View>
         </View>
