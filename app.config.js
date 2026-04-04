@@ -5,7 +5,7 @@
  * Variantes : EXPO_PUBLIC_APP_VARIANT = gerant | client | livreur | assistant | all
  * `app.json` (slug) est fusionné via la forme `({ config }) =>` — requis pour expo-doctor / EAS.
  */
-const { existsSync, readFileSync, appendFileSync } = require('fs');
+const { existsSync, readFileSync } = require('fs');
 const path = require('path');
 
 const REPO_ROOT = __dirname;
@@ -144,43 +144,6 @@ function huskoPlugins() {
   );
 
   const enableMinifyInRelease = androidReleaseUsesMinify();
-  // #region agent log
-  (function agentLogEasAndroidMinify() {
-    const payload = {
-      sessionId: '995197',
-      hypothesisId: 'H1',
-      location: 'app.config.js:huskoPlugins',
-      message: 'EAS_BUILD_PROFILE vs minify flags',
-      data: {
-        easBuild: process.env.EAS_BUILD === 'true',
-        easBuildProfile: process.env.EAS_BUILD_PROFILE ?? null,
-        enableMinifyInReleaseBuilds: enableMinifyInRelease,
-        H1_profileMatchesDev:
-          process.env.EAS_BUILD_PROFILE === 'development' ||
-          process.env.EAS_BUILD_PROFILE === 'development-husko',
-        H6_profileMissingOnEas:
-          process.env.EAS_BUILD === 'true' &&
-          !(process.env.EAS_BUILD_PROFILE && String(process.env.EAS_BUILD_PROFILE).length > 0),
-      },
-      timestamp: Date.now(),
-    };
-    try {
-      appendFileSync(
-        path.join(REPO_ROOT, 'debug-995197.log'),
-        `${JSON.stringify(payload)}\n`,
-        'utf8'
-      );
-    } catch (_) {}
-    fetch('http://127.0.0.1:7618/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': '995197' },
-      body: JSON.stringify(payload),
-    }).catch(() => {});
-    if (process.env.EAS_BUILD === 'true') {
-      console.warn('[Husko] EAS android minify flags:', JSON.stringify(payload.data));
-    }
-  })();
-  // #endregion
 
   return [
     /** Client de développement : remplace Expo Go pour modules natifs (ex. expo-notifications). */
