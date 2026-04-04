@@ -23,6 +23,7 @@ Fil unique avec [`src/constants/productDirection.ts`](../src/constants/productDi
 | [`src/constants/westCoastAmbientVisual.ts`](../src/constants/westCoastAmbientVisual.ts) | Halos **`HuskoAmbientGlow`** |
 | [`src/constants/screenSectionVisual.ts`](../src/constants/screenSectionVisual.ts) | Cartes **`ScreenSection`** (panier, etc.) |
 | [`src/constants/huskoRootBackgroundVisual.ts`](../src/constants/huskoRootBackgroundVisual.ts) | **`HuskoBackground`** (lavis or, vignette, voile) |
+| [`src/constants/decorNeonVisual.ts`](../src/constants/decorNeonVisual.ts) | Voiles néon diagonal **`DECOR_PRESETS`** / **`WestCoastBackground`** |
 | [`src/constants/paperTheme.ts`](../src/constants/paperTheme.ts) | Thème React Native Paper (aligné Husko) |
 
 ## 2. Typographie
@@ -61,7 +62,7 @@ Fil unique avec [`src/constants/productDirection.ts`](../src/constants/productDi
 
 ## 6. Amélioration continue du design
 
-1. Modifier d’abord **tokens** (`theme` / `WC` / `appScreenVisual` / `componentsVisual` / `clientMenuVisual` / `clientSuiviVisual` / `clientPanierVisual` / `clientBootVisual` / `gerantDashboardVisual` / `gerantDistributionVisual` / `livreurScreenVisual` / `statusVisual` / `hudVisual` / `infraAlertsVisual` / `westCoastAmbientVisual` / `screenSectionVisual` / `huskoRootBackgroundVisual`) plutôt que des hex dans les écrans.
+1. Modifier d’abord **tokens** (`theme` / `WC` / `appScreenVisual` / `componentsVisual` / `clientMenuVisual` / `clientSuiviVisual` / `clientPanierVisual` / `clientBootVisual` / `gerantDashboardVisual` / `gerantDistributionVisual` / `livreurScreenVisual` / `statusVisual` / `hudVisual` / `infraAlertsVisual` / `westCoastAmbientVisual` / `decorNeonVisual` / `screenSectionVisual` / `huskoRootBackgroundVisual`) plutôt que des hex dans les écrans.
 2. Valider sur **APK installé** + parcours prioritaire (menu client, suivi ou gérant selon focus).
 3. `npm run verify` avant commit.
 
