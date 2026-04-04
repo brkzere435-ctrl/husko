@@ -46,7 +46,8 @@
         "autoIncrement": "versionCode"
       },
       "env": {
-        "EXPO_PUBLIC_APP_VARIANT": "all"
+        "EXPO_PUBLIC_APP_VARIANT": "all",
+        "EAS_BUILD_AUTOCOMMIT": "1"
       }
     },
     "apk-gerant": {
