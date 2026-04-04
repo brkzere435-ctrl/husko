@@ -6,9 +6,9 @@ import type { MenuCategory } from '@/constants/menu';
 import { WC } from '@/constants/westCoastTheme';
 import { colors } from '@/constants/theme';
 
-/** Bloc hero — dégradé crépuscule prune / corail (sunset West Coast). */
+/** Bloc hero — dégradé crépuscule LA (rose / pêche / nuit chaude). */
 export const clientMenuHero = {
-  gradientColors: ['rgba(45, 32, 58, 0.95)', 'rgba(120, 72, 88, 0.9)', 'rgba(40, 52, 72, 0.92)'] as const,
+  gradientColors: ['rgba(107, 90, 130, 0.96)', 'rgba(180, 120, 110, 0.92)', 'rgba(253, 186, 116, 0.88)'] as const,
   gradientLocations: [0, 0.48, 1] as const,
   cardBorder: 'rgba(251, 146, 60, 0.42)',
   innerGlowBorder: 'rgba(253, 224, 71, 0.14)',

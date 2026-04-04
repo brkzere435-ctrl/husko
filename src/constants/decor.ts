@@ -1,5 +1,6 @@
 import type { AppVariant } from '@/constants/appVariant';
 import { decorNeonVisual } from '@/constants/decorNeonVisual';
+import { WC } from '@/constants/westCoastTheme';
 
 /** Presets de fond néon par espace (APK mono-rôle ou hub). */
 export type DecorPreset = 'hub' | 'gerant' | 'client' | 'livreur' | 'assistant';
@@ -22,34 +23,34 @@ export type DecorPresetConfig = {
 
 export const DECOR_PRESETS: Record<DecorPreset, DecorPresetConfig> = {
   hub: {
-    baseGradient: ['#3d2f4a', '#7c4e6e', '#d97757', '#1e1619'],
-    baseLocations: [0, 0.3, 0.62, 1],
+    baseGradient: ['#5d4a6e', '#9d7088', WC.sunsetPeach, WC.laNight],
+    baseLocations: [0, 0.28, 0.58, 1],
     neonOverlay: [...decorNeonVisual.hub],
     neonOpacity: 0.9,
     ambientOrbs: true,
   },
   gerant: {
-    baseGradient: ['#2e2435', '#5c3d52', '#b4533a', '#1c1418'],
-    baseLocations: [0, 0.36, 0.7, 1],
+    baseGradient: ['#3d3048', '#7a5568', WC.fire, WC.laNightDeep],
+    baseLocations: [0, 0.34, 0.66, 1],
     neonOverlay: [...decorNeonVisual.gerant],
     neonOpacity: 0.88,
   },
   client: {
-    baseGradient: ['#4a3560', '#8b5a6e', '#e8956a', '#221820'],
-    baseLocations: [0, 0.32, 0.64, 1],
-    neonOverlay: ['rgba(251,146,60,0.06)', 'rgba(252,211,77,0.1)', 'rgba(196,181,253,0.06)'],
+    baseGradient: ['#6b5a82', '#a87880', WC.sunsetPeach, WC.laNight],
+    baseLocations: [0, 0.3, 0.58, 1],
+    neonOverlay: [...decorNeonVisual.client],
     neonOpacity: 0.88,
     ambientOrbs: true,
   },
   livreur: {
-    baseGradient: ['#2a3048', '#4a5a78', '#f0ab7c', '#18141c'],
-    baseLocations: [0, 0.34, 0.68, 1],
+    baseGradient: ['#354060', '#5c6a8a', WC.sunsetPeach, WC.laNightDeep],
+    baseLocations: [0, 0.32, 0.62, 1],
     neonOverlay: [...decorNeonVisual.livreur],
     neonOpacity: 0.86,
   },
   assistant: {
-    baseGradient: ['#352848', '#6b4a6e', '#fbbf77', '#1a1418'],
-    baseLocations: [0, 0.37, 0.68, 1],
+    baseGradient: ['#483560', '#7a5a78', WC.sunsetRose, WC.laNight],
+    baseLocations: [0, 0.35, 0.62, 1],
     neonOverlay: [...decorNeonVisual.assistant],
     neonOpacity: 0.85,
   },

@@ -120,6 +120,7 @@ function MenuHero() {
       <Text style={styles.hoursSmall}>{deliveryHoursLabel()}</Text>
       <Text style={styles.menuHint}>{clientStrings.menuHint}</Text>
       <Text style={styles.trustLine}>{clientStrings.trustLine}</Text>
+      <Text style={styles.moodLine}>{clientStrings.westCoastMood}</Text>
       <Pressable
         onPress={() => void Linking.openURL(`tel:${CLIENT_PHONE_TEL}`)}
         style={styles.phoneBtn}
@@ -565,6 +566,16 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: WC.fire,
     textAlign: 'center',
+  },
+  moodLine: {
+    marginTop: spacing.sm,
+    fontSize: 11,
+    lineHeight: 16,
+    fontWeight: '600',
+    color: WC.gold,
+    textAlign: 'center',
+    letterSpacing: 0.4,
+    opacity: 0.95,
   },
   phoneBtn: { marginTop: spacing.md, alignSelf: 'center', paddingVertical: spacing.xs },
   phoneBtnText: {

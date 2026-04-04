@@ -15,7 +15,10 @@ export const outsideDeliveryHoursBanner =
 
 export const clientStrings = {
   menuHint: 'Touchez un plat pour l’ajouter au panier.',
-  trustLine: 'Paiement à la livraison · Suivi en temps réel',
+  /** Aligné flyers : chaque ligne du menu a une photo dans l’app. */
+  trustLine: 'Photos des plats · Paiement à la livraison · Suivi en temps réel',
+  /** Ambiance West Coast (sunset LA / lowrider) — lieu : Angers. */
+  westCoastMood: 'Crépuscule californien · lowrider · Angers by night',
   openNow: 'Créneau livraison ouvert',
   closedNow: 'Hors créneau livraison — commandes toujours possibles',
   panierIntro:

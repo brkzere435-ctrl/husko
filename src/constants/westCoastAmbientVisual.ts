@@ -1,9 +1,10 @@
 /**
  * Halos bokeh — `HuskoAmbientGlow` (sous le contenu West Coast).
+ * Couleurs plus claires : golden hour, rose pêche, or.
  */
 export const westCoastAmbientVisual = {
-  vignetteGradient: ['transparent', 'rgba(45, 28, 40, 0.22)', 'rgba(28, 18, 26, 0.38)'] as const,
-  orbRose: 'rgba(251, 146, 60, 0.14)',
-  orbCyan: 'rgba(167, 139, 250, 0.12)',
-  orbGold: 'rgba(253, 224, 71, 0.09)',
+  vignetteGradient: ['transparent', 'rgba(80, 50, 58, 0.2)', 'rgba(26, 20, 24, 0.36)'] as const,
+  orbRose: 'rgba(253, 186, 116, 0.16)',
+  orbCyan: 'rgba(244, 114, 182, 0.11)',
+  orbGold: 'rgba(253, 224, 71, 0.1)',
 } as const;
