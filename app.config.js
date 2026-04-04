@@ -143,6 +143,8 @@ function huskoPlugins() {
     MAPS_ANDROID_PLACEHOLDER
   );
 
+  const enableMinifyInRelease = androidReleaseUsesMinify();
+
   return [
     /** Client de développement : remplace Expo Go pour modules natifs (ex. expo-notifications). */
     'expo-dev-client',
@@ -156,8 +158,8 @@ function huskoPlugins() {
           minSdkVersion: 24,
           kotlinVersion: '2.1.20',
           /** R8 : activé sauf profils dev client (voir androidReleaseUsesMinify). */
-          enableMinifyInReleaseBuilds: androidReleaseUsesMinify(),
-          enableShrinkResourcesInReleaseBuilds: androidReleaseUsesMinify(),
+          enableMinifyInReleaseBuilds: enableMinifyInRelease,
+          enableShrinkResourcesInReleaseBuilds: enableMinifyInRelease,
         },
       },
     ],
