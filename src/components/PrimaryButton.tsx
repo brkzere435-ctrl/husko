@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 
+import { componentsVisual } from '@/constants/componentsVisual';
 import { colors, radius } from '@/constants/theme';
 import { WC } from '@/constants/westCoastTheme';
 
@@ -101,7 +102,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.lg,
     overflow: 'hidden',
     borderWidth: 2,
-    borderColor: 'rgba(253, 230, 138, 0.65)',
+    borderColor: componentsVisual.primaryOuterBorder,
     minHeight: MIN_TOUCH,
     ...Platform.select({
       ios: {
@@ -128,9 +129,9 @@ const styles = StyleSheet.create({
     borderRadius: radius.lg,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(255,255,255,0.06)',
+    backgroundColor: componentsVisual.ghostBg,
     borderWidth: 1,
-    borderColor: 'rgba(94, 234, 212, 0.28)',
+    borderColor: componentsVisual.ghostBorder,
   },
   row: {
     flexDirection: 'row',

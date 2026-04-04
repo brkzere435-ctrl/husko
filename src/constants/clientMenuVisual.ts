@@ -64,6 +64,15 @@ export const clientMenuInteractions = {
   rowAndroidRipple: 'rgba(34, 211, 238, 0.15)',
 } as const;
 
+/** Cadres photo liste / fiche (`MenuItemVisual`). */
+export const clientMenuItemFrame = {
+  wrapBorder: 'rgba(34, 211, 238, 0.5)',
+  wrapThumbBorder: 'rgba(253, 230, 138, 0.22)',
+  wrapHeroBorder: 'rgba(34, 211, 238, 0.28)',
+  photoLoadingBg: 'rgba(18, 4, 4, 0.22)',
+  neonHeroBorder: 'rgba(34, 211, 238, 0.2)',
+} as const;
+
 /** Dock bas (résumé panier + CTA). */
 export const clientMenuDock = {
   hairlineColors: [

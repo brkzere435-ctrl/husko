@@ -8,7 +8,8 @@ Fil unique avec [`src/constants/productDirection.ts`](../src/constants/productDi
 |--------|------|
 | [`src/constants/theme.ts`](../src/constants/theme.ts) | `colors` (fonds `bg`, `card`, accents `accent` / `accentMid`, texte, `gold`, `gradient`), `spacing`, `radius`, `elevation`, `surface` |
 | [`src/constants/westCoastTheme.ts`](../src/constants/westCoastTheme.ts) | `WC` — identité sunset : `brick`, `brickDeep`, `fire`, `neonCyan`, `gold`, ombres |
-| [`src/constants/clientMenuVisual.ts`](../src/constants/clientMenuVisual.ts) | Dégradés / rgba **écran menu client** (hero, chips, rangées, dock, ripple) — dérivés de `colors` + `WC` |
+| [`src/constants/clientMenuVisual.ts`](../src/constants/clientMenuVisual.ts) | Dégradés / rgba **écran menu client** (hero, chips, rangées, dock, ripple, **`clientMenuItemFrame`** pour `MenuItemVisual`) — dérivés de `colors` + `WC` |
+| [`src/constants/componentsVisual.ts`](../src/constants/componentsVisual.ts) | **`PrimaryButton`** (bordure / variante ghost) · **`OtaUpdateSection`** (pilules dev/release) |
 | [`src/constants/clientSuiviVisual.ts`](../src/constants/clientSuiviVisual.ts) | rgba **écran suivi client** (bloc ETA, bande contact, carte annulation) |
 | [`src/constants/clientPanierVisual.ts`](../src/constants/clientPanierVisual.ts) | Bannières + ligne total **panier client** |
 | [`src/constants/gerantDashboardVisual.ts`](../src/constants/gerantDashboardVisual.ts) | Fonds panneaux **gérant** (dashboard, PIN, réglages, mode autonome) — compose [`appScreenVisual`](../src/constants/appScreenVisual.ts) |
@@ -53,7 +54,7 @@ Fil unique avec [`src/constants/productDirection.ts`](../src/constants/productDi
 
 ## 6. Amélioration continue du design
 
-1. Modifier d’abord **tokens** (`theme` / `WC` / `appScreenVisual` / `clientMenuVisual` / `clientSuiviVisual` / `clientPanierVisual` / `gerantDashboardVisual` / `gerantDistributionVisual` / `livreurScreenVisual`) plutôt que des hex dans les écrans.
+1. Modifier d’abord **tokens** (`theme` / `WC` / `appScreenVisual` / `componentsVisual` / `clientMenuVisual` / `clientSuiviVisual` / `clientPanierVisual` / `gerantDashboardVisual` / `gerantDistributionVisual` / `livreurScreenVisual`) plutôt que des hex dans les écrans.
 2. Valider sur **APK installé** + parcours prioritaire (menu client, suivi ou gérant selon focus).
 3. `npm run verify` avant commit.
 

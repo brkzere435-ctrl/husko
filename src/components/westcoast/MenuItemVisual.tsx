@@ -6,7 +6,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
 import type { MenuCategory, MenuItem } from '@/constants/menu';
-import { menuCategoryGradientTriples } from '@/constants/clientMenuVisual';
+import { clientMenuItemFrame, menuCategoryGradientTriples } from '@/constants/clientMenuVisual';
 import { getMenuImage } from '@/constants/menuImages';
 import { colors, radius, spacing } from '@/constants/theme';
 import { WC } from '@/constants/westCoastTheme';
@@ -112,7 +112,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.lg,
     overflow: 'hidden',
     borderWidth: 2,
-    borderColor: 'rgba(34, 211, 238, 0.5)',
+    borderColor: clientMenuItemFrame.wrapBorder,
     shadowColor: colors.neonFrameGlow,
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.2,
@@ -121,14 +121,14 @@ const styles = StyleSheet.create({
   /** Liste menu : cadre discret pour ne pas surcharger visuellement. */
   wrapThumb: {
     borderWidth: 1,
-    borderColor: 'rgba(253, 230, 138, 0.22)',
+    borderColor: clientMenuItemFrame.wrapThumbBorder,
     shadowOpacity: 0,
     shadowRadius: 0,
   },
   /** Fiche produit : une seule lecture de cadre, pas de double néon. */
   wrapHero: {
     borderWidth: 1,
-    borderColor: 'rgba(34, 211, 238, 0.28)',
+    borderColor: clientMenuItemFrame.wrapHeroBorder,
     shadowColor: colors.shadowPure,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.14,
@@ -143,7 +143,7 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(18, 4, 4, 0.22)',
+    backgroundColor: clientMenuItemFrame.photoLoadingBg,
   },
   grad: {
     flex: 1,
@@ -164,7 +164,7 @@ const styles = StyleSheet.create({
   neonHero: {
     margin: spacing.xs,
     borderWidth: 1,
-    borderColor: 'rgba(34, 211, 238, 0.2)',
+    borderColor: clientMenuItemFrame.neonHeroBorder,
   },
   iconShadow: {
     shadowColor: WC.neonCyan,

@@ -2,6 +2,7 @@ import Constants from 'expo-constants';
 import * as Updates from 'expo-updates';
 import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { componentsVisual } from '@/constants/componentsVisual';
 import { FONT } from '@/constants/fonts';
 import { typography } from '@/constants/typography';
 import { colors, radius, spacing } from '@/constants/theme';
@@ -134,12 +135,12 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   pillDev: {
-    backgroundColor: 'rgba(34, 211, 238, 0.12)',
-    borderColor: 'rgba(34, 211, 238, 0.4)',
+    backgroundColor: componentsVisual.otaPillDevBg,
+    borderColor: componentsVisual.otaPillDevBorder,
   },
   pillRelease: {
-    backgroundColor: 'rgba(253, 230, 138, 0.1)',
-    borderColor: 'rgba(253, 230, 138, 0.35)',
+    backgroundColor: componentsVisual.otaPillReleaseBg,
+    borderColor: componentsVisual.otaPillReleaseBorder,
   },
   pillText: {
     fontSize: 12,
@@ -150,7 +151,7 @@ const styles = StyleSheet.create({
   hintBlock: {
     padding: spacing.sm,
     borderRadius: radius.md,
-    backgroundColor: 'rgba(0,0,0,0.25)',
+    backgroundColor: componentsVisual.otaHintBlockBg,
     borderWidth: 1,
     borderColor: colors.borderSubtle,
     gap: spacing.xs,

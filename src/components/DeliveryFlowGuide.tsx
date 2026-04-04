@@ -2,6 +2,7 @@ import { StyleSheet, Text, View } from 'react-native';
 
 import { FONT } from '@/constants/fonts';
 import { typography } from '@/constants/typography';
+import { appScreenVisual } from '@/constants/appScreenVisual';
 import { colors, radius, spacing } from '@/constants/theme';
 import { WC, wcSectionLabel } from '@/constants/westCoastTheme';
 
@@ -16,7 +17,9 @@ const STEPS = [
 export function DeliveryFlowGuide() {
   return (
     <View style={styles.box}>
-      <Text style={[wcSectionLabel, styles.title]}>Parcours jusqu’à livraison complète</Text>
+      <Text style={[wcSectionLabel, styles.title]} accessibilityRole="header">
+        Parcours jusqu’à livraison complète
+      </Text>
       {STEPS.map((t, i) => (
         <View key={i} style={styles.row}>
           <Text style={styles.num}>{i + 1}</Text>
@@ -34,7 +37,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.xl,
     borderWidth: 2,
     borderColor: WC.neonCyanDim,
-    backgroundColor: 'rgba(0,0,0,0.35)',
+    backgroundColor: appScreenVisual.overlay035,
     gap: spacing.sm,
   },
   title: {
