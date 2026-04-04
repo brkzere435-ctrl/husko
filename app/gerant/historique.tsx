@@ -1,5 +1,6 @@
+import { FlashList } from '@shopify/flash-list';
 import { useMemo } from 'react';
-import { FlatList, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { Card, Text } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -10,6 +11,7 @@ import { StatusBadge } from '@/components/StatusBadge';
 import { typography } from '@/constants/typography';
 import { spacing, surface } from '@/constants/theme';
 import { WC, wcSectionLabel } from '@/constants/westCoastTheme';
+import type { Order } from '@/stores/useHuskoStore';
 import { useHuskoStore } from '@/stores/useHuskoStore';
 
 export default function HistoriqueScreen() {
@@ -26,9 +28,11 @@ export default function HistoriqueScreen() {
   return (
     <WestCoastBackground>
       <SafeAreaView style={styles.root} edges={['bottom']}>
-        <FlatList
+        <FlashList<Order>
           data={done}
           keyExtractor={(o) => o.id}
+          drawDistance={200}
+          style={styles.listFlex}
           ListHeaderComponent={
             <DeploymentHints mode="alerts" mapsRelevant={false} style={styles.infra} />
           }
@@ -76,6 +80,7 @@ export default function HistoriqueScreen() {
 
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: 'transparent' },
+  listFlex: { flex: 1 },
   list: { padding: spacing.md, paddingBottom: spacing.xl },
   infra: { marginBottom: spacing.md },
   row: {

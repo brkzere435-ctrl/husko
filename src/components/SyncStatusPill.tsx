@@ -1,7 +1,9 @@
+import { useCallback } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { colors, radius, spacing } from '@/constants/theme';
 import { typography } from '@/constants/typography';
+import { openTechnicalFeedback } from '@/navigation/openTechnicalFeedback';
 import { isRemoteSyncEnabled } from '@/services/firebaseRemote';
 import { useHuskoStore } from '@/stores/useHuskoStore';
 import { formatCloudSyncErrorForUser } from '@/utils/cloudSyncUserMessage';
@@ -15,9 +17,23 @@ export function SyncStatusPill() {
   const syncErr = writeErr || listenErr;
   const syncErrUser = formatCloudSyncErrorForUser(syncErr);
 
+  const openSyncDetail = useCallback(() => {
+    if (!syncErr) return;
+    const detailParts = [writeErr, listenErr].filter(
+      (x): x is string => typeof x === 'string' && x.trim() !== ''
+    );
+    const detail =
+      detailParts.length > 0 ? detailParts.join('\n\n') : syncErr.trim() || undefined;
+    openTechnicalFeedback({
+      title: 'Synchronisation',
+      body: syncErrUser ?? 'Synchronisation momentanément indisponible.',
+      detail,
+    });
+  }, [listenErr, syncErr, syncErrUser, writeErr]);
+
   const a11y =
     syncErr != null && syncErr.length > 0
-      ? `${syncErrUser ?? 'Problème de connexion'}. Touchez pour masquer l’indicateur.`
+      ? `${syncErrUser ?? 'Problème de connexion'}. Appui court pour masquer l’indicateur. Appui long pour ouvrir le détail technique.`
       : cloud
         ? 'Synchronisation active : commandes partagées entre appareils'
         : 'Mode hors ligne : pas de synchronisation entre téléphones';
@@ -25,6 +41,8 @@ export function SyncStatusPill() {
   return (
     <Pressable
       onPress={() => clearCloudSyncErrors()}
+      onLongPress={syncErr ? openSyncDetail : undefined}
+      delayLongPress={500}
       style={[styles.wrap, cloud ? (syncErr ? styles.cloudErr : styles.cloud) : styles.local]}
       accessibilityLabel={a11y}
       accessibilityRole="button"

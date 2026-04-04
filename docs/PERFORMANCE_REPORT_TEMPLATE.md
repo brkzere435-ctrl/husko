@@ -15,6 +15,7 @@ Ce document sert de **grille** pour mesurer les gains après changements (New Ar
 ## Méthode (à tenir identique entre mesures)
 
 - **Menu client** : ouvrir l’écran menu, scroller du haut en bas en ~10 s, noter jank ressenti (0–5).
+- **Historique gérant** (`/gerant/historique`, liste FlashList) : scroller la liste des commandes terminées en ~10 s, noter jank (0–5), idem avant/après une optimisation liste.
 - **Cold start** : temps jusqu’à écran interactif (chronomètre ou `adb logcat` / Android Studio).
 - **Mémoire** : Android Studio Profiler ou `adb shell dumpsys meminfo <package>` après 2 min d’usage.
 - **Optionnel** : React DevTools (profiler) sur build dev, scénario fixe.
@@ -25,6 +26,7 @@ Ce document sert de **grille** pour mesurer les gains après changements (New Ar
 |----------|-------|-------|---------------|
 | Cold start (s) | | | |
 | Scroll menu (jank subjectif 0–5) | | | |
+| Scroll historique gérant (jank 0–5) | | | |
 | RAM après usage (Mo) | | | |
 | Taille APK (Mo) | | | |
 
