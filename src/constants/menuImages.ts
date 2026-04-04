@@ -3,8 +3,23 @@ import type { ImageSourcePropType } from 'react-native';
 import type { MenuItem } from '@/constants/menu';
 
 /**
- * Photos produit : `assets/menu/<id>.png` (remplacer les fichiers pour les vraies photos).
- * Requires statiques pour Metro. Omettre un id ici = pas de photo (repli icône + dégradé).
+ * Photos produit — source de vérité des fichiers : `assets/menu/<item.id>.png`.
+ *
+ * **Nommage** — un fichier par entrée `MenuItem.id` dans `menu.ts` (ex. `smash-1.png`, `des-daim.png`).
+ * Ne pas renommer sans mettre à jour cette table et `menu.ts`.
+ *
+ * **Format** — PNG 8 bits sRGB (recommandé pour Metro). Remplacer le fichier sans toucher au code
+ * tant que le nom reste identique. Retirer une ligne ici = pas de photo (repli dégradé + icône).
+ *
+ * **Grille & cadrage (réalisme)** — l’UI affiche les photos en **carré**, `contentFit="cover"` :
+ * - liste : ~72×72 dp ; fiche produit : ~220×220 dp (voir `MenuItemVisual`).
+ * - **Ratio source conseillé : 1:1** (carré), sujet centré ; marge de sécurité **~10 %** sur les bords
+ *   (cadre néon / coins arrondis rognent légèrement).
+ * - Export **900–1200 px** de côté suffit pour toutes les densités ; au-delà, gain visuel faible, APK plus lourd.
+ * - Lumière cohérente (même température / même direction) entre plats d’une même catégorie si possible.
+ *
+ * **Vérifs repo** — `npm run verify:menu-assets` (fichiers + ids alignés `menu.ts`).
+ * Après remplacement massif : `npm run assets:menu:verify` (diversité des tailles, pas un seul doublon).
  */
 const MENU_IMAGES: Partial<Record<string, ImageSourcePropType>> = {
   'smash-1': require('../../assets/menu/smash-1.png'),
