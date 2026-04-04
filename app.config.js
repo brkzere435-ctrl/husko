@@ -88,9 +88,12 @@ function envOrMapsPlaceholder(value, placeholder) {
  * R8 / minify sur les builds « dev client » (development, development-husko) : désactivé pour éviter des
  * échecs Gradle peu parlants sur EAS (« unknown error ») quand des libs (Firebase, Skia, etc.) manquent de rules.
  * Les profils prod / apk-unified gardent minify + shrink.
+ *
+ * `EAS_BUILD_PROFILE` est aussi défini explicitement dans eas.json pour ces profils, au cas où l’injection
+ * EAS ne serait pas visible au moment du prebuild (sinon minify pourrait rester activé par défaut).
  */
 function androidReleaseUsesMinify() {
-  const p = process.env.EAS_BUILD_PROFILE || '';
+  const p = (process.env.EAS_BUILD_PROFILE || '').trim();
   if (p === 'development' || p === 'development-husko') {
     return false;
   }

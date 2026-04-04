@@ -12,14 +12,19 @@
       "android": { "buildType": "apk" },
       "ios": { "simulator": true },
       "env": {
-        "EXPO_PUBLIC_APP_VARIANT": "all"
+        "EXPO_PUBLIC_APP_VARIANT": "all",
+        "EAS_BUILD_PROFILE": "development"
       }
     },
     "development-husko": {
       "extends": "apk-unified",
       "developmentClient": true,
       "channel": "development",
-      "resourceClass": "large"
+      "resourceClass": "large",
+      "env": {
+        "EXPO_PUBLIC_APP_VARIANT": "all",
+        "EAS_BUILD_PROFILE": "development-husko"
+      }
     },
     "preview": {
       "distribution": "internal",
