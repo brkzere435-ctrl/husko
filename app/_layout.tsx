@@ -38,6 +38,7 @@ import Constants from 'expo-constants';
 import { debugAgentLog } from '@/utils/debugAgentLog';
 import { emitBootDebugProbes, isBootDebugEnabled } from '@/utils/debugProbe';
 import { readHuskoExpoExtra } from '@/utils/readHuskoExpoExtra';
+import { installRenderLayoutDebugTap, logRootLayoutOnce } from '@/utils/debugRenderLayoutLogs';
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
@@ -55,6 +56,7 @@ export default function RootLayout() {
 
   useEffect(() => {
     if (!appReady) return;
+    installRenderLayoutDebugTap();
     if (isBootDebugEnabled()) {
       const cfg = Constants.expoConfig;
       const extra = readHuskoExpoExtra();
@@ -157,7 +159,13 @@ export default function RootLayout() {
   }
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
+    <GestureHandlerRootView
+      style={{ flex: 1 }}
+      onLayout={(e) => {
+        const { width, height } = e.nativeEvent.layout;
+        logRootLayoutOnce(width, height);
+      }}
+    >
     <SafeAreaProvider>
       <NetworkOfflineBanner visible={showOfflineBanner} />
       <PaperProvider theme={huskoPaperTheme}>
