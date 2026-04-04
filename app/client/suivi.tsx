@@ -19,6 +19,7 @@ import {
   formatEtaUntilDelivery,
 } from '@/constants/autonomousDelivery';
 import { CLIENT_PHONE_DISPLAY, CLIENT_PHONE_TEL, clientStrings } from '@/constants/clientExperience';
+import { clientSuiviVisual } from '@/constants/clientSuiviVisual';
 import { PENDING_VALIDATION_MS } from '@/constants/orderPolicy';
 import { CLIENT_TIMELINE, timelineStepIndex } from '@/constants/orderFlow';
 import { PAYMENT_NOTICE_SHORT } from '@/constants/paymentPolicy';
@@ -288,7 +289,7 @@ const styles = StyleSheet.create({
   cancelCard: {
     alignItems: 'stretch',
     gap: spacing.sm,
-    borderColor: 'rgba(248, 113, 113, 0.45)',
+    borderColor: clientSuiviVisual.cancelCardBorder,
   },
   cancelTitle: {
     ...typography.title,
@@ -326,9 +327,9 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.md,
     paddingHorizontal: spacing.md,
     borderRadius: radius.lg,
-    backgroundColor: 'rgba(251, 146, 60, 0.22)',
+    backgroundColor: clientSuiviVisual.etaHeroBg,
     borderWidth: 1,
-    borderColor: 'rgba(253, 224, 71, 0.35)',
+    borderColor: clientSuiviVisual.etaHeroBorder,
     alignItems: 'center',
   },
   etaHeroKicker: {
@@ -336,7 +337,7 @@ const styles = StyleSheet.create({
     fontFamily: FONT.bold,
     fontSize: 11,
     letterSpacing: 2,
-    color: 'rgba(250,250,250,0.75)',
+    color: clientSuiviVisual.etaHeroKicker,
     textTransform: 'uppercase',
   },
   etaHeroTime: {
@@ -397,18 +398,18 @@ const styles = StyleSheet.create({
     fontFamily: FONT.bold,
     fontSize: 10,
     letterSpacing: 3,
-    color: 'rgba(250,250,250,0.45)',
+    color: clientSuiviVisual.contactStripLbl,
   },
   contactChip: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
+    gap: spacing.sm,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: radius.md,
     borderRadius: radius.md,
     borderWidth: 1,
     borderColor: colors.borderSubtle,
-    backgroundColor: 'rgba(0,0,0,0.25)',
+    backgroundColor: clientSuiviVisual.contactChipBg,
   },
   contactChipTxt: {
     fontFamily: FONT.bold,

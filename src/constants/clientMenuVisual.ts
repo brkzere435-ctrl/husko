@@ -59,6 +59,11 @@ export const clientMenuRow = {
   pricePillBorder: 'rgba(253, 224, 71, 0.75)',
 } as const;
 
+/** Feedback tactile — rangées produit (Android ripple, aligné néon WC). */
+export const clientMenuInteractions = {
+  rowAndroidRipple: 'rgba(34, 211, 238, 0.15)',
+} as const;
+
 /** Dock bas (résumé panier + CTA). */
 export const clientMenuDock = {
   hairlineColors: [

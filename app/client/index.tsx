@@ -38,6 +38,7 @@ import {
   clientMenuChrome,
   clientMenuDock,
   clientMenuHero,
+  clientMenuInteractions,
   clientMenuRow,
 } from '@/constants/clientMenuVisual';
 import { FONT } from '@/constants/fonts';
@@ -56,7 +57,7 @@ const MenuProductRow = memo(function MenuProductRow({ item }: { item: MenuItem }
         hapticLight();
         router.push(`/client/product/${item.id}`);
       }}
-      android_ripple={{ color: 'rgba(34,211,238,0.15)' }}
+      android_ripple={{ color: clientMenuInteractions.rowAndroidRipple }}
       style={({ pressed }) => [
         styles.row,
         elevation.card,
@@ -82,9 +83,14 @@ const MenuSectionHeaderRow = memo(function MenuSectionHeaderRow({
   category: MenuCategory;
   isFirst: boolean;
 }) {
+  const label = CATEGORY_LABEL[category];
   return (
-    <View style={[styles.sectionHeader, isFirst && styles.sectionHeaderFirst]}>
-      <Text style={styles.sectionLabel}>{CATEGORY_LABEL[category]}</Text>
+    <View
+      style={[styles.sectionHeader, isFirst && styles.sectionHeaderFirst]}
+      accessibilityRole="header"
+      accessibilityLabel={label}
+    >
+      <Text style={styles.sectionLabel}>{label}</Text>
     </View>
   );
 });
@@ -464,7 +470,7 @@ const styles = StyleSheet.create({
   },
   heroInnerGlow: {
     ...StyleSheet.absoluteFillObject,
-    margin: 12,
+    margin: radius.md,
     borderRadius: radius.lg,
     borderWidth: 1,
     borderColor: clientMenuHero.innerGlowBorder,
