@@ -2,6 +2,22 @@
 
 Ce document sert de **grille** pour mesurer les gains après changements (New Architecture, listes, images, etc.). Remplir une ligne **avant** et **après** une release ou une branche de perf.
 
+## Principe : plusieurs appareils, pas un seul téléphone
+
+Les perçus utilisateurs et les timings varient selon la puce, la RAM, la version Android et l’état du stockage. **Une mesure sur un seul appareil ne suffit pas** pour parler au nom de « tous les téléphones de la génération en cours ou futures ».
+
+**Recommandation équipe**
+
+- Définir une **matrice minimale** (ex. 3 à 5 appareils) couvrant au moins :
+  - un segment **entrée de gamme** (SoC modeste, 4 Go RAM ou équivalent) ;
+  - un segment **milieu de gamme** (référence courante des utilisateurs) ;
+  - un segment **récent / haut de gamme** (pour valider le plafond de confort, pas seulement le plancher).
+- Noter pour chaque ligne **modèle**, **Android (API)** et **type** (entrée / milieu / haut).
+- Quand plusieurs personnes mesurent : **même scénario**, **même build** (`versionCode`), **même durée de scroll** ; consigner soit la **médiane**, soit **min / médiane / max**, soit des **percentiles** (p75, p95) pour le jank ou le cold start si vous agrégez des chiffres objectifs.
+- **Futur / agrégat terrain** : si le produit intègre un jour des métriques anonymes (ex. vitesses de démarrage via Play Console, ou instrumentation type Firebase Performance), les seuils et régressions se baseront sur des **distributions** (nombreux appareils réels), complétant les mesures manuelles de la matrice.
+
+Les tableaux ci‑dessous peuvent être **dupliqués par session** ou **par ligne d’appareil**, puis synthétisés dans la conclusion.
+
 ## Contexte
 
 | Champ | Valeur |
@@ -9,7 +25,8 @@ Ce document sert de **grille** pour mesurer les gains après changements (New Ar
 | Date | |
 | APK / build EAS | (ID expo.dev) |
 | `versionCode` Android | |
-| Appareil | (modèle, Android version) |
+| Appareil | (modèle, Android / API) — **une ligne par appareil si matrice** |
+| Segment | entrée / milieu / haut (ou équivalent) |
 | Variante | hub / client / gérant / livreur |
 
 ## Installation APK et contrôle build (avant les mesures)
@@ -40,6 +57,10 @@ Ce document sert de **grille** pour mesurer les gains après changements (New Ar
 ## Hypothèses / changements testés
 
 - (ex. `newArchEnabled: true`, optimisation FlashList, images, etc.)
+
+## Synthèse multi-appareils (optionnel)
+
+Après plusieurs sessions (une par appareil de la matrice), regrouper ici une **vue d’ensemble** : nombre d’appareils, et pour chaque métrique la **médiane** ou la fourchette **min–max** (ou percentiles si vous les calculez). Objectif : une décision produit basée sur **plusieurs générations de téléphones**, pas sur une anecdote.
 
 ## Conclusion
 

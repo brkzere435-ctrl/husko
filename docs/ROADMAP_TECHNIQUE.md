@@ -13,8 +13,8 @@
 
 | Priorité | Sujet | Notes |
 |----------|--------|--------|
-| P1 | Remplir un **PERFORMANCE_REPORT** avant/après sur APK réel | Cold start + scroll menu |
-| P2 | Migrer d’autres **FlatList** vers **FlashList** si listes longues | Ex. `app/gerant/historique.tsx` |
+| P1 | Remplir un **PERFORMANCE_REPORT** avant/après sur APK réel | Cold start + scroll ; **matrice 3–5 appareils** (entrée / milieu / haut), pas un seul téléphone — voir principe dans `docs/PERFORMANCE_REPORT_TEMPLATE.md` |
+| P2 | Migrer d’autres **FlatList** vers **FlashList** si listes longues | Déjà fait historique gérant ; autres écrans si listes longues |
 | P3 | **Skia** uniquement si besoin produit (HUD, courbes) | Éviter dépendance sans usage |
 | P4 | Étendre `openTechnicalFeedback` aux erreurs **catch** métier réseau | Centraliser messages |
 | P5 | Tests automatisés perf | Detox / maestro — hors scope immédiat |
