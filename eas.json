@@ -18,7 +18,8 @@
     "development-husko": {
       "extends": "apk-unified",
       "developmentClient": true,
-      "channel": "development"
+      "channel": "development",
+      "resourceClass": "large"
     },
     "preview": {
       "distribution": "internal",

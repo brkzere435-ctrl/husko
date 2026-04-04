@@ -84,6 +84,19 @@ function envOrMapsPlaceholder(value, placeholder) {
   return t || placeholder;
 }
 
+/**
+ * R8 / minify sur les builds « dev client » (development, development-husko) : désactivé pour éviter des
+ * échecs Gradle peu parlants sur EAS (« unknown error ») quand des libs (Firebase, Skia, etc.) manquent de rules.
+ * Les profils prod / apk-unified gardent minify + shrink.
+ */
+function androidReleaseUsesMinify() {
+  const p = process.env.EAS_BUILD_PROFILE || '';
+  if (p === 'development' || p === 'development-husko') {
+    return false;
+  }
+  return true;
+}
+
 function buildExtra({
   role,
   easProjectId,
@@ -142,9 +155,9 @@ function huskoPlugins() {
           targetSdkVersion: 36,
           minSdkVersion: 24,
           kotlinVersion: '2.1.20',
-          /** R8 / minify release — taille APK et perf ; builds EAS release uniquement. */
-          enableMinifyInReleaseBuilds: true,
-          enableShrinkResourcesInReleaseBuilds: true,
+          /** R8 : activé sauf profils dev client (voir androidReleaseUsesMinify). */
+          enableMinifyInReleaseBuilds: androidReleaseUsesMinify(),
+          enableShrinkResourcesInReleaseBuilds: androidReleaseUsesMinify(),
         },
       },
     ],
