@@ -54,9 +54,11 @@ export function GTAMiniMap({
   );
   const tracksDriverMarker = useTracksViewChangesForCustomMarker(driverTrackKey);
 
+  const frameSize = { width: HUD_SIZE, height: HUD_SIZE } as const;
+
   if (useFallback) {
     return (
-      <View style={elevation.hero}>
+      <View style={[elevation.hero, frameSize]} collapsable={false}>
         <GTAHudFrame size={HUD_SIZE} footerTag={footerTag}>
           <GTAMiniMapFallbackInterior
             driver={driver}
@@ -72,10 +74,11 @@ export function GTAMiniMap({
   }
 
   return (
-    <View style={elevation.hero}>
+    <View style={[elevation.hero, frameSize]} collapsable={false}>
       <GTAHudFrame size={HUD_SIZE} footerTag={footerTag}>
         <MapView
           style={styles.map}
+          collapsable={false}
           provider={Platform.OS === 'android' ? PROVIDER_GOOGLE : undefined}
           region={region}
           rotateEnabled={false}

@@ -35,7 +35,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     paddingBottom: spacing.md,
     paddingTop: spacing.sm + 4,
-    overflow: 'hidden',
+    /* visible : évite de clipper la minimap GTA / MapView sur certains Android (aperçu panier). */
+    overflow: 'visible',
     ...elevation.card,
   },
   titleAccent: {

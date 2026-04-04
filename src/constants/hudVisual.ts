@@ -9,8 +9,8 @@ export const gtaHudFrameVisual = {
 } as const;
 
 export const gtaMapFallbackVisual = {
-  gridLine: 'rgba(34, 211, 238, 0.15)',
-  palmSilhouette: 'rgba(0, 0, 0, 0.25)',
+  gridLine: 'rgba(34, 211, 238, 0.32)',
+  palmSilhouette: 'rgba(0, 0, 0, 0.35)',
   /** Contour « zone » façon minimap GTA (sans tuiles Google). */
   zoneBorder: 'rgba(34, 211, 238, 0.42)',
   zoneBorderDim: 'rgba(34, 211, 238, 0.14)',

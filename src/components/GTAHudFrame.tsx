@@ -41,7 +41,9 @@ export function GTAHudFrame({ children, size = 156, style, footerTag = 'WESTSIDE
             style={[styles.bracket, styles.br, { borderBottomWidth: t, borderRightWidth: t, width: corner, height: corner }]}
           />
 
-          <View style={styles.mapSlot}>{children}</View>
+          <View style={styles.mapSlot} collapsable={false}>
+            {children}
+          </View>
 
           {/* Scanlines */}
           <View style={styles.scanOverlay} pointerEvents="none">
@@ -88,9 +90,13 @@ const styles = StyleSheet.create({
   tr: { top: 5, right: 5 },
   bl: { bottom: 22, left: 5 },
   br: { bottom: 22, right: 5 },
+  /** Slot carte — bottom explicite (évite hauteur 0 sur certains Android avec margin + fill). */
   mapSlot: {
-    ...StyleSheet.absoluteFillObject,
-    marginBottom: 20,
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 20,
   },
   scanOverlay: {
     ...StyleSheet.absoluteFillObject,

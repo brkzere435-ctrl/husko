@@ -317,6 +317,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.xl,
     borderWidth: 1,
     borderColor: colors.borderSubtle,
+    overflow: 'visible',
   },
   cardContent: {
     paddingVertical: spacing.lg,
@@ -450,7 +451,12 @@ const styles = StyleSheet.create({
     marginBottom: spacing.sm,
     opacity: 0.92,
   },
-  mapWrap: { marginTop: spacing.lg, alignItems: 'center' },
+  mapWrap: {
+    marginTop: spacing.lg,
+    alignItems: 'center',
+    minHeight: 180,
+    width: '100%',
+  },
   historiqueLinkWrap: { marginTop: spacing.md, marginBottom: spacing.sm },
   infra: { marginTop: spacing.lg },
 });

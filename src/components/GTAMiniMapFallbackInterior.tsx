@@ -30,7 +30,7 @@ export function GTAMiniMapFallbackInterior({
   showDeparture = true,
 }: Props) {
   return (
-    <View style={styles.fakeMap}>
+    <View style={styles.fakeMap} collapsable={false}>
       <View style={styles.zoneRing} pointerEvents="none" />
       <View style={[styles.corner, styles.cornerTL]} />
       <View style={[styles.corner, styles.cornerTR]} />
@@ -65,6 +65,8 @@ const styles = StyleSheet.create({
     backgroundColor: colors.mapRadarBg,
     justifyContent: 'center',
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: gtaMapFallbackVisual.zoneBorderDim,
   },
   zoneRing: {
     position: 'absolute',
