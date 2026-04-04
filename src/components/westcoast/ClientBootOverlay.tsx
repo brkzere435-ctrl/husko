@@ -9,6 +9,7 @@ import {
   CLIENT_BOOT_DURATION_MS,
   CLIENT_BOOT_SKIP_HINT,
 } from '@/constants/clientExperience';
+import { clientBootVisual } from '@/constants/clientBootVisual';
 import { FONT } from '@/constants/fonts';
 import { colors, spacing } from '@/constants/theme';
 import { WC } from '@/constants/westCoastTheme';
@@ -56,7 +57,7 @@ export function ClientBootOverlay({ visible, onDone }: Props) {
       >
         <Image source={CLIENT_BOOT_HERO} style={StyleSheet.absoluteFill} resizeMode="cover" />
         <LinearGradient
-          colors={['rgba(60, 40, 72, 0.35)', 'rgba(180, 90, 70, 0.4)', 'rgba(24, 18, 22, 0.82)']}
+          colors={[...clientBootVisual.overlayGradient]}
           locations={[0, 0.45, 1]}
           style={StyleSheet.absoluteFill}
           pointerEvents="none"
@@ -83,7 +84,7 @@ export function ClientBootOverlay({ visible, onDone }: Props) {
           <Text style={styles.snap}>Snap · HUSKOBYNIGHT</Text>
           <Text style={styles.skipHint}>{CLIENT_BOOT_SKIP_HINT}</Text>
           <LinearGradient
-            colors={['transparent', 'rgba(40, 28, 38, 0.25)', 'rgba(24, 18, 24, 0.55)']}
+            colors={[...clientBootVisual.vignetteGradient]}
             locations={[0, 0.4, 1]}
             style={styles.bootVignette}
             pointerEvents="none"
@@ -138,7 +139,7 @@ const styles = StyleSheet.create({
   script: {
     fontFamily: FONT.medium,
     marginTop: spacing.sm,
-    color: 'rgba(254, 243, 199, 0.92)',
+    color: clientBootVisual.script,
     fontSize: 15,
     textAlign: 'center',
     letterSpacing: 0.6,
@@ -176,7 +177,7 @@ const styles = StyleSheet.create({
   skipHint: {
     fontFamily: FONT.medium,
     marginTop: spacing.md,
-    color: 'rgba(255, 247, 237, 0.55)',
+    color: clientBootVisual.skipHint,
     fontSize: 12,
     textAlign: 'center',
     letterSpacing: 0.4,

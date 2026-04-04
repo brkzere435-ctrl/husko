@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import { StyleSheet, Text, View, type ViewStyle } from 'react-native';
 
 import { FONT } from '@/constants/fonts';
+import { gtaHudFrameVisual } from '@/constants/hudVisual';
 import { colors, radius, spacing } from '@/constants/theme';
 import { WC } from '@/constants/westCoastTheme';
 
@@ -22,7 +23,7 @@ export function GTAHudFrame({ children, size = 156, style, footerTag = 'WESTSIDE
   return (
     <View style={[styles.root, { width: size, height: size }, style]}>
       <LinearGradient
-        colors={['rgba(34,211,238,0.35)', 'rgba(250,204,21,0.15)', 'rgba(34,211,238,0.2)']}
+        colors={[...gtaHudFrameVisual.borderGradient]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={[styles.neonBorder, { borderRadius: radius.lg }]}
@@ -101,7 +102,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     height: 1,
-    backgroundColor: 'rgba(0,0,0,0.55)',
+    backgroundColor: gtaHudFrameVisual.scanLine,
   },
   topHud: {
     position: 'absolute',
@@ -131,9 +132,9 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: 'rgba(0,0,0,0.82)',
+    backgroundColor: gtaHudFrameVisual.footerBarBg,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(34,211,238,0.45)',
+    borderTopColor: gtaHudFrameVisual.footerBarBorderTop,
     paddingVertical: 3,
     paddingHorizontal: 4,
     zIndex: 5,

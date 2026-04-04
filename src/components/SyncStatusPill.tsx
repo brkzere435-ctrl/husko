@@ -1,6 +1,7 @@
 import { useCallback } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { syncStatusPillVisual } from '@/constants/statusVisual';
 import { colors, radius, spacing } from '@/constants/theme';
 import { typography } from '@/constants/typography';
 import { openTechnicalFeedback } from '@/navigation/openTechnicalFeedback';
@@ -67,16 +68,16 @@ const styles = StyleSheet.create({
     marginRight: spacing.sm,
   },
   cloud: {
-    borderColor: 'rgba(80, 200, 120, 0.5)',
-    backgroundColor: 'rgba(20, 60, 40, 0.35)',
+    borderColor: syncStatusPillVisual.cloudBorder,
+    backgroundColor: syncStatusPillVisual.cloudBg,
   },
   cloudErr: {
-    borderColor: 'rgba(255, 100, 100, 0.65)',
-    backgroundColor: 'rgba(80, 20, 20, 0.45)',
+    borderColor: syncStatusPillVisual.errBorder,
+    backgroundColor: syncStatusPillVisual.errBg,
   },
   local: {
     borderColor: colors.border,
-    backgroundColor: 'rgba(0,0,0,0.25)',
+    backgroundColor: syncStatusPillVisual.localBg,
   },
   dot: { width: 7, height: 7, borderRadius: 4 },
   dotOn: { backgroundColor: colors.syncDotOk },

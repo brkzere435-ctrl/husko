@@ -16,6 +16,9 @@ Fil unique avec [`src/constants/productDirection.ts`](../src/constants/productDi
 | [`src/constants/appScreenVisual.ts`](../src/constants/appScreenVisual.ts) | Overlays noirs + teintes or **partagés** (hub, 404, assistant, fiche produit, feedback, réglages client) |
 | [`src/constants/gerantDistributionVisual.ts`](../src/constants/gerantDistributionVisual.ts) | Onglets + QR **distribution APK** |
 | [`src/constants/livreurScreenVisual.ts`](../src/constants/livreurScreenVisual.ts) | Barre outils + HUD **écran livreur** (native / web) |
+| [`src/constants/statusVisual.ts`](../src/constants/statusVisual.ts) | **`StatusBadge`** (fonds par statut) · **`SyncStatusPill`** (en ligne / erreur / local) |
+| [`src/constants/hudVisual.ts`](../src/constants/hudVisual.ts) | **`GTAHudFrame`** (dégradé bordure, scanlines, bandeau) · **`GTAMiniMapFallbackInterior`** (grille radar) |
+| [`src/constants/clientBootVisual.ts`](../src/constants/clientBootVisual.ts) | Dégradés + textes **`ClientBootOverlay`** |
 | [`src/constants/paperTheme.ts`](../src/constants/paperTheme.ts) | Thème React Native Paper (aligné Husko) |
 
 ## 2. Typographie
@@ -54,7 +57,7 @@ Fil unique avec [`src/constants/productDirection.ts`](../src/constants/productDi
 
 ## 6. Amélioration continue du design
 
-1. Modifier d’abord **tokens** (`theme` / `WC` / `appScreenVisual` / `componentsVisual` / `clientMenuVisual` / `clientSuiviVisual` / `clientPanierVisual` / `gerantDashboardVisual` / `gerantDistributionVisual` / `livreurScreenVisual`) plutôt que des hex dans les écrans.
+1. Modifier d’abord **tokens** (`theme` / `WC` / `appScreenVisual` / `componentsVisual` / `clientMenuVisual` / `clientSuiviVisual` / `clientPanierVisual` / `clientBootVisual` / `gerantDashboardVisual` / `gerantDistributionVisual` / `livreurScreenVisual` / `statusVisual` / `hudVisual`) plutôt que des hex dans les écrans.
 2. Valider sur **APK installé** + parcours prioritaire (menu client, suivi ou gérant selon focus).
 3. `npm run verify` avant commit.
 

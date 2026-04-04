@@ -3,6 +3,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { HuskoDepartureBuilding } from '@/components/HuskoDepartureBuilding';
 import { FONT } from '@/constants/fonts';
 import { HUSKO_DEPARTURE_HUB } from '@/constants/huskoDepartureHub';
+import { gtaMapFallbackVisual } from '@/constants/hudVisual';
 import { colors } from '@/constants/theme';
 
 import { CarMarkerIcon } from './CarMarkerIcon';
@@ -66,7 +67,7 @@ const styles = StyleSheet.create({
     right: 0,
     top: '50%',
     height: 1,
-    backgroundColor: 'rgba(34,211,238,0.15)',
+    backgroundColor: gtaMapFallbackVisual.gridLine,
   },
   gridV: {
     left: '50%',
@@ -83,7 +84,7 @@ const styles = StyleSheet.create({
     width: 28,
     height: 36,
     borderRadius: 4,
-    backgroundColor: 'rgba(0,0,0,0.25)',
+    backgroundColor: gtaMapFallbackVisual.palmSilhouette,
     opacity: 0.5,
   },
   hubWrap: {

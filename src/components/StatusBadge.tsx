@@ -1,37 +1,43 @@
 import { StyleSheet, Text, View } from 'react-native';
 
 import { ORDER_STATUS_LABEL } from '@/constants/orderStatus';
+import { statusBadgeBackground } from '@/constants/statusVisual';
 import { colors, radius, spacing } from '@/constants/theme';
 import type { OrderStatus } from '@/stores/useHuskoStore';
 
 const TONE: Partial<Record<OrderStatus, { bg: string; border: string; text: string; dot: string }>> = {
-  pending: { bg: 'rgba(240,208,80,0.12)', border: colors.goldDim, text: colors.gold, dot: colors.gold },
+  pending: {
+    bg: statusBadgeBackground.pending,
+    border: colors.goldDim,
+    text: colors.gold,
+    dot: colors.gold,
+  },
   preparing: {
-    bg: 'rgba(200, 120, 40, 0.2)',
+    bg: statusBadgeBackground.preparing,
     border: colors.statusPreparingBorder,
     text: colors.statusPreparingText,
     dot: colors.statusPreparingDot,
   },
   awaiting_livreur: {
-    bg: 'rgba(80, 140, 220, 0.2)',
+    bg: statusBadgeBackground.awaiting_livreur,
     border: colors.statusAwaitingBorder,
     text: colors.statusAwaitingText,
     dot: colors.statusAwaitingDot,
   },
   on_way: {
-    bg: 'rgba(212, 40, 40, 0.22)',
+    bg: statusBadgeBackground.on_way,
     border: colors.posterRed,
     text: colors.statusOnWayText,
     dot: colors.posterRed,
   },
   delivered: {
-    bg: 'rgba(80, 80, 90, 0.35)',
+    bg: statusBadgeBackground.delivered,
     border: colors.statusNeutralBorder,
     text: colors.textMuted,
     dot: colors.statusNeutralDot,
   },
   cancelled: {
-    bg: 'rgba(40, 40, 40, 0.5)',
+    bg: statusBadgeBackground.cancelled,
     border: colors.statusCancelledBorder,
     text: colors.textMuted,
     dot: colors.statusCancelledDot,
@@ -42,7 +48,7 @@ type Props = { status: OrderStatus };
 
 export function StatusBadge({ status }: Props) {
   const t = TONE[status] ?? {
-    bg: 'rgba(255,255,255,0.06)',
+    bg: statusBadgeBackground.fallback,
     border: colors.border,
     text: colors.text,
     dot: colors.textMuted,
