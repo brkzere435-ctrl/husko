@@ -42,7 +42,8 @@
       "distribution": "internal",
       "channel": "hub",
       "android": {
-        "buildType": "apk"
+        "buildType": "apk",
+        "autoIncrement": "versionCode"
       },
       "env": {
         "EXPO_PUBLIC_APP_VARIANT": "all"

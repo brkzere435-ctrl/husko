@@ -1,7 +1,8 @@
 import * as Linking from 'expo-linking';
 import Constants from 'expo-constants';
+import * as Updates from 'expo-updates';
 import { Link, Redirect } from 'expo-router';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { Surface, Text } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -25,6 +26,16 @@ export default function HubScreen() {
   if (role === 'assistant') return <Redirect href="/assistant" />;
 
   const version = Constants.expoConfig?.version ?? '—';
+  const nativeBuild =
+    Constants.nativeBuildVersion && String(Constants.nativeBuildVersion).length > 0
+      ? String(Constants.nativeBuildVersion)
+      : null;
+  const bundleLine =
+    Platform.OS === 'web' || !Updates.isEnabled
+      ? null
+      : Updates.updateId
+        ? `Bundle JS (OTA) : ${Updates.updateId.slice(0, 8)}…`
+        : 'Bundle JS : embarqué dans l’APK';
 
   return (
     <WestCoastBackground>
@@ -85,8 +96,10 @@ export default function HubScreen() {
             </View>
           </Surface>
 
-          <Text variant="bodySmall" style={styles.footer}>
+          <Text variant="bodySmall" style={styles.footer} selectable>
             Husko By Night · v{version}
+            {nativeBuild != null ? ` · APK ${nativeBuild}` : ''}
+            {bundleLine != null ? `\n${bundleLine}` : ''}
             {'\n'}
             Tout le service — une seule application.
           </Text>
