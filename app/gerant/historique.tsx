@@ -36,12 +36,21 @@ export default function HistoriqueScreen() {
           style={styles.listFlex}
           showsVerticalScrollIndicator={false}
           ListHeaderComponent={
-            <DeploymentHints mode="alerts" mapsRelevant={false} style={styles.infra} />
+            <View>
+              <Text style={[typography.title, styles.screenHead]} accessibilityRole="header">
+                Historique
+              </Text>
+              <DeploymentHints mode="alerts" mapsRelevant={false} style={styles.infra} />
+            </View>
           }
           ListEmptyComponent={
             <Card mode="outlined" style={[surface.glass, styles.emptyWrap]}>
               <Card.Content>
-                <Text variant="titleSmall" style={[wcSectionLabel, styles.emptyTitle]}>
+                <Text
+                  variant="titleSmall"
+                  style={[wcSectionLabel, styles.emptyTitle]}
+                  accessibilityRole="header"
+                >
                   Historique
                 </Text>
                 <Text variant="bodyMedium" style={[typography.bodyMuted, styles.emptyText]}>
@@ -84,6 +93,7 @@ const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: 'transparent' },
   listFlex: { flex: 1 },
   list: { padding: spacing.md, paddingBottom: spacing.xl },
+  screenHead: { marginBottom: spacing.sm, letterSpacing: 0.3 },
   infra: { marginBottom: spacing.md },
   row: {
     marginBottom: spacing.sm,

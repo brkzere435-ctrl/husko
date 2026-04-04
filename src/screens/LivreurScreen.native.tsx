@@ -19,6 +19,7 @@ import { colors, elevation, radius, spacing } from '@/constants/theme';
 import { WC } from '@/constants/westCoastTheme';
 import type { MapRegion } from '@/types/mapRegion';
 import { HUSKO_DEPARTURE_HUB } from '@/constants/huskoDepartureHub';
+import { livreurScreenVisual } from '@/constants/livreurScreenVisual';
 import { useTracksViewChangesForCustomMarker } from '@/hooks/useTracksViewChangesForCustomMarker';
 import { ANGERS_DEFAULT, useHuskoStore } from '@/stores/useHuskoStore';
 import { fitMapRegion } from '@/utils/fitMapRegion';
@@ -203,10 +204,10 @@ const styles = StyleSheet.create({
     gap: 6,
     paddingHorizontal: spacing.md,
     paddingVertical: 8,
-    backgroundColor: 'rgba(0,0,0,0.78)',
+    backgroundColor: livreurScreenVisual.nativeHudBg,
     borderRadius: radius.lg,
     borderWidth: 2,
-    borderColor: 'rgba(34, 211, 238, 0.45)',
+    borderColor: livreurScreenVisual.nativeHudBorder,
     ...elevation.card,
   },
   hudPulse: { opacity: 0.95 },

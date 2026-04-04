@@ -20,7 +20,7 @@ export default function AssistantHomeScreen() {
     <WestCoastBackground>
       <SafeAreaView style={styles.root} edges={['bottom']}>
         <View style={styles.hero}>
-          <Text variant="headlineMedium" style={styles.brand}>
+          <Text variant="headlineMedium" style={styles.brand} accessibilityRole="header">
             Copilote
           </Text>
           <Text variant="bodyLarge" style={styles.tag}>

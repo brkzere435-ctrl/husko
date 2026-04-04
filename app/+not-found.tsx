@@ -7,6 +7,7 @@ import { WestCoastBackground } from '@/components/westcoast/WestCoastBackground'
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { FONT } from '@/constants/fonts';
 import { typography } from '@/constants/typography';
+import { appScreenVisual } from '@/constants/appScreenVisual';
 import { colors, spacing, surface } from '@/constants/theme';
 import { WC } from '@/constants/westCoastTheme';
 
@@ -22,7 +23,7 @@ export default function NotFoundScreen() {
             <Text variant="labelLarge" style={styles.code}>
               404
             </Text>
-            <Text variant="headlineSmall" style={typography.title}>
+            <Text variant="headlineSmall" style={typography.title} accessibilityRole="header">
               Page introuvable
             </Text>
             <Text variant="bodyMedium" style={[typography.bodyMuted, styles.body]}>
@@ -58,7 +59,7 @@ const styles = StyleSheet.create({
     width: 72,
     height: 72,
     borderRadius: 36,
-    backgroundColor: 'rgba(240, 208, 80, 0.1)',
+    backgroundColor: appScreenVisual.goldTint10,
     borderWidth: 1,
     borderColor: colors.borderGlow,
     alignItems: 'center',

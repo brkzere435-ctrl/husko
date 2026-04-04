@@ -62,10 +62,15 @@ export default function ClientHistoriqueScreen() {
   }, [orders]);
 
   const headerIntro = (
-    <Text variant="bodyMedium" style={[typography.bodyMuted, styles.intro]}>
-      Historique des commandes terminées sur cet appareil (synchronisé avec le restaurant lorsque la
-      connexion en ligne est active).
-    </Text>
+    <View style={styles.headerBlock}>
+      <Text style={[typography.title, styles.screenHead]} accessibilityRole="header">
+        Historique
+      </Text>
+      <Text variant="bodyMedium" style={[typography.bodyMuted, styles.intro]}>
+        Historique des commandes terminées sur cet appareil (synchronisé avec le restaurant lorsque la
+        connexion en ligne est active).
+      </Text>
+    </View>
   );
 
   const footerBack = (
@@ -106,7 +111,9 @@ const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: 'transparent' },
   listFlex: { flex: 1 },
   scroll: { padding: spacing.md, paddingBottom: spacing.xl, gap: spacing.md },
-  intro: { marginBottom: spacing.sm, lineHeight: 20 },
+  headerBlock: { marginBottom: spacing.sm, gap: spacing.xs },
+  screenHead: { marginBottom: spacing.xs, letterSpacing: 0.3 },
+  intro: { lineHeight: 20 },
   empty: {
     padding: spacing.lg,
     borderRadius: radius.xl,

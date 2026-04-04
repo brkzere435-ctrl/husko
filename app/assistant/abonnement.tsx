@@ -5,6 +5,7 @@ import { Button, Card, Dialog, Portal, Text } from 'react-native-paper';
 
 import { WestCoastBackground } from '@/components/westcoast/WestCoastBackground';
 import { PrimaryButton } from '@/components/PrimaryButton';
+import { appScreenVisual } from '@/constants/appScreenVisual';
 import { revolutPayUrlForTier } from '@/constants/revolutLinks';
 import { SUBSCRIPTION_PLANS, type SubscriptionTierId } from '@/constants/subscriptionPlans';
 import { FONT } from '@/constants/fonts';
@@ -128,7 +129,7 @@ const styles = StyleSheet.create({
   cardPremium: {
     borderColor: colors.gold,
     borderWidth: 2,
-    backgroundColor: 'rgba(240, 208, 80, 0.06)',
+    backgroundColor: appScreenVisual.goldTint06,
   },
   head: {
     flexDirection: 'row',

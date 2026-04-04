@@ -11,7 +11,10 @@ Fil unique avec [`src/constants/productDirection.ts`](../src/constants/productDi
 | [`src/constants/clientMenuVisual.ts`](../src/constants/clientMenuVisual.ts) | Dégradés / rgba **écran menu client** (hero, chips, rangées, dock, ripple) — dérivés de `colors` + `WC` |
 | [`src/constants/clientSuiviVisual.ts`](../src/constants/clientSuiviVisual.ts) | rgba **écran suivi client** (bloc ETA, bande contact, carte annulation) |
 | [`src/constants/clientPanierVisual.ts`](../src/constants/clientPanierVisual.ts) | Bannières + ligne total **panier client** |
-| [`src/constants/gerantDashboardVisual.ts`](../src/constants/gerantDashboardVisual.ts) | Fonds panneaux **gérant** (dashboard, PIN, réglages, mode autonome) |
+| [`src/constants/gerantDashboardVisual.ts`](../src/constants/gerantDashboardVisual.ts) | Fonds panneaux **gérant** (dashboard, PIN, réglages, mode autonome) — compose [`appScreenVisual`](../src/constants/appScreenVisual.ts) |
+| [`src/constants/appScreenVisual.ts`](../src/constants/appScreenVisual.ts) | Overlays noirs + teintes or **partagés** (hub, 404, assistant, fiche produit, feedback, réglages client) |
+| [`src/constants/gerantDistributionVisual.ts`](../src/constants/gerantDistributionVisual.ts) | Onglets + QR **distribution APK** |
+| [`src/constants/livreurScreenVisual.ts`](../src/constants/livreurScreenVisual.ts) | Barre outils + HUD **écran livreur** (native / web) |
 | [`src/constants/paperTheme.ts`](../src/constants/paperTheme.ts) | Thème React Native Paper (aligné Husko) |
 
 ## 2. Typographie
@@ -50,7 +53,7 @@ Fil unique avec [`src/constants/productDirection.ts`](../src/constants/productDi
 
 ## 6. Amélioration continue du design
 
-1. Modifier d’abord **tokens** (`theme` / `WC` / `clientMenuVisual` / `clientSuiviVisual` / `clientPanierVisual` / `gerantDashboardVisual`) plutôt que des hex dans les écrans.
+1. Modifier d’abord **tokens** (`theme` / `WC` / `appScreenVisual` / `clientMenuVisual` / `clientSuiviVisual` / `clientPanierVisual` / `gerantDashboardVisual` / `gerantDistributionVisual` / `livreurScreenVisual`) plutôt que des hex dans les écrans.
 2. Valider sur **APK installé** + parcours prioritaire (menu client, suivi ou gérant selon focus).
 3. `npm run verify` avant commit.
 

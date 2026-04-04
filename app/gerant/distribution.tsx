@@ -16,6 +16,7 @@ import {
   DISTRIBUTION_ROLE_STYLE,
   type DistributionTabKey,
 } from '@/constants/distributionRoles';
+import { distributionTabActiveBg, gerantDistributionVisual } from '@/constants/gerantDistributionVisual';
 import { FONT } from '@/constants/fonts';
 import { typography } from '@/constants/typography';
 import { colors, elevation, radius, spacing, surface } from '@/constants/theme';
@@ -75,21 +76,6 @@ function hasDistributionPng(tab: DistributionTabKey): tab is 'gerant' | 'client'
   return tab === 'gerant' || tab === 'client' || tab === 'livreur';
 }
 
-function tabActiveBg(t: DistributionTabKey): string {
-  switch (t) {
-    case 'unified':
-      return 'rgba(34, 211, 238, 0.12)';
-    case 'assistant':
-      return 'rgba(232, 121, 249, 0.1)';
-    case 'gerant':
-      return 'rgba(240, 208, 80, 0.12)';
-    case 'client':
-      return 'rgba(74, 222, 128, 0.1)';
-    case 'livreur':
-      return 'rgba(96, 165, 250, 0.1)';
-  }
-}
-
 const DistributionRoleTab = memo(function DistributionRoleTab({
   role,
   selected,
@@ -113,7 +99,7 @@ const DistributionRoleTab = memo(function DistributionRoleTab({
       style={[
         styles.tab,
         on && styles.tabOn,
-        on && { borderColor: s.accent, backgroundColor: tabActiveBg(role) },
+        on && { borderColor: s.accent, backgroundColor: distributionTabActiveBg(role) },
       ]}
     >
       <Text style={styles.tabEmoji}>{emoji}</Text>
@@ -184,7 +170,9 @@ export default function DistributionScreen() {
       <SafeAreaView style={styles.root} edges={['bottom']}>
         <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
           <BrandMark tagline={VENUE_LEGAL_LINE} />
-          <Text style={typography.title}>Distribution</Text>
+          <Text style={typography.title} accessibilityRole="header">
+            Distribution
+          </Text>
           <Text style={[wcSectionLabel, styles.kicker]}>
             {isGerantDedicatedApk ? 'QR & liens (gérant · client · livreur)' : 'QR & liens (unifié + mono-rôles)'}
           </Text>
@@ -416,8 +404,8 @@ const styles = StyleSheet.create({
     padding: spacing.md,
     borderRadius: radius.lg,
     borderWidth: 2,
-    borderColor: 'rgba(74, 222, 128, 0.35)',
-    backgroundColor: 'rgba(20, 50, 35, 0.35)',
+    borderColor: gerantDistributionVisual.anywhereBorder,
+    backgroundColor: gerantDistributionVisual.anywhereBg,
     alignSelf: 'stretch',
   },
   anywhereTitle: {
@@ -443,13 +431,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.xs,
     borderRadius: radius.lg,
     borderWidth: 2,
-    borderColor: 'rgba(34, 211, 238, 0.22)',
-    backgroundColor: 'rgba(0,0,0,0.42)',
+    borderColor: gerantDistributionVisual.tabDefaultBorder,
+    backgroundColor: gerantDistributionVisual.tabDefaultBg,
     alignItems: 'center',
   },
   tabOn: {
     ...elevation.card,
-    backgroundColor: 'rgba(0,0,0,0.55)',
+    backgroundColor: gerantDistributionVisual.tabSelectedBg,
   },
   tabEmoji: { fontSize: 11, color: colors.textMuted, marginBottom: 4 },
   tabTxt: {

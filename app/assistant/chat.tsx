@@ -12,6 +12,7 @@ import { Text, TextInput } from 'react-native-paper';
 
 import { WestCoastBackground } from '@/components/westcoast/WestCoastBackground';
 import { PrimaryButton } from '@/components/PrimaryButton';
+import { appScreenVisual } from '@/constants/appScreenVisual';
 import { ASSISTANT_MAX_MESSAGE_CHARS } from '@/constants/assistantLimits';
 import { ASSISTANT_PROMPT_HINTS } from '@/constants/assistantPromptHints';
 import { FONT } from '@/constants/fonts';
@@ -188,7 +189,7 @@ const styles = StyleSheet.create({
   bubbleUser: {
     alignSelf: 'flex-end',
     borderColor: colors.borderGlow,
-    backgroundColor: 'rgba(240, 208, 80, 0.08)',
+    backgroundColor: appScreenVisual.goldTint08,
   },
   bubbleBot: {
     alignSelf: 'flex-start',

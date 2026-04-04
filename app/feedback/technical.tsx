@@ -6,6 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { WestCoastBackground } from '@/components/westcoast/WestCoastBackground';
+import { appScreenVisual } from '@/constants/appScreenVisual';
 import { typography } from '@/constants/typography';
 import { colors, spacing } from '@/constants/theme';
 import { useTechnicalFeedbackStore } from '@/stores/technicalFeedbackStore';
@@ -35,7 +36,9 @@ export default function TechnicalFeedbackScreen() {
     <WestCoastBackground preset="client">
       <SafeAreaView style={styles.root} edges={['top', 'bottom']}>
         <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
-          <Text style={[typography.title, styles.title]}>{title}</Text>
+          <Text style={[typography.title, styles.title]} accessibilityRole="header">
+            {title}
+          </Text>
           <Text style={[typography.bodyMuted, styles.body]}>{body}</Text>
           {__DEV__ && detail ? (
             <View style={styles.devBox}>
@@ -60,7 +63,7 @@ const styles = StyleSheet.create({
   devBox: {
     padding: spacing.md,
     borderRadius: 8,
-    backgroundColor: 'rgba(0,0,0,0.35)',
+    backgroundColor: appScreenVisual.overlay035,
     borderWidth: 1,
     borderColor: colors.border,
   },

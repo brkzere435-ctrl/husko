@@ -7,6 +7,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { MenuItemVisual } from '@/components/westcoast/MenuItemVisual';
 import { WestCoastBackground } from '@/components/westcoast/WestCoastBackground';
 import { PrimaryButton } from '@/components/PrimaryButton';
+import { appScreenVisual } from '@/constants/appScreenVisual';
 import { MENU } from '@/constants/menu';
 import { FONT } from '@/constants/fonts';
 import { typography } from '@/constants/typography';
@@ -49,7 +50,7 @@ export default function ProductDetailScreen() {
             <Card mode="elevated" style={styles.heroCard}>
               <Card.Content style={styles.heroCardContent}>
                 <MenuItemVisual item={item} size="lg" emphasizeFrame={false} />
-                <Text variant="headlineSmall" style={styles.name}>
+                <Text variant="headlineSmall" style={styles.name} accessibilityRole="header">
                   {item.name}
                 </Text>
                 {item.description ? (
@@ -84,7 +85,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.xl,
     borderWidth: 1,
     borderColor: colors.borderGlow,
-    backgroundColor: 'rgba(0,0,0,0.28)',
+    backgroundColor: appScreenVisual.overlay028,
   },
   heroCardContent: {
     alignItems: 'center',

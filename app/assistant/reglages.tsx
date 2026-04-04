@@ -8,6 +8,7 @@ import { OtaUpdateSection } from '@/components/OtaUpdateSection';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { SettingsSection, SettingsSwitchRow } from '@/components/settings/SettingsSection';
 import { WestCoastBackground } from '@/components/westcoast/WestCoastBackground';
+import { appScreenVisual } from '@/constants/appScreenVisual';
 import { SUBSCRIPTION_PLANS } from '@/constants/subscriptionPlans';
 import { FONT } from '@/constants/fonts';
 import { typography } from '@/constants/typography';
@@ -33,7 +34,9 @@ export default function AssistantReglagesScreen() {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          <Text style={styles.screenTitle}>App & mises à jour</Text>
+          <Text style={styles.screenTitle} accessibilityRole="header">
+            App & mises à jour
+          </Text>
           <Text style={[typography.bodyMuted, styles.screenSubtitle]}>
             Forfait, notifications système, raccourcis, historique local et canal OTA — tout au même
             endroit.
@@ -163,7 +166,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.md,
     borderWidth: 1,
     borderColor: colors.border,
-    backgroundColor: 'rgba(0,0,0,0.25)',
+    backgroundColor: appScreenVisual.overlay025,
     gap: spacing.xs,
   },
   shortcutPressed: { opacity: 0.85 },

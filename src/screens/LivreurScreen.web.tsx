@@ -15,6 +15,7 @@ import { colors, radius, spacing } from '@/constants/theme';
 import { WC } from '@/constants/westCoastTheme';
 import type { MapRegion } from '@/types/mapRegion';
 import { HUSKO_DEPARTURE_HUB } from '@/constants/huskoDepartureHub';
+import { livreurScreenVisual } from '@/constants/livreurScreenVisual';
 import { ANGERS_DEFAULT, useHuskoStore } from '@/stores/useHuskoStore';
 import { fitMapRegion } from '@/utils/fitMapRegion';
 
@@ -153,7 +154,7 @@ const styles = StyleSheet.create({
   mapContainer: { flex: 1, position: 'relative' },
   mapPlaceholder: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(10, 4, 4, 0.92)',
+    backgroundColor: livreurScreenVisual.webMapPlaceholderBg,
     borderTopWidth: 1,
     borderColor: colors.borderSubtle,
   },
@@ -194,7 +195,7 @@ const styles = StyleSheet.create({
     gap: 6,
     paddingHorizontal: spacing.sm,
     paddingVertical: 6,
-    backgroundColor: 'rgba(0,0,0,0.72)',
+    backgroundColor: livreurScreenVisual.webHudBg,
     borderRadius: radius.lg,
     borderWidth: 2,
     borderColor: WC.neonCyanDim,

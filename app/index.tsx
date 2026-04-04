@@ -13,6 +13,7 @@ import { CLIENT_PHONE_DISPLAY, CLIENT_PHONE_TEL } from '@/constants/clientExperi
 import { getAppVariant } from '@/constants/appVariant';
 import { deliveryHoursLabel } from '@/constants/hours';
 import { VENUE_TAGLINE_HUB } from '@/constants/venue';
+import { appScreenVisual } from '@/constants/appScreenVisual';
 import { colors, elevation, radius, spacing, surface } from '@/constants/theme';
 import { WC, wcSectionLabel } from '@/constants/westCoastTheme';
 import { FONT } from '@/constants/fonts';
@@ -76,7 +77,7 @@ export default function HubScreen() {
             </Pressable>
           </View>
 
-          <Text variant="titleSmall" style={[wcSectionLabel, styles.sectionLabel]}>
+          <Text variant="titleSmall" style={[wcSectionLabel, styles.sectionLabel]} accessibilityRole="header">
             Choisir un espace
           </Text>
           <Surface style={[surface.neonPanel, styles.gridWrap]} elevation={2}>
@@ -155,7 +156,7 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.xs,
     paddingHorizontal: spacing.md,
     borderRadius: radius.pill,
-    backgroundColor: 'rgba(240, 208, 80, 0.1)',
+    backgroundColor: appScreenVisual.goldTint10,
     borderWidth: 1,
     borderColor: colors.borderSubtle,
   },

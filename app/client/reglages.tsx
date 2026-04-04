@@ -10,6 +10,7 @@ import { OtaUpdateSection } from '@/components/OtaUpdateSection';
 import { SettingsSection, SettingsSwitchRow } from '@/components/settings/SettingsSection';
 import { SyncDiagnosticsSection } from '@/components/settings/SyncDiagnosticsSection';
 import { WestCoastBackground } from '@/components/westcoast/WestCoastBackground';
+import { appScreenVisual } from '@/constants/appScreenVisual';
 import {
   CLIENT_PHONE_DISPLAY,
   CLIENT_PHONE_TEL,
@@ -30,7 +31,9 @@ export default function ClientReglagesScreen() {
     <WestCoastBackground preset="client">
       <SafeAreaView style={styles.root} edges={['bottom']}>
         <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
-          <Text style={styles.screenTitle}>Réglages</Text>
+          <Text style={styles.screenTitle} accessibilityRole="header">
+            Réglages
+          </Text>
           <Text style={[typography.bodyMuted, styles.screenSubtitle]}>
             Notifications, contact et informations sur l’app — tout au même endroit.
           </Text>
@@ -111,7 +114,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.lg,
     borderWidth: 1,
     borderColor: WC.neonCyanDim,
-    backgroundColor: 'rgba(0,0,0,0.35)',
+    backgroundColor: appScreenVisual.overlay035,
     gap: spacing.xs,
   },
   phoneBtnPressed: { opacity: 0.88 },
