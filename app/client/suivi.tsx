@@ -18,7 +18,12 @@ import {
   estimatedMsUntilDelivered,
   formatEtaUntilDelivery,
 } from '@/constants/autonomousDelivery';
-import { CLIENT_PHONE_DISPLAY, CLIENT_PHONE_TEL, clientStrings } from '@/constants/clientExperience';
+import {
+  CLIENT_PHONE_DISPLAY,
+  CLIENT_PHONE_TEL,
+  CLIENT_SNAP_ADD_URL,
+  clientStrings,
+} from '@/constants/clientExperience';
 import { clientSuiviVisual } from '@/constants/clientSuiviVisual';
 import { PENDING_VALIDATION_MS } from '@/constants/orderPolicy';
 import { CLIENT_TIMELINE, timelineStepIndex } from '@/constants/orderFlow';
@@ -213,7 +218,7 @@ export default function SuiviScreen() {
               <View style={styles.contactStrip}>
                 <Text style={styles.contactStripLbl}>HUSKO</Text>
                 <Pressable
-                  onPress={() => void Linking.openURL('https://snapchat.com/add/HUSKOBYNIGHT')}
+                  onPress={() => void Linking.openURL(CLIENT_SNAP_ADD_URL)}
                   style={styles.contactChip}
                 >
                   <Ionicons name="logo-snapchat" size={18} color={WC.neonCyan} />
@@ -405,6 +410,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.sm,
+    minHeight: 44,
     paddingVertical: spacing.sm,
     paddingHorizontal: radius.md,
     borderRadius: radius.md,

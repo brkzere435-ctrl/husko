@@ -24,9 +24,10 @@ export const PRODUCT_DIRECTION = {
     tooling: 'EAS Build',
     configFile: 'eas.json',
     hubScript: 'build:apk:unified',
+    playStoreAabScript: 'build:play:aab',
     roleScripts: ['build:apk:client', 'build:apk:gerant', 'build:apk:livreur'] as const,
     rule:
-      'Typiquement hub : npm run build:apk:unified ou cibles par rôle pour la démo. Pas de deuxième pipeline parallèle sans besoin métier.',
+      'Hub interne : APK `build:apk:unified`. Google Play : AAB `build:play:aab` (profil production, distribution store). Toujours `ship:prepare` avant build cloud.',
   },
   multiDeviceSync: {
     backend: 'Firestore',

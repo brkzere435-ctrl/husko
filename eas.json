@@ -132,12 +132,20 @@
       "env": { "EAS_BUILD_AUTOCOMMIT": "1" }
     },
     "production": {
+      "extends": "apk-unified",
+      "distribution": "store",
       "android": {
         "buildType": "app-bundle",
         "autoIncrement": "versionCode"
       },
-      "ios": {},
-      "env": { "EAS_BUILD_AUTOCOMMIT": "1" }
+      "ios": {
+        "simulator": false
+      },
+      "env": {
+        "EXPO_PUBLIC_APP_VARIANT": "all",
+        "EAS_BUILD_AUTOCOMMIT": "1",
+        "EAS_BUILD_PROFILE": "production"
+      }
     }
   },
   "submit": {

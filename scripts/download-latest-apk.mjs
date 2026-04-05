@@ -20,6 +20,8 @@ const __dirname = fileURLToPath(new URL('.', import.meta.url));
 const ROOT = join(__dirname, '..');
 
 const VARIANTS = {
+  /** AAB Google Play (profil `production` — même variante hub `all` que apk-unified). */
+  play: { profile: 'production', file: 'Husko-ByNight-play-latest.aab' },
   unified: { profile: 'apk-unified', file: 'Husko-ByNight-unified-latest.apk' },
   /** Dev client : même base native que apk-unified (Gradle aligné), + expo-dev-client. */
   development: { profile: 'development-husko', file: 'Husko-DevClient-hub-latest.apk' },
@@ -87,7 +89,7 @@ async function downloadOne(key) {
   const v = VARIANTS[key];
   if (!v)
     throw new Error(
-      `Profil inconnu : ${key} (unified | development | assistant | client | gerant | livreur | all)`
+      `Profil inconnu : ${key} (play | unified | development | assistant | client | gerant | livreur | all)`
     );
 
   const raw = runEasBuildList(v.profile);
@@ -101,7 +103,7 @@ async function downloadOne(key) {
   }
   if (!Array.isArray(arr) || arr.length === 0) {
     throw new Error(
-      `Aucun build Android terminé pour le profil « ${v.profile} ». Lancez : npm run build:apk:unified (ou npm run build:dev:android pour le dev client) — ou attendez la fin du build sur expo.dev.`
+      `Aucun build Android terminé pour le profil « ${v.profile} ». Lancez : npm run build:apk:unified ou npm run build:play:aab — ou attendez la fin du build sur expo.dev.`
     );
   }
   const build = arr[0];
@@ -136,7 +138,7 @@ async function main() {
 
   if (!VARIANTS[arg]) {
     console.error(
-      'Usage : node scripts/download-latest-apk.mjs [ unified | development | assistant | client | gerant | livreur | all ]'
+      'Usage : node scripts/download-latest-apk.mjs [ play | unified | development | assistant | client | gerant | livreur | all ]'
     );
     process.exit(1);
   }
@@ -144,7 +146,11 @@ async function main() {
   await downloadOne(arg);
   const dest = join(ROOT, 'dist', VARIANTS[arg].file);
   console.log(`[Husko] Fichier prêt : ${dest}`);
-  console.log('[Husko] Sur le téléphone : ouvrir le .apk depuis Fichiers / Drive, ou brancher en USB et npm run apk:install:device -- ' + arg);
+  if (arg === 'play') {
+    console.log('[Husko] Google Play : uploader le .aab dans la Play Console (Tests internes / Production).');
+  } else {
+    console.log('[Husko] Sur le téléphone : ouvrir le .apk depuis Fichiers / Drive, ou brancher en USB et npm run apk:install:device -- ' + arg);
+  }
 }
 
 main().catch((e) => {

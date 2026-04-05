@@ -129,6 +129,10 @@
     "ship:apk:gerant": "npm run ship:prepare && npm run build:apk:gerant",
     "ship:apk:livreur": "npm run ship:prepare && npm run build:apk:livreur",
     "ship:apk:three": "npm run ship:prepare && npm run build:apk:three",
+    "build:play:aab": "node node_modules/cross-env/src/bin/cross-env.js EAS_BUILD_NO_EXPO_GO_WARNING=true EAS_BUILD_AUTOCOMMIT=1 eas build -p android --profile production --non-interactive",
+    "build:play:aab:queue": "node node_modules/cross-env/src/bin/cross-env.js EAS_BUILD_NO_EXPO_GO_WARNING=true EAS_BUILD_AUTOCOMMIT=1 eas build -p android --profile production --non-interactive --no-wait",
+    "ship:play:aab": "npm run ship:prepare && npm run build:play:aab",
+    "apk:download:play": "node scripts/download-latest-apk.mjs play",
     "ship:ios:client": "npm run ship:prepare && npm run build:ios:client",
     "ship:ios:gerant": "npm run ship:prepare && npm run build:ios:gerant",
     "ship:ios:livreur": "npm run ship:prepare && npm run build:ios:livreur"

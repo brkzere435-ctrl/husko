@@ -22,8 +22,10 @@ Tu ne repars **pas** d’un dépôt vide : tu repars d’un **processus** qui é
      ou individuellement : `ship:apk:client` · `ship:apk:gerant` · `ship:apk:livreur`
    - **iOS** (TestFlight / install interne) :  
      `ship:ios:client` / `ship:ios:gerant` / `ship:ios:livreur` (selon profils dans `eas.json`).
+   - **Google Play (AAB, hub `com.husko.bynight`)** :  
+     `npm run ship:play:aab` → fichier **`.aab`** à uploader dans la **Play Console** (piste interne / production selon ton compte). Téléchargement : `npm run apk:download:play` (écrit `dist/Husko-ByNight-play-latest.aab`). Même Firebase / secrets que le hub : **`ship:prepare` avant le build**.
 
-5. Télécharger les artefacts sur [expo.dev](https://expo.dev) → **Builds**, ou scripts `apk:download:*`.
+5. Télécharger les artefacts sur [expo.dev](https://expo.dev) → **Builds**, ou scripts `apk:download:*` / `apk:download:play` pour l’AAB.
 6. **Preuve** : une commande test → document dans **Firestore** `orders/{id}`. Si absent, le problème est **avant** l’UI gérant.
 
 ## Réseau (Wi‑Fi / 4G / « autre réseau »)
