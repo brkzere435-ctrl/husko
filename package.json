@@ -99,7 +99,7 @@
     "setup:env": "node scripts/setup-env.mjs",
     "setup:pipeline": "node scripts/setup-pipeline.mjs",
     "assistant:server": "node server/assistant-chat.mjs",
-    "firebase:deploy:rules": "npx --yes firebase-tools@14 deploy --only firestore:rules",
+    "firebase:deploy:rules": "node scripts/firebase-deploy-rules.mjs",
     "preflight": "node scripts/preflight.mjs",
     "release:check": "node scripts/release-readiness.mjs",
     "security:check": "node scripts/security-hygiene.mjs",
@@ -122,7 +122,16 @@
     "test:ci": "npm run verify:all && npx expo export --platform web",
     "git:github:login": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/github-login.ps1",
     "git:github": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/github-sync.ps1",
-    "android:keystore": "node scripts/create-android-keystore.mjs"
+    "android:keystore": "node scripts/create-android-keystore.mjs",
+    "ship:prepare": "npm run firebase:env:check:strict && npm run eas:sync:secrets",
+    "ship:apk:unified": "npm run ship:prepare && npm run build:apk:unified",
+    "ship:apk:client": "npm run ship:prepare && npm run build:apk:client",
+    "ship:apk:gerant": "npm run ship:prepare && npm run build:apk:gerant",
+    "ship:apk:livreur": "npm run ship:prepare && npm run build:apk:livreur",
+    "ship:apk:three": "npm run ship:prepare && npm run build:apk:three",
+    "ship:ios:client": "npm run ship:prepare && npm run build:ios:client",
+    "ship:ios:gerant": "npm run ship:prepare && npm run build:ios:gerant",
+    "ship:ios:livreur": "npm run ship:prepare && npm run build:ios:livreur"
   },
   "dependencies": {
     "@expo-google-fonts/oswald": "^0.4.2",

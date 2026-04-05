@@ -14,6 +14,7 @@ Ce fichier résume **où est la vérité** et **quelles commandes** utiliser. Le
 | Action | Commande |
 |--------|----------|
 | Installer les deps | `npm install` |
+| **Livrer une APK / iOS « pro »** (Firebase + sync EAS **avant** build) | [`docs/GOLDEN_PATH.md`](docs/GOLDEN_PATH.md) — ex. `npm run ship:apk:unified` ou `ship:apk:three` |
 | Lancer l’app (dev) | `npx expo start` (variantes : `npm run start:client` / `start:gerant` / `start:livreur` / `start:hub`) |
 | Gate qualité (CI locale) | `npm run verify` puis éventuellement `npm run release:gate` |
 | Gate + **photos menu distinctes** (pas de placeholders dupliqués) | `npm run release:gate:pro` — échoue si les PNG `assets/menu/` sont encore majoritairement identiques en taille ; sinon `verify:menu-visual-pro` / `verify:menu-visual-pro:strict` |
