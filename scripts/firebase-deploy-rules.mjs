@@ -39,12 +39,17 @@ if (!projectId) {
   process.exit(1);
 }
 
+const tokenFromFile = env.FIREBASE_TOKEN?.trim();
+if (tokenFromFile && !process.env.FIREBASE_TOKEN) {
+  process.env.FIREBASE_TOKEN = tokenFromFile;
+}
+
 console.log(`[Husko] Déploiement firestore:rules → projet Firebase "${projectId}" …`);
 
 const r = spawnSync(
   'npx',
   ['--yes', 'firebase-tools@14', 'deploy', '--only', 'firestore:rules', '--project', projectId],
-  { cwd: root, stdio: 'inherit', shell: true }
+  { cwd: root, stdio: 'inherit', shell: true, env: process.env }
 );
 
 process.exit(r.status ?? 1);
