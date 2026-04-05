@@ -1,14 +1,18 @@
 import { Stack } from 'expo-router';
+import { View } from 'react-native';
 
 import { AutonomousDemoRunner } from '@/components/AutonomousDemoRunner';
+import { CloudLinkBanner } from '@/components/CloudLinkBanner';
 import { SyncStatusPill } from '@/components/SyncStatusPill';
 import { FONT } from '@/constants/fonts';
 import { WC } from '@/constants/westCoastTheme';
 
 export default function GerantLayout() {
   return (
-    <>
+    <View style={{ flex: 1 }}>
       <AutonomousDemoRunner />
+      <CloudLinkBanner variant="gerant" />
+      <View style={{ flex: 1 }}>
       <Stack
         screenOptions={{
           headerStyle: { backgroundColor: WC.brickDeep },
@@ -27,6 +31,7 @@ export default function GerantLayout() {
         <Stack.Screen name="reglages" options={{ title: 'Réglages' }} />
         <Stack.Screen name="distribution" options={{ title: 'Distribution QR' }} />
       </Stack>
-    </>
+      </View>
+    </View>
   );
 }
