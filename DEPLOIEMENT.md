@@ -223,7 +223,7 @@ npm run build:mobile
 
 ### Store (Play / App Store)
 
-- Android : `eas build -p android --profile production` → **AAB**
+- Android (hub `all`, package `com.husko.bynight`) : **`npm run ship:play:aab`** (équiv. `eas build -p android --profile production` après `ship:prepare`) → **AAB** pour la **Play Console** ; téléchargement : `npm run apk:download:play` → `dist/Husko-ByNight-play-latest.aab`.
 - iOS : `eas build -p ios --profile production`
 
 ### Icônes
