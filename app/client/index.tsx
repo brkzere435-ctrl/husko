@@ -24,6 +24,7 @@ import {
 import {
   CLIENT_PHONE_DISPLAY,
   CLIENT_PHONE_TEL,
+  CLIENT_SNAP_ADD_URL,
   clientStrings,
 } from '@/constants/clientExperience';
 import { VENUE_TAGLINE_CLIENT } from '@/constants/venue';
@@ -121,14 +122,27 @@ function MenuHero() {
       <Text style={styles.menuHint}>{clientStrings.menuHint}</Text>
       <Text style={styles.trustLine}>{clientStrings.trustLine}</Text>
       <Text style={styles.moodLine}>{clientStrings.westCoastMood}</Text>
-      <Pressable
-        onPress={() => void Linking.openURL(`tel:${CLIENT_PHONE_TEL}`)}
-        style={styles.phoneBtn}
-        accessibilityRole="link"
-        accessibilityLabel={`Appeler le ${CLIENT_PHONE_DISPLAY}`}
-      >
-        <Text style={styles.phoneBtnText}>{CLIENT_PHONE_DISPLAY} · Snap HUSKOBYNIGHT</Text>
-      </Pressable>
+      <View style={styles.heroContactRow}>
+        <Pressable
+          onPress={() => void Linking.openURL(`tel:${CLIENT_PHONE_TEL}`)}
+          style={({ pressed }) => [styles.heroContactHit, pressed && styles.heroContactPressed]}
+          accessibilityRole="link"
+          accessibilityLabel={`Appeler le ${CLIENT_PHONE_DISPLAY}`}
+        >
+          <Text style={styles.heroContactText}>{CLIENT_PHONE_DISPLAY}</Text>
+        </Pressable>
+        <Text style={styles.heroContactSep} accessible={false}>
+          ·
+        </Text>
+        <Pressable
+          onPress={() => void Linking.openURL(CLIENT_SNAP_ADD_URL)}
+          style={({ pressed }) => [styles.heroContactHit, pressed && styles.heroContactPressed]}
+          accessibilityRole="link"
+          accessibilityLabel="Ouvrir Snapchat Husko HUSKOBYNIGHT"
+        >
+          <Text style={styles.heroContactText}>Snap HUSKOBYNIGHT</Text>
+        </Pressable>
+      </View>
     </LinearGradient>
   );
 }
@@ -220,6 +234,16 @@ export default function ClientMenuScreen() {
 
   const getItemType = useCallback((item: ClientMenuRow) => item.type, []);
 
+  const listEmpty = useMemo(
+    () => (
+      <View style={styles.menuEmptyWrap} accessibilityRole="text">
+        <Text style={styles.menuEmptyTitle}>{clientStrings.menuEmptyTitle}</Text>
+        <Text style={styles.menuEmptyBody}>{clientStrings.menuEmptyBody}</Text>
+      </View>
+    ),
+    []
+  );
+
   return (
     <WestCoastBackground preset="client">
       <SafeAreaView style={styles.root} edges={['bottom']}>
@@ -267,6 +291,7 @@ export default function ClientMenuScreen() {
             style={styles.listFlex}
             drawDistance={200}
             showsVerticalScrollIndicator={false}
+            ListEmptyComponent={listEmpty}
             ListHeaderComponent={
               <View style={styles.headerBlock}>
                 <DeploymentHints mode="alerts" mapsRelevant style={styles.hint} />
@@ -577,13 +602,59 @@ const styles = StyleSheet.create({
     letterSpacing: 0.4,
     opacity: 0.95,
   },
-  phoneBtn: { marginTop: spacing.md, alignSelf: 'center', paddingVertical: spacing.xs },
-  phoneBtnText: {
+  heroContactRow: {
+    marginTop: spacing.md,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.sm,
+    paddingVertical: spacing.xs,
+    paddingHorizontal: spacing.sm,
+  },
+  heroContactHit: {
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
+    minHeight: 44,
+    justifyContent: 'center',
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: clientMenuHero.heroContactBorder,
+    backgroundColor: clientMenuHero.heroContactBg,
+  },
+  heroContactPressed: { opacity: 0.88 },
+  heroContactSep: {
+    fontFamily: FONT.bold,
+    color: clientMenuHero.textMuted,
+    fontSize: 14,
+  },
+  heroContactText: {
     fontFamily: FONT.bold,
     color: WC.gold,
     fontWeight: '800',
     fontSize: 13,
+    letterSpacing: 0.2,
     textDecorationLine: 'underline',
+  },
+  menuEmptyWrap: {
+    paddingVertical: spacing.xl,
+    paddingHorizontal: spacing.md,
+    alignItems: 'center',
+  },
+  menuEmptyTitle: {
+    ...typography.title,
+    fontSize: 18,
+    color: WC.white,
+    textAlign: 'center',
+  },
+  menuEmptyBody: {
+    marginTop: spacing.sm,
+    ...typography.body,
+    fontSize: 14,
+    lineHeight: 20,
+    color: clientMenuHero.textMutedStrong,
+    textAlign: 'center',
+    maxWidth: 320,
   },
   sectionHeader: {
     marginTop: spacing.lg,

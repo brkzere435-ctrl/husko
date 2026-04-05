@@ -9,12 +9,18 @@ export const CLIENT_BOOT_SKIP_HINT = 'Appuyer pour continuer';
 export const CLIENT_PHONE_DISPLAY = '06 29 39 74 30';
 export const CLIENT_PHONE_TEL = '+33629397430';
 
+/** Lien profil Snap (bouton dédié sur le hero menu — pas de mélange avec le tel). */
+export const CLIENT_SNAP_ADD_URL = 'https://www.snapchat.com/add/huskobynight';
+
 /** Panier : commande acceptée même fermé — livraison selon horaires réels. */
 export const outsideDeliveryHoursBanner =
   'Vous pouvez commander maintenant : le gérant valide sous 30 min max. Sinon la commande est annulée automatiquement. Livraison habituelle lun–sam 20h–00h.';
 
 export const clientStrings = {
   menuHint: 'Touchez un plat pour l’ajouter au panier.',
+  /** Catalogue vide (erreur de données / maintenance) — rare mais affichage pro. */
+  menuEmptyTitle: 'Menu indisponible',
+  menuEmptyBody: 'Réessayez dans un instant. Pour commander, appelez le restaurant ou passez sur Snap.',
   /** Aligné flyers : chaque ligne du menu a une photo dans l’app. */
   trustLine: 'Photos des plats · Paiement à la livraison · Suivi en temps réel',
   /** Ambiance West Coast (sunset LA / lowrider) — lieu : Angers. */

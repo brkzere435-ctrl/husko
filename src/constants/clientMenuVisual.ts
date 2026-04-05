@@ -20,6 +20,9 @@ export const clientMenuHero = {
   textMuted: 'rgba(250, 250, 250, 0.65)',
   textMutedStrong: 'rgba(250, 250, 250, 0.75)',
   descMuted: 'rgba(250, 250, 250, 0.6)',
+  /** Cibles tactiles téléphone / Snap sur le hero (accessibilité store-ready). */
+  heroContactBorder: 'rgba(253, 224, 71, 0.35)',
+  heroContactBg: 'rgba(28, 22, 30, 0.35)',
 } as const;
 
 /** Barre titre + séparateur sous le statut système. */
