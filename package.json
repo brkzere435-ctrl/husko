@@ -134,6 +134,7 @@
     "ship:apk:three": "npm run ship:prepare && npm run build:apk:three",
     "build:play:aab": "node node_modules/cross-env/src/bin/cross-env.js EAS_BUILD_NO_EXPO_GO_WARNING=true EAS_BUILD_AUTOCOMMIT=1 eas build -p android --profile production --non-interactive",
     "build:play:aab:queue": "node node_modules/cross-env/src/bin/cross-env.js EAS_BUILD_NO_EXPO_GO_WARNING=true EAS_BUILD_AUTOCOMMIT=1 eas build -p android --profile production --non-interactive --no-wait",
+    "ship:play": "npm run ship:play:aab",
     "ship:play:aab": "npm run ship:prepare && npm run build:play:aab",
     "apk:download:play": "node scripts/download-latest-apk.mjs play",
     "ship:ios:client": "npm run ship:prepare && npm run build:ios:client",

@@ -134,6 +134,7 @@
     "production": {
       "extends": "apk-unified",
       "distribution": "store",
+      "environment": "production",
       "android": {
         "buildType": "app-bundle",
         "autoIncrement": "versionCode"
