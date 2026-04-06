@@ -20,6 +20,9 @@ web-build/
 # Copie locale Gradle / réglages IDE (chemins machine)
 gradle-9.4.1-all/
 .vscode/
+# Installation JetBrains copiée dans le dépôt (ne pas versionner — utiliser Toolbox / Program Files)
+IntelliJ IDEA 2026/
+IntelliJ IDEA*/
 .cursorrules/
 .DS_Store
 # Logs locaux (Metro, outils, sessions debug Cursor, etc.)

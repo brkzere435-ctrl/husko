@@ -16,5 +16,14 @@
   "include": [
     "**/*.ts",
     "**/*.tsx"
+  ],
+  "exclude": [
+    "node_modules",
+    "IntelliJ IDEA 2026",
+    ".expo",
+    "android",
+    "ios",
+    "dist",
+    "web-build"
   ]
 }
