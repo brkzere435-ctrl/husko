@@ -9,6 +9,11 @@ import { FONT } from '@/constants/fonts';
 export const WC = {
   brick: '#4a3542',
   brickDeep: '#1e161c',
+  /** Néon street food (spec produit) — orange vif + or */
+  neonOrange: '#FF4500',
+  neonStreetGold: '#FFEA00',
+  neonOrangeDim: 'rgba(255, 69, 0, 0.45)',
+  neonGoldGlow: 'rgba(255, 234, 0, 0.35)',
   /** Accent sunset — hero, CTA (corail doux, pas rouge agressif) */
   fire: '#fb923c',
   fireDim: 'rgba(251, 146, 60, 0.38)',
@@ -28,6 +33,16 @@ export const WC = {
   /** Base nuit chaude (asphalte / fin de dégradé) */
   laNight: '#1a1418',
   laNightDeep: '#141018',
+  /**
+   * Affiches / flyer kebab — rouge profond & carbone (priorité client menu).
+   * Complète le sunset West Coast sans dupliquer une palette hors `theme`.
+   */
+  flyerCrimson: '#b91c1c',
+  flyerCrimsonDeep: '#7f1d1d',
+  flyerBlack: '#0a0404',
+  /** Témoin ouvert / fermé (lisible sur fond rouge sombre) */
+  statusOpenNeon: '#22c55e',
+  statusClosedNeon: '#f87171',
 } as const;
 
 /** Titre de section (uppercase) — corail sunset. */

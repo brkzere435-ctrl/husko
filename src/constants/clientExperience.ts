@@ -12,9 +12,9 @@ export const CLIENT_PHONE_TEL = '+33629397430';
 /** Lien profil Snap (bouton dédié sur le hero menu — pas de mélange avec le tel). */
 export const CLIENT_SNAP_ADD_URL = 'https://www.snapchat.com/add/huskobynight';
 
-/** Panier : commande acceptée même fermé — livraison selon horaires réels. */
+/** Panier : hors créneau local (lun–sam 20h–00h) sans override gérant Firestore. */
 export const outsideDeliveryHoursBanner =
-  'Vous pouvez commander maintenant : le gérant valide sous 30 min max. Sinon la commande est annulée automatiquement. Livraison habituelle lun–sam 20h–00h.';
+  'Hors créneau livraison habituel (lun–sam 20h–00h). Revenez dans cette plage, sauf si le restaurant rouvre la prise de commandes à distance.';
 
 export const clientStrings = {
   menuHint: 'Touchez un plat pour l’ajouter au panier.',
@@ -26,7 +26,10 @@ export const clientStrings = {
   /** Ambiance West Coast (sunset LA / lowrider) — lieu : Angers. */
   westCoastMood: 'Crépuscule californien · lowrider · Angers by night',
   openNow: 'Créneau livraison ouvert',
-  closedNow: 'Hors créneau livraison — commandes toujours possibles',
+  /** Hors créneau local sans doc Firestore (le gérant peut ouvrir à distance). */
+  orderingClosedHours: 'Hors créneau livraison',
+  /** Firestore meta/service : acceptingOrders false. */
+  orderingClosedByRestaurant: 'Prise de commandes fermée',
   panierIntro:
     'Vérifiez votre adresse : le livreur s’y rendra avec votre commande. Le restaurant vous confirme la préparation.',
   panierEmptyTitle: 'Votre panier est vide',

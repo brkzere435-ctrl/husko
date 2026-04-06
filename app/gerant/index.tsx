@@ -14,6 +14,7 @@ import { StatusBadge } from '@/components/StatusBadge';
 import { getAppVariant } from '@/constants/appVariant';
 import { AUTONOMOUS_PACE_PRESETS } from '@/constants/autonomousDelivery';
 import { DEFAULT_ROLE_PIN } from '@/constants/devicePin';
+import { isDeliveryOpen } from '@/constants/hours';
 import { gerantDashboardVisual } from '@/constants/gerantDashboardVisual';
 import { typography } from '@/constants/typography';
 import { isRemoteSyncEnabled } from '@/services/firebaseRemote';
@@ -85,10 +86,13 @@ export default function GerantDashboardScreen() {
   const managerPin = useHuskoStore((s) => s.managerPin);
   const gerantPinOnboarded = useHuskoStore((s) => s.gerantPinOnboarded);
   const completeGerantPinSetup = useHuskoStore((s) => s.completeGerantPinSetup);
+  const remoteServiceAccepting = useHuskoStore((s) => s.remoteServiceAccepting);
+  const pushRemoteServiceAccepting = useHuskoStore((s) => s.pushRemoteServiceAccepting);
 
   const [pin, setPin] = useState('');
   const [unlocked, setUnlocked] = useState(false);
   const [snack, setSnack] = useState('');
+  const [serviceBusy, setServiceBusy] = useState(false);
 
   const live = useMemo(
     () => orders.filter((o) => o.status !== 'delivered' && o.status !== 'cancelled'),
@@ -171,6 +175,58 @@ export default function GerantDashboardScreen() {
           ) : (
             <DeliveryFlowGuide />
           )}
+
+          <View style={styles.servicePanel}>
+            <Text style={styles.sectionTitle} accessibilityRole="header">
+              Prise de commandes (app client)
+            </Text>
+            {!isRemoteSyncEnabled() ? (
+              <Text style={[typography.bodyMuted, styles.serviceHint]}>
+                Sans liaison Firestore, l’app client applique uniquement le créneau local (lun–sam 20h–00h).
+                Configurez Firebase sur l’APK pour piloter ouverture / fermeture à distance.
+              </Text>
+            ) : (
+              <>
+                <Text style={[typography.bodyMuted, styles.serviceHint]}>
+                  {remoteServiceAccepting === null
+                    ? `Aucune consigne publiée : créneau automatique lun–sam 20h–00h. Maintenant (horaire local) : ${
+                        isDeliveryOpen() ? 'ouvert' : 'fermé'
+                      }.`
+                    : remoteServiceAccepting
+                      ? 'État publié : ouvert — les clients peuvent valider une commande.'
+                      : 'État publié : fermé — les clients ne peuvent pas valider de commande.'}
+                </Text>
+                <View style={styles.serviceActions}>
+                  <PrimaryButton
+                    title={serviceBusy ? 'Publication…' : 'Ouvrir la prise de commandes'}
+                    style={styles.serviceBtn}
+                    disabled={serviceBusy}
+                    onPress={() => {
+                      setServiceBusy(true);
+                      void pushRemoteServiceAccepting(true)
+                        .then(() => setSnack('Prise de commandes ouverte (Firestore).'))
+                        .catch(() => setSnack('Échec écriture Firestore — vérifiez le réseau.'))
+                        .finally(() => setServiceBusy(false));
+                    }}
+                  />
+                  <PrimaryButton
+                    title={serviceBusy ? 'Publication…' : 'Clôturer le service'}
+                    variant="ghost"
+                    style={styles.serviceBtn}
+                    disabled={serviceBusy}
+                    onPress={() => {
+                      setServiceBusy(true);
+                      void pushRemoteServiceAccepting(false)
+                        .then(() => setSnack('Service clôturé côté client (Firestore).'))
+                        .catch(() => setSnack('Échec écriture Firestore — vérifiez le réseau.'))
+                        .finally(() => setServiceBusy(false));
+                    }}
+                  />
+                </View>
+              </>
+            )}
+          </View>
+
           <View style={[surface.neonPanel, styles.links]}>
             <Link href="/gerant/historique" asChild>
               <PrimaryButton title="Historique" variant="ghost" style={styles.linkBtn} />
@@ -279,6 +335,19 @@ const styles = StyleSheet.create({
     letterSpacing: 8,
   },
   scroll: { paddingBottom: spacing.xl },
+  servicePanel: {
+    marginBottom: spacing.lg,
+    padding: spacing.md,
+    borderRadius: radius.xl,
+    borderWidth: 2,
+    borderColor: WC.neonCyanDim,
+    backgroundColor: gerantDashboardVisual.panelBg,
+    gap: spacing.sm,
+    ...elevation.card,
+  },
+  serviceHint: { fontSize: 13, lineHeight: 19 },
+  serviceActions: { gap: spacing.sm, marginTop: spacing.xs },
+  serviceBtn: { width: '100%' },
   autoBanner: {
     marginBottom: spacing.lg,
     padding: spacing.md,

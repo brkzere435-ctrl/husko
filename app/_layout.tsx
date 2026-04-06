@@ -26,6 +26,7 @@ import {
   subscribeToRemoteAutonomousDemo,
   subscribeToRemoteDriver,
   subscribeToRemoteOrders,
+  subscribeToRemoteServiceSettings,
 } from '@/services/firebaseRemote';
 import { mergeRemoteOrdersWithLocal } from '@/utils/mergeRemoteOrders';
 import {
@@ -148,10 +149,16 @@ export default function RootLayout() {
     const unsubAuto = subscribeToRemoteAutonomousDemo((remoteAutonomousDemo) => {
       useHuskoStore.setState({ remoteAutonomousDemo });
     });
+    const unsubService = subscribeToRemoteServiceSettings((settings) => {
+      useHuskoStore.setState({
+        remoteServiceAccepting: settings === null ? null : settings.acceptingOrders,
+      });
+    });
     return () => {
       unsubOrders();
       unsubDriver();
       unsubAuto();
+      unsubService();
     };
   }, []);
 

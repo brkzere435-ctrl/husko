@@ -14,7 +14,11 @@ import { PrimaryButton } from '@/components/PrimaryButton';
 import { ScreenSection } from '@/components/ScreenSection';
 import { clientStrings, outsideDeliveryHoursBanner } from '@/constants/clientExperience';
 import { clientPanierVisual } from '@/constants/clientPanierVisual';
-import { isDeliveryOpen } from '@/constants/hours';
+import {
+  isClientOrderingAllowed,
+  isTestOrderAnyHoursEnabled,
+  serviceClosedByManagerMessage,
+} from '@/constants/hours';
 import { PAYMENT_NOTICE_LONG, PAYMENT_NOTICE_SHORT } from '@/constants/paymentPolicy';
 import { FONT } from '@/constants/fonts';
 import { typography } from '@/constants/typography';
@@ -41,6 +45,7 @@ export default function PanierScreen() {
   const cloudSyncWriteError = useHuskoStore((s) => s.cloudSyncWriteError);
   const driver = useHuskoStore((s) => s.driver);
   const driverHeading = useHuskoStore((s) => s.driverHeading);
+  const remoteServiceAccepting = useHuskoStore((s) => s.remoteServiceAccepting);
 
   const [address, setAddress] = useState('Angers centre');
   const [dialog, setDialog] = useState<
@@ -48,12 +53,15 @@ export default function PanierScreen() {
     | { type: 'success'; orderId: string }
     | { type: 'successLocal'; orderId: string }
     | { type: 'pushFailed' }
+    | { type: 'serviceClosedManager' }
+    | { type: 'serviceClosedHours' }
     | null
   >(null);
   const [submitting, setSubmitting] = useState(false);
 
   const total = cart.reduce((a, l) => a + l.item.price * l.qty, 0);
   const cloudOk = isRemoteSyncEnabled();
+  const orderingAllowed = isClientOrderingAllowed(new Date(), remoteServiceAccepting);
 
   const region = useMemo(
     () => fitMapRegion([ANGERS_DEFAULT, HUSKO_DEPARTURE_HUB], 2),
@@ -76,8 +84,11 @@ export default function PanierScreen() {
           setDialog({ type: 'successLocal', orderId: order.id });
         }
       }
-    } catch {
-      setDialog({ type: 'pushFailed' });
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : '';
+      if (msg === 'SERVICE_CLOSED_MANAGER') setDialog({ type: 'serviceClosedManager' });
+      else if (msg === 'SERVICE_CLOSED_HOURS') setDialog({ type: 'serviceClosedHours' });
+      else setDialog({ type: 'pushFailed' });
     } finally {
       setSubmitting(false);
     }
@@ -90,10 +101,27 @@ export default function PanierScreen() {
           {cart.length > 0 ? (
             <>
               <Text style={[typography.bodyMuted, styles.intro]}>{clientStrings.panierIntro}</Text>
-              {!isDeliveryOpen() ? (
+              {isTestOrderAnyHoursEnabled() ? (
+                <View style={styles.testHoursBanner}>
+                  <Text style={styles.testHoursTitle}>Mode test</Text>
+                  <Text style={styles.testHoursBody}>
+                    {typeof __DEV__ !== 'undefined' && __DEV__
+                      ? 'Créneau ignoré en développement (Expo / Metro). Tu peux valider une commande tout de suite.'
+                      : 'Créneau ignoré (build de test avec EXPO_PUBLIC_HUSKO_TEST_ORDER_ANY_HOURS).'}
+                  </Text>
+                </View>
+              ) : !orderingAllowed ? (
                 <View style={styles.outsideBanner}>
-                  <Text style={styles.outsideBannerTitle}>Hors créneau livraison</Text>
-                  <Text style={styles.outsideBannerBody}>{outsideDeliveryHoursBanner}</Text>
+                  <Text style={styles.outsideBannerTitle}>
+                    {remoteServiceAccepting === false
+                      ? 'Prise de commandes fermée'
+                      : 'Hors créneau livraison'}
+                  </Text>
+                  <Text style={styles.outsideBannerBody}>
+                    {remoteServiceAccepting === false
+                      ? serviceClosedByManagerMessage()
+                      : outsideDeliveryHoursBanner}
+                  </Text>
                 </View>
               ) : null}
               {!cloudOk ? (
@@ -187,7 +215,7 @@ export default function PanierScreen() {
               <PrimaryButton
                 title={submitting ? 'Envoi en cours…' : 'Valider la commande'}
                 onPress={() => void checkout()}
-                disabled={submitting}
+                disabled={submitting || !orderingAllowed}
               />
               <PrimaryButton title="Vider le panier" variant="ghost" onPress={() => clearCart()} />
             </Animated.View>
@@ -228,6 +256,28 @@ export default function PanierScreen() {
                   >
                     Voir le suivi
                   </Button>
+                </Dialog.Actions>
+              </>
+            ) : null}
+            {dialog?.type === 'serviceClosedManager' ? (
+              <>
+                <Dialog.Title>Prise de commandes fermée</Dialog.Title>
+                <Dialog.Content>
+                  <Text variant="bodyMedium">{serviceClosedByManagerMessage()}</Text>
+                </Dialog.Content>
+                <Dialog.Actions>
+                  <Button onPress={() => setDialog(null)}>OK</Button>
+                </Dialog.Actions>
+              </>
+            ) : null}
+            {dialog?.type === 'serviceClosedHours' ? (
+              <>
+                <Dialog.Title>Hors créneau</Dialog.Title>
+                <Dialog.Content>
+                  <Text variant="bodyMedium">{outsideDeliveryHoursBanner}</Text>
+                </Dialog.Content>
+                <Dialog.Actions>
+                  <Button onPress={() => setDialog(null)}>OK</Button>
                 </Dialog.Actions>
               </>
             ) : null}
@@ -311,6 +361,28 @@ const styles = StyleSheet.create({
     color: WC.neonCyan,
   },
   outsideBannerBody: {
+    fontFamily: FONT.medium,
+    color: colors.textMuted,
+    fontSize: 13,
+    lineHeight: 20,
+    fontWeight: '600',
+  },
+  testHoursBanner: {
+    marginBottom: spacing.md,
+    padding: spacing.md,
+    borderRadius: radius.lg,
+    backgroundColor: clientPanierVisual.testHoursBannerBg,
+    borderWidth: 1,
+    borderColor: clientPanierVisual.testHoursBannerBorder,
+  },
+  testHoursTitle: {
+    ...typography.section,
+    fontSize: 13,
+    letterSpacing: 0.8,
+    marginBottom: spacing.xs,
+    color: WC.sunsetMagenta,
+  },
+  testHoursBody: {
     fontFamily: FONT.medium,
     color: colors.textMuted,
     fontSize: 13,

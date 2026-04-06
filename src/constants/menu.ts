@@ -87,12 +87,13 @@ export const MENU: MenuItem[] = [
   { id: 'bois-50', category: 'boisson', name: 'Bouteille 50cl', price: 3 },
 ];
 
+/** Libellés alignés sur les flyers (Husko By Night / kebab). */
 export const CATEGORY_LABEL: Record<MenuCategory, string> = {
-  smash: 'Smash',
-  frites: 'Frites chargées',
-  baguette: 'Baguetta',
-  sandwich: 'Sandwichs & wraps',
-  four: 'Au four',
-  dessert: 'Desserts',
-  boisson: 'Boissons',
+  smash: 'SMASH',
+  frites: 'FRITES CHARGÉES',
+  baguette: 'BAGUETTA',
+  sandwich: 'SANDWICHES · WRAPS',
+  four: 'SANDWICH AU FOUR',
+  dessert: 'DESSERTS',
+  boisson: 'BOISSONS',
 };

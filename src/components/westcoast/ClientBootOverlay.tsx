@@ -63,7 +63,7 @@ export function ClientBootOverlay({ visible, onDone }: Props) {
           pointerEvents="none"
         />
         <LinearGradient
-          colors={[colors.bootSunset1, colors.bootSunset2, colors.bootSunset3, colors.bootSunset4]}
+          colors={[...clientBootVisual.tintGradient]}
           locations={[0, 0.28, 0.55, 1]}
           style={[StyleSheet.absoluteFill, styles.tint]}
           pointerEvents="none"
@@ -114,12 +114,12 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     height: 3,
-    backgroundColor: WC.neonCyan,
-    opacity: 0.85,
+    backgroundColor: WC.flyerCrimson,
+    opacity: 0.9,
   },
   kicker: {
     fontFamily: FONT.bold,
-    color: WC.neonCyan,
+    color: 'rgba(252, 211, 77, 0.95)',
     letterSpacing: 4,
     fontSize: 11,
     textAlign: 'center',
@@ -170,7 +170,7 @@ const styles = StyleSheet.create({
   snap: {
     fontFamily: FONT.medium,
     marginTop: spacing.lg,
-    color: WC.neonCyan,
+    color: 'rgba(252, 211, 77, 0.9)',
     fontSize: 12,
     textAlign: 'center',
   },

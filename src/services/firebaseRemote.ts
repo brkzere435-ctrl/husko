@@ -129,6 +129,47 @@ export async function remotePushAutonomousDemoMeta(cfg: RemoteAutonomousDemo): P
   );
 }
 
+/** État « service ouvert / fermé » pour les commandes client (gérant → Firestore `meta/service`). */
+export type RemoteServiceSettings = {
+  acceptingOrders: boolean;
+  updatedAt: number;
+};
+
+export async function remotePushServiceSettings(acceptingOrders: boolean): Promise<void> {
+  const firestore = ensureDb();
+  if (!firestore) return;
+  await setDoc(
+    doc(firestore, 'meta', 'service'),
+    { acceptingOrders, updatedAt: Date.now() },
+    { merge: true }
+  );
+}
+
+export function subscribeToRemoteServiceSettings(
+  onSettings: (settings: RemoteServiceSettings | null) => void
+): () => void {
+  const firestore = ensureDb();
+  if (!firestore) return () => {};
+
+  return onSnapshot(
+    doc(firestore, 'meta', 'service'),
+    (snap) => {
+      const d = snap.data();
+      if (!d || typeof d.acceptingOrders !== 'boolean') {
+        onSettings(null);
+        return;
+      }
+      onSettings({
+        acceptingOrders: d.acceptingOrders,
+        updatedAt: typeof d.updatedAt === 'number' ? d.updatedAt : Date.now(),
+      });
+    },
+    (err) => {
+      if (__DEV__) console.warn('[Husko Firestore service]', err.message);
+    }
+  );
+}
+
 export function subscribeToRemoteAutonomousDemo(
   onCfg: (cfg: RemoteAutonomousDemo | null) => void
 ): () => void {

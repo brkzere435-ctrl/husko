@@ -19,6 +19,11 @@ export type DecorPresetConfig = {
   neonOpacity: number;
   /** Halos bokeh (client / hub). */
   ambientOrbs?: boolean;
+  /**
+   * Texture PNG « mesh carbone » plein écran (`assets/textures/carbon-mesh.png`), opacité faible.
+   * Omis ou 0 = pas d’overlay (économise un calque sur les autres rôles).
+   */
+  carbonMeshOpacity?: number;
 };
 
 export const DECOR_PRESETS: Record<DecorPreset, DecorPresetConfig> = {
@@ -36,11 +41,15 @@ export const DECOR_PRESETS: Record<DecorPreset, DecorPresetConfig> = {
     neonOpacity: 0.88,
   },
   client: {
-    baseGradient: ['#6b5a82', '#a87880', WC.sunsetPeach, WC.laNight],
-    baseLocations: [0, 0.3, 0.58, 1],
+    /** Noir carbone → rouge flyer (affiches Husko By Night / kebab). */
+    baseGradient: ['#020101', '#140606', '#5c0f0f', '#1a0808'],
+    baseLocations: [0, 0.3, 0.56, 1],
     neonOverlay: [...decorNeonVisual.client],
-    neonOpacity: 0.88,
-    ambientOrbs: true,
+    neonOpacity: 0.78,
+    /** Halos sunset retirés : fond plus proche du papier rouge/noir du flyer. */
+    ambientOrbs: false,
+    /** Grain carbone type flyer — léger pour limiter le poids APK (texture unique réutilisée). */
+    carbonMeshOpacity: 0.085,
   },
   livreur: {
     baseGradient: ['#354060', '#5c6a8a', WC.sunsetPeach, WC.laNightDeep],

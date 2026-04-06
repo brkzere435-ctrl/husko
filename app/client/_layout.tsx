@@ -28,9 +28,8 @@ export default function ClientLayout() {
         headerRight: () => <SyncStatusPill />,
       }}
     >
-      <Stack.Screen name="index" options={{ title: 'À la carte', headerShown: false }} />
+      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen name="product/[id]" options={{ title: 'Ton choix', headerShown: true }} />
-      <Stack.Screen name="panier" options={{ title: 'Mon panier' }} />
       <Stack.Screen name="suivi" options={{ title: 'Ma livraison' }} />
       <Stack.Screen name="historique" options={{ title: 'Mes commandes' }} />
       <Stack.Screen name="reglages" options={{ title: 'App & mises à jour' }} />

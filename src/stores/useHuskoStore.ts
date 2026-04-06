@@ -15,8 +15,10 @@ import {
   remotePushAutonomousDemoMeta,
   remotePushDriverDebounced,
   remotePushOrder,
+  remotePushServiceSettings,
   type RemoteAutonomousDemo,
 } from '@/services/firebaseRemote';
+import { isClientOrderingAllowed } from '@/constants/hours';
 import { debugAgentLog } from '@/utils/debugAgentLog';
 import { normalizeOrderStatus } from '@/utils/orderNormalize';
 import { PENDING_VALIDATION_MS } from '@/constants/orderPolicy';
@@ -81,6 +83,13 @@ type State = {
   autonomousPacePreset: AutonomousPacePresetId;
   /** Copie distante (Firestore meta) pour l’ETA côté client ; non persisté localement. */
   remoteAutonomousDemo: RemoteAutonomousDemo | null;
+  /**
+   * `meta/service` Firestore : si non null, remplace les horaires locaux pour accepter ou refuser les commandes.
+   * null = pas de document (créneau 20h–00h lun–sam).
+   */
+  remoteServiceAccepting: boolean | null;
+  /** Gérant : publie l’état « prise de commandes ouverte / fermée » (Firestore). */
+  pushRemoteServiceAccepting: (accepting: boolean) => Promise<void>;
   /** Dernière erreur d’écriture Firestore (commande non synchronisée). */
   cloudSyncWriteError: string | null;
   /** Dernière erreur du listener Firestore (liste commandes). */
@@ -200,6 +209,7 @@ export const useHuskoStore = create<State>()(
       autonomousDemoEnabled: false,
       autonomousPacePreset: 'demo',
       remoteAutonomousDemo: null,
+      remoteServiceAccepting: null,
       cloudSyncWriteError: null,
       cloudSyncListenError: null,
       ordersSyncDebug: null,
@@ -222,9 +232,18 @@ export const useHuskoStore = create<State>()(
 
       clearCart: () => set({ cart: [] }),
 
+      pushRemoteServiceAccepting: async (accepting) => {
+        await remotePushServiceSettings(accepting);
+      },
+
       placeOrder: async (addressLabel, dest) => {
-        const { cart, notificationsEnabled } = get();
+        const { cart, notificationsEnabled, remoteServiceAccepting } = get();
         if (!cart.length) return null;
+        if (!isClientOrderingAllowed(new Date(), remoteServiceAccepting)) {
+          throw new Error(
+            remoteServiceAccepting === false ? 'SERVICE_CLOSED_MANAGER' : 'SERVICE_CLOSED_HOURS'
+          );
+        }
         const total = cart.reduce((a, l) => a + l.item.price * l.qty, 0);
         const order: Order = {
           id: genId(),

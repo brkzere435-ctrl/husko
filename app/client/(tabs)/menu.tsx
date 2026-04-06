@@ -30,7 +30,7 @@ import {
 import { VENUE_TAGLINE_CLIENT } from '@/constants/venue';
 import {
   deliveryHoursLabel,
-  isDeliveryOpen,
+  isClientOrderingAllowed,
   SURE_DELIVERY_WINDOW,
 } from '@/constants/hours';
 import {
@@ -97,7 +97,13 @@ const MenuSectionHeaderRow = memo(function MenuSectionHeaderRow({
 });
 
 function MenuHero() {
-  const open = isDeliveryOpen();
+  const remoteServiceAccepting = useHuskoStore((s) => s.remoteServiceAccepting);
+  const orderingOpen = isClientOrderingAllowed(new Date(), remoteServiceAccepting);
+  const statusLabel = orderingOpen
+    ? clientStrings.openNow
+    : remoteServiceAccepting === false
+      ? clientStrings.orderingClosedByRestaurant
+      : clientStrings.orderingClosedHours;
   return (
     <LinearGradient
       colors={[...clientMenuHero.gradientColors]}
@@ -110,9 +116,9 @@ function MenuHero() {
       <View style={styles.heroInnerGlow} pointerEvents="none" />
       <Text style={styles.wcBrand}>HUSKO</Text>
       <Text style={styles.wcSub}>{VENUE_TAGLINE_CLIENT}</Text>
-      <View style={[styles.statusPill, open ? styles.statusOpen : styles.statusClosed]}>
-        <View style={[styles.statusDot, open ? styles.statusDotOn : styles.statusDotOff]} />
-        <Text style={styles.statusPillText}>{open ? clientStrings.openNow : clientStrings.closedNow}</Text>
+      <View style={[styles.statusPill, orderingOpen ? styles.statusOpen : styles.statusClosed]}>
+        <View style={[styles.statusDot, orderingOpen ? styles.statusDotOn : styles.statusDotOff]} />
+        <Text style={styles.statusPillText}>{statusLabel}</Text>
       </View>
       <View style={styles.sureHourBanner}>
         <Text style={styles.sureHourLabel}>Créneau livraison</Text>
@@ -250,12 +256,12 @@ export default function ClientMenuScreen() {
         <View
           style={[styles.topChrome, { paddingTop: insets.top + spacing.xs }]}
           accessibilityRole="header"
-          accessibilityLabel="Husko client, à la carte"
+          accessibilityLabel="Husko client, menu"
         >
           <View style={styles.topBarRow}>
             <BrandMark compact />
             <View style={styles.topTitleCol}>
-              <Text style={styles.screenTitle}>À la carte</Text>
+              <Text style={styles.screenTitle}>Menu</Text>
               <Text style={styles.screenKicker}>HUSKO · BY NIGHT</Text>
             </View>
             <View style={styles.topBarActions}>
@@ -481,7 +487,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '800',
     letterSpacing: 1,
-    color: WC.fire,
+    color: 'rgba(255,255,255,0.92)',
     textDecorationLine: 'underline',
   },
   headerBlock: { marginBottom: spacing.sm },
@@ -529,16 +535,30 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   statusOpen: {
-    backgroundColor: WC.fireGlow,
-    borderColor: WC.fireDim,
+    backgroundColor: clientMenuHero.statusOpenBg,
+    borderColor: clientMenuHero.statusOpenBorder,
   },
   statusClosed: {
     backgroundColor: clientMenuHero.statusClosedBg,
     borderColor: clientMenuHero.statusClosedBorder,
   },
-  statusDot: { width: 8, height: 8, borderRadius: 4 },
-  statusDotOn: { backgroundColor: WC.fire },
-  statusDotOff: { backgroundColor: clientMenuHero.statusDotOff },
+  statusDot: { width: 10, height: 10, borderRadius: 5 },
+  statusDotOn: {
+    backgroundColor: clientMenuHero.statusDotOn,
+    shadowColor: clientMenuHero.statusDotOn,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.85,
+    shadowRadius: 6,
+    elevation: 4,
+  },
+  statusDotOff: {
+    backgroundColor: clientMenuHero.statusDotOff,
+    shadowColor: clientMenuHero.statusDotOff,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.65,
+    shadowRadius: 5,
+    elevation: 2,
+  },
   statusPillText: {
     fontFamily: FONT.medium,
     color: WC.white,
@@ -553,14 +573,14 @@ const styles = StyleSheet.create({
     borderRadius: radius.lg,
     backgroundColor: clientMenuHero.sureHourBannerBg,
     borderWidth: 1,
-    borderColor: WC.fireDim,
+    borderColor: 'rgba(252, 211, 77, 0.25)',
     alignItems: 'center',
   },
   sureHourLabel: {
     fontFamily: FONT.bold,
     fontSize: 10,
     fontWeight: '800',
-    color: WC.fire,
+    color: 'rgba(255,255,255,0.88)',
     letterSpacing: 2,
     textTransform: 'uppercase',
   },
@@ -589,7 +609,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     lineHeight: 18,
     fontWeight: '700',
-    color: WC.fire,
+    color: 'rgba(252, 211, 77, 0.95)',
     textAlign: 'center',
   },
   moodLine: {
@@ -669,7 +689,10 @@ const styles = StyleSheet.create({
     marginBottom: spacing.sm,
     marginLeft: 2,
     letterSpacing: 2,
-    color: WC.fire,
+    color: '#ffffff',
+    textShadowColor: 'rgba(0,0,0,0.75)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 3,
   },
   row: {
     flexDirection: 'row',
@@ -717,7 +740,10 @@ const styles = StyleSheet.create({
     ...typography.price,
     fontFamily: FONT.bold,
     fontSize: 17,
-    color: WC.white,
+    color: WC.neonStreetGold,
+    textShadowColor: 'rgba(0,0,0,0.45)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 4,
   },
   dockColumn: {
     width: '100%',

@@ -1,3 +1,4 @@
+import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { StyleSheet, View, type ViewProps } from 'react-native';
 
@@ -6,6 +7,8 @@ import { DECOR_PRESETS, type DecorPreset, resolveDecorPreset } from '@/constants
 import { WC } from '@/constants/westCoastTheme';
 
 import { HuskoAmbientGlow } from './HuskoAmbientGlow';
+
+const CARBON_MESH = require('../../../assets/textures/carbon-mesh.png');
 
 type Props = ViewProps & {
   children: React.ReactNode;
@@ -31,6 +34,15 @@ export function WestCoastBackground({ children, style, preset: presetProp, ...re
         end={{ x: 1, y: 1 }}
         style={[StyleSheet.absoluteFill, { opacity: cfg.neonOpacity }]}
       />
+      {cfg.carbonMeshOpacity != null && cfg.carbonMeshOpacity > 0 ? (
+        <Image
+          source={CARBON_MESH}
+          style={[StyleSheet.absoluteFill, { opacity: cfg.carbonMeshOpacity }]}
+          contentFit="cover"
+          pointerEvents="none"
+          accessibilityIgnoresInvertColors
+        />
+      ) : null}
       {cfg.ambientOrbs ? <HuskoAmbientGlow /> : null}
       {children}
     </View>

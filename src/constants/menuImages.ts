@@ -4,6 +4,7 @@ import type { MenuItem } from '@/constants/menu';
 
 /**
  * Photos produit — source de vérité des fichiers : `assets/menu/<item.id>.png`.
+ * Tarifs et libellés : alignés sur les **affiches officielles** (même grille que le menu papier / Snap).
  *
  * **Nommage** — un fichier par entrée `MenuItem.id` dans `menu.ts` (ex. `smash-1.png`, `des-daim.png`).
  * Ne pas renommer sans mettre à jour cette table et `menu.ts`.
@@ -17,6 +18,7 @@ import type { MenuItem } from '@/constants/menu';
  *   (cadre néon / coins arrondis rognent légèrement).
  * - Export **900–1200 px** de côté suffit pour toutes les densités ; au-delà, gain visuel faible, APK plus lourd.
  * - Lumière cohérente (même température / même direction) entre plats d’une même catégorie si possible.
+ * - Variantes **évolutives** : `frites-s` / `frites-m` / `frites-l` (portion visuelle S→L) ; `smash-1` … `smash-4` (empilement des steacks).
  *
  * **Vérifs repo** — `npm run verify:menu-assets` (fichiers + ids alignés `menu.ts`).
  * Après remplacement massif : `npm run assets:menu:verify` (diversité des tailles, pas un seul doublon).
