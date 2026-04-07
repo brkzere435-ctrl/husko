@@ -1,23 +1,32 @@
 /**
  * Télécharge le dernier build EAS Android terminé pour un profil donné.
+ * Les builds sont triés par **date de création décroissante** (le plus récent d’abord).
+ * Un manifeste `dist/husko-apk-manifest.json` enregistre buildId + versionCode pour chaque téléchargement.
+ *
  * Raccourci npm : npm run apk:get:client | apk:get:gerant | apk:get:unified
  * Usage :
  *   node scripts/download-latest-apk.mjs client
  *   node scripts/download-latest-apk.mjs gerant
  *   node scripts/download-latest-apk.mjs livreur
  *   node scripts/download-latest-apk.mjs unified
+ *   node scripts/download-latest-apk.mjs roles   → client + gerant + livreur uniquement
  *   node scripts/download-latest-apk.mjs all
  *
  * Sortie : dist/Husko-{Client|Gerant|Livreur}-latest.apk (gitignore)
  * Prérequis : eas login (ou EXPO_TOKEN en CI), même compte que les builds.
+ *
+ * Après builds : `node scripts/sync-distribution-urls-from-eas.mjs` puis `npm run qr:generate`
+ * pour que les QR / fiches pointent vers les **mêmes** builds que ce script (pas des URLs figées vieilles).
  */
-import { mkdirSync, writeFileSync, statSync } from 'fs';
+import { mkdirSync, writeFileSync, statSync, readFileSync, existsSync } from 'fs';
 import { join } from 'path';
 import { fileURLToPath } from 'url';
 import { execSync } from 'child_process';
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
 const ROOT = join(__dirname, '..');
+
+const MANIFEST_PATH = join(ROOT, 'dist', 'husko-apk-manifest.json');
 
 const VARIANTS = {
   /** AAB Google Play (profil `production` — même variante hub `all` que apk-unified). */
@@ -31,6 +40,18 @@ const VARIANTS = {
   livreur: { profile: 'apk-livreur', file: 'Husko-Livreur-latest.apk' },
 };
 
+/** Téléchargements « métier » uniquement (pas unified / play / dev / assistant) */
+const ROLE_KEYS_THREE = ['client', 'gerant', 'livreur'];
+
+function pickNewestFinishedBuild(arr) {
+  if (!Array.isArray(arr) || arr.length === 0) return null;
+  const sorted = [...arr].sort(
+    (a, b) =>
+      Date.parse(b.createdAt || b.updatedAt || 0) - Date.parse(a.createdAt || a.updatedAt || 0)
+  );
+  return sorted[0];
+}
+
 function runEasBuildList(profile) {
   const cmd = [
     'npx',
@@ -43,7 +64,7 @@ function runEasBuildList(profile) {
     '--status',
     'finished',
     '--limit',
-    '1',
+    '15',
     '--json',
     '--non-interactive',
   ].join(' ');
@@ -106,7 +127,10 @@ async function downloadOne(key) {
       `Aucun build Android terminé pour le profil « ${v.profile} ». Lancez : npm run build:apk:unified ou npm run build:play:aab — ou attendez la fin du build sur expo.dev.`
     );
   }
-  const build = arr[0];
+  const build = pickNewestFinishedBuild(arr);
+  if (!build) {
+    throw new Error(`Impossible de choisir un build pour le profil « ${v.profile} ».`);
+  }
   if (!build?.artifacts?.applicationArchiveUrl) {
     throw new Error(
       `Build ${v.profile} sans URL d’artefact (statut ou artefacts indisponibles). Vérifiez le build sur expo.dev.`
@@ -115,15 +139,84 @@ async function downloadOne(key) {
   const url = build.artifacts.applicationArchiveUrl;
   const dest = join(ROOT, 'dist', v.file);
   console.log(`[Husko] ${key} — build ${build.id}`);
+  console.log(
+    `[Husko] version ${build.appVersion ?? '?'} · versionCode ${build.appBuildVersion ?? '?'} · créé ${build.createdAt ?? '?'}`
+  );
   console.log(`[Husko] ${url}`);
   console.log(`[Husko] Téléchargement → ${dest} …`);
   await downloadUrl(url, dest);
   const st = statSync(dest);
   console.log(`[Husko] OK ${(st.size / 1024 / 1024).toFixed(1)} Mo\n`);
+
+  mergeManifest(key, v.profile, build, v.file);
+  // #region agent log
+  try {
+    const pl = {
+      sessionId: '995197',
+      hypothesisId: 'H-dist',
+      location: 'download-latest-apk.mjs:downloadOne',
+      message: 'APK téléchargé (trace anti-version fantôme)',
+      data: {
+        key,
+        profile: v.profile,
+        buildId: build.id,
+        appVersion: build.appVersion,
+        appBuildVersion: build.appBuildVersion,
+        createdAt: build.createdAt,
+        destFile: v.file,
+        bytes: st.size,
+      },
+      timestamp: Date.now(),
+    };
+    const logPath = join(ROOT, 'debug-995197.log');
+    writeFileSync(logPath, `${JSON.stringify(pl)}\n`, { flag: 'a' });
+    fetch('http://127.0.0.1:7618/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': '995197' },
+      body: JSON.stringify(pl),
+    }).catch(() => {});
+  } catch (_) {}
+  // #endregion
+}
+
+function mergeManifest(key, profile, build, fileName) {
+  try {
+    mkdirSync(join(ROOT, 'dist'), { recursive: true });
+    let prev = {};
+    if (existsSync(MANIFEST_PATH)) {
+      try {
+        prev = JSON.parse(readFileSync(MANIFEST_PATH, 'utf8'));
+      } catch {
+        prev = {};
+      }
+    }
+    prev[key] = {
+      profile,
+      buildId: build.id,
+      appVersion: build.appVersion,
+      appBuildVersion: build.appBuildVersion,
+      createdAt: build.createdAt,
+      downloadedAt: new Date().toISOString(),
+      localFile: `dist/${fileName}`,
+    };
+    prev._updatedAt = new Date().toISOString();
+    writeFileSync(MANIFEST_PATH, JSON.stringify(prev, null, 2) + '\n', 'utf8');
+    console.log(`[Husko] Manifeste : ${MANIFEST_PATH}`);
+  } catch (e) {
+    console.warn('[Husko] Manifeste non écrit :', e.message || e);
+  }
 }
 
 async function main() {
   const arg = (process.argv[2] || 'unified').toLowerCase();
+
+  if (arg === 'roles' || arg === 'three') {
+    for (const key of ROLE_KEYS_THREE) {
+      await downloadOne(key);
+    }
+    console.log('[Husko] Les 3 APK rôles (client, gérant, livreur) sont dans dist/ — voir husko-apk-manifest.json');
+    return;
+  }
 
   if (arg === 'all') {
     for (const key of Object.keys(VARIANTS)) {
@@ -138,7 +231,7 @@ async function main() {
 
   if (!VARIANTS[arg]) {
     console.error(
-      'Usage : node scripts/download-latest-apk.mjs [ play | unified | development | assistant | client | gerant | livreur | all ]'
+      'Usage : node scripts/download-latest-apk.mjs [ play | unified | development | assistant | client | gerant | livreur | roles | three | all ]'
     );
     process.exit(1);
   }

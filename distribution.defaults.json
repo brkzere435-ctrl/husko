@@ -1,9 +1,9 @@
 {
-  "_info": "QR / partage : pages build Expo (s’ouvrent sur téléphone, bouton Install). Téléchargement PC brut : npm run apk:download:* (URL artefact via API). Après nouveau build : mettre à jour les UUID ci-dessous, puis npm run qr:generate && npm run distribution:fiches, puis rebuild apk-gerant pour embarquer les liens. unified = apk-unified (hub) ; development = development-husko (dev client) ; assistant = apk-assistant.",
-  "unified": "https://expo.dev/accounts/brkapk/projects/husko/builds/ba309c7e-eeb4-4374-b4a0-b7db3136dbb1",
-  "development": "https://expo.dev/accounts/brkapk/projects/husko/builds/e30a4228-c303-4d7e-9ad0-a6db7772d84f",
+  "_info": "Source de vérité APK : npm run apk:download:roles (client+gérant+livreur) ou apk:download:* — voir dist/husko-apk-manifest.json (buildId + versionCode). Pour QR/fiches : APRÈS les builds EAS, lancer npm run distribution:sync-eas-urls (met à jour ces URLs depuis eas build:list), puis npm run qr:generate && npm run distribution:fiches. Ne pas partager d’anciennes URLs Expo à la main — elles restent obsolètes. unified = hub ; development = dev-client.",
+  "unified": "https://expo.dev/accounts/brkapk/projects/husko/builds/6f1f602b-86dc-4a98-ac95-214ace23d8f6",
+  "development": "https://expo.dev/accounts/brkapk/projects/husko/builds/ec4aae19-2c45-42f4-b00b-d71412096e41",
   "assistant": "",
-  "gerant": "https://expo.dev/accounts/brkapk/projects/husko/builds/6f756b2b-1c35-4379-aeef-691225555294",
-  "client": "https://expo.dev/accounts/brkapk/projects/husko/builds/a4438848-bdd8-468a-95cf-ca85acb23829",
-  "livreur": "https://expo.dev/accounts/brkapk/projects/husko/builds/83869602-3b40-4ae9-8202-35fcb45ebe5d"
+  "gerant": "https://expo.dev/accounts/brkapk/projects/husko/builds/f0d1bc98-cca2-4b3f-ad35-83f0994b71db",
+  "client": "https://expo.dev/accounts/brkapk/projects/husko/builds/f635c36c-d23a-4e0b-8aae-1c6bb6743be7",
+  "livreur": "https://expo.dev/accounts/brkapk/projects/husko/builds/5e8d0fac-2650-4033-bad4-90831aea738e"
 }
