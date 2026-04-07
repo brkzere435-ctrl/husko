@@ -37,6 +37,16 @@ export const PRODUCT_DIRECTION = {
     rule:
       'Même config Firebase sur les builds qui doivent synchroniser. Les notifications locales ne remplacent pas la synchro données.',
   },
+  /** Parcours prioritaires + OTA : pas de paiement dans ce bloc — voir `payment`. */
+  distributionFocus: {
+    roles: ['client', 'gerant', 'livreur'] as const,
+    rule:
+      'Fluidité : priorité aux écrans et flux client / gérant / livreur (profils EAS `apk-client`, `apk-gerant`, `apk-livreur`). Mises à jour JS et assets à distance : `eas update` par canal (`client` / `gerant` / `livreur` / `hub`). Nouveau build natif EAS si changement de plugins Expo, icône, splash, ou clés Maps.',
+  },
+  payment: {
+    rule:
+      'Périmètre cible : paiement par carte bancaire uniquement (pas d’espèces au livreur dans le flux prévu). Branchement PSP (Stripe, Revolut Checkout, etc.), conformité et 3-D Secure : chantier code + backend à cadrer ; les textes UI suivent `paymentPolicy.ts`.',
+  },
 } as const;
 
 /** Ce que « terminé » veut dire pour un livrable pro. */
