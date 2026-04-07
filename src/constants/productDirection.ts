@@ -23,11 +23,13 @@ export const PRODUCT_DIRECTION = {
   apkPro: {
     tooling: 'EAS Build',
     configFile: 'eas.json',
+    /** Un seul npm : gate + session Expo + sync secrets + build APK hub. Variante sans bloquer le terminal : `ship:hub:queue`. */
+    hubShipScript: 'ship:hub',
     hubScript: 'build:apk:unified',
     playStoreAabScript: 'build:play:aab',
     roleScripts: ['build:apk:client', 'build:apk:gerant', 'build:apk:livreur'] as const,
     rule:
-      'Hub interne : APK `build:apk:unified`. Google Play : AAB `build:play:aab` (profil production, distribution store). Toujours `ship:prepare` avant build cloud.',
+      'Chemin le plus simple : `npm run ship:hub` (release:ready + release:next + ship:apk:unified). Sinon hub seul : `build:apk:unified`. Google Play : `build:play:aab`. Toujours `ship:prepare` avant un build cloud si tu enchaînes à la main.',
   },
   /** Gate qualité avant de promettre un APK « pour clients » ou de lancer un build de prod. */
   clientReadinessBeforeBuild: {

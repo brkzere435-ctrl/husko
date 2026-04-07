@@ -128,6 +128,8 @@
     "git:github": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/github-sync.ps1",
     "android:keystore": "node scripts/create-android-keystore.mjs",
     "ship:prepare": "npm run firebase:env:check:strict && npm run eas:sync:secrets",
+    "ship:hub": "npm run release:ready && npm run release:next && npm run ship:apk:unified",
+    "ship:hub:queue": "npm run release:ready && npm run release:next && npm run ship:prepare && npm run build:apk:unified:queue",
     "ship:apk:unified": "npm run ship:prepare && npm run build:apk:unified",
     "ship:apk:unified:clean": "npm run ship:prepare && npm run build:apk:unified:clean",
     "ship:apk:client": "npm run ship:prepare && npm run build:apk:client",

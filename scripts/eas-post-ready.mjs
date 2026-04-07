@@ -9,15 +9,14 @@ import { fileURLToPath } from 'url';
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 
 console.log(`
-[Husko] Phase cloud — après npm run release:ready (ordre à respecter)
+┌ Husko — phase cloud (après release:ready) ─────────────────────────────┐
+│ 1. eas login          2. eas:credentials (si besoin)                     │
+│ 3. Secrets .env → EAS : ship:prepare (Maps + Firebase)                 │
+│ 4. Build : ship:apk:unified  ·  tout-en-un : npm run ship:hub            │
+│ 5. Après build : distribution:sync-eas-urls → apk:download:unified → QR │
+└────────────────────────────────────────────────────────────────────────┘
 
-  1. eas login              (ou npm run eas:login — si déjà connecté, étape ignorée)
-  2. npm run eas:credentials   (keystore / certificats si premier build ou rotation)
-  3. npm run eas:sync:maps     (pousser EXPO_PUBLIC_GOOGLE_MAPS_* du .env vers EAS)
-  4. npm run build:apk:unified — APK hub (ou build:android / build:apk:all, etc.)
-  5. Après build : mettre à jour les URLs dans distribution.defaults.json puis npm run qr:generate
-
-Vérification session Expo (eas whoami) :
+Session Expo (eas whoami) :
 `);
 
 const r = spawnSync('npx', ['eas', 'whoami'], {
