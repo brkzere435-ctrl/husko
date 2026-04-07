@@ -3,7 +3,10 @@ import { useEffect, useState } from 'react';
 import { View } from 'react-native';
 
 import { CloudLinkBanner } from '@/components/CloudLinkBanner';
-import { ClientBootOverlay } from '@/components/westcoast/ClientBootOverlay';
+import {
+  CLIENT_BOOT_VISUAL_VERSION,
+  ClientBootOverlay,
+} from '@/components/westcoast/ClientBootOverlay';
 import { SyncStatusPill } from '@/components/SyncStatusPill';
 import { getAppVariant } from '@/constants/appVariant';
 import { FONT } from '@/constants/fonts';
@@ -23,6 +26,7 @@ export default function ClientLayout() {
       data: {
         variant: getAppVariant(),
         remoteSyncEnabled: isRemoteSyncEnabled(),
+        bootVisualVersion: CLIENT_BOOT_VISUAL_VERSION,
       },
     });
     // #endregion

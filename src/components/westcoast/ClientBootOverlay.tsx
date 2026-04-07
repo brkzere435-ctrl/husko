@@ -16,6 +16,7 @@ import { colors, radius, spacing } from '@/constants/theme';
 import { WC } from '@/constants/westCoastTheme';
 
 const BOOT_CONTENT_OFFSET = spacing.lg;
+export const CLIENT_BOOT_VISUAL_VERSION = '2026-04-08-cinematic-v2';
 
 type Props = {
   visible: boolean;
@@ -72,36 +73,39 @@ export function ClientBootOverlay({ visible, onDone }: Props) {
         <View style={[styles.fill, { paddingTop: topPad }]}>
           <View style={styles.brickTexture} />
           <View style={styles.neonTop} />
+          <View style={styles.palmLayerLeft} pointerEvents="none" />
+          <View style={styles.palmLayerRight} pointerEvents="none" />
           <View style={styles.huskoStamp}>
             <Ionicons name="flash" size={14} color={WC.gold} />
             <Text style={styles.huskoStampText}>HUSKO</Text>
             <Ionicons name="flash" size={14} color={WC.gold} />
           </View>
-          <Text style={styles.kicker}>HUSKO · BY NIGHT</Text>
-          <Text style={styles.headline}>LE PLUS RAPIDE DES{'\n'}MEILLEURS KEBABS</Text>
-          <Text style={styles.script}>Angers · livraison nocturne</Text>
+          <Text style={styles.kicker}>LOS ANGELES VIBES</Text>
+          <Text style={styles.headline}>HUSKO</Text>
+          <Text style={styles.script}>Palm night delivery · Angers</Text>
 
           <View style={styles.scene}>
             <BrandMark compact />
           </View>
-          <View style={styles.rolesRow}>
-            <View style={styles.roleChip}>
-              <Ionicons name="briefcase-outline" size={14} color={WC.neonCyan} />
-              <Text style={styles.roleChipText}>GERANT</Text>
+          <View style={styles.glassCard}>
+            <View style={styles.rolesRow}>
+              <View style={styles.roleChip}>
+                <Ionicons name="briefcase-outline" size={14} color={WC.neonCyan} />
+                <Text style={styles.roleChipText}>GERANT</Text>
+              </View>
+              <View style={styles.roleChip}>
+                <Ionicons name="person-outline" size={14} color={WC.neonCyan} />
+                <Text style={styles.roleChipText}>CLIENT</Text>
+              </View>
+              <View style={styles.roleChip}>
+                <Ionicons name="car-sport-outline" size={14} color={WC.neonCyan} />
+                <Text style={styles.roleChipText}>LIVREUR</Text>
+              </View>
             </View>
-            <View style={styles.roleChip}>
-              <Ionicons name="person-outline" size={14} color={WC.neonCyan} />
-              <Text style={styles.roleChipText}>CLIENT</Text>
-            </View>
-            <View style={styles.roleChip}>
-              <Ionicons name="car-sport-outline" size={14} color={WC.neonCyan} />
-              <Text style={styles.roleChipText}>LIVREUR</Text>
-            </View>
+            <Text style={styles.cardCaption}>FAST FOOD PREMIUM · WEST COAST STYLE</Text>
           </View>
-
-          <Text style={styles.banner}>LA RECETTE QUI DOMINE LA VILLE</Text>
-          <Text style={styles.hours}>LIVRAISON LUN – SAM · 20h – 00h</Text>
-          <Text style={styles.snap}>Snap · HUSKOBYNIGHT</Text>
+          <Text style={styles.banner}>LIVRAISON LUN - SAM · 20h - 00h</Text>
+          <Text style={styles.snap}>visual {CLIENT_BOOT_VISUAL_VERSION}</Text>
           <Text style={styles.skipHint}>{CLIENT_BOOT_SKIP_HINT}</Text>
           <LinearGradient
             colors={[...clientBootVisual.vignetteGradient]}
@@ -137,6 +141,28 @@ const styles = StyleSheet.create({
     backgroundColor: WC.flyerCrimson,
     opacity: 0.9,
   },
+  palmLayerLeft: {
+    position: 'absolute',
+    left: -20,
+    bottom: 140,
+    width: 110,
+    height: 220,
+    borderTopLeftRadius: 90,
+    borderTopRightRadius: 18,
+    backgroundColor: 'rgba(7, 9, 18, 0.35)',
+    transform: [{ rotate: '-6deg' }],
+  },
+  palmLayerRight: {
+    position: 'absolute',
+    right: -20,
+    bottom: 128,
+    width: 110,
+    height: 220,
+    borderTopLeftRadius: 18,
+    borderTopRightRadius: 90,
+    backgroundColor: 'rgba(7, 9, 18, 0.35)',
+    transform: [{ rotate: '6deg' }],
+  },
   huskoStamp: {
     alignSelf: 'center',
     flexDirection: 'row',
@@ -159,82 +185,94 @@ const styles = StyleSheet.create({
   kicker: {
     fontFamily: FONT.bold,
     color: 'rgba(252, 211, 77, 0.95)',
-    letterSpacing: 4,
-    fontSize: 11,
+    letterSpacing: 3.2,
+    fontSize: 10,
     textAlign: 'center',
     marginBottom: spacing.md,
   },
   headline: {
     fontFamily: FONT.bold,
     color: WC.white,
-    fontSize: 26,
-    lineHeight: 30,
+    fontSize: 42,
+    lineHeight: 46,
     textAlign: 'center',
     textShadowColor: WC.shadow,
     textShadowOffset: { width: 2, height: 3 },
-    textShadowRadius: 2,
-    letterSpacing: 0.5,
+    textShadowRadius: 4,
+    letterSpacing: 2,
   },
   script: {
     fontFamily: FONT.medium,
-    marginTop: spacing.sm,
+    marginTop: spacing.xs,
     color: clientBootVisual.script,
-    fontSize: 15,
+    fontSize: 13,
     textAlign: 'center',
-    letterSpacing: 0.6,
+    letterSpacing: 1,
   },
   scene: {
-    marginTop: spacing.lg,
+    marginTop: spacing.md,
     alignItems: 'center',
     justifyContent: 'center',
     minHeight: 100,
   },
+  glassCard: {
+    marginTop: spacing.md,
+    alignSelf: 'center',
+    width: '100%',
+    maxWidth: 360,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
+    borderRadius: radius.xl,
+    borderWidth: 1,
+    borderColor: 'rgba(252,211,77,0.24)',
+    backgroundColor: 'rgba(8, 10, 18, 0.46)',
+  },
   rolesRow: {
-    marginTop: spacing.sm,
+    marginTop: spacing.xs,
     flexDirection: 'row',
     justifyContent: 'center',
     flexWrap: 'wrap',
-    gap: spacing.sm,
+    gap: spacing.xs,
   },
   roleChip: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    paddingVertical: 6,
-    paddingHorizontal: spacing.sm,
+    paddingVertical: 5,
+    paddingHorizontal: spacing.xs,
     borderRadius: radius.pill,
     borderWidth: 1,
     borderColor: 'rgba(34,211,238,0.35)',
-    backgroundColor: 'rgba(9,12,18,0.45)',
+    backgroundColor: 'rgba(9,12,18,0.58)',
   },
   roleChipText: {
     fontFamily: FONT.bold,
     color: 'rgba(255,255,255,0.94)',
+    fontSize: 9,
+    letterSpacing: 0.8,
+  },
+  cardCaption: {
+    marginTop: spacing.sm,
+    textAlign: 'center',
+    color: 'rgba(255,255,255,0.86)',
+    fontFamily: FONT.medium,
     fontSize: 10,
-    letterSpacing: 1,
+    letterSpacing: 1.1,
   },
   banner: {
     fontFamily: FONT.bold,
-    marginTop: spacing.xl,
+    marginTop: spacing.lg,
     color: WC.white,
-    fontSize: 13,
+    fontSize: 12,
     textAlign: 'center',
-    letterSpacing: 1,
-    opacity: 0.95,
-  },
-  hours: {
-    fontFamily: FONT.bold,
-    marginTop: spacing.md,
-    color: WC.gold,
-    fontSize: 15,
-    textAlign: 'center',
-    letterSpacing: 0.8,
+    letterSpacing: 1.2,
+    opacity: 0.9,
   },
   snap: {
     fontFamily: FONT.medium,
-    marginTop: spacing.lg,
-    color: 'rgba(252, 211, 77, 0.9)',
-    fontSize: 12,
+    marginTop: spacing.sm,
+    color: 'rgba(252, 211, 77, 0.78)',
+    fontSize: 10,
     textAlign: 'center',
   },
   skipHint: {
