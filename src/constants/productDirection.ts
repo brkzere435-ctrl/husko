@@ -37,7 +37,7 @@ export const PRODUCT_DIRECTION = {
     rule:
       'Même config Firebase sur les builds qui doivent synchroniser. Les notifications locales ne remplacent pas la synchro données.',
   },
-  /** Parcours prioritaires + OTA : pas de paiement dans ce bloc — voir `payment`. */
+  /** Parcours prioritaires + OTA ; modalités de paiement : voir `payment`. */
   distributionFocus: {
     roles: ['client', 'gerant', 'livreur'] as const,
     rule:
@@ -45,7 +45,7 @@ export const PRODUCT_DIRECTION = {
   },
   payment: {
     rule:
-      'Périmètre cible : paiement par carte bancaire uniquement (pas d’espèces au livreur dans le flux prévu). Branchement PSP (Stripe, Revolut Checkout, etc.), conformité et 3-D Secure : chantier code + backend à cadrer ; les textes UI suivent `paymentPolicy.ts`.',
+      'Paiement : espèces (argent liquide) au livreur uniquement — pas de carte bancaire dans l’app. Textes légaux utilisateur : `paymentPolicy.ts`.',
   },
 } as const;
 

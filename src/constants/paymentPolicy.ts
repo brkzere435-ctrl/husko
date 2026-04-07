@@ -1,9 +1,6 @@
-/**
- * Direction produit : règlement par carte bancaire uniquement (pas d’espèces au livreur).
- * L’intégration du prestataire de paiement dans l’app est à brancher (PSP, conformité PCI).
- */
+/** Aucune carte bancaire dans l’app — règlement en espèces (argent liquide) au livreur uniquement. */
 export const PAYMENT_NOTICE_SHORT =
-  'Paiement par carte bancaire — pas d’espèces au livreur dans le flux prévu.';
+  'Paiement uniquement en espèces au livreur — pas de carte bancaire dans l’app.';
 
 export const PAYMENT_NOTICE_LONG =
-  'Le règlement prévu est exclusivement par carte bancaire (prestataire à intégrer). Aucun paiement en espèces au livreur dans le périmètre cible.';
+  'Cette application ne permet aucun paiement par carte bancaire. Le règlement est exclusivement en espèces (argent liquide), remis au livreur au moment de la livraison.';
