@@ -1,6 +1,7 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { Link, router } from 'expo-router';
 import { useMemo, useState } from 'react';
+import { Ionicons } from '@expo/vector-icons';
 import { ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { Button, Dialog, Portal, Text, TextInput } from 'react-native-paper';
 import Animated, { FadeIn } from 'react-native-reanimated';

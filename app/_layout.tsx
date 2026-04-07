@@ -41,6 +41,7 @@ import { useHuskoStore } from '@/stores/useHuskoStore';
 import Constants from 'expo-constants';
 
 import { debugAgentLog } from '@/utils/debugAgentLog';
+import { postRuntimeDebugIngest } from '@/utils/debugIngestRuntime';
 import { emitBootDebugProbes, isBootDebugEnabled } from '@/utils/debugProbe';
 import { readHuskoExpoExtra } from '@/utils/readHuskoExpoExtra';
 import { installRenderLayoutDebugTap, logRootLayoutOnce } from '@/utils/debugRenderLayoutLogs';
@@ -63,7 +64,17 @@ export default function RootLayout() {
   useEffect(() => {
     if (!appReady) return;
     // #region agent log
-    fetch('http://127.0.0.1:7887/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'995197'},body:JSON.stringify({sessionId:'995197',runId:'run4',hypothesisId:'H9',location:'app/_layout.tsx:appReady',message:'root layout appReady reached',data:{appReady,variant:getAppVariant(),remoteSyncEnabled:isRemoteSyncEnabled()},timestamp:Date.now()})}).catch(()=>{});
+    postRuntimeDebugIngest({
+      runId: 'run4',
+      hypothesisId: 'H9',
+      location: 'app/_layout.tsx:appReady',
+      message: 'root layout appReady reached',
+      data: {
+        appReady,
+        variant: getAppVariant(),
+        remoteSyncEnabled: isRemoteSyncEnabled(),
+      },
+    });
     // #endregion
     installRenderLayoutDebugTap();
     if (isBootDebugEnabled()) {
@@ -108,7 +119,16 @@ export default function RootLayout() {
   useEffect(() => {
     if (!isRemoteSyncEnabled()) return;
     // #region agent log
-    fetch('http://127.0.0.1:7887/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'995197'},body:JSON.stringify({sessionId:'995197',runId:'run1',hypothesisId:'H2',location:'app/_layout.tsx:remoteSync:entry',message:'remote sync effect mounted',data:{variant:getAppVariant(),remoteSyncEnabled:isRemoteSyncEnabled()},timestamp:Date.now()})}).catch(()=>{});
+    postRuntimeDebugIngest({
+      runId: 'run1',
+      hypothesisId: 'H2',
+      location: 'app/_layout.tsx:remoteSync:entry',
+      message: 'remote sync effect mounted',
+      data: {
+        variant: getAppVariant(),
+        remoteSyncEnabled: isRemoteSyncEnabled(),
+      },
+    });
     // #endregion
     const unsubOrders = subscribeToRemoteOrders(
       (remoteOrders, meta) => {

@@ -12,7 +12,7 @@ import {
 } from '@/constants/clientExperience';
 import { clientBootVisual } from '@/constants/clientBootVisual';
 import { FONT } from '@/constants/fonts';
-import { colors, spacing } from '@/constants/theme';
+import { colors, radius, spacing } from '@/constants/theme';
 import { WC } from '@/constants/westCoastTheme';
 
 const BOOT_CONTENT_OFFSET = spacing.lg;

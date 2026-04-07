@@ -4,6 +4,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { colors, radius, spacing } from '@/constants/theme';
 import { openTechnicalFeedback } from '@/navigation/openTechnicalFeedback';
+import { postRuntimeDebugIngest } from '@/utils/debugIngestRuntime';
 import { logErrorBoundaryCatch } from '@/utils/debugRenderLayoutLogs';
 
 type Props = { children: ReactNode };
@@ -24,7 +25,18 @@ export class ErrorBoundary extends Component<Props, State> {
     console.error('[ErrorBoundary]', error.message, info.componentStack);
     logErrorBoundaryCatch(error, info);
     // #region agent log
-    fetch('http://127.0.0.1:7887/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'995197'},body:JSON.stringify({sessionId:'995197',runId:'run3',hypothesisId:'H7',location:'ErrorBoundary.tsx:componentDidCatch',message:'root error boundary captured error',data:{name:error.name,message:error.message,hasComponentStack:typeof info.componentStack === 'string' && info.componentStack.length > 0},timestamp:Date.now()})}).catch(()=>{});
+    postRuntimeDebugIngest({
+      runId: 'run3',
+      hypothesisId: 'H7',
+      location: 'ErrorBoundary.tsx:componentDidCatch',
+      message: 'root error boundary captured error',
+      data: {
+        name: error.name,
+        message: error.message,
+        hasComponentStack:
+          typeof info.componentStack === 'string' && info.componentStack.length > 0,
+      },
+    });
     // #endregion
   }
 
