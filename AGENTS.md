@@ -36,4 +36,5 @@ Déploiement, Maps, Firebase, OTA : **[`DEPLOIEMENT.md`](DEPLOIEMENT.md)**. Parc
 
 - Règles projet : [`.cursor/rules/husko-product-direction.mdc`](.cursor/rules/husko-product-direction.mdc), [`.cursor/rules/husko-responsive-ui.mdc`](.cursor/rules/husko-responsive-ui.mdc).
 - **Builds EAS / APK :** ne pas lancer `eas build`, scripts `build:apk:*`, `build:dev:android*`, ni téléchargements d’artefacts distants **sans permission explicite** du propriétaire du dépôt (crédits et temps de build).
+- **Pas de build client tant que ce n’est pas prêt :** base validée (`npm run verify`), pas de défaut bloquant UI / carte GPS / synchro ; anciennes versions côté testeurs corrigées (manifeste APK + sync URLs) — voir `PRODUCT_DIRECTION.clientReadinessBeforeBuild` dans `productDirection.ts`.
 - **Phrase d’orientation utile dans le chat :** Husko = fil unique décrit dans `productDirection.ts` ; UI = tokens West Coast ; fin de tâche = `npm run verify` et pas de régression majeure sur l’écran prioritaire ; rester dans le périmètre demandé (pas de refactor hors sujet).

@@ -29,6 +29,11 @@ export const PRODUCT_DIRECTION = {
     rule:
       'Hub interne : APK `build:apk:unified`. Google Play : AAB `build:play:aab` (profil production, distribution store). Toujours `ship:prepare` avant build cloud.',
   },
+  /** Gate qualité avant de promettre un APK « pour clients » ou de lancer un build de prod. */
+  clientReadinessBeforeBuild: {
+    rule:
+      'Ne pas enchaîner sur un build EAS de distribution tant que la base n’est pas validée : `npm run verify` OK ; pas de défaut connu bloquant (UI West Coast, carte / GPS, synchro Firestore, pastille Cloud) ; pas de scénario où un testeur reçoit encore une ancienne version — aligner APK via `download-latest-apk.mjs`, `dist/husko-apk-manifest.json` (buildId + versionCode) et `npm run distribution:sync-eas-urls` avant QR / partage.',
+  },
   multiDeviceSync: {
     backend: 'Firestore',
     envPrefix: 'EXPO_PUBLIC_FIREBASE_*',
@@ -60,6 +65,10 @@ export const PRODUCT_DEFINITION_OF_DONE = {
   visualRegression: {
     rule:
       'Pas de régressions visuelles majeures sur l’écran prioritaire (menu client, suivi, ou gérant selon la priorité du moment).',
+  },
+  mapAndLocation: {
+    rule:
+      'Carte / suivi : clés Maps et permissions OK sur un appareil réel avant démo clients ; voir `DeploymentHints`, `docs/visuel-west-coast-checklist.md`, `DEPLOIEMENT.md`.',
   },
 } as const;
 

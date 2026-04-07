@@ -10,5 +10,6 @@ alwaysApply: true
 - **UI :** tokens Lowrider dans `src/constants/theme.ts` et `src/constants/westCoastTheme.ts` — pas de palette ad hoc par écran.
 - **APK :** EAS (`eas.json`) ; hub par défaut `npm run build:apk:unified`, ou profils client / gérant / livreur selon la démo.
 - **Builds cloud :** ne jamais lancer `eas build`, `npm run build:apk:*`, `build:dev:android*`, ni téléchargements APK distants **sans accord explicite** du propriétaire du dépôt (consommation crédits EAS, temps d’attente).
+- **Avant build « pour clients » :** pas de nouveau build de distribution tant que la base n’est pas **propre et validée** — `npm run verify` OK ; pas de défaut connu (UI, GPS/carte, synchro) ; le problème « testeur qui reçoit une ancienne version » doit être **réglé** (même buildId / versionCode que prévu : manifeste `dist/husko-apk-manifest.json`, sync `distribution:sync-eas-urls`, pas de vieux liens Expo).
 - **Multi-appareils :** Firestore (`EXPO_PUBLIC_FIREBASE_*` alignées), `src/services/firebaseRemote.ts`, `firestore.rules` — les notifications locales ne remplacent pas la synchro données.
 - **Terminé pro :** `npm run verify` ; parcours démo validé sur **APK installé** ; pas de régression visuelle majeure sur l’écran prioritaire (menu client, suivi ou gérant selon le focus).
