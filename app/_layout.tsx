@@ -33,7 +33,10 @@ import {
   OTA_PERIODIC_CHECK_MS,
   checkAndReloadUpdatesAsync,
 } from '@/services/checkAppUpdates';
-import { configureNotificationHandler } from '@/services/orderNotifications';
+import {
+  configureNotificationHandler,
+  notifyRemoteOrderStatusDiff,
+} from '@/services/orderNotifications';
 import { useHuskoStore } from '@/stores/useHuskoStore';
 import Constants from 'expo-constants';
 
@@ -104,6 +107,7 @@ export default function RootLayout() {
       (remoteOrders, meta) => {
         useHuskoStore.setState((state) => {
           const merged = mergeRemoteOrdersWithLocal(remoteOrders, state.orders);
+          void notifyRemoteOrderStatusDiff(state.orders, merged, state.notificationsEnabled);
           debugAgentLog({
             location: 'app/_layout.tsx:mergeRemoteOrders',
             message: 'after merge',

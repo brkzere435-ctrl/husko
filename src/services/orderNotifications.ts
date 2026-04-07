@@ -108,3 +108,48 @@ export async function notifyClientOrderCancelledTimeout(orderId: string) {
     `Pas de validation sous 30 min — commande ${orderId} annulée. Réessayez ou appelez le restaurant.`
   );
 }
+
+/**
+ * Quand une autre appareil (gérant / livreur) met à jour le statut via Firestore, le téléphone
+ * local ne passait pas par `applyOrderTransition` — les notifs locales ne partaient pas.
+ * Compare l’état précédent et fusionné pour rejouer les mêmes messages que sur transition locale.
+ */
+export async function notifyRemoteOrderStatusDiff(
+  previousOrders: Order[],
+  nextOrders: Order[],
+  notificationsEnabled: boolean
+): Promise<void> {
+  if (!notificationsEnabled) return;
+  const variant = getAppVariant();
+  const prevById = new Map(previousOrders.map((o) => [o.id, o]));
+
+  for (const order of nextOrders) {
+    const before = prevById.get(order.id);
+    if (!before || before.status === order.status) continue;
+    const prev = before.status;
+    const next = order.status;
+    try {
+      if (variant === 'client' || variant === 'all') {
+        if (prev === 'pending' && next === 'preparing') {
+          await notifyClientPreparing(order.id);
+        } else if (prev === 'awaiting_livreur' && next === 'on_way') {
+          await notifyClientOnTheWay(order.id);
+        } else if (prev === 'on_way' && next === 'delivered') {
+          await notifyClientDelivered(order.id);
+        }
+      }
+      if (variant === 'livreur' || variant === 'all') {
+        if (prev === 'preparing' && next === 'awaiting_livreur') {
+          await notifyLivreurPickupReady(order.id);
+        }
+      }
+      if (variant === 'gerant' || variant === 'all') {
+        if (prev === 'on_way' && next === 'delivered') {
+          await notifyGerantDelivered(order);
+        }
+      }
+    } catch {
+      /* idem transition locale */
+    }
+  }
+}
