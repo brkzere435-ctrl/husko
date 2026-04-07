@@ -67,13 +67,6 @@ export async function notifyGerantNewOrder(order: Order) {
     );
     return;
   }
-  if (variant === 'all') {
-    await schedule(
-      'Husko · Nouvelle commande',
-      `${order.id} — ${totalLbl}. Ouvrez l’espace gérant pour valider.`
-    );
-    return;
-  }
   await schedule('Husko · Gérant', `Nouvelle commande ${order.id} — ${totalLbl}`);
 }
 
@@ -129,7 +122,7 @@ export async function notifyRemoteOrderStatusDiff(
     const prevStatus = before.status;
     const nextStatus = order.status;
     try {
-      if (variant === 'client' || variant === 'all') {
+      if (variant === 'client') {
         if (prevStatus === 'pending' && nextStatus === 'preparing') {
           await notifyClientPreparing(order.id);
         } else if (prevStatus === 'awaiting_livreur' && nextStatus === 'on_way') {
@@ -138,12 +131,12 @@ export async function notifyRemoteOrderStatusDiff(
           await notifyClientDelivered(order.id);
         }
       }
-      if (variant === 'livreur' || variant === 'all') {
+      if (variant === 'livreur') {
         if (prevStatus === 'preparing' && nextStatus === 'awaiting_livreur') {
           await notifyLivreurPickupReady(order.id);
         }
       }
-      if (variant === 'gerant' || variant === 'all') {
+      if (variant === 'gerant') {
         if (prevStatus === 'on_way' && nextStatus === 'delivered') {
           await notifyGerantDelivered(order);
         }

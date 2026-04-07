@@ -200,7 +200,7 @@ export const useHuskoStore = create<State>()(
       orders: [],
       driver: null,
       driverHeading: 0,
-      livreurOnline: false,
+      livreurOnline: true,
       managerPin: DEFAULT_ROLE_PIN,
       gerantPinOnboarded: false,
       livreurPin: DEFAULT_ROLE_PIN,

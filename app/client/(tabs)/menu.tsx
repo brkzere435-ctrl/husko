@@ -354,20 +354,29 @@ export default function ClientMenuScreen() {
               style={[
                 styles.bar,
                 elevation.dock,
-                { paddingBottom: spacing.lg + Math.max(insets.bottom, 0) },
+                { paddingBottom: spacing.sm + Math.max(insets.bottom, 0) },
               ]}
               accessibilityLabel="Résumé panier et actions"
             >
-              <Text style={styles.barText}>
-                {cartCount} article{cartCount !== 1 ? 's' : ''}
-                {cartTotal > 0 ? ` · ${formatEuro(cartTotal)}` : ''}
-              </Text>
-              <Link href="/client/panier" asChild>
-                <PrimaryButton title="Panier" style={styles.barBtn} />
-              </Link>
-              <Link href="/client/suivi" asChild>
-                <PrimaryButton title="Suivi" variant="ghost" style={styles.barBtn} />
-              </Link>
+              <View style={styles.barHeader}>
+                <Text style={styles.barText}>
+                  {cartCount} article{cartCount !== 1 ? 's' : ''}
+                  {cartTotal > 0 ? ` · ${formatEuro(cartTotal)}` : ''}
+                </Text>
+                <Text style={styles.barHint}>Actions rapides</Text>
+              </View>
+              <View style={styles.barActions}>
+                <View style={styles.barBtnHalf}>
+                  <Link href="/client/panier" asChild>
+                    <PrimaryButton title="Panier" />
+                  </Link>
+                </View>
+                <View style={styles.barBtnHalf}>
+                  <Link href="/client/suivi" asChild>
+                    <PrimaryButton title="Suivi" variant="ghost" />
+                  </Link>
+                </View>
+              </View>
             </View>
           </Animated.View>
         </View>
@@ -754,18 +763,33 @@ const styles = StyleSheet.create({
     opacity: 0.95,
   },
   bar: {
-    padding: spacing.md,
+    paddingHorizontal: spacing.md,
+    paddingTop: spacing.sm,
     backgroundColor: clientMenuDock.barBg,
-    gap: spacing.sm,
+    gap: spacing.xs,
     borderTopWidth: StyleSheet.hairlineWidth,
     borderTopColor: WC.fireDim,
   },
+  barHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
   barText: {
     ...typography.caption,
-    textAlign: 'center',
+    textAlign: 'left',
     fontWeight: '700',
     color: WC.gold,
     letterSpacing: 0.3,
   },
-  barBtn: { width: '100%' },
+  barHint: {
+    ...typography.caption,
+    color: 'rgba(255,255,255,0.7)',
+    fontSize: 11,
+  },
+  barActions: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+  },
+  barBtnHalf: { flex: 1 },
 });

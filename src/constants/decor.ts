@@ -6,7 +6,7 @@ import { WC } from '@/constants/westCoastTheme';
 export type DecorPreset = 'hub' | 'gerant' | 'client' | 'livreur' | 'assistant';
 
 export function resolveDecorPreset(role: AppVariant): DecorPreset {
-  if (role === 'all') return 'hub';
+  if (role === 'all') return 'gerant';
   return role;
 }
 
@@ -41,15 +41,15 @@ export const DECOR_PRESETS: Record<DecorPreset, DecorPresetConfig> = {
     neonOpacity: 0.88,
   },
   client: {
-    /** Noir carbone → rouge flyer (affiches Husko By Night / kebab). */
-    baseGradient: ['#020101', '#140606', '#5c0f0f', '#1a0808'],
-    baseLocations: [0, 0.3, 0.56, 1],
+    /** Fond client adouci : brique conservée, plus neutre pour la lisibilité. */
+    baseGradient: ['#09090c', '#17161d', '#3a1a1a', '#140f14'],
+    baseLocations: [0, 0.34, 0.62, 1],
     neonOverlay: [...decorNeonVisual.client],
-    neonOpacity: 0.78,
+    neonOpacity: 0.68,
     /** Halos sunset retirés : fond plus proche du papier rouge/noir du flyer. */
     ambientOrbs: false,
     /** Grain carbone type flyer — léger pour limiter le poids APK (texture unique réutilisée). */
-    carbonMeshOpacity: 0.085,
+    carbonMeshOpacity: 0.06,
   },
   livreur: {
     baseGradient: ['#354060', '#5c6a8a', WC.sunsetPeach, WC.laNightDeep],

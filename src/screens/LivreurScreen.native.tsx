@@ -10,6 +10,7 @@ import { CarMarkerIcon } from '@/components/CarMarkerIcon';
 import { HuskoDepartureBuilding } from '@/components/HuskoDepartureBuilding';
 import { DeploymentHints } from '@/components/DeploymentHints';
 import { GTAMiniMap } from '@/components/GTAMiniMap';
+import { GTAMiniMapFallbackInterior } from '@/components/GTAMiniMapFallbackInterior';
 import { WestCoastBackground } from '@/components/westcoast/WestCoastBackground';
 import { LivreurAppGate } from '@/components/LivreurAppGate';
 import { LivreurOrderPanel } from '@/components/LivreurOrderPanel';
@@ -23,6 +24,7 @@ import { livreurScreenVisual } from '@/constants/livreurScreenVisual';
 import { useTracksViewChangesForCustomMarker } from '@/hooks/useTracksViewChangesForCustomMarker';
 import { ANGERS_DEFAULT, useHuskoStore } from '@/stores/useHuskoStore';
 import { fitMapRegion } from '@/utils/fitMapRegion';
+import { isMapsKeyConfiguredForPlatform } from '@/utils/mapsBuildInfo';
 
 export default function LivreurScreenNative() {
   const setDriver = useHuskoStore((s) => s.setDriver);
@@ -39,12 +41,23 @@ export default function LivreurScreenNative() {
 
   const subRef = useRef<Location.LocationSubscription | null>(null);
   const [snack, setSnack] = useState('');
+  const [nativeMapLoaded, setNativeMapLoaded] = useState(false);
+  const mapsConfigured = isMapsKeyConfiguredForPlatform();
+
+  useEffect(() => {
+    // #region agent log
+    fetch('http://127.0.0.1:7887/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'995197'},body:JSON.stringify({sessionId:'995197',runId:'run5',hypothesisId:'H12',location:'LivreurScreen.native.tsx:mount',message:'livreur map capability snapshot',data:{livreurOnline,mapsConfigured,hasDriver:driver != null},timestamp:Date.now()})}).catch(()=>{});
+    // #endregion
+  }, [livreurOnline, mapsConfigured, driver]);
 
   useEffect(() => {
     let cancelled = false;
 
     async function start() {
       const { status } = await Location.requestForegroundPermissionsAsync();
+      // #region agent log
+      fetch('http://127.0.0.1:7887/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'995197'},body:JSON.stringify({sessionId:'995197',runId:'run1',hypothesisId:'H3',location:'LivreurScreen.native.tsx:start:permission',message:'location permission status',data:{status,livreurOnline},timestamp:Date.now()})}).catch(()=>{});
+      // #endregion
       if (status !== 'granted') {
         setSnack('Activez la localisation pour le suivi livreur.');
         return;
@@ -62,6 +75,9 @@ export default function LivreurScreenNative() {
           const lng = loc.coords.longitude;
           const raw = loc.coords.heading;
           const heading = typeof raw === 'number' && Number.isFinite(raw) ? raw : 0;
+          // #region agent log
+          fetch('http://127.0.0.1:7887/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'995197'},body:JSON.stringify({sessionId:'995197',runId:'run1',hypothesisId:'H3',location:'LivreurScreen.native.tsx:watchPosition',message:'location update',data:{lat,lng,heading,accuracy:loc.coords.accuracy ?? null,speed:loc.coords.speed ?? null},timestamp:Date.now()})}).catch(()=>{});
+          // #endregion
           setDriver({ latitude: lat, longitude: lng }, heading);
           setRegion((r) => ({
             ...r,
@@ -116,38 +132,63 @@ export default function LivreurScreenNative() {
           <DeploymentHints mode="alerts" mapsRelevant />
 
           <View style={styles.mapContainer}>
-            <MapView
-              style={styles.map}
-              provider={Platform.OS === 'android' ? PROVIDER_GOOGLE : undefined}
-              region={region}
-              onRegionChangeComplete={setRegion}
-              showsUserLocation={false}
-              showsMyLocationButton={false}
-              loadingEnabled
-              toolbarEnabled={false}
-              customMapStyle={useGoogleStyle ? mapDarkStyle : undefined}
-              mapType={Platform.OS === 'ios' ? 'mutedStandard' : 'standard'}
+            <View
+              style={[styles.mapFallback, mapsConfigured && nativeMapLoaded ? styles.mapFallbackHidden : null]}
+              pointerEvents="none"
             >
-              <Marker
-                coordinate={HUSKO_DEPARTURE_HUB}
-                anchor={{ x: 0.5, y: 1 }}
-                zIndex={1}
-                tracksViewChanges={tracksHubMarker}
-                title="Husko · QG"
+              <GTAMiniMapFallbackInterior
+                driver={driver}
+                headingDeg={driverHeading}
+                departure={HUSKO_DEPARTURE_HUB}
+                showDeparture
+                showDest={false}
+              />
+            </View>
+            {mapsConfigured ? (
+              <MapView
+                style={[styles.map, !nativeMapLoaded ? styles.mapHidden : null]}
+                provider={Platform.OS === 'android' ? PROVIDER_GOOGLE : undefined}
+                region={region}
+                onRegionChangeComplete={setRegion}
+                onMapReady={() => {
+                  // #region agent log
+                  fetch('http://127.0.0.1:7887/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'995197'},body:JSON.stringify({sessionId:'995197',runId:'run6',hypothesisId:'H13',location:'LivreurScreen.native.tsx:map:onMapReady',message:'native map ready event',data:{mapsConfigured,nativeMapLoadedBefore:nativeMapLoaded},timestamp:Date.now()})}).catch(()=>{});
+                  // #endregion
+                }}
+                onMapLoaded={() => {
+                  setNativeMapLoaded(true);
+                  // #region agent log
+                  fetch('http://127.0.0.1:7887/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'995197'},body:JSON.stringify({sessionId:'995197',runId:'run6',hypothesisId:'H13',location:'LivreurScreen.native.tsx:map:onMapLoaded',message:'native map loaded event',data:{mapsConfigured,nativeMapLoadedAfter:true},timestamp:Date.now()})}).catch(()=>{});
+                  // #endregion
+                }}
+                showsUserLocation={false}
+                showsMyLocationButton={false}
+                loadingEnabled
+                toolbarEnabled={false}
+                customMapStyle={useGoogleStyle ? mapDarkStyle : undefined}
+                mapType={Platform.OS === 'ios' ? 'mutedStandard' : 'standard'}
               >
-                <HuskoDepartureBuilding size={56} />
-              </Marker>
-              {driver ? (
                 <Marker
-                  coordinate={driver}
-                  anchor={{ x: 0.5, y: 0.5 }}
-                  zIndex={2}
-                  tracksViewChanges={tracksDriverMarker}
+                  coordinate={HUSKO_DEPARTURE_HUB}
+                  anchor={{ x: 0.5, y: 1 }}
+                  zIndex={1}
+                  tracksViewChanges={tracksHubMarker}
+                  title="Husko · QG"
                 >
-                  <CarMarkerIcon headingDeg={driverHeading} size={48} variant="lowrider" />
+                  <HuskoDepartureBuilding size={56} />
                 </Marker>
-              ) : null}
-            </MapView>
+                {driver ? (
+                  <Marker
+                    coordinate={driver}
+                    anchor={{ x: 0.5, y: 0.5 }}
+                    zIndex={2}
+                    tracksViewChanges={tracksDriverMarker}
+                  >
+                    <CarMarkerIcon headingDeg={driverHeading} size={48} variant="lowrider" />
+                  </Marker>
+                ) : null}
+              </MapView>
+            ) : null}
 
             <View style={styles.miniWrap} pointerEvents="box-none">
               <GTAMiniMap
@@ -189,6 +230,9 @@ const styles = StyleSheet.create({
   toolbarLabel: { fontFamily: FONT.bold, color: WC.neonCyan, fontSize: 13, letterSpacing: 1.2 },
   mapContainer: { flex: 1, position: 'relative' },
   map: { ...StyleSheet.absoluteFillObject },
+  mapHidden: { opacity: 0 },
+  mapFallback: { ...StyleSheet.absoluteFillObject },
+  mapFallbackHidden: { opacity: 0 },
   miniWrap: {
     position: 'absolute',
     right: spacing.md,

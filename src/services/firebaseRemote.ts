@@ -253,6 +253,9 @@ export function subscribeToRemoteOrders(
           sampleIds: list.slice(0, 8).map((o) => o.id),
         },
       });
+      // #region agent log
+      fetch('http://127.0.0.1:7887/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'995197'},body:JSON.stringify({sessionId:'995197',runId:'run1',hypothesisId:'H2',location:'firebaseRemote.ts:subscribeToRemoteOrders:snapshot',message:'orders snapshot',data:{projectId:pid,snapDocCount:meta.snapDocCount,coercedCount:meta.coercedCount,sampleIds:list.slice(0,8).map((o)=>o.id)},timestamp:Date.now()})}).catch(()=>{});
+      // #endregion
       onOrders(list, meta);
     },
     (err) => {
@@ -266,6 +269,9 @@ export function subscribeToRemoteOrders(
           err: err instanceof Error ? err.message : String(err),
         },
       });
+      // #region agent log
+      fetch('http://127.0.0.1:7887/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'995197'},body:JSON.stringify({sessionId:'995197',runId:'run1',hypothesisId:'H2',location:'firebaseRemote.ts:subscribeToRemoteOrders:onError',message:'orders listener error',data:{projectId:debugFirebaseProjectId(),err:err instanceof Error ? err.message : String(err)},timestamp:Date.now()})}).catch(()=>{});
+      // #endregion
       const wrapped =
         err instanceof Error ? err : new Error(typeof err === 'string' ? err : 'Erreur Firestore');
       onListenError?.(wrapped);
@@ -284,9 +290,15 @@ export function subscribeToRemoteDriver(
     (snap) => {
       const d = snap.data();
       if (!d || d.lat == null || d.lng == null) {
+        // #region agent log
+        fetch('http://127.0.0.1:7887/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'995197'},body:JSON.stringify({sessionId:'995197',runId:'run1',hypothesisId:'H3',location:'firebaseRemote.ts:subscribeToRemoteDriver:snapshot',message:'driver snapshot empty',data:{projectId:debugFirebaseProjectId(),hasData:!!d},timestamp:Date.now()})}).catch(()=>{});
+        // #endregion
         onDriver(null, 0);
         return;
       }
+      // #region agent log
+      fetch('http://127.0.0.1:7887/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'995197'},body:JSON.stringify({sessionId:'995197',runId:'run1',hypothesisId:'H3',location:'firebaseRemote.ts:subscribeToRemoteDriver:snapshot',message:'driver snapshot position',data:{projectId:debugFirebaseProjectId(),lat:Number(d.lat),lng:Number(d.lng),heading:typeof d.heading === 'number' ? d.heading : 0},timestamp:Date.now()})}).catch(()=>{});
+      // #endregion
       onDriver(
         { latitude: Number(d.lat), longitude: Number(d.lng) },
         typeof d.heading === 'number' ? d.heading : 0
@@ -294,6 +306,9 @@ export function subscribeToRemoteDriver(
     },
     (err) => {
       if (__DEV__) console.warn('[Husko Firestore driver]', err.message);
+      // #region agent log
+      fetch('http://127.0.0.1:7887/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'995197'},body:JSON.stringify({sessionId:'995197',runId:'run1',hypothesisId:'H3',location:'firebaseRemote.ts:subscribeToRemoteDriver:onError',message:'driver listener error',data:{projectId:debugFirebaseProjectId(),err:err instanceof Error ? err.message : String(err)},timestamp:Date.now()})}).catch(()=>{});
+      // #endregion
     }
   );
 }

@@ -6,7 +6,7 @@ import { FONT } from '@/constants/fonts';
 import { colors, spacing } from '@/constants/theme';
 import { isRemoteSyncEnabled } from '@/services/firebaseRemote';
 
-type Variant = 'client' | 'gerant';
+type Variant = 'client' | 'gerant' | 'livreur';
 
 const COPY: Record<
   Variant,
@@ -23,6 +23,12 @@ const COPY: Record<
     body:
       'Sans Firebase dans ce build, les commandes passées sur d’autres téléphones n’apparaissent pas ici. ' +
       'eas:sync:firebase + rebuild l’APK gérant.',
+  },
+  livreur: {
+    title: 'Liaison cloud inactive',
+    body:
+      'Sans Firebase dans ce build, le livreur ne reçoit pas les commandes du gérant et le suivi client reste incomplet. ' +
+      'eas:sync:firebase + rebuild l’APK livreur.',
   },
 };
 

@@ -60,7 +60,7 @@ const distributionDefaults = JSON.parse(
 );
 
 function readRole() {
-  const raw = process.env.EXPO_PUBLIC_APP_VARIANT ?? 'all';
+  const raw = process.env.EXPO_PUBLIC_APP_VARIANT ?? 'gerant';
   if (
     raw === 'gerant' ||
     raw === 'client' ||
@@ -70,7 +70,7 @@ function readRole() {
   ) {
     return raw;
   }
-  return 'all';
+  return 'gerant';
 }
 
 function resolveVariant(role) {

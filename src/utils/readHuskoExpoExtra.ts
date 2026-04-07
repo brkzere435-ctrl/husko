@@ -16,6 +16,11 @@ const FIREBASE_EXTRA_KEYS: (keyof HuskoExpoExtra)[] = [
   'firebaseMessagingSenderId',
   'firebaseAppId',
 ];
+let hasLoggedExtraProbe = false;
+
+function isRoleVariant(v: unknown): v is 'gerant' | 'client' | 'livreur' | 'assistant' {
+  return v === 'gerant' || v === 'client' || v === 'livreur' || v === 'assistant';
+}
 
 function readEmbeddedExtraPartial(): Partial<HuskoExpoExtra> {
   const raw = NativeModules.ExponentConstants?.manifest as string | Record<string, unknown> | undefined;
@@ -35,6 +40,11 @@ export function readHuskoExpoExtra(): HuskoExpoExtra {
   const embedded = readEmbeddedExtraPartial();
   const active = (Constants.expoConfig?.extra ?? {}) as HuskoExpoExtra;
   const merged = { ...embedded, ...active } as HuskoExpoExtra;
+  const embeddedVariant = typeof embedded.appVariant === 'string' ? embedded.appVariant : null;
+  const activeVariant = typeof active.appVariant === 'string' ? active.appVariant : null;
+  if (isRoleVariant(embeddedVariant) && !isRoleVariant(activeVariant)) {
+    merged.appVariant = embeddedVariant;
+  }
   for (const k of FIREBASE_EXTRA_KEYS) {
     const cur = merged[k];
     if (typeof cur === 'string' && cur.trim() !== '') continue;
@@ -42,6 +52,12 @@ export function readHuskoExpoExtra(): HuskoExpoExtra {
     if (typeof fallback === 'string' && fallback.trim() !== '') {
       (merged as unknown as Record<string, string>)[k] = fallback;
     }
+  }
+  if (!hasLoggedExtraProbe) {
+    hasLoggedExtraProbe = true;
+    // #region agent log
+    fetch('http://127.0.0.1:7887/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'995197'},body:JSON.stringify({sessionId:'995197',runId:'run2',hypothesisId:'H6',location:'readHuskoExpoExtra.ts:readHuskoExpoExtra',message:'expo extra merge snapshot',data:{embeddedAppVariant:typeof embedded.appVariant === 'string' ? embedded.appVariant : null,activeAppVariant:typeof active.appVariant === 'string' ? active.appVariant : null,resolvedAppVariant:typeof merged.appVariant === 'string' ? merged.appVariant : null,embeddedProjectId:typeof embedded.eas?.projectId === 'string' ? embedded.eas.projectId : null,activeProjectId:typeof active.eas?.projectId === 'string' ? active.eas.projectId : null,resolvedProjectId:typeof merged.eas?.projectId === 'string' ? merged.eas.projectId : null},timestamp:Date.now()})}).catch(()=>{});
+    // #endregion
   }
   return merged;
 }

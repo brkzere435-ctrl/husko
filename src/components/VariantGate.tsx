@@ -12,7 +12,6 @@ export function VariantGate() {
   const segments = useSegments();
 
   useEffect(() => {
-    if (variant === 'all') return;
     const first = segments[0];
     if (!first) return;
     const need = variant;

@@ -14,14 +14,17 @@ Ce fichier résume **où est la vérité** et **quelles commandes** utiliser. Le
 | Action | Commande |
 |--------|----------|
 | Installer les deps | `npm install` |
-| **Livrer une APK / iOS « pro »** (Firebase + sync EAS **avant** build) | [`docs/GOLDEN_PATH.md`](docs/GOLDEN_PATH.md) — ex. `npm run ship:apk:unified` ou `ship:apk:three` |
+| **Livrer une APK Android gérant (chemin par défaut)** | `npm run ship:gerant` (clean cache local + gate + sync secrets + build EAS `apk-gerant` avec `--clear-cache`) |
+| **Livrer une APK Android gérant (sans bloquer le terminal)** | `npm run ship:gerant:queue` puis suivi via `npx eas build:list --platform android --limit 5 --non-interactive` |
+| **Livrer une APK / iOS « pro »** (hors fil gérant par défaut) | [`docs/GOLDEN_PATH.md`](docs/GOLDEN_PATH.md) — ex. `npm run ship:apk:unified` ou `ship:apk:three` |
 | **Google Play — AAB** (hub, même variante `all`) | `npm run ship:play:aab` → `npm run apk:download:play` — voir [`DEPLOIEMENT.md`](DEPLOIEMENT.md) (fiche Play, politique de confidentialité) |
-| Lancer l’app (dev) | `npx expo start` (variantes : `npm run start:client` / `start:gerant` / `start:livreur` / `start:hub`) |
+| Lancer l’app (dev) | `npm start` (désormais variante gérant par défaut) ; variantes : `npm run start:client` / `start:gerant` / `start:livreur` / `start:hub` |
 | Gate qualité (CI locale) | `npm run verify` puis éventuellement `npm run release:gate` |
 | Gate + **photos menu distinctes** (pas de placeholders dupliqués) | `npm run release:gate:pro` — échoue si les PNG `assets/menu/` sont encore majoritairement identiques en taille ; sinon `verify:menu-visual-pro` / `verify:menu-visual-pro:strict` |
 | Après changement d’images menu (flyer / stock) | `npm run assets:menu:verify` — présence des fichiers + diversité des tailles (pas un seul PNG dupliqué 27×) |
-| APK hub (EAS), attente jusqu’à la fin | `npm run build:apk:unified` (après `eas login`, secrets — voir `DEPLOIEMENT.md`) |
-| APK hub (EAS), **sans bloquer** le terminal / l’IDE (Cursor) | `npm run build:apk:unified:queue` — même build avec `--no-wait` ; suivre la fin avec `npx eas build:list --platform android --limit 5 --non-interactive` ou le dashboard Expo, puis `npm run apk:download:unified` si besoin |
+| Télécharger l’APK buildée en dernier (par défaut gérant) | `npm run apk:download:last` |
+| APK hub (EAS), attente jusqu’à la fin | `npm run build:apk:unified` (**uniquement si besoin explicite hors fil gérant**) |
+| APK hub (EAS), **sans bloquer** le terminal / l’IDE (Cursor) | `npm run build:apk:unified:queue` — même build avec `--no-wait` ; suivi comme ci-dessus |
 | **Development build** Android (profil `development-husko`, même base que `apk-unified`) | `npm run build:dev:android` → `npm run apk:download:dev` → `npm run start:dev` — voir [`DEPLOIEMENT.md`](DEPLOIEMENT.md) |
 | Checklist release | [`RELEASE_CHECKLIST.md`](RELEASE_CHECKLIST.md) |
 | Régénérer icônes / splash / adaptive (West Coast) | `npm run brand:assets` — écrit sous `assets/` ; **un nouveau `eas build` est obligatoire** pour mettre à jour le logo launcher (l’OTA ne change pas l’icône native). |
@@ -36,5 +39,5 @@ Déploiement, Maps, Firebase, OTA : **[`DEPLOIEMENT.md`](DEPLOIEMENT.md)**. Parc
 
 - Règles projet : [`.cursor/rules/husko-product-direction.mdc`](.cursor/rules/husko-product-direction.mdc), [`.cursor/rules/husko-responsive-ui.mdc`](.cursor/rules/husko-responsive-ui.mdc).
 - **Builds EAS / APK :** ne pas lancer `eas build`, scripts `build:apk:*`, `build:dev:android*`, ni téléchargements d’artefacts distants **sans permission explicite** du propriétaire du dépôt (crédits et temps de build).
-- **Pas de build client tant que ce n’est pas prêt :** base validée (`npm run verify`), pas de défaut bloquant UI / carte GPS / synchro ; anciennes versions côté testeurs corrigées (manifeste APK + sync URLs) — voir `PRODUCT_DIRECTION.clientReadinessBeforeBuild` dans `productDirection.ts`.
+- **Pas de build de distribution tant que ce n’est pas prêt :** base validée (`npm run verify`), pas de défaut bloquant UI / carte GPS / synchro ; anciennes versions côté testeurs corrigées (désinstallation + nouvel install) — voir `PRODUCT_DIRECTION.clientReadinessBeforeBuild` dans `productDirection.ts`.
 - **Phrase d’orientation utile dans le chat :** Husko = fil unique décrit dans `productDirection.ts` ; UI = tokens West Coast ; fin de tâche = `npm run verify` et pas de régression majeure sur l’écran prioritaire ; rester dans le périmètre demandé (pas de refactor hors sujet).

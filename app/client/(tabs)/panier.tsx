@@ -101,6 +101,12 @@ export default function PanierScreen() {
           {cart.length > 0 ? (
             <>
               <Text style={[typography.bodyMuted, styles.intro]}>{clientStrings.panierIntro}</Text>
+              <View style={styles.mapGuideBanner}>
+                <Ionicons name="map-outline" size={16} color={WC.neonCyan} />
+                <Text style={styles.mapGuideText}>
+                  Aperçu carte plus bas dans l’écran (section « Aperçu zone »).
+                </Text>
+              </View>
               {isTestOrderAnyHoursEnabled() ? (
                 <View style={styles.testHoursBanner}>
                   <Text style={styles.testHoursTitle}>Mode test</Text>
@@ -345,6 +351,25 @@ const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: 'transparent' },
   scroll: { padding: spacing.md, paddingBottom: spacing.xl },
   intro: { marginBottom: spacing.md, fontSize: 14, lineHeight: 21 },
+  mapGuideBanner: {
+    marginBottom: spacing.md,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
+    borderRadius: radius.lg,
+    backgroundColor: 'rgba(34, 211, 238, 0.10)',
+    borderWidth: 1,
+    borderColor: 'rgba(34, 211, 238, 0.35)',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
+  mapGuideText: {
+    ...typography.caption,
+    color: WC.neonCyan,
+    fontSize: 12,
+    lineHeight: 18,
+    flex: 1,
+  },
   outsideBanner: {
     marginBottom: spacing.md,
     padding: spacing.md,

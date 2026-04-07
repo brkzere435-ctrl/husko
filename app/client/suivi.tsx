@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import * as Linking from 'expo-linking';
 import { Link } from 'expo-router';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { Card, Text } from 'react-native-paper';
 import Animated, { FadeIn } from 'react-native-reanimated';
@@ -36,6 +36,7 @@ import { WC } from '@/constants/westCoastTheme';
 import { useHuskoStore } from '@/stores/useHuskoStore';
 import { formatEuro } from '@/utils/formatEuro';
 import { fitMapRegion } from '@/utils/fitMapRegion';
+import { isMapsKeyConfiguredForPlatform } from '@/utils/mapsBuildInfo';
 
 export default function SuiviScreen() {
   const orders = useHuskoStore((s) => s.orders);
@@ -64,6 +65,7 @@ export default function SuiviScreen() {
   const showLiveMap = active?.status === 'on_way';
   const showStaticMap =
     !!active && active.status !== 'on_way' && active.status !== 'delivered' && active.status !== 'cancelled';
+  const mapsConfigured = isMapsKeyConfiguredForPlatform();
 
   const staticRegion = useMemo(() => {
     if (!active || !showStaticMap) return null;
@@ -101,6 +103,16 @@ export default function SuiviScreen() {
     const t = new Date(Date.now() + ms);
     return t.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
   }, [active, etaStepMs]);
+
+  const activeId = active?.id ?? null;
+  const activeStatus = active?.status ?? null;
+  const hasDriver = !!driver;
+
+  useEffect(() => {
+    // #region agent log
+    fetch('http://127.0.0.1:7887/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'995197'},body:JSON.stringify({sessionId:'995197',runId:'run1',hypothesisId:'H1',location:'app/client/suivi.tsx:renderState',message:'suivi state snapshot',data:{ordersCount:orders.length,hasActive:activeId !== null,activeStatus,showLiveMap,showStaticMap,hasDriver,mapsConfigured},timestamp:Date.now()})}).catch(()=>{});
+    // #endregion
+  }, [orders.length, activeId, activeStatus, showLiveMap, showStaticMap, hasDriver, mapsConfigured]);
 
   return (
     <WestCoastBackground preset="client">

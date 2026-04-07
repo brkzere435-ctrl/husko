@@ -5,7 +5,7 @@ export type AppVariant = 'all' | 'gerant' | 'client' | 'livreur' | 'assistant';
 export function getAppVariant(): AppVariant {
   const v = readHuskoExpoExtra().appVariant;
   if (v === 'gerant' || v === 'client' || v === 'livreur' || v === 'assistant') return v;
-  return 'all';
+  return 'gerant';
 }
 
 /** Schémas profonds des APK sœurs (ouvrir l’une depuis l’autre). */

@@ -1,4 +1,4 @@
-import { Fragment, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Button, Dialog, Portal, Text as PaperText } from 'react-native-paper';
 
@@ -26,6 +26,12 @@ export function LivreurOrderPanel() {
 
   const pickup = orders.filter((o) => o.status === 'awaiting_livreur');
   const enRoute = orders.filter((o) => o.status === 'on_way');
+
+  useEffect(() => {
+    // #region agent log
+    fetch('http://127.0.0.1:7887/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'995197'},body:JSON.stringify({sessionId:'995197',runId:'run1',hypothesisId:'H5',location:'LivreurOrderPanel.tsx:render',message:'livreur panel orders snapshot',data:{ordersCount:orders.length,pickupCount:pickup.length,enRouteCount:enRoute.length,sample:orders.slice(0,8).map((o)=>({id:o.id,status:o.status}))},timestamp:Date.now()})}).catch(()=>{});
+    // #endregion
+  }, [orders, pickup.length, enRoute.length]);
 
   return (
     <Fragment>

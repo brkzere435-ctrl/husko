@@ -44,6 +44,7 @@ import { debugAgentLog } from '@/utils/debugAgentLog';
 import { emitBootDebugProbes, isBootDebugEnabled } from '@/utils/debugProbe';
 import { readHuskoExpoExtra } from '@/utils/readHuskoExpoExtra';
 import { installRenderLayoutDebugTap, logRootLayoutOnce } from '@/utils/debugRenderLayoutLogs';
+import { getAppVariant } from '@/constants/appVariant';
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
@@ -61,6 +62,9 @@ export default function RootLayout() {
 
   useEffect(() => {
     if (!appReady) return;
+    // #region agent log
+    fetch('http://127.0.0.1:7887/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'995197'},body:JSON.stringify({sessionId:'995197',runId:'run4',hypothesisId:'H9',location:'app/_layout.tsx:appReady',message:'root layout appReady reached',data:{appReady,variant:getAppVariant(),remoteSyncEnabled:isRemoteSyncEnabled()},timestamp:Date.now()})}).catch(()=>{});
+    // #endregion
     installRenderLayoutDebugTap();
     if (isBootDebugEnabled()) {
       const cfg = Constants.expoConfig;
@@ -103,6 +107,9 @@ export default function RootLayout() {
 
   useEffect(() => {
     if (!isRemoteSyncEnabled()) return;
+    // #region agent log
+    fetch('http://127.0.0.1:7887/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'995197'},body:JSON.stringify({sessionId:'995197',runId:'run1',hypothesisId:'H2',location:'app/_layout.tsx:remoteSync:entry',message:'remote sync effect mounted',data:{variant:getAppVariant(),remoteSyncEnabled:isRemoteSyncEnabled()},timestamp:Date.now()})}).catch(()=>{});
+    // #endregion
     const unsubOrders = subscribeToRemoteOrders(
       (remoteOrders, meta) => {
         useHuskoStore.setState((state) => {

@@ -2,6 +2,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useCallback, useEffect, useRef } from 'react';
 import { Image, Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
 
 import { BrandMark } from '@/components/BrandMark';
 import { CLIENT_BOOT_HERO } from '@/constants/brandingAssets';
@@ -71,12 +72,31 @@ export function ClientBootOverlay({ visible, onDone }: Props) {
         <View style={[styles.fill, { paddingTop: topPad }]}>
           <View style={styles.brickTexture} />
           <View style={styles.neonTop} />
+          <View style={styles.huskoStamp}>
+            <Ionicons name="flash" size={14} color={WC.gold} />
+            <Text style={styles.huskoStampText}>HUSKO</Text>
+            <Ionicons name="flash" size={14} color={WC.gold} />
+          </View>
           <Text style={styles.kicker}>HUSKO · BY NIGHT</Text>
           <Text style={styles.headline}>LE PLUS RAPIDE DES{'\n'}MEILLEURS KEBABS</Text>
           <Text style={styles.script}>Angers · livraison nocturne</Text>
 
           <View style={styles.scene}>
             <BrandMark compact />
+          </View>
+          <View style={styles.rolesRow}>
+            <View style={styles.roleChip}>
+              <Ionicons name="briefcase-outline" size={14} color={WC.neonCyan} />
+              <Text style={styles.roleChipText}>GERANT</Text>
+            </View>
+            <View style={styles.roleChip}>
+              <Ionicons name="person-outline" size={14} color={WC.neonCyan} />
+              <Text style={styles.roleChipText}>CLIENT</Text>
+            </View>
+            <View style={styles.roleChip}>
+              <Ionicons name="car-sport-outline" size={14} color={WC.neonCyan} />
+              <Text style={styles.roleChipText}>LIVREUR</Text>
+            </View>
           </View>
 
           <Text style={styles.banner}>LA RECETTE QUI DOMINE LA VILLE</Text>
@@ -117,6 +137,25 @@ const styles = StyleSheet.create({
     backgroundColor: WC.flyerCrimson,
     opacity: 0.9,
   },
+  huskoStamp: {
+    alignSelf: 'center',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+    paddingVertical: 6,
+    paddingHorizontal: spacing.md,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: 'rgba(252,211,77,0.5)',
+    backgroundColor: 'rgba(5, 6, 10, 0.55)',
+    marginBottom: spacing.md,
+  },
+  huskoStampText: {
+    fontFamily: FONT.bold,
+    color: WC.white,
+    fontSize: 12,
+    letterSpacing: 2.6,
+  },
   kicker: {
     fontFamily: FONT.bold,
     color: 'rgba(252, 211, 77, 0.95)',
@@ -149,6 +188,30 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     minHeight: 100,
+  },
+  rolesRow: {
+    marginTop: spacing.sm,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    flexWrap: 'wrap',
+    gap: spacing.sm,
+  },
+  roleChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingVertical: 6,
+    paddingHorizontal: spacing.sm,
+    borderRadius: radius.pill,
+    borderWidth: 1,
+    borderColor: 'rgba(34,211,238,0.35)',
+    backgroundColor: 'rgba(9,12,18,0.45)',
+  },
+  roleChipText: {
+    fontFamily: FONT.bold,
+    color: 'rgba(255,255,255,0.94)',
+    fontSize: 10,
+    letterSpacing: 1,
   },
   banner: {
     fontFamily: FONT.bold,
