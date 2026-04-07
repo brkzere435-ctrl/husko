@@ -149,34 +149,6 @@ async function downloadOne(key) {
   console.log(`[Husko] OK ${(st.size / 1024 / 1024).toFixed(1)} Mo\n`);
 
   mergeManifest(key, v.profile, build, v.file);
-  // #region agent log
-  try {
-    const pl = {
-      sessionId: '995197',
-      hypothesisId: 'H-dist',
-      location: 'download-latest-apk.mjs:downloadOne',
-      message: 'APK téléchargé (trace anti-version fantôme)',
-      data: {
-        key,
-        profile: v.profile,
-        buildId: build.id,
-        appVersion: build.appVersion,
-        appBuildVersion: build.appBuildVersion,
-        createdAt: build.createdAt,
-        destFile: v.file,
-        bytes: st.size,
-      },
-      timestamp: Date.now(),
-    };
-    const logPath = join(ROOT, 'debug-995197.log');
-    writeFileSync(logPath, `${JSON.stringify(pl)}\n`, { flag: 'a' });
-    fetch('http://127.0.0.1:7618/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': '995197' },
-      body: JSON.stringify(pl),
-    }).catch(() => {});
-  } catch (_) {}
-  // #endregion
 }
 
 function mergeManifest(key, profile, build, fileName) {

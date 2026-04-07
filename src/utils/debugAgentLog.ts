@@ -6,7 +6,7 @@
  */
 const AGENT_DEBUG_OFF = process.env.EXPO_PUBLIC_HUSKO_DISABLE_AGENT_DEBUG === '1';
 const INGEST_URL = process.env.EXPO_PUBLIC_DEBUG_INGEST_URL?.trim() ?? '';
-const SESSION_ID = process.env.EXPO_PUBLIC_DEBUG_SESSION_ID?.trim() || '995197';
+const SESSION_ID = process.env.EXPO_PUBLIC_DEBUG_SESSION_ID?.trim() || 'husko';
 
 export type DebugAgentPayload = {
   location: string;

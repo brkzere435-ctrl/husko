@@ -6,7 +6,6 @@
  */
 import { debugAgentLog } from '@/utils/debugAgentLog';
 
-// #region agent log
 function layoutRelated(msg: string): boolean {
   const m = msg.toLowerCase();
   return (
@@ -104,4 +103,3 @@ export function logRootLayoutOnce(width: number, height: number): void {
     },
   });
 }
-// #endregion

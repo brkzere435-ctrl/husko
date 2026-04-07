@@ -71,7 +71,7 @@ console.log(`Référentiel — ce qui doit rester aligné :
 
 Fichiers clés présents :`);
 const checks = [
-  ['app/client/index.tsx', 'Menu client'],
+  ['app/client/(tabs)/index.tsx', 'Menu client (accueil onglets)'],
   ['app/gerant/index.tsx', 'Dashboard gérant'],
   ['app/livreur/index.tsx', 'Écran livreur'],
   ['src/stores/useHuskoStore.ts', 'État commandes / panier'],
