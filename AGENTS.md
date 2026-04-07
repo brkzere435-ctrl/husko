@@ -35,4 +35,5 @@ Déploiement, Maps, Firebase, OTA : **[`DEPLOIEMENT.md`](DEPLOIEMENT.md)**. Parc
 ## Cursor / assistant
 
 - Règles projet : [`.cursor/rules/husko-product-direction.mdc`](.cursor/rules/husko-product-direction.mdc), [`.cursor/rules/husko-responsive-ui.mdc`](.cursor/rules/husko-responsive-ui.mdc).
+- **Builds EAS / APK :** ne pas lancer `eas build`, scripts `build:apk:*`, `build:dev:android*`, ni téléchargements d’artefacts distants **sans permission explicite** du propriétaire du dépôt (crédits et temps de build).
 - **Phrase d’orientation utile dans le chat :** Husko = fil unique décrit dans `productDirection.ts` ; UI = tokens West Coast ; fin de tâche = `npm run verify` et pas de régression majeure sur l’écran prioritaire ; rester dans le périmètre demandé (pas de refactor hors sujet).
