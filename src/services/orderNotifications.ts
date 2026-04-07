@@ -126,25 +126,25 @@ export async function notifyRemoteOrderStatusDiff(
   for (const order of nextOrders) {
     const before = prevById.get(order.id);
     if (!before || before.status === order.status) continue;
-    const prev = before.status;
-    const next = order.status;
+    const prevStatus = before.status;
+    const nextStatus = order.status;
     try {
       if (variant === 'client' || variant === 'all') {
-        if (prev === 'pending' && next === 'preparing') {
+        if (prevStatus === 'pending' && nextStatus === 'preparing') {
           await notifyClientPreparing(order.id);
-        } else if (prev === 'awaiting_livreur' && next === 'on_way') {
+        } else if (prevStatus === 'awaiting_livreur' && nextStatus === 'on_way') {
           await notifyClientOnTheWay(order.id);
-        } else if (prev === 'on_way' && next === 'delivered') {
+        } else if (prevStatus === 'on_way' && nextStatus === 'delivered') {
           await notifyClientDelivered(order.id);
         }
       }
       if (variant === 'livreur' || variant === 'all') {
-        if (prev === 'preparing' && next === 'awaiting_livreur') {
+        if (prevStatus === 'preparing' && nextStatus === 'awaiting_livreur') {
           await notifyLivreurPickupReady(order.id);
         }
       }
       if (variant === 'gerant' || variant === 'all') {
-        if (prev === 'on_way' && next === 'delivered') {
+        if (prevStatus === 'on_way' && nextStatus === 'delivered') {
           await notifyGerantDelivered(order);
         }
       }
