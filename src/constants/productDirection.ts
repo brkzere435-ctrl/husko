@@ -45,7 +45,7 @@ export const PRODUCT_DIRECTION = {
   },
   payment: {
     rule:
-      'Paiement : espèces (argent liquide) au livreur uniquement — pas de carte bancaire dans l’app. Textes légaux utilisateur : `paymentPolicy.ts`.',
+      'Paiement pris en compte sur place à la livraison — espèces au livreur ; pas de CB dans l’app. Textes utilisateur : `paymentPolicy.ts`.',
   },
 } as const;
 
