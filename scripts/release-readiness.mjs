@@ -74,7 +74,7 @@ const pid = cfg.extra?.eas?.projectId ?? '(manquant)';
 
 console.log('\n[Husko — release:check]\n');
 console.log(
-  'Objectif livrable (direction produit) : démo client → gérant → livreur → suivi · profil EAS apk-unified · `npm run build:apk:unified` — voir `src/constants/productDirection.ts`.'
+  'Objectif livrable (direction produit) : APK gérant · `npm run ship:gerant` (clean:cache + build EAS apk-gerant avec --clear-cache) — voir `src/constants/productDirection.ts`.'
 );
 console.log(
   'Critères « terminé » : `npm run verify` · démo du parcours sur APK réel · pas de régression visuelle majeure sur l’écran prioritaire — détail : `PRODUCT_DEFINITION_OF_DONE` dans ce fichier.'
@@ -85,8 +85,8 @@ console.log('  2. npm run eas:credentials   — keystores / certificats Apple & 
 console.log('  3. npm run eas:sync:maps     — clés Maps → EAS (production + preview)');
 console.log('  3b. npm run eas:sync:firebase — EXPO_PUBLIC_FIREBASE_* → EAS (production + preview)');
 console.log('  4. npm run eas:prebuild      — release:check + validate:expo (avant eas build)');
-console.log('  5. npm run build:apk:unified — APK tout-en-un (hub) ; ou build:apk:all (5 APK) / build:apk:mono (3)');
-console.log('  6. npm run eas:update:hub     — ou eas:update:client / gerant / livreur / assistant');
+console.log('  5. npm run ship:gerant        — APK gérant (recommandé) ; hub / autres rôles : hors fil par défaut');
+console.log('  6. npm run eas:update:gerant   — OTA JS canal gerant (ou autres canaux si besoin)');
 console.log('  Raccourci : npm run release:doctor — security:check + eas:prebuild (avant une release sérieuse)');
 console.log('');
 console.log('EAS projectId :', pid);
@@ -141,8 +141,8 @@ console.log('  npm run preflight              — détail .env');
 console.log('  npm run verify                 — tsc + lint + validate:expo');
 console.log('  npm run build:gate:native      — portillon APK/iOS local + codes VULN-HUSKO-xxx si échec');
 console.log('  npm run build:gate:native:export — idem + test expo export Android (Metro)');
-console.log('  npm run build:apk:unified      — APK unique hub (canal OTA hub)');
-console.log('  npm run build:apk:all          — 5 builds EAS (unified → assistant → 3 roles)');
-console.log('  npm run eas:update:hub         — OTA JS APK unifie ; eas:update:* pour chaque canal');
+console.log('  npm run ship:gerant            — gate + clean:cache + build apk-gerant (--clear-cache EAS)');
+console.log('  npm run build:apk:unified      — hub uniquement si besoin explicite');
+console.log('  npm run eas:update:gerant      — OTA JS APK gérant');
 console.log('');
 process.exit(0);

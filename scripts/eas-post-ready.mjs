@@ -10,10 +10,10 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 
 console.log(`
 ┌ Husko — phase cloud (après release:ready) ─────────────────────────────┐
-│ 1. eas login          2. eas:credentials (si besoin)                     │
-│ 3. Secrets .env → EAS : ship:prepare (Maps + Firebase)                 │
-│ 4. Build : ship:apk:unified  ·  tout-en-un : npm run ship:hub            │
-│ 5. Après build : distribution:sync-eas-urls → apk:download:unified → QR │
+│ Priorité : npm run ship:gerant  (clean:cache + secrets + apk-gerant EAS  │
+│            avec --clear-cache)   ·  sans attendre : ship:gerant:queue    │
+│ Après build : distribution:sync-eas-urls → apk:download:gerant → QR    │
+│ Hub / autres rôles : hors fil par défaut (ship:hub si besoin explicite) │
 └────────────────────────────────────────────────────────────────────────┘
 
 Session Expo (eas whoami) :

@@ -124,7 +124,7 @@ async function downloadOne(key) {
   }
   if (!Array.isArray(arr) || arr.length === 0) {
     throw new Error(
-      `Aucun build Android terminé pour le profil « ${v.profile} ». Lancez : npm run build:apk:unified ou npm run build:play:aab — ou attendez la fin du build sur expo.dev.`
+      `Aucun build Android terminé pour le profil « ${v.profile} ». Lancez : npm run ship:gerant ou npm run build:play:aab — ou attendez la fin du build sur expo.dev.`
     );
   }
   const build = pickNewestFinishedBuild(arr);

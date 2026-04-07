@@ -1,7 +1,7 @@
 import * as Clipboard from 'expo-clipboard';
 import * as Linking from 'expo-linking';
-import { memo, useEffect, useMemo, useState } from 'react';
-import { Image, Pressable, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
+import { useMemo, useState } from 'react';
+import { Image, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { Button, Dialog, Portal, Snackbar, Text } from 'react-native-paper';
 import QRCode from 'react-native-qrcode-svg';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -12,107 +12,14 @@ import { WestCoastBackground } from '@/components/westcoast/WestCoastBackground'
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { getDistributionApkUrls } from '@/constants/distribution';
 import { DISTRIBUTION_QR_IMAGES } from '@/constants/distributionQrAssets';
-import {
-  DISTRIBUTION_ROLE_STYLE,
-  type DistributionTabKey,
-} from '@/constants/distributionRoles';
-import { distributionTabActiveBg, gerantDistributionVisual } from '@/constants/gerantDistributionVisual';
+import { DISTRIBUTION_ROLE_STYLE } from '@/constants/distributionRoles';
+import { gerantDistributionVisual } from '@/constants/gerantDistributionVisual';
 import { FONT } from '@/constants/fonts';
 import { typography } from '@/constants/typography';
-import { colors, elevation, radius, spacing, surface } from '@/constants/theme';
+import { colors, radius, spacing, surface } from '@/constants/theme';
 import { WC, wcSectionLabel } from '@/constants/westCoastTheme';
 import { VENUE_LEGAL_LINE } from '@/constants/venue';
-import { getAppVariant } from '@/constants/appVariant';
-
-function urlForTab(
-  tab: DistributionTabKey,
-  urls: ReturnType<typeof getDistributionApkUrls>
-): string {
-  switch (tab) {
-    case 'unified':
-      return urls.unified;
-    case 'assistant':
-      return urls.assistant;
-    case 'gerant':
-      return urls.gerant;
-    case 'client':
-      return urls.client;
-    case 'livreur':
-      return urls.livreur;
-  }
-}
-
-function apkTitle(tab: DistributionTabKey): string {
-  switch (tab) {
-    case 'unified':
-      return 'APK unifié (hub)';
-    case 'assistant':
-      return 'APK Copilote';
-    case 'gerant':
-      return 'APK Gérant';
-    case 'client':
-      return 'APK Client';
-    case 'livreur':
-      return 'APK Livreur';
-  }
-}
-
-function apkHint(tab: DistributionTabKey): string {
-  switch (tab) {
-    case 'unified':
-      return 'QR cyan · une seule app : client, livreur, gérant, Copilote (profil EAS apk-unified, OTA canal hub). Sur la page Expo, touchez Installer.';
-    case 'assistant':
-      return 'QR magenta · application Copilote seule (profil apk-assistant).';
-    case 'gerant':
-      return 'QR or · pour le gérant (validation & cette page distribution).';
-    case 'client':
-      return 'QR vert · pour les clients (commandes). Page Expo puis « Install ».';
-    case 'livreur':
-      return 'QR bleu · pour les livreurs (carte & courses).';
-  }
-}
-
-function hasDistributionPng(tab: DistributionTabKey): tab is 'gerant' | 'client' | 'livreur' {
-  return tab === 'gerant' || tab === 'client' || tab === 'livreur';
-}
-
-const DistributionRoleTab = memo(function DistributionRoleTab({
-  role,
-  selected,
-  onSelect,
-  label,
-  emoji,
-  hint,
-}: {
-  role: DistributionTabKey;
-  selected: DistributionTabKey;
-  onSelect: (r: DistributionTabKey) => void;
-  label: string;
-  emoji: string;
-  hint: string;
-}) {
-  const on = selected === role;
-  const s = DISTRIBUTION_ROLE_STYLE[role];
-  return (
-    <Pressable
-      onPress={() => onSelect(role)}
-      style={[
-        styles.tab,
-        on && styles.tabOn,
-        on && { borderColor: s.accent, backgroundColor: distributionTabActiveBg(role) },
-      ]}
-    >
-      <Text style={styles.tabEmoji}>{emoji}</Text>
-      <Text
-        style={[styles.tabTxt, on && (role === 'gerant' ? styles.tabTxtOn : { color: s.accent })]}
-      >
-        {label}
-      </Text>
-      <Text style={styles.tabHint}>{hint}</Text>
-    </Pressable>
-  );
-});
-
+/** Écran distribution : APK gérant uniquement (priorité produit). */
 export default function DistributionScreen() {
   const { width: screenW } = useWindowDimensions();
   const qrFrameSide = useMemo(
@@ -123,24 +30,15 @@ export default function DistributionScreen() {
   const qrVectorSize = Math.max(120, Math.min(200, qrFrameSide - spacing.md * 2));
 
   const urls = useMemo(() => getDistributionApkUrls(), []);
-  const { client, livreur, gerant, unified, assistant } = urls;
-  /** APK gérant seul : pas de QR hub unifié ni Copilote (rôles déjà couverts ailleurs). */
-  const isGerantDedicatedApk = getAppVariant() === 'gerant';
-  const [tab, setTab] = useState<DistributionTabKey>(() =>
-    isGerantDedicatedApk ? 'gerant' : 'unified'
-  );
+  const { gerant } = urls;
   const [dialog, setDialog] = useState<{ title: string; body: string } | null>(null);
   const [snack, setSnack] = useState('');
 
-  useEffect(() => {
-    if (!isGerantDedicatedApk) return;
-    if (tab === 'unified' || tab === 'assistant') setTab('gerant');
-  }, [isGerantDedicatedApk, tab]);
-
-  const activeUrl = urlForTab(tab, urls);
-  const roleStyle = DISTRIBUTION_ROLE_STYLE[tab];
-  const title = apkTitle(tab);
-  const hint = apkHint(tab);
+  const activeUrl = gerant;
+  const roleStyle = DISTRIBUTION_ROLE_STYLE.gerant;
+  const title = 'APK Gérant';
+  const hint =
+    'QR or · profil EAS apk-gerant, OTA canal gerant. Ouvrez la page Expo puis Installez. Pas de hub / client / livreur sur cet écran.';
 
   function copyUrl() {
     if (!activeUrl) {
@@ -173,29 +71,12 @@ export default function DistributionScreen() {
           <Text style={typography.title} accessibilityRole="header">
             Distribution
           </Text>
-          <Text style={[wcSectionLabel, styles.kicker]}>
-            {isGerantDedicatedApk ? 'QR & liens (gérant · client · livreur)' : 'QR & liens (unifié + mono-rôles)'}
-          </Text>
+          <Text style={[wcSectionLabel, styles.kicker]}>QR & lien · APK gérant uniquement</Text>
           <Text style={[typography.bodyMuted, styles.intro]}>
-            {isGerantDedicatedApk ? (
-              <>
-                Cette app <Text style={styles.em}>gérant</Text> sert aux QR <Text style={styles.em}>or / vert / bleu</Text>{' '}
-                uniquement (pas hub unifié ni Copilote). Les QR ouvrent la{' '}
-                <Text style={styles.em}>page Expo</Text> : sur le téléphone, utilisez le bouton d’installation sur
-                cette page (le navigateur ne télécharge pas un fichier .apk directement). Fichiers{' '}
-                <Text style={styles.mono}>.apk</Text> sur PC :{' '}
-                <Text style={styles.mono}>npm run apk:download:gerant</Text>, client, livreur ou all.
-              </>
-            ) : (
-              <>
-                Couleurs : cyan = APK unique (hub), magenta = Copilote, puis or / vert / bleu pour les APK
-                dédiés. Les QR ouvrent la <Text style={styles.em}>page Expo</Text> : sur le téléphone, utilisez le
-                bouton d’installation (pas de téléchargement direct du .apk dans le navigateur). Fichiers{' '}
-                <Text style={styles.mono}>.apk</Text> sur PC :{' '}
-                <Text style={styles.mono}>npm run apk:download:unified</Text>,{' '}
-                <Text style={styles.mono}>npm run apk:download:assistant</Text>, ou client / gerant / livreur / all.
-              </>
-            )}
+            Priorité produit : un seul livrable Android — <Text style={styles.em}>apk-gerant</Text>. Les QR ouvrent la{' '}
+            <Text style={styles.em}>page Expo</Text> (bouton Installer). Fichier{' '}
+            <Text style={styles.mono}>.apk</Text> sur PC : <Text style={styles.mono}>npm run apk:download:gerant</Text>{' '}
+            après <Text style={styles.mono}>npm run ship:gerant</Text> ou build EAS terminé.
           </Text>
 
           <DeploymentHints mode="alerts" mapsRelevant={false} style={styles.infra} />
@@ -212,53 +93,6 @@ export default function DistributionScreen() {
             </Text>
           </View>
 
-          <View style={[surface.neonPanel, styles.tabRows]}>
-            <View style={styles.tabRow}>
-              <DistributionRoleTab
-                role="unified"
-                selected={tab}
-                onSelect={setTab}
-                label="Unifié"
-                emoji="◆"
-                hint="cyan"
-              />
-              <DistributionRoleTab
-                role="assistant"
-                selected={tab}
-                onSelect={setTab}
-                label="Copilote"
-                emoji="◆"
-                hint="magenta"
-              />
-            </View>
-            <View style={styles.tabRow}>
-              <DistributionRoleTab
-                role="gerant"
-                selected={tab}
-                onSelect={setTab}
-                label="Gérant"
-                emoji="◆"
-                hint="or"
-              />
-              <DistributionRoleTab
-                role="client"
-                selected={tab}
-                onSelect={setTab}
-                label="Client"
-                emoji="●"
-                hint="vert"
-              />
-              <DistributionRoleTab
-                role="livreur"
-                selected={tab}
-                onSelect={setTab}
-                label="Livreur"
-                emoji="▲"
-                hint="bleu"
-              />
-            </View>
-          </View>
-
           <View style={[surface.elevated, styles.card, { borderColor: roleStyle.accent, borderWidth: 2 }]}>
             <View style={[styles.roleBanner, { backgroundColor: roleStyle.bannerBg }]}>
               <Text style={[styles.roleBannerText, { color: roleStyle.accent }]}>{roleStyle.label}</Text>
@@ -268,26 +102,24 @@ export default function DistributionScreen() {
 
             {activeUrl ? (
               <View style={styles.qrWrap}>
-                {hasDistributionPng(tab) ? (
-                  <>
-                    <Text style={styles.qrFileLabel}>
-                      PNG haute définition · assets/distribution-qr/{tab}.png
-                    </Text>
-                    <View
-                      style={[
-                        styles.pngFrame,
-                        { width: qrFrameSide, height: qrFrameSide, borderColor: roleStyle.accent },
-                      ]}
-                    >
-                      <Image
-                        source={DISTRIBUTION_QR_IMAGES[tab]}
-                        style={{ width: qrPngSide, height: qrPngSide }}
-                        resizeMode="contain"
-                        accessibilityLabel={`QR installation ${roleStyle.shortLabel}`}
-                      />
-                    </View>
-                  </>
-                ) : null}
+                <>
+                  <Text style={styles.qrFileLabel}>
+                    PNG haute définition · assets/distribution-qr/gerant.png
+                  </Text>
+                  <View
+                    style={[
+                      styles.pngFrame,
+                      { width: qrFrameSide, height: qrFrameSide, borderColor: roleStyle.accent },
+                    ]}
+                  >
+                    <Image
+                      source={DISTRIBUTION_QR_IMAGES.gerant}
+                      style={{ width: qrPngSide, height: qrPngSide }}
+                      resizeMode="contain"
+                      accessibilityLabel={`QR installation ${roleStyle.shortLabel}`}
+                    />
+                  </View>
+                </>
                 <View style={[styles.qrInner, { borderColor: roleStyle.accent }]}>
                   <QRCode
                     value={activeUrl}
@@ -297,9 +129,7 @@ export default function DistributionScreen() {
                   />
                 </View>
                 <Text style={styles.qrVectorHint}>
-                  {hasDistributionPng(tab)
-                    ? 'Même URL que le PNG (couleur = rôle)'
-                    : 'QR vectoriel — générez aussi le PNG avec npm run qr:generate une fois l’URL renseignée.'}
+                  Même URL que le PNG (or = gérant). Sinon : npm run qr:generate après distribution:sync-eas-urls.
                 </Text>
                 <Text style={styles.url} selectable>
                   {activeUrl}
@@ -319,35 +149,11 @@ export default function DistributionScreen() {
           </View>
 
           <View style={styles.both}>
-            <Text style={styles.bothTitle}>Tous les liens (ne pas mélanger les QR)</Text>
-            {!isGerantDedicatedApk ? (
-              <>
-                <QrSummary
-                  label="Unifié hub (cyan)"
-                  url={unified}
-                  accent={DISTRIBUTION_ROLE_STYLE.unified.accent}
-                />
-                <QrSummary
-                  label="Copilote (magenta)"
-                  url={assistant}
-                  accent={DISTRIBUTION_ROLE_STYLE.assistant.accent}
-                />
-              </>
-            ) : null}
+            <Text style={styles.bothTitle}>Lien APK gérant</Text>
             <QrSummary
               label="Gérant (or)"
               url={gerant}
               accent={DISTRIBUTION_ROLE_STYLE.gerant.accent}
-            />
-            <QrSummary
-              label="Client (vert)"
-              url={client}
-              accent={DISTRIBUTION_ROLE_STYLE.client.accent}
-            />
-            <QrSummary
-              label="Livreur (bleu)"
-              url={livreur}
-              accent={DISTRIBUTION_ROLE_STYLE.livreur.accent}
             />
           </View>
         </ScrollView>
@@ -371,7 +177,7 @@ export default function DistributionScreen() {
 }
 
 const configHelp =
-  'Renseignez les URLs dans distribution.defaults.json (unified, assistant, gerant, client, livreur) ou EXPO_PUBLIC_DISTRIBUTION_*_APK_URL, puis npm run qr:generate et rebuild apk-gerant.';
+  'Renseignez l’URL gérant dans distribution.defaults.json ("gerant") ou EXPO_PUBLIC_DISTRIBUTION_GERANT_APK_URL, puis npm run distribution:sync-eas-urls, npm run qr:generate, et npm run ship:gerant.';
 
 function QrSummary({
   label,
@@ -416,45 +222,6 @@ const styles = StyleSheet.create({
     marginBottom: spacing.sm,
   },
   anywhereBody: { lineHeight: 20 },
-  tabRows: {
-    marginBottom: spacing.lg,
-    gap: spacing.sm,
-    padding: spacing.md,
-  },
-  tabRow: {
-    flexDirection: 'row',
-    gap: spacing.sm,
-  },
-  tab: {
-    flex: 1,
-    paddingVertical: spacing.md,
-    paddingHorizontal: spacing.xs,
-    borderRadius: radius.lg,
-    borderWidth: 2,
-    borderColor: gerantDistributionVisual.tabDefaultBorder,
-    backgroundColor: gerantDistributionVisual.tabDefaultBg,
-    alignItems: 'center',
-  },
-  tabOn: {
-    ...elevation.card,
-    backgroundColor: gerantDistributionVisual.tabSelectedBg,
-  },
-  tabEmoji: { fontSize: 11, color: colors.textMuted, marginBottom: 4 },
-  tabTxt: {
-    fontFamily: FONT.bold,
-    color: colors.textMuted,
-    fontWeight: '800',
-    fontSize: 12,
-    letterSpacing: 0.3,
-  },
-  tabTxtOn: { color: colors.gold },
-  tabHint: {
-    fontFamily: FONT.medium,
-    fontSize: 9,
-    color: colors.textMuted,
-    marginTop: 2,
-    fontWeight: '600',
-  },
   card: {
     padding: spacing.lg,
     marginBottom: spacing.lg,

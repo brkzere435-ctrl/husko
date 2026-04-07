@@ -23,13 +23,15 @@ export const PRODUCT_DIRECTION = {
   apkPro: {
     tooling: 'EAS Build',
     configFile: 'eas.json',
-    /** Un seul npm : gate + session Expo + sync secrets + build APK hub. Variante sans bloquer le terminal : `ship:hub:queue`. */
-    hubShipScript: 'ship:hub',
+    /** Gate + clean local + session Expo + secrets + build EAS gérant avec `--clear-cache`. Sans bloquer le terminal : `ship:gerant:queue`. */
+    gerantShipScript: 'ship:gerant',
+    gerantBuildCleanScript: 'build:apk:gerant:clean',
+    /** Hub / mono-rôles : hors focus par défaut ; réservé besoin métier explicite. */
     hubScript: 'build:apk:unified',
     playStoreAabScript: 'build:play:aab',
-    roleScripts: ['build:apk:client', 'build:apk:gerant', 'build:apk:livreur'] as const,
+    roleScripts: ['build:apk:gerant'] as const,
     rule:
-      'Chemin le plus simple : `npm run ship:hub` (release:ready + release:next + ship:apk:unified). Sinon hub seul : `build:apk:unified`. Google Play : `build:play:aab`. Toujours `ship:prepare` avant un build cloud si tu enchaînes à la main.',
+      'Livrable prioritaire : APK gérant uniquement — `npm run ship:gerant` (clean:cache + release:ready + release:next + ship:prepare + build `apk-gerant` avec cache EAS nettoyé). Pas de build hub / client / livreur sauf demande explicite. Google Play : `build:play:aab`.',
   },
   /** Gate qualité avant de promettre un APK « pour clients » ou de lancer un build de prod. */
   clientReadinessBeforeBuild: {
@@ -46,9 +48,9 @@ export const PRODUCT_DIRECTION = {
   },
   /** Parcours prioritaires + OTA ; modalités de paiement : voir `payment`. */
   distributionFocus: {
-    roles: ['client', 'gerant', 'livreur'] as const,
+    roles: ['gerant'] as const,
     rule:
-      'Fluidité : priorité aux écrans et flux client / gérant / livreur (profils EAS `apk-client`, `apk-gerant`, `apk-livreur`). Mises à jour JS et assets à distance : `eas update` par canal (`client` / `gerant` / `livreur` / `hub`). Nouveau build natif EAS si changement de plugins Expo, icône, splash, ou clés Maps.',
+      'Focus actuel : variante et canal **gérant** (`apk-gerant`, OTA `eas:update:gerant`). Code client / livreur / hub peut rester dans le dépôt mais ne fait pas partie du chemin de livraison par défaut.',
   },
   payment: {
     rule:
@@ -62,11 +64,11 @@ export const PRODUCT_DEFINITION_OF_DONE = {
   verifyMeans: 'TypeScript + lint + garde-fous Expo',
   apkDemo: {
     rule:
-      'Le parcours démo choisi fonctionne sur APK installé (pas seulement simulateur) : ex. client commande → gérant voit → livreur prend en charge → client voit le suivi.',
+      'APK gérant : tableau de bord commandes et pilotage sur appareil réel (pas seulement Expo Go) ; Firestore si configuré.',
   },
   visualRegression: {
     rule:
-      'Pas de régressions visuelles majeures sur l’écran prioritaire (menu client, suivi, ou gérant selon la priorité du moment).',
+      'Pas de régression visuelle majeure sur l’écran gérant prioritaire (dashboard, distribution).',
   },
   mapAndLocation: {
     rule:
@@ -76,10 +78,10 @@ export const PRODUCT_DEFINITION_OF_DONE = {
 
 export const PRODUCT_DELIVERABLE = {
   /** Parcours métier à valider sur APK installé */
-  demoFlowId: 'client_order_gerant_livreur_track' as const,
-  /** Profil EAS recommandé pour la démo multi-rôles */
-  easApkProfile: 'apk-unified' as const,
-  npmBuildScript: 'build:apk:unified' as const,
+  demoFlowId: 'gerant_orders_firestore' as const,
+  /** Profil EAS du livrable prioritaire */
+  easApkProfile: 'apk-gerant' as const,
+  npmBuildScript: 'ship:gerant' as const,
   summary:
-    'Commande client → visible gérant → prise en charge livreur → suivi client (Firestore si configuré).',
+    'APK gérant : tableau de bord commandes et pilotage (Firestore si configuré).',
 } as const;

@@ -1,7 +1,7 @@
 /**
  * adb install -r dist/Husko-*-latest.apk (USB ou émulateur).
  * Usage : node scripts/install-apk-on-device.mjs [unified|dev|assistant|client|gerant|livreur]
- * Défaut : unified
+ * Défaut : gerant (focus produit actuel)
  */
 import { existsSync } from 'fs';
 import { spawnSync } from 'child_process';
@@ -20,10 +20,10 @@ const FILES = {
   livreur: 'Husko-Livreur-latest.apk',
 };
 
-const variant = (process.argv[2] || 'unified').toLowerCase();
+const variant = (process.argv[2] || 'gerant').toLowerCase();
 const name = FILES[variant];
 if (!name) {
-  console.error('[Husko] Usage : npm run apk:install:device -- [unified|dev|assistant|client|gerant|livreur]');
+  console.error('[Husko] Usage : npm run apk:install:device -- [gerant|unified|dev|assistant|client|livreur]');
   process.exit(1);
 }
 
