@@ -16,6 +16,9 @@ type RuntimeIngestPayload = {
 };
 
 export function postRuntimeDebugIngest(payload: RuntimeIngestPayload): void {
+  // #region agent log
+  console.log('[HuskoIngest] send', DEBUG_INGEST_URL, payload.location);
+  // #endregion
   void fetch(DEBUG_INGEST_URL, {
     method: 'POST',
     headers: {
@@ -27,5 +30,14 @@ export function postRuntimeDebugIngest(payload: RuntimeIngestPayload): void {
       ...payload,
       timestamp: Date.now(),
     }),
-  }).catch(() => {});
+  }).catch((err: unknown) => {
+    // #region agent log
+    console.log(
+      '[HuskoIngest] fail',
+      DEBUG_INGEST_URL,
+      payload.location,
+      err instanceof Error ? err.message : String(err)
+    );
+    // #endregion
+  });
 }
