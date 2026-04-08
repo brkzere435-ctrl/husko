@@ -93,6 +93,22 @@ export default function SuiviScreen() {
     return fitMapRegion(pts, 1.85);
   }, [active, driver, showLiveMap, dest]);
 
+  const fallbackMapRegion = useMemo(() => {
+    const pts = [HUSKO_DEPARTURE_HUB];
+    if (driver) pts.push(driver);
+    return fitMapRegion(pts, 2);
+  }, [driver]);
+  const mapRegion = liveRegion ?? staticRegion ?? fallbackMapRegion;
+  const mapTitle = showLiveMap ? 'Suivi Cadillac · mode GTA' : 'Aperçu du trajet';
+  const mapSub = showLiveMap
+    ? dest
+      ? 'QG bâtiment H (néon) · livraison en pin — le livreur roule vers toi'
+      : 'Signal GPS livreur actif · destination client en cours de synchronisation'
+    : dest
+      ? 'Du QG Husko à votre adresse — suivi live dès l’étape « En route »'
+      : 'Zone client en cours de calibration — suivi live actif dès signal GPS livreur';
+  const mapHudFooter = showLiveMap ? 'LBC · DROP TOP · EN ROUTE' : 'APERÇU · QG → DROP';
+
 
   const etaStepMs = useMemo(() => {
     if (remoteAutonomousDemo?.enabled) return remoteAutonomousDemo.stepMs;
@@ -220,42 +236,18 @@ export default function SuiviScreen() {
                 </Text>
               ) : null}
 
-              {showStaticMap && staticRegion ? (
+              {active && mapRegion ? (
                 <View style={styles.mapWrap}>
-                  <Text style={styles.mapTitle}>Aperçu du trajet</Text>
-                  <Text style={styles.mapSub}>
-                    {dest
-                      ? 'Du QG Husko à votre adresse — suivi live dès l’étape « En route »'
-                      : 'Zone client en cours de calibration — suivi live actif dès signal GPS livreur'}
-                  </Text>
+                  <Text style={styles.mapTitle}>{mapTitle}</Text>
+                  <Text style={styles.mapSub}>{mapSub}</Text>
                   <GTAMiniMap
                     size={236}
-                    region={staticRegion}
-                    driver={null}
-                    headingDeg={0}
-                    dest={dest}
-                    showDest={!!dest}
-                    hudFooter="APERÇU · QG → DROP"
-                  />
-                </View>
-              ) : null}
-
-              {showLiveMap && liveRegion ? (
-                <View style={styles.mapWrap}>
-                  <Text style={styles.mapTitle}>Suivi Cadillac · mode GTA</Text>
-                  <Text style={styles.mapSub}>
-                    {dest
-                      ? 'QG bâtiment H (néon) · livraison en pin — le livreur roule vers toi'
-                      : 'Signal GPS livreur actif · destination client en cours de synchronisation'}
-                  </Text>
-                  <GTAMiniMap
-                    size={236}
-                    region={liveRegion}
+                    region={mapRegion}
                     driver={driver}
                     headingDeg={driverHeading}
                     dest={dest}
                     showDest={!!dest}
-                    hudFooter="LBC · DROP TOP · EN ROUTE"
+                    hudFooter={mapHudFooter}
                   />
                 </View>
               ) : null}
