@@ -28,34 +28,36 @@ export type DecorPresetConfig = {
 
 export const DECOR_PRESETS: Record<DecorPreset, DecorPresetConfig> = {
   hub: {
-    baseGradient: ['#5d4a6e', '#9d7088', WC.sunsetPeach, WC.laNight],
-    baseLocations: [0, 0.28, 0.58, 1],
+    baseGradient: [WC.flyerCrimsonDeep, WC.flyerCrimson, '#5a0f13', WC.flyerBlack],
+    baseLocations: [0, 0.34, 0.68, 1],
     neonOverlay: [...decorNeonVisual.hub],
-    neonOpacity: 0.9,
+    neonOpacity: 0.72,
     ambientOrbs: true,
+    carbonMeshOpacity: 0.08,
   },
   gerant: {
-    baseGradient: ['#3d3048', '#7a5568', WC.fire, WC.laNightDeep],
-    baseLocations: [0, 0.34, 0.66, 1],
+    baseGradient: [WC.flyerCrimsonDeep, '#991b1b', '#5d1215', WC.flyerBlack],
+    baseLocations: [0, 0.33, 0.66, 1],
     neonOverlay: [...decorNeonVisual.gerant],
-    neonOpacity: 0.88,
+    neonOpacity: 0.7,
+    carbonMeshOpacity: 0.09,
   },
   client: {
-    /** Fond client adouci : brique conservée, plus neutre pour la lisibilité. */
-    baseGradient: ['#09090c', '#17161d', '#3a1a1a', '#140f14'],
-    baseLocations: [0, 0.34, 0.62, 1],
+    /** Fond client revu : brique rouge premium alignée au splash. */
+    baseGradient: ['#7f1d1d', '#b91c1c', '#641317', WC.flyerBlack],
+    baseLocations: [0, 0.3, 0.63, 1],
     neonOverlay: [...decorNeonVisual.client],
-    neonOpacity: 0.68,
-    /** Halos sunset retirés : fond plus proche du papier rouge/noir du flyer. */
+    neonOpacity: 0.7,
+    /** Halos sunset retirés : rendu flyer rouge/noir plus propre. */
     ambientOrbs: false,
-    /** Grain carbone type flyer — léger pour limiter le poids APK (texture unique réutilisée). */
-    carbonMeshOpacity: 0.06,
+    carbonMeshOpacity: 0.1,
   },
   livreur: {
-    baseGradient: ['#354060', '#5c6a8a', WC.sunsetPeach, WC.laNightDeep],
-    baseLocations: [0, 0.32, 0.62, 1],
+    baseGradient: [WC.flyerCrimsonDeep, '#8f1a1f', '#4f1016', WC.flyerBlack],
+    baseLocations: [0, 0.34, 0.65, 1],
     neonOverlay: [...decorNeonVisual.livreur],
-    neonOpacity: 0.86,
+    neonOpacity: 0.68,
+    carbonMeshOpacity: 0.09,
   },
   assistant: {
     baseGradient: ['#483560', '#7a5a78', WC.sunsetRose, WC.laNight],
