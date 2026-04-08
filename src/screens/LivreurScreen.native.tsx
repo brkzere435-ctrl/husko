@@ -229,6 +229,7 @@ export default function LivreurScreenNative() {
 
             <View style={styles.miniWrap} pointerEvents="box-none">
               <GTAMiniMap
+                size={192}
                 region={miniRegion}
                 driver={driver}
                 headingDeg={driverHeading}
@@ -240,6 +241,12 @@ export default function LivreurScreenNative() {
             <View style={styles.hud} pointerEvents="none">
               <Ionicons name="radio-button-on" size={10} color={colors.gold} style={styles.hudPulse} />
               <Text style={styles.hudText}>HUSKO · MAP</Text>
+            </View>
+            <View style={styles.gtaFrameOverlay} pointerEvents="none">
+              <View style={[styles.gtaCorner, styles.gtaCornerTL]} />
+              <View style={[styles.gtaCorner, styles.gtaCornerTR]} />
+              <View style={[styles.gtaCorner, styles.gtaCornerBL]} />
+              <View style={[styles.gtaCorner, styles.gtaCornerBR]} />
             </View>
           </View>
           <Snackbar visible={snack.length > 0} onDismiss={() => setSnack('')} duration={4000}>
@@ -293,4 +300,41 @@ const styles = StyleSheet.create({
   },
   hudPulse: { opacity: 0.95 },
   hudText: { fontFamily: FONT.bold, color: colors.gold, fontSize: 11, letterSpacing: 2.5 },
+  gtaFrameOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    borderWidth: 2,
+    borderColor: livreurScreenVisual.nativeHudBorder,
+    zIndex: 3,
+  },
+  gtaCorner: {
+    position: 'absolute',
+    width: 20,
+    height: 20,
+    borderColor: colors.gold,
+    opacity: 0.95,
+  },
+  gtaCornerTL: {
+    top: spacing.sm,
+    left: spacing.sm,
+    borderTopWidth: 3,
+    borderLeftWidth: 3,
+  },
+  gtaCornerTR: {
+    top: spacing.sm,
+    right: spacing.sm,
+    borderTopWidth: 3,
+    borderRightWidth: 3,
+  },
+  gtaCornerBL: {
+    bottom: spacing.sm,
+    left: spacing.sm,
+    borderBottomWidth: 3,
+    borderLeftWidth: 3,
+  },
+  gtaCornerBR: {
+    bottom: spacing.sm,
+    right: spacing.sm,
+    borderBottomWidth: 3,
+    borderRightWidth: 3,
+  },
 });

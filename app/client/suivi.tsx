@@ -63,9 +63,13 @@ export default function SuiviScreen() {
     ? { latitude: active.destLat, longitude: active.destLng }
     : null;
 
-  const showLiveMap = active?.status === 'on_way';
+  const showLiveMap =
+    !!active &&
+    active.status !== 'delivered' &&
+    active.status !== 'cancelled' &&
+    (active.status === 'on_way' || !!driver);
   const showStaticMap =
-    !!active && active.status !== 'on_way' && active.status !== 'delivered' && active.status !== 'cancelled';
+    !!active && !showLiveMap && active.status !== 'delivered' && active.status !== 'cancelled';
   const mapsConfigured = isMapsKeyConfiguredForPlatform();
 
   const staticRegion = useMemo(() => {
@@ -215,6 +219,7 @@ export default function SuiviScreen() {
                   <Text style={styles.mapTitle}>Aperçu du trajet</Text>
                   <Text style={styles.mapSub}>Du QG Husko à votre adresse — suivi live dès l’étape « En route »</Text>
                   <GTAMiniMap
+                    size={236}
                     region={staticRegion}
                     driver={null}
                     headingDeg={0}
@@ -232,6 +237,7 @@ export default function SuiviScreen() {
                     QG bâtiment H (néon) · livraison en pin — le livreur roule vers toi
                   </Text>
                   <GTAMiniMap
+                    size={236}
                     region={liveRegion}
                     driver={driver}
                     headingDeg={driverHeading}

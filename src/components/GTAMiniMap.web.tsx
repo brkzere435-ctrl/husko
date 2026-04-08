@@ -8,6 +8,7 @@ import type { MapRegion } from '@/types/mapRegion';
 
 type Props = {
   region: MapRegion;
+  size?: number;
   driver?: { latitude: number; longitude: number } | null;
   headingDeg?: number;
   dest?: { latitude: number; longitude: number } | null;
@@ -22,6 +23,7 @@ const HUD_SIZE = 172;
 /** Web : pas de Google Maps natif — même « radar » GTA que le fallback mobile. */
 export function GTAMiniMap({
   region: _region,
+  size = HUD_SIZE,
   driver,
   headingDeg = 0,
   dest,
@@ -31,7 +33,7 @@ export function GTAMiniMap({
   hudFooter = 'LONG BEACH · CADILLAC SUIVI',
 }: Props) {
   return (
-    <GTAHudFrame size={HUD_SIZE} footerTag={hudFooter}>
+    <GTAHudFrame size={size} footerTag={hudFooter}>
       <View style={styles.fill}>
         <GTAMiniMapFallbackInterior
           driver={driver}

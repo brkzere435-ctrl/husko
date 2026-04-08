@@ -16,6 +16,7 @@ import { CarMarkerIcon } from './CarMarkerIcon';
 
 type Props = {
   region: MapRegion;
+  size?: number;
   driver?: { latitude: number; longitude: number } | null;
   headingDeg?: number;
   dest?: { latitude: number; longitude: number } | null;
@@ -29,6 +30,7 @@ const HUD_SIZE = 172;
 
 export function GTAMiniMap({
   region,
+  size = HUD_SIZE,
   driver,
   headingDeg = 0,
   dest,
@@ -54,12 +56,12 @@ export function GTAMiniMap({
   );
   const tracksDriverMarker = useTracksViewChangesForCustomMarker(driverTrackKey);
 
-  const frameSize = { width: HUD_SIZE, height: HUD_SIZE } as const;
+  const frameSize = { width: size, height: size } as const;
 
   if (useFallback) {
     return (
       <View style={[elevation.hero, frameSize]} collapsable={false}>
-        <GTAHudFrame size={HUD_SIZE} footerTag={footerTag}>
+        <GTAHudFrame size={size} footerTag={footerTag}>
           <GTAMiniMapFallbackInterior
             driver={driver}
             headingDeg={headingDeg}
@@ -75,7 +77,7 @@ export function GTAMiniMap({
 
   return (
     <View style={[elevation.hero, frameSize]} collapsable={false}>
-      <GTAHudFrame size={HUD_SIZE} footerTag={footerTag}>
+      <GTAHudFrame size={size} footerTag={footerTag}>
         <MapView
           style={styles.map}
           collapsable={false}
