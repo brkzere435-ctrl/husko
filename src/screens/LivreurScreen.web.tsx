@@ -50,8 +50,9 @@ export default function LivreurScreenWeb() {
       subRef.current?.remove();
       subRef.current = await Location.watchPositionAsync(
         {
-          accuracy: Location.Accuracy.Balanced,
-          timeInterval: 5000,
+          accuracy: Location.Accuracy.High,
+          distanceInterval: 3,
+          timeInterval: 2500,
         },
         (loc) => {
           if (cancelled) return;
@@ -69,6 +70,7 @@ export default function LivreurScreenWeb() {
     else {
       subRef.current?.remove();
       subRef.current = null;
+      setDriver(null, 0);
     }
 
     return () => {

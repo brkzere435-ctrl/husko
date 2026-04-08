@@ -22,29 +22,7 @@ import { postRuntimeDebugIngest } from '@/utils/debugIngestRuntime';
 
 export default function HubScreen() {
   const role = getAppVariant();
-  const otaChannel = Updates.channel;
-  const expoSlug = Constants.expoConfig?.slug;
-  const expoScheme = Constants.expoConfig?.scheme;
-  const hintedRole =
-    otaChannel === 'client' ||
-    expoSlug === 'husko-client' ||
-    expoScheme === 'husko-client'
-      ? 'client'
-      : otaChannel === 'livreur' ||
-          expoSlug === 'husko-livreur' ||
-          expoScheme === 'husko-livreur'
-        ? 'livreur'
-        : otaChannel === 'assistant' ||
-            expoSlug === 'husko-assistant' ||
-            expoScheme === 'husko-assistant'
-          ? 'assistant'
-          : otaChannel === 'gerant' ||
-              expoSlug === 'husko-gerant' ||
-              expoScheme === 'husko-gerant'
-            ? 'gerant'
-            : null;
-  const resolvedRole = hintedRole ?? role;
-  if (resolvedRole === 'all') {
+  if (role === 'all') {
     // #region agent log
     postRuntimeDebugIngest({
       runId: 'run2',
@@ -52,24 +30,21 @@ export default function HubScreen() {
       location: 'app/index.tsx:HubScreen',
       message: 'variant resolved to all',
       data: {
-        scheme: expoScheme ?? null,
-        slug: expoSlug ?? null,
+        scheme: Constants.expoConfig?.scheme ?? null,
+        slug: Constants.expoConfig?.slug ?? null,
         version: Constants.expoConfig?.version ?? null,
         nativeBuildVersion: Constants.nativeBuildVersion ?? null,
         updateId: Updates.updateId ?? null,
-        channel: otaChannel ?? null,
+        channel: Updates.channel ?? null,
         role,
-        hintedRole,
-        resolvedRole,
       },
     });
     // #endregion
   }
-  if (resolvedRole === 'all') return <Redirect href="/gerant" />;
-  if (resolvedRole === 'gerant') return <Redirect href="/gerant" />;
-  if (resolvedRole === 'client') return <Redirect href="/client" />;
-  if (resolvedRole === 'livreur') return <Redirect href="/livreur" />;
-  if (resolvedRole === 'assistant') return <Redirect href="/assistant" />;
+  if (role === 'gerant') return <Redirect href="/gerant" />;
+  if (role === 'client') return <Redirect href="/client" />;
+  if (role === 'livreur') return <Redirect href="/livreur" />;
+  if (role === 'assistant') return <Redirect href="/assistant" />;
 
   const version = Constants.expoConfig?.version ?? '—';
   const nativeBuild =

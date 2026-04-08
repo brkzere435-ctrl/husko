@@ -127,6 +127,11 @@ function genId() {
   return `HK-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`;
 }
 
+export function pickTrackedDriverOrderId(orders: Order[]): string | null {
+  const active = orders.find((o) => o.status === 'on_way') ?? orders.find((o) => o.status === 'awaiting_livreur');
+  return active?.id ?? null;
+}
+
 function canTransition(
   from: OrderStatus,
   to: OrderStatus,
@@ -167,7 +172,6 @@ export const useHuskoStore = create<State>()(
     (set, get) => {
       const pushOrderRemote = (order: Order) => {
         if (!isRemoteSyncEnabled()) {
-          void remotePushOrder(order);
           return;
         }
         void remotePushOrder(order).then(
@@ -301,8 +305,9 @@ export const useHuskoStore = create<State>()(
       },
 
       setDriver: (pos, heading = 0) => {
+        const trackedOrderId = pickTrackedDriverOrderId(get().orders);
         set({ driver: pos, driverHeading: heading });
-        remotePushDriverDebounced(pos, heading);
+        remotePushDriverDebounced(pos, heading, trackedOrderId);
       },
 
       setLivreurOnline: (livreurOnline) => set({ livreurOnline }),

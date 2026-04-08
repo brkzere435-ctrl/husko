@@ -1,9 +1,10 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Link, Stack } from 'expo-router';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Pressable, View } from 'react-native';
 
 import { CloudLinkBanner } from '@/components/CloudLinkBanner';
+import { ClientBootOverlay, CLIENT_BOOT_VISUAL_VERSION } from '@/components/westcoast/ClientBootOverlay';
 import { SyncStatusPill } from '@/components/SyncStatusPill';
 import { getAppVariant } from '@/constants/appVariant';
 import { FONT } from '@/constants/fonts';
@@ -32,6 +33,7 @@ function LivreurHeaderRight({ showSettings }: { showSettings: boolean }) {
 }
 
 export default function LivreurLayout() {
+  const [boot, setBoot] = useState(true);
   useEffect(() => {
     // #region agent log
     postRuntimeDebugIngest({
@@ -42,6 +44,7 @@ export default function LivreurLayout() {
       data: {
         variant: getAppVariant(),
         remoteSyncEnabled: isRemoteSyncEnabled(),
+        bootVisualVersion: CLIENT_BOOT_VISUAL_VERSION,
       },
     });
     // #endregion
@@ -49,6 +52,7 @@ export default function LivreurLayout() {
 
   return (
     <View style={{ flex: 1 }}>
+      <ClientBootOverlay variant="livreur" visible={boot} onDone={() => setBoot(false)} />
       <CloudLinkBanner variant="livreur" />
       <View style={{ flex: 1 }}>
         <Stack

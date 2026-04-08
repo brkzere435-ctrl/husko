@@ -37,7 +37,7 @@ import {
   configureNotificationHandler,
   notifyRemoteOrderStatusDiff,
 } from '@/services/orderNotifications';
-import { useHuskoStore } from '@/stores/useHuskoStore';
+import { pickTrackedDriverOrderId, useHuskoStore } from '@/stores/useHuskoStore';
 import Constants from 'expo-constants';
 
 import { debugAgentLog } from '@/utils/debugAgentLog';
@@ -51,6 +51,7 @@ SplashScreen.preventAutoHideAsync().catch(() => {});
 
 export default function RootLayout() {
   const { showOfflineBanner } = useNetworkState();
+  const driverOrderId = useHuskoStore((s) => pickTrackedDriverOrderId(s.orders));
   const [fontsLoaded, fontError] = useFonts({
     Oswald_400Regular,
     Oswald_500Medium,
@@ -118,6 +119,16 @@ export default function RootLayout() {
 
   useEffect(() => {
     if (!isRemoteSyncEnabled()) return;
+    const unsubDriver = subscribeToRemoteDriver(driverOrderId, (driver, driverHeading) => {
+      useHuskoStore.setState({ driver, driverHeading });
+    });
+    return () => {
+      unsubDriver();
+    };
+  }, [driverOrderId]);
+
+  useEffect(() => {
+    if (!isRemoteSyncEnabled()) return;
     // #region agent log
     postRuntimeDebugIngest({
       runId: 'run1',
@@ -174,9 +185,6 @@ export default function RootLayout() {
         useHuskoStore.setState({ cloudSyncListenError: err.message });
       }
     );
-    const unsubDriver = subscribeToRemoteDriver((driver, driverHeading) => {
-      useHuskoStore.setState({ driver, driverHeading });
-    });
     const unsubAuto = subscribeToRemoteAutonomousDemo((remoteAutonomousDemo) => {
       useHuskoStore.setState({ remoteAutonomousDemo });
     });
@@ -187,7 +195,6 @@ export default function RootLayout() {
     });
     return () => {
       unsubOrders();
-      unsubDriver();
       unsubAuto();
       unsubService();
     };

@@ -22,6 +22,9 @@ let hasLoggedExtraProbe = false;
 function isRoleVariant(v: unknown): v is 'gerant' | 'client' | 'livreur' | 'assistant' {
   return v === 'gerant' || v === 'client' || v === 'livreur' || v === 'assistant';
 }
+function isKnownVariant(v: unknown): v is 'all' | 'gerant' | 'client' | 'livreur' | 'assistant' {
+  return v === 'all' || isRoleVariant(v);
+}
 
 function readEmbeddedExtraPartial(): Partial<HuskoExpoExtra> {
   const raw = NativeModules.ExponentConstants?.manifest as string | Record<string, unknown> | undefined;
@@ -42,8 +45,9 @@ export function readHuskoExpoExtra(): HuskoExpoExtra {
   const active = (Constants.expoConfig?.extra ?? {}) as HuskoExpoExtra;
   const merged = { ...embedded, ...active } as HuskoExpoExtra;
   const embeddedVariant = typeof embedded.appVariant === 'string' ? embedded.appVariant : null;
-  const activeVariant = typeof active.appVariant === 'string' ? active.appVariant : null;
-  if (isRoleVariant(embeddedVariant) && !isRoleVariant(activeVariant)) {
+  // Source de vérité: l'identité variante embarquée dans l'APK.
+  // Un OTA ne doit jamais basculer un build vers une autre variante.
+  if (isKnownVariant(embeddedVariant)) {
     merged.appVariant = embeddedVariant;
   }
   for (const k of FIREBASE_EXTRA_KEYS) {

@@ -1,9 +1,10 @@
 import { Stack } from 'expo-router';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { View } from 'react-native';
 
 import { AutonomousDemoRunner } from '@/components/AutonomousDemoRunner';
 import { CloudLinkBanner } from '@/components/CloudLinkBanner';
+import { ClientBootOverlay, CLIENT_BOOT_VISUAL_VERSION } from '@/components/westcoast/ClientBootOverlay';
 import { SyncStatusPill } from '@/components/SyncStatusPill';
 import { FONT } from '@/constants/fonts';
 import { getAppVariant } from '@/constants/appVariant';
@@ -12,6 +13,7 @@ import { WC } from '@/constants/westCoastTheme';
 import { postRuntimeDebugIngest } from '@/utils/debugIngestRuntime';
 
 export default function GerantLayout() {
+  const [boot, setBoot] = useState(true);
   useEffect(() => {
     // #region agent log
     postRuntimeDebugIngest({
@@ -22,6 +24,7 @@ export default function GerantLayout() {
       data: {
         variant: getAppVariant(),
         remoteSyncEnabled: isRemoteSyncEnabled(),
+        bootVisualVersion: CLIENT_BOOT_VISUAL_VERSION,
       },
     });
     // #endregion
@@ -29,6 +32,7 @@ export default function GerantLayout() {
 
   return (
     <View style={{ flex: 1 }}>
+      <ClientBootOverlay variant="gerant" visible={boot} onDone={() => setBoot(false)} />
       <AutonomousDemoRunner />
       <CloudLinkBanner variant="gerant" />
       <View style={{ flex: 1 }}>

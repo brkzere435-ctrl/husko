@@ -1,6 +1,6 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { Link, router } from 'expo-router';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { Button, Dialog, Portal, Text, TextInput } from 'react-native-paper';
@@ -30,6 +30,7 @@ import { openTechnicalFeedback } from '@/navigation/openTechnicalFeedback';
 import { ANGERS_DEFAULT, useHuskoStore } from '@/stores/useHuskoStore';
 import { formatCloudSyncErrorForUser } from '@/utils/cloudSyncUserMessage';
 import { formatEuro } from '@/utils/formatEuro';
+import { geocodeAddress } from '@/utils/geocodeAddress';
 import { fitMapRegion } from '@/utils/fitMapRegion';
 import { hapticSuccess } from '@/utils/haptics';
 
@@ -56,18 +57,52 @@ export default function PanierScreen() {
     | { type: 'pushFailed' }
     | { type: 'serviceClosedManager' }
     | { type: 'serviceClosedHours' }
+    | { type: 'addressGeocodeFailed' }
     | null
   >(null);
   const [submitting, setSubmitting] = useState(false);
+  const [previewDest, setPreviewDest] = useState(ANGERS_DEFAULT);
+  const [previewDestLabel, setPreviewDestLabel] = useState('Aperçu basé sur l’adresse saisie');
 
   const total = cart.reduce((a, l) => a + l.item.price * l.qty, 0);
   const cloudOk = isRemoteSyncEnabled();
   const orderingAllowed = isClientOrderingAllowed(new Date(), remoteServiceAccepting);
 
   const region = useMemo(
-    () => fitMapRegion([ANGERS_DEFAULT, HUSKO_DEPARTURE_HUB], 2),
-    []
+    () => fitMapRegion([previewDest, HUSKO_DEPARTURE_HUB], 2),
+    [previewDest]
   );
+
+  useEffect(() => {
+    const trimmed = address.trim();
+    if (trimmed.length < 4) {
+      setPreviewDest(ANGERS_DEFAULT);
+      setPreviewDestLabel('Ajoute une adresse complète pour un aperçu précis');
+      return;
+    }
+    let cancelled = false;
+    const t = setTimeout(() => {
+      setPreviewDestLabel('Recherche de l’adresse...');
+      void geocodeAddress(trimmed).then((hit) => {
+        if (cancelled) return;
+        if (hit) {
+          setPreviewDest(hit);
+          setPreviewDestLabel('Adresse localisée — aperçu GPS réaliste');
+        } else {
+          setPreviewDest(ANGERS_DEFAULT);
+          setPreviewDestLabel('Adresse non localisée pour l’aperçu — vérifie rue + code postal');
+        }
+      }).catch(() => {
+        if (cancelled) return;
+        setPreviewDest(ANGERS_DEFAULT);
+        setPreviewDestLabel('Service de géolocalisation indisponible, réessaie dans un instant');
+      });
+    }, 450);
+    return () => {
+      cancelled = true;
+      clearTimeout(t);
+    };
+  }, [address]);
 
   async function checkout() {
     if (!cart.length) {
@@ -76,7 +111,17 @@ export default function PanierScreen() {
     }
     setSubmitting(true);
     try {
-      const order = await placeOrder(address.trim() || 'Adresse', ANGERS_DEFAULT);
+      const cleanAddress = address.trim();
+      if (cleanAddress.length < 4) {
+        setDialog({ type: 'addressGeocodeFailed' });
+        return;
+      }
+      const geocoded = await geocodeAddress(cleanAddress);
+      if (!geocoded) {
+        setDialog({ type: 'addressGeocodeFailed' });
+        return;
+      }
+      const order = await placeOrder(cleanAddress, geocoded);
       if (order) {
         hapticSuccess();
         if (isRemoteSyncEnabled()) {
@@ -89,6 +134,7 @@ export default function PanierScreen() {
       const msg = e instanceof Error ? e.message : '';
       if (msg === 'SERVICE_CLOSED_MANAGER') setDialog({ type: 'serviceClosedManager' });
       else if (msg === 'SERVICE_CLOSED_HOURS') setDialog({ type: 'serviceClosedHours' });
+      else if (msg === 'ADDRESS_GEOCODE_FAILED') setDialog({ type: 'addressGeocodeFailed' });
       else setDialog({ type: 'pushFailed' });
     } finally {
       setSubmitting(false);
@@ -187,14 +233,15 @@ export default function PanierScreen() {
                 region={region}
                 driver={driver}
                 headingDeg={driverHeading}
-                dest={ANGERS_DEFAULT}
+                dest={previewDest}
                 showDest
-                hudFooter="APERÇU · ANGERS"
+                hudFooter="APERÇU · ADRESSE CLIENT"
               />
               <View style={[styles.mapLegend, mapStackVertical && styles.mapLegendStacked]}>
                 <Text style={typography.caption}>
                   QG (néon) · pin = livraison · véhicule = livreur si suivi actif.
                 </Text>
+                <Text style={[typography.caption, styles.mapLegendSub]}>{previewDestLabel}</Text>
               </View>
             </View>
           </ScreenSection>
@@ -282,6 +329,19 @@ export default function PanierScreen() {
                 <Dialog.Title>Hors créneau</Dialog.Title>
                 <Dialog.Content>
                   <Text variant="bodyMedium">{outsideDeliveryHoursBanner}</Text>
+                </Dialog.Content>
+                <Dialog.Actions>
+                  <Button onPress={() => setDialog(null)}>OK</Button>
+                </Dialog.Actions>
+              </>
+            ) : null}
+            {dialog?.type === 'addressGeocodeFailed' ? (
+              <>
+                <Dialog.Title>Adresse introuvable</Dialog.Title>
+                <Dialog.Content>
+                  <Text variant="bodyMedium">
+                    Ajoute plus de détails (numéro, rue, code postal, ville) pour activer un suivi GPS réel.
+                  </Text>
                 </Dialog.Content>
                 <Dialog.Actions>
                   <Button onPress={() => setDialog(null)}>OK</Button>
@@ -453,6 +513,7 @@ const styles = StyleSheet.create({
     alignSelf: 'stretch',
     width: '100%',
   },
+  mapLegendSub: { marginTop: spacing.xs, color: WC.neonCyan, lineHeight: 18 },
   input: {
     marginTop: spacing.xs,
     backgroundColor: colors.cardElevated,

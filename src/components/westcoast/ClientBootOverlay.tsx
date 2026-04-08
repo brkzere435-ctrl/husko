@@ -17,17 +17,66 @@ import { WC } from '@/constants/westCoastTheme';
 
 const BOOT_CONTENT_OFFSET = spacing.lg;
 export const CLIENT_BOOT_VISUAL_VERSION = '2026-04-08-cinematic-v2';
+type BootVariant = 'client' | 'gerant' | 'livreur';
 
 type Props = {
   visible: boolean;
   onDone: () => void;
+  variant?: BootVariant;
+};
+
+const OVERLAY_COPY: Record<
+  BootVariant,
+  {
+    kicker: string;
+    headline: string;
+    script: string;
+    caption: string;
+    banner: string;
+    roleChips: { icon: keyof typeof Ionicons.glyphMap; label: string }[];
+  }
+> = {
+  client: {
+    kicker: 'LOS ANGELES VIBES',
+    headline: 'HUSKO CLIENT',
+    script: 'Commande premium · suivi en temps reel',
+    caption: 'CLIENT EXPERIENCE · WEST COAST STYLE',
+    banner: 'LIVRAISON LUN - SAM · 20h - 00h',
+    roleChips: [
+      { icon: 'person-outline', label: 'CLIENT' },
+      { icon: 'car-sport-outline', label: 'SUIVI LIVE' },
+    ],
+  },
+  gerant: {
+    kicker: 'KITCHEN COMMAND',
+    headline: 'HUSKO GERANT',
+    script: 'Pilotage commandes · coordination service',
+    caption: 'MANAGER CONSOLE · SERVICE EN TEMPS REEL',
+    banner: 'TABLEAU DE BORD · PREPA · LIVRAISON',
+    roleChips: [
+      { icon: 'briefcase-outline', label: 'GERANT' },
+      { icon: 'layers-outline', label: 'ORCHESTRATION' },
+    ],
+  },
+  livreur: {
+    kicker: 'NIGHT DRIVER',
+    headline: 'HUSKO LIVREUR',
+    script: 'Navigation course · remontee GPS live',
+    caption: 'DRIVER HUD · TRACKING EN TEMPS REEL',
+    banner: 'PRISE EN CHARGE · COURSE · LIVRAISON',
+    roleChips: [
+      { icon: 'car-sport-outline', label: 'LIVREUR' },
+      { icon: 'navigate-outline', label: 'GPS LIVE' },
+    ],
+  },
 };
 
 /** Écran d’accueil client — fond sunset + scène icônes façon affiche West Coast. */
-export function ClientBootOverlay({ visible, onDone }: Props) {
+export function ClientBootOverlay({ visible, onDone, variant = 'client' }: Props) {
   const insets = useSafeAreaInsets();
   const doneRef = useRef(onDone);
   doneRef.current = onDone;
+  const copy = OVERLAY_COPY[variant];
 
   const finish = useCallback(() => {
     doneRef.current();
@@ -55,7 +104,7 @@ export function ClientBootOverlay({ visible, onDone }: Props) {
         style={styles.root}
         onPress={finish}
         accessibilityRole="button"
-        accessibilityLabel={`${CLIENT_BOOT_SKIP_HINT}. Ouvre le menu.`}
+        accessibilityLabel={`${CLIENT_BOOT_SKIP_HINT}. Ouvre l'application.`}
       >
         <Image source={CLIENT_BOOT_HERO} style={StyleSheet.absoluteFill} resizeMode="cover" />
         <LinearGradient
@@ -80,32 +129,25 @@ export function ClientBootOverlay({ visible, onDone }: Props) {
             <Text style={styles.huskoStampText}>HUSKO</Text>
             <Ionicons name="flash" size={14} color={WC.gold} />
           </View>
-          <Text style={styles.kicker}>LOS ANGELES VIBES</Text>
-          <Text style={styles.headline}>HUSKO</Text>
-          <Text style={styles.script}>Palm night delivery · Angers</Text>
+          <Text style={styles.kicker}>{copy.kicker}</Text>
+          <Text style={styles.headline}>{copy.headline}</Text>
+          <Text style={styles.script}>{copy.script}</Text>
 
           <View style={styles.scene}>
             <BrandMark compact />
           </View>
           <View style={styles.glassCard}>
             <View style={styles.rolesRow}>
-              <View style={styles.roleChip}>
-                <Ionicons name="briefcase-outline" size={14} color={WC.neonCyan} />
-                <Text style={styles.roleChipText}>GERANT</Text>
-              </View>
-              <View style={styles.roleChip}>
-                <Ionicons name="person-outline" size={14} color={WC.neonCyan} />
-                <Text style={styles.roleChipText}>CLIENT</Text>
-              </View>
-              <View style={styles.roleChip}>
-                <Ionicons name="car-sport-outline" size={14} color={WC.neonCyan} />
-                <Text style={styles.roleChipText}>LIVREUR</Text>
-              </View>
+              {copy.roleChips.map((chip) => (
+                <View key={chip.label} style={styles.roleChip}>
+                  <Ionicons name={chip.icon} size={14} color={WC.neonCyan} />
+                  <Text style={styles.roleChipText}>{chip.label}</Text>
+                </View>
+              ))}
             </View>
-            <Text style={styles.cardCaption}>FAST FOOD PREMIUM · WEST COAST STYLE</Text>
+            <Text style={styles.cardCaption}>{copy.caption}</Text>
           </View>
-          <Text style={styles.banner}>LIVRAISON LUN - SAM · 20h - 00h</Text>
-          <Text style={styles.snap}>visual {CLIENT_BOOT_VISUAL_VERSION}</Text>
+          <Text style={styles.banner}>{copy.banner}</Text>
           <Text style={styles.skipHint}>{CLIENT_BOOT_SKIP_HINT}</Text>
           <LinearGradient
             colors={[...clientBootVisual.vignetteGradient]}

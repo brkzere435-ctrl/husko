@@ -4,7 +4,7 @@ export type AppVariant = 'all' | 'gerant' | 'client' | 'livreur' | 'assistant';
 
 export function getAppVariant(): AppVariant {
   const v = readHuskoExpoExtra().appVariant;
-  if (v === 'gerant' || v === 'client' || v === 'livreur' || v === 'assistant') return v;
+  if (v === 'all' || v === 'gerant' || v === 'client' || v === 'livreur' || v === 'assistant') return v;
   return 'gerant';
 }
 

@@ -14,6 +14,7 @@ export function VariantGate() {
   useEffect(() => {
     const first = segments[0];
     if (!first) return;
+    if (variant === 'all') return;
     const need = variant;
     if (first !== need) {
       router.replace(`/${need}` as '/gerant' | '/client' | '/livreur' | '/assistant');

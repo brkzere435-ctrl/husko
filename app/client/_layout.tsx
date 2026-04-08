@@ -33,7 +33,7 @@ export default function ClientLayout() {
   }, []);
   return (
     <View style={{ flex: 1 }}>
-      <ClientBootOverlay visible={boot} onDone={() => setBoot(false)} />
+      <ClientBootOverlay variant="client" visible={boot} onDone={() => setBoot(false)} />
       <CloudLinkBanner variant="client" />
       <View style={{ flex: 1 }}>
       <Stack

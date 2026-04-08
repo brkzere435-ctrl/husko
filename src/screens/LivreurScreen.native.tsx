@@ -79,8 +79,8 @@ export default function LivreurScreenNative() {
       subRef.current = await Location.watchPositionAsync(
         {
           accuracy: Location.Accuracy.High,
-          distanceInterval: 8,
-          timeInterval: 4000,
+          distanceInterval: 3,
+          timeInterval: 1500,
         },
         (loc) => {
           if (cancelled) return;
@@ -117,6 +117,7 @@ export default function LivreurScreenNative() {
     else {
       subRef.current?.remove();
       subRef.current = null;
+      setDriver(null, 0);
     }
 
     return () => {

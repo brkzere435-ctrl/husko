@@ -25,6 +25,9 @@ export type RemoteAutonomousDemo = { enabled: boolean; stepMs: number };
 let app: FirebaseApp | null = null;
 let db: Firestore | null = null;
 let driverWriteTimer: ReturnType<typeof setTimeout> | null = null;
+const DRIVER_PUSH_DEBOUNCE_MS = 600;
+const DRIVER_STALE_MS = 30_000;
+const DRIVER_ORDER_DOC_PREFIX = 'driver_order_';
 
 function buildConfig() {
   const e = readHuskoExpoExtra();
@@ -199,26 +202,42 @@ export function subscribeToRemoteAutonomousDemo(
 }
 
 
-function remotePushDriverNow(pos: LatLng | null, heading: number): Promise<void> {
+function remotePushDriverNow(pos: LatLng | null, heading: number, orderId: string | null): Promise<void> {
   const firestore = ensureDb();
   if (!firestore) return Promise.resolve();
+  const normalizedOrderId = orderId && orderId.trim().length > 0 ? orderId.trim() : null;
   const payload = {
     lat: pos?.latitude ?? null,
     lng: pos?.longitude ?? null,
     heading,
+    orderId: normalizedOrderId,
     updatedAt: Date.now(),
   };
-  return setDoc(doc(firestore, 'meta', 'driver'), payload, { merge: true });
+  if (normalizedOrderId == null) {
+    return setDoc(doc(firestore, 'meta', 'driver'), payload, { merge: true });
+  }
+  return Promise.all([
+    setDoc(doc(firestore, 'meta', 'driver'), payload, { merge: true }),
+    setDoc(doc(firestore, 'meta', `${DRIVER_ORDER_DOC_PREFIX}${normalizedOrderId}`), payload, { merge: true }),
+  ]).then(() => undefined);
 }
 
 /** Évite trop d’écritures Firestore pendant le suivi GPS. */
-export function remotePushDriverDebounced(pos: LatLng | null, heading: number): void {
+export function remotePushDriverDebounced(pos: LatLng | null, heading: number, orderId: string | null): void {
   if (!isRemoteSyncEnabled()) return;
+  if (pos == null) {
+    if (driverWriteTimer) {
+      clearTimeout(driverWriteTimer);
+      driverWriteTimer = null;
+    }
+    void remotePushDriverNow(null, 0, orderId);
+    return;
+  }
   if (driverWriteTimer) clearTimeout(driverWriteTimer);
   driverWriteTimer = setTimeout(() => {
     driverWriteTimer = null;
-    void remotePushDriverNow(pos, heading);
-  }, 1800);
+    void remotePushDriverNow(pos, heading, orderId);
+  }, DRIVER_PUSH_DEBOUNCE_MS);
 }
 
 export function subscribeToRemoteOrders(
@@ -300,62 +319,107 @@ export function subscribeToRemoteOrders(
   );
 }
 
+type DriverSnapshot = {
+  driver: LatLng;
+  heading: number;
+  updatedAt: number | null;
+};
+
+function parseDriverSnapshot(raw: unknown): DriverSnapshot | null {
+  if (!raw || typeof raw !== 'object') return null;
+  const d = raw as Record<string, unknown>;
+  const lat = Number(d.lat);
+  const lng = Number(d.lng);
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+  const heading = typeof d.heading === 'number' && Number.isFinite(d.heading) ? d.heading : 0;
+  const updatedAt = typeof d.updatedAt === 'number' ? d.updatedAt : null;
+  return { driver: { latitude: lat, longitude: lng }, heading, updatedAt };
+}
+
+function isDriverSnapshotStale(s: DriverSnapshot): boolean {
+  return s.updatedAt != null && Date.now() - s.updatedAt > DRIVER_STALE_MS;
+}
+
 export function subscribeToRemoteDriver(
+  orderId: string | null,
   onDriver: (driver: LatLng | null, heading: number) => void
 ): () => void {
   const firestore = ensureDb();
   if (!firestore) return () => {};
+  const normalizedOrderId = orderId && orderId.trim().length > 0 ? orderId.trim() : null;
+  const orderDocName = normalizedOrderId ? `${DRIVER_ORDER_DOC_PREFIX}${normalizedOrderId}` : null;
+  let orderSnapshot: DriverSnapshot | null = null;
+  let globalSnapshot: DriverSnapshot | null = null;
 
-  return onSnapshot(
+  const emitBest = () => {
+    const preferred = orderSnapshot ?? globalSnapshot;
+    if (!preferred) {
+      onDriver(null, 0);
+      return;
+    }
+    if (isDriverSnapshotStale(preferred)) {
+      onDriver(null, 0);
+      return;
+    }
+    onDriver(preferred.driver, preferred.heading);
+  };
+
+  const unsubGlobal = onSnapshot(
     doc(firestore, 'meta', 'driver'),
     (snap) => {
-      const d = snap.data();
-      if (!d || d.lat == null || d.lng == null) {
-        // #region agent log
-        postRuntimeDebugIngest({
-          runId: 'run1',
-          hypothesisId: 'H3',
-          location: 'firebaseRemote.ts:subscribeToRemoteDriver:snapshot',
-          message: 'driver snapshot empty',
-          data: { projectId: debugFirebaseProjectId(), hasData: !!d },
-        });
-        // #endregion
-        onDriver(null, 0);
-        return;
-      }
-      // #region agent log
-      postRuntimeDebugIngest({
-        runId: 'run1',
-        hypothesisId: 'H3',
-        location: 'firebaseRemote.ts:subscribeToRemoteDriver:snapshot',
-        message: 'driver snapshot position',
-        data: {
-          projectId: debugFirebaseProjectId(),
-          lat: Number(d.lat),
-          lng: Number(d.lng),
-          heading: typeof d.heading === 'number' ? d.heading : 0,
-        },
-      });
-      // #endregion
-      onDriver(
-        { latitude: Number(d.lat), longitude: Number(d.lng) },
-        typeof d.heading === 'number' ? d.heading : 0
-      );
+      globalSnapshot = parseDriverSnapshot(snap.data());
+      emitBest();
     },
     (err) => {
-      if (__DEV__) console.warn('[Husko Firestore driver]', err.message);
-      // #region agent log
+      if (__DEV__) console.warn('[Husko Firestore driver/global]', err.message);
       postRuntimeDebugIngest({
         runId: 'run1',
         hypothesisId: 'H3',
         location: 'firebaseRemote.ts:subscribeToRemoteDriver:onError',
-        message: 'driver listener error',
+        message: 'global driver listener error',
         data: {
           projectId: debugFirebaseProjectId(),
           err: err instanceof Error ? err.message : String(err),
+          orderId: normalizedOrderId,
         },
       });
-      // #endregion
+      globalSnapshot = null;
+      emitBest();
     }
   );
+
+  if (!orderDocName) {
+    return () => {
+      unsubGlobal();
+    };
+  }
+
+  const unsubOrder = onSnapshot(
+    doc(firestore, 'meta', orderDocName),
+    (snap) => {
+      orderSnapshot = parseDriverSnapshot(snap.data());
+      emitBest();
+    },
+    (err) => {
+      if (__DEV__) console.warn('[Husko Firestore driver/order]', err.message);
+      postRuntimeDebugIngest({
+        runId: 'run1',
+        hypothesisId: 'H3',
+        location: 'firebaseRemote.ts:subscribeToRemoteDriver:onError',
+        message: 'order driver listener error',
+        data: {
+          projectId: debugFirebaseProjectId(),
+          err: err instanceof Error ? err.message : String(err),
+          orderId: normalizedOrderId,
+        },
+      });
+      orderSnapshot = null;
+      emitBest();
+    }
+  );
+
+  return () => {
+    unsubOrder();
+    unsubGlobal();
+  };
 }

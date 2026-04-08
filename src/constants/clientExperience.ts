@@ -1,7 +1,7 @@
 /** Textes côté client — ton chaleureux et rassurant. */
 
 /** Intro plein écran au 1er lancement client (`ClientBootOverlay`) — durée max. avant passage auto au menu. */
-export const CLIENT_BOOT_DURATION_MS = 1600;
+export const CLIENT_BOOT_DURATION_MS = 4000;
 
 /** Texte discret — l’utilisateur peut aussi appuyer pour zapper sans attendre. */
 export const CLIENT_BOOT_SKIP_HINT = 'Appuyer pour continuer';
