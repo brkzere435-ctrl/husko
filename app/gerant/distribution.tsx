@@ -30,32 +30,32 @@ export default function DistributionScreen() {
   const qrVectorSize = Math.max(120, Math.min(200, qrFrameSide - spacing.md * 2));
 
   const urls = useMemo(() => getDistributionApkUrls(), []);
-  const { gerant } = urls;
+  const { gerant, client, livreur } = urls;
   const [dialog, setDialog] = useState<{ title: string; body: string } | null>(null);
   const [snack, setSnack] = useState('');
 
   const activeUrl = gerant;
   const roleStyle = DISTRIBUTION_ROLE_STYLE.gerant;
-  const title = 'APK Gérant';
+  const title = 'APK Gérant · Client · Livreur';
   const hint =
-    'QR or · profil EAS apk-gerant, OTA canal gerant. Ouvrez la page Expo puis Installez. Pas de hub / client / livreur sur cet écran.';
+    'QR dédiés pour les trois APK: gérant, client, livreur. Ouvrez la page Expo puis Installez.';
 
-  function copyUrl() {
-    if (!activeUrl) {
+  function copyUrl(url: string, label: string) {
+    if (!url) {
       setDialog({ title: 'Lien non configuré', body: configHelp });
       return;
     }
-    void Clipboard.setStringAsync(activeUrl).then(() =>
-      setSnack('Le lien a été copié dans le presse-papiers.')
+    void Clipboard.setStringAsync(url).then(() =>
+      setSnack(`Lien ${label} copié dans le presse-papiers.`)
     );
   }
 
-  function openInstallPage() {
-    if (!activeUrl) {
+  function openInstallPage(url: string) {
+    if (!url) {
       setDialog({ title: 'Lien non configuré', body: configHelp });
       return;
     }
-    Linking.openURL(activeUrl).catch(() =>
+    Linking.openURL(url).catch(() =>
       setDialog({
         title: 'Ouverture impossible',
         body: 'Copiez le lien ou ouvrez-le dans Chrome.',
@@ -71,12 +71,11 @@ export default function DistributionScreen() {
           <Text style={typography.title} accessibilityRole="header">
             Distribution
           </Text>
-          <Text style={[wcSectionLabel, styles.kicker]}>QR & lien · APK gérant uniquement</Text>
+          <Text style={[wcSectionLabel, styles.kicker]}>QR & lien · 3 APK (gérant · client · livreur)</Text>
           <Text style={[typography.bodyMuted, styles.intro]}>
-            Priorité produit : un seul livrable Android — <Text style={styles.em}>apk-gerant</Text>. Les QR ouvrent la{' '}
-            <Text style={styles.em}>page Expo</Text> (bouton Installer). Fichier{' '}
+            Les QR ouvrent la <Text style={styles.em}>page Expo</Text> (bouton Installer). Fichier{' '}
             <Text style={styles.mono}>.apk</Text> sur PC : <Text style={styles.mono}>npm run apk:download:gerant</Text>{' '}
-            après <Text style={styles.mono}>npm run ship:gerant</Text> ou build EAS terminé.
+            / <Text style={styles.mono}>client</Text> / <Text style={styles.mono}>livreur</Text> après build EAS terminé.
           </Text>
 
           <DeploymentHints mode="alerts" mapsRelevant={false} style={styles.infra} />
@@ -136,10 +135,15 @@ export default function DistributionScreen() {
                 </Text>
                 <PrimaryButton
                   title="Ouvrir la page d’installation (Expo)"
-                  onPress={openInstallPage}
+                  onPress={() => openInstallPage(activeUrl)}
                   style={styles.btn}
                 />
-                <PrimaryButton title="Copier le lien" variant="ghost" onPress={copyUrl} style={styles.btnGhost} />
+                <PrimaryButton
+                  title="Copier le lien"
+                  variant="ghost"
+                  onPress={() => copyUrl(activeUrl, 'gérant')}
+                  style={styles.btnGhost}
+                />
               </View>
             ) : (
               <View style={styles.placeholder}>
@@ -148,12 +152,39 @@ export default function DistributionScreen() {
             )}
           </View>
 
+          <RoleQrCard
+            label="Client"
+            roleKey="client"
+            url={client}
+            qrVectorSize={qrVectorSize}
+            onCopy={copyUrl}
+            onOpen={openInstallPage}
+          />
+          <RoleQrCard
+            label="Livreur"
+            roleKey="livreur"
+            url={livreur}
+            qrVectorSize={qrVectorSize}
+            onCopy={copyUrl}
+            onOpen={openInstallPage}
+          />
+
           <View style={styles.both}>
-            <Text style={styles.bothTitle}>Lien APK gérant</Text>
+            <Text style={styles.bothTitle}>Liens APK (gérant, client, livreur)</Text>
             <QrSummary
               label="Gérant (or)"
               url={gerant}
               accent={DISTRIBUTION_ROLE_STYLE.gerant.accent}
+            />
+            <QrSummary
+              label="Client (vert)"
+              url={client}
+              accent={DISTRIBUTION_ROLE_STYLE.client.accent}
+            />
+            <QrSummary
+              label="Livreur (bleu)"
+              url={livreur}
+              accent={DISTRIBUTION_ROLE_STYLE.livreur.accent}
             />
           </View>
         </ScrollView>
@@ -177,7 +208,51 @@ export default function DistributionScreen() {
 }
 
 const configHelp =
-  'Renseignez l’URL gérant dans distribution.defaults.json ("gerant") ou EXPO_PUBLIC_DISTRIBUTION_GERANT_APK_URL, puis npm run distribution:sync-eas-urls, npm run qr:generate, et npm run ship:gerant.';
+  'Renseignez les URLs client/livreur/gérant dans distribution.defaults.json ou EXPO_PUBLIC_DISTRIBUTION_*_APK_URL puis exécutez npm run distribution:sync-eas-urls.';
+
+function RoleQrCard({
+  label,
+  roleKey,
+  url,
+  qrVectorSize,
+  onCopy,
+  onOpen,
+}: {
+  label: string;
+  roleKey: 'client' | 'livreur';
+  url: string;
+  qrVectorSize: number;
+  onCopy: (url: string, label: string) => void;
+  onOpen: (url: string) => void;
+}) {
+  const roleStyle = DISTRIBUTION_ROLE_STYLE[roleKey];
+  return (
+    <View style={[surface.elevated, styles.roleCard, { borderColor: roleStyle.accent }]}>
+      <Text style={[styles.roleCardTitle, { color: roleStyle.accent }]}>{label}</Text>
+      {url ? (
+        <>
+          <View style={[styles.qrInner, { borderColor: roleStyle.accent }]}>
+            <QRCode
+              value={url}
+              size={qrVectorSize}
+              backgroundColor={colors.cardElevated}
+              color={roleStyle.qrDark}
+            />
+          </View>
+          <PrimaryButton title={`Ouvrir installation ${label}`} onPress={() => onOpen(url)} style={styles.btn} />
+          <PrimaryButton
+            title={`Copier lien ${label}`}
+            variant="ghost"
+            onPress={() => onCopy(url, label)}
+            style={styles.btnGhost}
+          />
+        </>
+      ) : (
+        <Text style={typography.bodyMuted}>URL non configurée</Text>
+      )}
+    </View>
+  );
+}
 
 function QrSummary({
   label,
@@ -225,6 +300,17 @@ const styles = StyleSheet.create({
   card: {
     padding: spacing.lg,
     marginBottom: spacing.lg,
+  },
+  roleCard: {
+    padding: spacing.md,
+    marginBottom: spacing.lg,
+    borderWidth: 2,
+    borderRadius: radius.xl,
+  },
+  roleCardTitle: {
+    ...typography.section,
+    marginBottom: spacing.sm,
+    textAlign: 'center',
   },
   roleBanner: {
     borderRadius: radius.md,
