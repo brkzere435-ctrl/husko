@@ -59,9 +59,14 @@ export default function SuiviScreen() {
 
   const stepIdx = active ? timelineStepIndex(active.status) : -1;
 
-  const dest = active
-    ? { latitude: active.destLat, longitude: active.destLng }
-    : null;
+  const dest = useMemo(() => {
+    if (!active) return null;
+    const hasDestCoords =
+      Number.isFinite(active.destLat) &&
+      Number.isFinite(active.destLng) &&
+      !(active.destLat === 0 && active.destLng === 0);
+    return hasDestCoords ? { latitude: active.destLat, longitude: active.destLng } : null;
+  }, [active]);
 
   const showLiveMap =
     !!active &&
@@ -74,18 +79,19 @@ export default function SuiviScreen() {
 
   const staticRegion = useMemo(() => {
     if (!active || !showStaticMap) return null;
-    return fitMapRegion(
-      [HUSKO_DEPARTURE_HUB, { latitude: active.destLat, longitude: active.destLng }],
-      2
-    );
-  }, [active, showStaticMap]);
+    const pts = [HUSKO_DEPARTURE_HUB];
+    if (dest) pts.push(dest);
+    if (driver) pts.push(driver);
+    return fitMapRegion(pts, 2);
+  }, [active, showStaticMap, dest, driver]);
 
   const liveRegion = useMemo(() => {
     if (!active || !showLiveMap) return null;
-    const pts = [HUSKO_DEPARTURE_HUB, { latitude: active.destLat, longitude: active.destLng }];
+    const pts = [HUSKO_DEPARTURE_HUB];
+    if (dest) pts.push(dest);
     if (driver) pts.push(driver);
     return fitMapRegion(pts, 1.85);
-  }, [active, driver, showLiveMap]);
+  }, [active, driver, showLiveMap, dest]);
 
 
   const etaStepMs = useMemo(() => {
@@ -214,27 +220,33 @@ export default function SuiviScreen() {
                 </Text>
               ) : null}
 
-              {showStaticMap && staticRegion && dest ? (
+              {showStaticMap && staticRegion ? (
                 <View style={styles.mapWrap}>
                   <Text style={styles.mapTitle}>Aperçu du trajet</Text>
-                  <Text style={styles.mapSub}>Du QG Husko à votre adresse — suivi live dès l’étape « En route »</Text>
+                  <Text style={styles.mapSub}>
+                    {dest
+                      ? 'Du QG Husko à votre adresse — suivi live dès l’étape « En route »'
+                      : 'Zone client en cours de calibration — suivi live actif dès signal GPS livreur'}
+                  </Text>
                   <GTAMiniMap
                     size={236}
                     region={staticRegion}
                     driver={null}
                     headingDeg={0}
                     dest={dest}
-                    showDest
+                    showDest={!!dest}
                     hudFooter="APERÇU · QG → DROP"
                   />
                 </View>
               ) : null}
 
-              {showLiveMap && liveRegion && dest ? (
+              {showLiveMap && liveRegion ? (
                 <View style={styles.mapWrap}>
                   <Text style={styles.mapTitle}>Suivi Cadillac · mode GTA</Text>
                   <Text style={styles.mapSub}>
-                    QG bâtiment H (néon) · livraison en pin — le livreur roule vers toi
+                    {dest
+                      ? 'QG bâtiment H (néon) · livraison en pin — le livreur roule vers toi'
+                      : 'Signal GPS livreur actif · destination client en cours de synchronisation'}
                   </Text>
                   <GTAMiniMap
                     size={236}
