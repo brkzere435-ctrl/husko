@@ -18,12 +18,26 @@ import { colors, elevation, radius, spacing, surface } from '@/constants/theme';
 import { WC, wcSectionLabel } from '@/constants/westCoastTheme';
 import { FONT } from '@/constants/fonts';
 import { typography } from '@/constants/typography';
+import { postRuntimeDebugIngest } from '@/utils/debugIngestRuntime';
 
 export default function HubScreen() {
   const role = getAppVariant();
   if (role === 'all') {
     // #region agent log
-    fetch('http://127.0.0.1:7887/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'995197'},body:JSON.stringify({sessionId:'995197',runId:'run2',hypothesisId:'H6',location:'app/index.tsx:HubScreen',message:'variant resolved to all',data:{scheme:Constants.expoConfig?.scheme ?? null,slug:Constants.expoConfig?.slug ?? null,version:Constants.expoConfig?.version ?? null,nativeBuildVersion:Constants.nativeBuildVersion ?? null,updateId:Updates.updateId ?? null,channel:Updates.channel ?? null},timestamp:Date.now()})}).catch(()=>{});
+    postRuntimeDebugIngest({
+      runId: 'run2',
+      hypothesisId: 'H6',
+      location: 'app/index.tsx:HubScreen',
+      message: 'variant resolved to all',
+      data: {
+        scheme: Constants.expoConfig?.scheme ?? null,
+        slug: Constants.expoConfig?.slug ?? null,
+        version: Constants.expoConfig?.version ?? null,
+        nativeBuildVersion: Constants.nativeBuildVersion ?? null,
+        updateId: Updates.updateId ?? null,
+        channel: Updates.channel ?? null,
+      },
+    });
     // #endregion
   }
   if (role === 'all') return <Redirect href="/gerant" />;

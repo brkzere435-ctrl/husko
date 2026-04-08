@@ -34,6 +34,7 @@ import { HUSKO_DEPARTURE_HUB } from '@/constants/huskoDepartureHub';
 import { colors, elevation, radius, spacing } from '@/constants/theme';
 import { WC } from '@/constants/westCoastTheme';
 import { useHuskoStore } from '@/stores/useHuskoStore';
+import { postRuntimeDebugIngest } from '@/utils/debugIngestRuntime';
 import { formatEuro } from '@/utils/formatEuro';
 import { fitMapRegion } from '@/utils/fitMapRegion';
 import { isMapsKeyConfiguredForPlatform } from '@/utils/mapsBuildInfo';
@@ -110,7 +111,21 @@ export default function SuiviScreen() {
 
   useEffect(() => {
     // #region agent log
-    fetch('http://127.0.0.1:7887/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'995197'},body:JSON.stringify({sessionId:'995197',runId:'run1',hypothesisId:'H1',location:'app/client/suivi.tsx:renderState',message:'suivi state snapshot',data:{ordersCount:orders.length,hasActive:activeId !== null,activeStatus,showLiveMap,showStaticMap,hasDriver,mapsConfigured},timestamp:Date.now()})}).catch(()=>{});
+    postRuntimeDebugIngest({
+      runId: 'run1',
+      hypothesisId: 'H1',
+      location: 'app/client/suivi.tsx:renderState',
+      message: 'suivi state snapshot',
+      data: {
+        ordersCount: orders.length,
+        hasActive: activeId !== null,
+        activeStatus,
+        showLiveMap,
+        showStaticMap,
+        hasDriver,
+        mapsConfigured,
+      },
+    });
     // #endregion
   }, [orders.length, activeId, activeStatus, showLiveMap, showStaticMap, hasDriver, mapsConfigured]);
 

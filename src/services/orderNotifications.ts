@@ -13,7 +13,6 @@ export function configureNotificationHandler() {
   if (!canNotify()) return;
   Notifications.setNotificationHandler({
     handleNotification: async () => ({
-      shouldShowAlert: true,
       shouldShowBanner: true,
       shouldShowList: true,
       shouldPlaySound: true,

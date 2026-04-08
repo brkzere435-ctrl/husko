@@ -23,6 +23,7 @@ import { HUSKO_DEPARTURE_HUB } from '@/constants/huskoDepartureHub';
 import { livreurScreenVisual } from '@/constants/livreurScreenVisual';
 import { useTracksViewChangesForCustomMarker } from '@/hooks/useTracksViewChangesForCustomMarker';
 import { ANGERS_DEFAULT, useHuskoStore } from '@/stores/useHuskoStore';
+import { postRuntimeDebugIngest } from '@/utils/debugIngestRuntime';
 import { fitMapRegion } from '@/utils/fitMapRegion';
 import { isMapsKeyConfiguredForPlatform } from '@/utils/mapsBuildInfo';
 
@@ -46,7 +47,13 @@ export default function LivreurScreenNative() {
 
   useEffect(() => {
     // #region agent log
-    fetch('http://127.0.0.1:7887/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'995197'},body:JSON.stringify({sessionId:'995197',runId:'run5',hypothesisId:'H12',location:'LivreurScreen.native.tsx:mount',message:'livreur map capability snapshot',data:{livreurOnline,mapsConfigured,hasDriver:driver != null},timestamp:Date.now()})}).catch(()=>{});
+    postRuntimeDebugIngest({
+      runId: 'run5',
+      hypothesisId: 'H12',
+      location: 'LivreurScreen.native.tsx:mount',
+      message: 'livreur map capability snapshot',
+      data: { livreurOnline, mapsConfigured, hasDriver: driver != null },
+    });
     // #endregion
   }, [livreurOnline, mapsConfigured, driver]);
 
@@ -56,7 +63,13 @@ export default function LivreurScreenNative() {
     async function start() {
       const { status } = await Location.requestForegroundPermissionsAsync();
       // #region agent log
-      fetch('http://127.0.0.1:7887/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'995197'},body:JSON.stringify({sessionId:'995197',runId:'run1',hypothesisId:'H3',location:'LivreurScreen.native.tsx:start:permission',message:'location permission status',data:{status,livreurOnline},timestamp:Date.now()})}).catch(()=>{});
+      postRuntimeDebugIngest({
+        runId: 'run1',
+        hypothesisId: 'H3',
+        location: 'LivreurScreen.native.tsx:start:permission',
+        message: 'location permission status',
+        data: { status, livreurOnline },
+      });
       // #endregion
       if (status !== 'granted') {
         setSnack('Activez la localisation pour le suivi livreur.');
@@ -76,7 +89,19 @@ export default function LivreurScreenNative() {
           const raw = loc.coords.heading;
           const heading = typeof raw === 'number' && Number.isFinite(raw) ? raw : 0;
           // #region agent log
-          fetch('http://127.0.0.1:7887/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'995197'},body:JSON.stringify({sessionId:'995197',runId:'run1',hypothesisId:'H3',location:'LivreurScreen.native.tsx:watchPosition',message:'location update',data:{lat,lng,heading,accuracy:loc.coords.accuracy ?? null,speed:loc.coords.speed ?? null},timestamp:Date.now()})}).catch(()=>{});
+          postRuntimeDebugIngest({
+            runId: 'run1',
+            hypothesisId: 'H3',
+            location: 'LivreurScreen.native.tsx:watchPosition',
+            message: 'location update',
+            data: {
+              lat,
+              lng,
+              heading,
+              accuracy: loc.coords.accuracy ?? null,
+              speed: loc.coords.speed ?? null,
+            },
+          });
           // #endregion
           setDriver({ latitude: lat, longitude: lng }, heading);
           setRegion((r) => ({
@@ -152,13 +177,25 @@ export default function LivreurScreenNative() {
                 onRegionChangeComplete={setRegion}
                 onMapReady={() => {
                   // #region agent log
-                  fetch('http://127.0.0.1:7887/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'995197'},body:JSON.stringify({sessionId:'995197',runId:'run6',hypothesisId:'H13',location:'LivreurScreen.native.tsx:map:onMapReady',message:'native map ready event',data:{mapsConfigured,nativeMapLoadedBefore:nativeMapLoaded},timestamp:Date.now()})}).catch(()=>{});
+                  postRuntimeDebugIngest({
+                    runId: 'run6',
+                    hypothesisId: 'H13',
+                    location: 'LivreurScreen.native.tsx:map:onMapReady',
+                    message: 'native map ready event',
+                    data: { mapsConfigured, nativeMapLoadedBefore: nativeMapLoaded },
+                  });
                   // #endregion
                 }}
                 onMapLoaded={() => {
                   setNativeMapLoaded(true);
                   // #region agent log
-                  fetch('http://127.0.0.1:7887/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'995197'},body:JSON.stringify({sessionId:'995197',runId:'run6',hypothesisId:'H13',location:'LivreurScreen.native.tsx:map:onMapLoaded',message:'native map loaded event',data:{mapsConfigured,nativeMapLoadedAfter:true},timestamp:Date.now()})}).catch(()=>{});
+                  postRuntimeDebugIngest({
+                    runId: 'run6',
+                    hypothesisId: 'H13',
+                    location: 'LivreurScreen.native.tsx:map:onMapLoaded',
+                    message: 'native map loaded event',
+                    data: { mapsConfigured, nativeMapLoadedAfter: true },
+                  });
                   // #endregion
                 }}
                 showsUserLocation={false}
