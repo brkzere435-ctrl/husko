@@ -53,7 +53,8 @@ export default function PanierScreen() {
   const [dialog, setDialog] = useState<
     | { type: 'empty' }
     | { type: 'success'; orderId: string }
-    | { type: 'successLocal'; orderId: string }
+    | { type: 'addressApproximate'; orderId: string }
+    | { type: 'cloudRequired' }
     | { type: 'pushFailed' }
     | { type: 'serviceClosedManager' }
     | { type: 'serviceClosedHours' }
@@ -90,7 +91,7 @@ export default function PanierScreen() {
           setPreviewDestLabel('Adresse localisée — aperçu GPS réaliste');
         } else {
           setPreviewDest(ANGERS_DEFAULT);
-          setPreviewDestLabel('Adresse non localisée pour l’aperçu — vérifie rue + code postal');
+          setPreviewDestLabel('Adresse non localisée — commande possible avec position approximative');
         }
       }).catch(() => {
         if (cancelled) return;
@@ -109,6 +110,10 @@ export default function PanierScreen() {
       setDialog({ type: 'empty' });
       return;
     }
+    if (!cloudOk) {
+      setDialog({ type: 'cloudRequired' });
+      return;
+    }
     setSubmitting(true);
     try {
       const cleanAddress = address.trim();
@@ -117,24 +122,23 @@ export default function PanierScreen() {
         return;
       }
       const geocoded = await geocodeAddress(cleanAddress);
-      if (!geocoded) {
-        setDialog({ type: 'addressGeocodeFailed' });
-        return;
-      }
-      const order = await placeOrder(cleanAddress, geocoded);
+      const usedApproximateDest = !geocoded;
+      const targetDest = geocoded ?? ANGERS_DEFAULT;
+      const order = await placeOrder(cleanAddress, targetDest);
       if (order) {
         hapticSuccess();
-        if (isRemoteSyncEnabled()) {
-          setDialog({ type: 'success', orderId: order.id });
-        } else {
-          setDialog({ type: 'successLocal', orderId: order.id });
-        }
+        setDialog(
+          usedApproximateDest
+            ? { type: 'addressApproximate', orderId: order.id }
+            : { type: 'success', orderId: order.id }
+        );
       }
     } catch (e) {
       const msg = e instanceof Error ? e.message : '';
       if (msg === 'SERVICE_CLOSED_MANAGER') setDialog({ type: 'serviceClosedManager' });
       else if (msg === 'SERVICE_CLOSED_HOURS') setDialog({ type: 'serviceClosedHours' });
       else if (msg === 'ADDRESS_GEOCODE_FAILED') setDialog({ type: 'addressGeocodeFailed' });
+      else if (msg === 'CLOUD_SYNC_REQUIRED') setDialog({ type: 'cloudRequired' });
       else setDialog({ type: 'pushFailed' });
     } finally {
       setSubmitting(false);
@@ -269,7 +273,7 @@ export default function PanierScreen() {
               <PrimaryButton
                 title={submitting ? 'Envoi en cours…' : 'Valider la commande'}
                 onPress={() => void checkout()}
-                disabled={submitting || !orderingAllowed}
+                disabled={submitting || !orderingAllowed || !cloudOk}
               />
               <PrimaryButton title="Vider le panier" variant="ghost" onPress={() => clearCart()} />
             </Animated.View>
@@ -291,25 +295,17 @@ export default function PanierScreen() {
                 </Dialog.Actions>
               </>
             ) : null}
-            {dialog?.type === 'successLocal' ? (
+            {dialog?.type === 'cloudRequired' ? (
               <>
-                <Dialog.Title>{clientStrings.orderSentLocalTitle}</Dialog.Title>
+                <Dialog.Title>Liaison cloud requise</Dialog.Title>
                 <Dialog.Content>
                   <Text variant="bodyMedium">
-                    {`${clientStrings.orderSentLocalMessage(dialog.orderId)}\n\n${PAYMENT_NOTICE_SHORT}`}
+                    Cette version client n’est pas correctement liée à Firebase. Pour éviter les commandes
+                    perdues, l’envoi est bloqué tant que la liaison cloud n’est pas active.
                   </Text>
                 </Dialog.Content>
                 <Dialog.Actions>
-                  <Button onPress={() => setDialog(null)}>Fermer</Button>
-                  <Button
-                    mode="contained"
-                    onPress={() => {
-                      setDialog(null);
-                      router.replace('/client/suivi');
-                    }}
-                  >
-                    Voir le suivi
-                  </Button>
+                  <Button onPress={() => setDialog(null)}>OK</Button>
                 </Dialog.Actions>
               </>
             ) : null}
@@ -345,6 +341,28 @@ export default function PanierScreen() {
                 </Dialog.Content>
                 <Dialog.Actions>
                   <Button onPress={() => setDialog(null)}>OK</Button>
+                </Dialog.Actions>
+              </>
+            ) : null}
+            {dialog?.type === 'addressApproximate' ? (
+              <>
+                <Dialog.Title>Commande envoyée (position approximative)</Dialog.Title>
+                <Dialog.Content>
+                  <Text variant="bodyMedium">
+                    {`Votre commande ${dialog.orderId} est bien envoyée. L’adresse n’a pas pu être géolocalisée précisément: le suivi GPS sera approximatif tant que l’adresse n’est pas complétée.\n\n${PAYMENT_NOTICE_SHORT}`}
+                  </Text>
+                </Dialog.Content>
+                <Dialog.Actions>
+                  <Button onPress={() => setDialog(null)}>Fermer</Button>
+                  <Button
+                    mode="contained"
+                    onPress={() => {
+                      setDialog(null);
+                      router.replace('/client/suivi');
+                    }}
+                  >
+                    Voir le suivi
+                  </Button>
                 </Dialog.Actions>
               </>
             ) : null}

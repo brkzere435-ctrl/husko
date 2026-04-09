@@ -243,6 +243,9 @@ export const useHuskoStore = create<State>()(
       placeOrder: async (addressLabel, dest) => {
         const { cart, notificationsEnabled, remoteServiceAccepting } = get();
         if (!cart.length) return null;
+        if (!isRemoteSyncEnabled()) {
+          throw new Error('CLOUD_SYNC_REQUIRED');
+        }
         if (!isClientOrderingAllowed(new Date(), remoteServiceAccepting)) {
           throw new Error(
             remoteServiceAccepting === false ? 'SERVICE_CLOSED_MANAGER' : 'SERVICE_CLOSED_HOURS'

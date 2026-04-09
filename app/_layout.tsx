@@ -99,18 +99,17 @@ export default function RootLayout() {
 
   useEffect(() => {
     const run = () => useHuskoStore.getState().expireStalePendingOrders();
+    const startedAt = Date.now();
     run();
-    const upd = setTimeout(() => void checkAndReloadUpdatesAsync(), 2800);
     tickRef.current = setInterval(run, 60_000);
     otaRef.current = setInterval(() => void checkAndReloadUpdatesAsync(), OTA_PERIODIC_CHECK_MS);
     const sub = AppState.addEventListener('change', (s) => {
-      if (s === 'active') {
+      if (s === 'active' && Date.now() - startedAt > 60_000) {
         run();
         void checkAndReloadUpdatesAsync();
       }
     });
     return () => {
-      clearTimeout(upd);
       if (tickRef.current) clearInterval(tickRef.current);
       if (otaRef.current) clearInterval(otaRef.current);
       sub.remove();

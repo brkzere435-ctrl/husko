@@ -57,10 +57,12 @@ export function ClientBootOverlay({ visible, onDone, variant = 'client' }: Props
         accessibilityRole="button"
         accessibilityLabel={`${CLIENT_BOOT_SKIP_HINT}. Ouvre l'application.`}
       >
-        <Image source={CLIENT_BOOT_HERO} style={StyleSheet.absoluteFill} resizeMode="cover" />
-        <View style={styles.topShade} pointerEvents="none" />
-        <View style={styles.bottomShade} pointerEvents="none" />
+        <Image source={CLIENT_BOOT_HERO} style={StyleSheet.absoluteFill} resizeMode="cover" blurRadius={10} />
+        <View style={styles.backTint} pointerEvents="none" />
         <View style={[styles.fill, { paddingTop: topPad }]}>
+          <View style={styles.posterWrap} pointerEvents="none">
+            <Image source={CLIENT_BOOT_HERO} style={styles.poster} resizeMode="contain" />
+          </View>
           <View style={styles.bottomPanel}>
             <Text style={styles.roleText}>APK {VARIANT_LABEL[variant].toUpperCase()}</Text>
             <Text style={styles.skipHint}>{CLIENT_BOOT_SKIP_HINT}</Text>
@@ -73,24 +75,28 @@ export function ClientBootOverlay({ visible, onDone, variant = 'client' }: Props
 
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.shellBackground },
-  topShade: {
+  backTint: {
     ...StyleSheet.absoluteFillObject,
-    height: '24%',
-    backgroundColor: 'rgba(0,0,0,0.28)',
-  },
-  bottomShade: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 0,
-    height: '32%',
-    backgroundColor: 'rgba(0,0,0,0.46)',
+    backgroundColor: 'rgba(14, 2, 2, 0.58)',
   },
   fill: {
     flex: 1,
     paddingHorizontal: spacing.md,
-    justifyContent: 'flex-end',
+    justifyContent: 'space-between',
     paddingBottom: spacing.lg,
+  },
+  posterWrap: {
+    flex: 1,
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: spacing.md,
+  },
+  poster: {
+    width: '100%',
+    maxWidth: 420,
+    height: '100%',
+    maxHeight: 760,
   },
   bottomPanel: {
     alignItems: 'center',
