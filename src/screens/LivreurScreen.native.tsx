@@ -159,7 +159,7 @@ export default function LivreurScreenNative() {
 
           <View style={styles.mapContainer}>
             <View
-              style={[styles.mapFallback, mapsConfigured && nativeMapLoaded ? styles.mapFallbackHidden : null]}
+              style={styles.mapFallback}
               pointerEvents="none"
             >
               <GTAMiniMapFallbackInterior
@@ -173,7 +173,7 @@ export default function LivreurScreenNative() {
             </View>
             {mapsConfigured ? (
               <MapView
-                style={[styles.map, !nativeMapLoaded ? styles.mapHidden : null]}
+                style={[styles.map, styles.mapBlend, !nativeMapLoaded ? styles.mapHidden : null]}
                 provider={Platform.OS === 'android' ? PROVIDER_GOOGLE : undefined}
                 region={region}
                 onRegionChangeComplete={setRegion}
@@ -276,9 +276,9 @@ const styles = StyleSheet.create({
   toolbarLabel: { fontFamily: FONT.bold, color: WC.neonCyan, fontSize: 13, letterSpacing: 1.2 },
   mapContainer: { flex: 1, position: 'relative' },
   map: { ...StyleSheet.absoluteFillObject },
+  mapBlend: { opacity: 0.8 },
   mapHidden: { opacity: 0 },
   mapFallback: { ...StyleSheet.absoluteFillObject },
-  mapFallbackHidden: { opacity: 0 },
   miniWrap: {
     position: 'absolute',
     right: spacing.md,

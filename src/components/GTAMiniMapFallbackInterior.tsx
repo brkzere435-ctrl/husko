@@ -73,12 +73,7 @@ export function GTAMiniMapFallbackInterior({
           onError={() => setTileError(true)}
           accessibilityLabel="Carte OpenStreetMap"
         />
-      ) : (
-        <View style={styles.tileErrorWrap}>
-          <Text style={styles.tileErrorTitle}>Carte temporairement indisponible</Text>
-          <Text style={styles.tileErrorText}>Vérifiez la connexion réseau puis réessayez.</Text>
-        </View>
-      )}
+      ) : null}
       <View style={styles.overlayDim} pointerEvents="none" />
       <View style={styles.zoneRing} pointerEvents="none" />
       <View style={[styles.corner, styles.cornerTL]} />
@@ -104,6 +99,11 @@ export function GTAMiniMapFallbackInterior({
           <Text style={styles.destX}>×</Text>
         </View>
       ) : null}
+      {tileError ? (
+        <View style={styles.offlineBadge} pointerEvents="none">
+          <Text style={styles.offlineBadgeText}>OSM OFFLINE · RADAR ACTIF</Text>
+        </View>
+      ) : null}
     </View>
   );
 }
@@ -124,26 +124,22 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
     backgroundColor: 'rgba(6, 3, 8, 0.28)',
   },
-  tileErrorWrap: {
-    ...StyleSheet.absoluteFillObject,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 18,
-    backgroundColor: 'rgba(10, 4, 8, 0.9)',
+  offlineBadge: {
+    position: 'absolute',
+    top: 8,
+    alignSelf: 'center',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: 'rgba(252, 211, 77, 0.45)',
+    backgroundColor: 'rgba(12, 4, 6, 0.74)',
   },
-  tileErrorTitle: {
+  offlineBadgeText: {
     fontFamily: FONT.bold,
     color: colors.gold,
-    fontSize: 12,
-    letterSpacing: 0.8,
-    textAlign: 'center',
-  },
-  tileErrorText: {
-    marginTop: 8,
-    fontFamily: FONT.medium,
-    color: colors.textMuted,
-    fontSize: 11,
-    textAlign: 'center',
+    fontSize: 9,
+    letterSpacing: 0.7,
   },
   zoneRing: {
     position: 'absolute',
