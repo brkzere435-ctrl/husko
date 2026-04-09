@@ -63,6 +63,7 @@ export function GTAMiniMap({
       <View style={[elevation.hero, frameSize]} collapsable={false}>
         <GTAHudFrame size={size} footerTag={footerTag}>
           <GTAMiniMapFallbackInterior
+            region={region}
             driver={driver}
             headingDeg={headingDeg}
             dest={dest}

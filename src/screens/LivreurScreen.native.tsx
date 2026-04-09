@@ -163,6 +163,7 @@ export default function LivreurScreenNative() {
               pointerEvents="none"
             >
               <GTAMiniMapFallbackInterior
+                region={region}
                 driver={driver}
                 headingDeg={driverHeading}
                 departure={HUSKO_DEPARTURE_HUB}

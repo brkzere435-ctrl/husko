@@ -1,14 +1,17 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { useMemo, useState } from 'react';
+import { Image, StyleSheet, Text, View } from 'react-native';
 
 import { HuskoDepartureBuilding } from '@/components/HuskoDepartureBuilding';
 import { FONT } from '@/constants/fonts';
 import { HUSKO_DEPARTURE_HUB } from '@/constants/huskoDepartureHub';
 import { gtaMapFallbackVisual } from '@/constants/hudVisual';
 import { colors } from '@/constants/theme';
+import type { MapRegion } from '@/types/mapRegion';
 
 import { CarMarkerIcon } from './CarMarkerIcon';
 
 type Props = {
+  region?: MapRegion;
   driver?: { latitude: number; longitude: number } | null;
   headingDeg?: number;
   dest?: { latitude: number; longitude: number } | null;
@@ -17,11 +20,8 @@ type Props = {
   showDeparture?: boolean;
 };
 
-/**
- * Carte « radar » dessinée (sans Google Maps) — même look que le build web.
- * Utilisé sur Android/iOS si la clé Maps n’est pas dans le build ou en secours erreur tuiles.
- */
 export function GTAMiniMapFallbackInterior({
+  region,
   driver,
   headingDeg = 0,
   dest,
@@ -29,8 +29,57 @@ export function GTAMiniMapFallbackInterior({
   departure = HUSKO_DEPARTURE_HUB,
   showDeparture = true,
 }: Props) {
+  const [tileError, setTileError] = useState(false);
+
+  const mapUri = useMemo(() => {
+    const points: { latitude: number; longitude: number }[] = [];
+    if (showDeparture && departure) points.push(departure);
+    if (showDest && dest) points.push(dest);
+    if (driver) points.push(driver);
+
+    const centerLat =
+      points.length > 0
+        ? points.reduce((sum, p) => sum + p.latitude, 0) / points.length
+        : (region?.latitude ?? HUSKO_DEPARTURE_HUB.latitude);
+    const centerLng =
+      points.length > 0
+        ? points.reduce((sum, p) => sum + p.longitude, 0) / points.length
+        : (region?.longitude ?? HUSKO_DEPARTURE_HUB.longitude);
+
+    const latitudeDelta = region?.latitudeDelta ?? 0.02;
+    const zoom = Math.max(11, Math.min(18, Math.round(Math.log2(360 / Math.max(latitudeDelta, 0.0001)))));
+
+    const markerParts: string[] = [];
+    if (showDeparture && departure) {
+      markerParts.push(`${departure.latitude},${departure.longitude},lightblue1`);
+    }
+    if (showDest && dest) {
+      markerParts.push(`${dest.latitude},${dest.longitude},lightgreen1`);
+    }
+    if (driver) {
+      markerParts.push(`${driver.latitude},${driver.longitude},red`);
+    }
+    const markerQuery = markerParts.length > 0 ? `&markers=${encodeURIComponent(markerParts.join('|'))}` : '';
+    return `https://staticmap.openstreetmap.de/staticmap.php?center=${centerLat},${centerLng}&zoom=${zoom}&size=640x640&maptype=mapnik${markerQuery}`;
+  }, [departure, dest, driver, region, showDeparture, showDest]);
+
   return (
     <View style={styles.fakeMap} collapsable={false}>
+      {!tileError ? (
+        <Image
+          source={{ uri: mapUri }}
+          style={styles.mapImage}
+          resizeMode="cover"
+          onError={() => setTileError(true)}
+          accessibilityLabel="Carte OpenStreetMap"
+        />
+      ) : (
+        <View style={styles.tileErrorWrap}>
+          <Text style={styles.tileErrorTitle}>Carte temporairement indisponible</Text>
+          <Text style={styles.tileErrorText}>Vérifiez la connexion réseau puis réessayez.</Text>
+        </View>
+      )}
+      <View style={styles.overlayDim} pointerEvents="none" />
       <View style={styles.zoneRing} pointerEvents="none" />
       <View style={[styles.corner, styles.cornerTL]} />
       <View style={[styles.corner, styles.cornerTR]} />
@@ -67,6 +116,34 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderWidth: 1,
     borderColor: gtaMapFallbackVisual.zoneBorderDim,
+  },
+  mapImage: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  overlayDim: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(6, 3, 8, 0.28)',
+  },
+  tileErrorWrap: {
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 18,
+    backgroundColor: 'rgba(10, 4, 8, 0.9)',
+  },
+  tileErrorTitle: {
+    fontFamily: FONT.bold,
+    color: colors.gold,
+    fontSize: 12,
+    letterSpacing: 0.8,
+    textAlign: 'center',
+  },
+  tileErrorText: {
+    marginTop: 8,
+    fontFamily: FONT.medium,
+    color: colors.textMuted,
+    fontSize: 11,
+    textAlign: 'center',
   },
   zoneRing: {
     position: 'absolute',
