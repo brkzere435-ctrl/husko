@@ -15,7 +15,7 @@ import { postRuntimeDebugIngest, postSessionA64698Ingest } from '@/utils/debugIn
 export default function GerantLayout() {
   const supportDebugEnabled =
     __DEV__ || process.env.EXPO_PUBLIC_HUSKO_DEBUG_BOOT === '1';
-  const [boot, setBoot] = useState(true);
+  const [boot] = useState(false);
   useEffect(() => {
     if (!supportDebugEnabled) return;
     // #region agent log
@@ -52,7 +52,7 @@ export default function GerantLayout() {
 
   return (
     <View style={{ flex: 1 }}>
-      <ClientBootOverlay variant="gerant" visible={boot} onDone={() => setBoot(false)} />
+      <ClientBootOverlay variant="gerant" visible={boot} onDone={() => {}} />
       <AutonomousDemoRunner />
       <CloudLinkBanner variant="gerant" />
       <View style={{ flex: 1 }}>
