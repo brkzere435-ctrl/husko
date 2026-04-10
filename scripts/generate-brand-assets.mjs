@@ -211,9 +211,17 @@ function bootHeroSvg(w, h) {
 
 async function writeBootHeroPng(w, h) {
   const buf = Buffer.from(bootHeroSvg(w, h));
+  // Résolution modérée + PNG « simple » pour éviter AAPT2 « file failed to compile »
+  // (EAS Gradle sur gros 1080×1920 + filtres SVG → drawable-mdpi).
   await sharp(buf)
     .resize(w, h)
-    .png({ compressionLevel: 9 })
+    .toColorspace('srgb')
+    .png({
+      compressionLevel: 6,
+      adaptiveFiltering: false,
+      palette: false,
+      effort: 4,
+    })
     .toFile(join(branding, 'client-boot-hero.png'));
 }
 
@@ -224,7 +232,7 @@ async function main() {
   await writePng(iconSvg(1024, t, sub), 'adaptive-icon.png', 1024);
   await writePng(iconSvg(1024, t, sub), 'splash.png', 1024);
   await writePng(notificationSvg(256), 'notification-icon.png', 256);
-  await writeBootHeroPng(1080, 1920);
+  await writeBootHeroPng(720, 1280);
   console.log(
     'OK — icon / adaptive / splash / notification + branding/client-boot-hero (coucher de soleil lisse + palmiers)'
   );

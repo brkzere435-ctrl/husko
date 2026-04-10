@@ -1,6 +1,6 @@
 Husko — assets branding (optionnels)
 
-- client-boot-hero.png : fond plein écran / boot client (1080×1920 par défaut).
+- client-boot-hero.png : fond plein écran / boot client (720×1280 généré par défaut, compatible AAPT2 Android).
   Remplace ce fichier par ton visuel HD (même nom) puis `npm run brand:assets` n’est pas obligatoire si tu remplaces à la main.
 
 - Icône adaptive (launcher Android) : le masque circulaire coupe les bords.
