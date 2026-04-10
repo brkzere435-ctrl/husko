@@ -1,5 +1,5 @@
 import { Link } from 'expo-router';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { Card, Snackbar, Text, TextInput } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -24,6 +24,7 @@ import type { Order } from '@/stores/useHuskoStore';
 import { useHuskoStore } from '@/stores/useHuskoStore';
 import { formatEuro } from '@/utils/formatEuro';
 import { hapticLight } from '@/utils/haptics';
+import { postSessionA64698Ingest } from '@/utils/debugIngestRuntime';
 import { openSiblingApp } from '@/utils/siblingApps';
 
 function GerantOrderActions({
@@ -79,6 +80,8 @@ function GerantOrderActions({
 }
 
 export default function GerantDashboardScreen() {
+  const supportDebugEnabled =
+    __DEV__ || process.env.EXPO_PUBLIC_HUSKO_DEBUG_BOOT === '1';
   const variant = getAppVariant();
   const orders = useHuskoStore((s) => s.orders);
   const autonomousDemoEnabled = useHuskoStore((s) => s.autonomousDemoEnabled);
@@ -93,6 +96,31 @@ export default function GerantDashboardScreen() {
   const [unlocked, setUnlocked] = useState(false);
   const [snack, setSnack] = useState('');
   const [serviceBusy, setServiceBusy] = useState(false);
+
+  useEffect(() => {
+    if (!supportDebugEnabled) return;
+    // #region agent log
+    postSessionA64698Ingest({
+      location: 'app/gerant/index.tsx:GerantDashboardScreen',
+      message: 'dashboard state',
+      data: {
+        variant,
+        siblingBlockVisible: variant === 'gerant',
+        unlocked,
+      },
+      runId: 'pre',
+      hypothesisId: 'H3',
+    });
+    console.warn(
+      '[HUSKO_DEBUG_a64698_H3]',
+      JSON.stringify({
+        variant,
+        siblingBlockVisible: variant === 'gerant',
+        unlocked,
+      })
+    );
+    // #endregion
+  }, [supportDebugEnabled, variant, unlocked]);
 
   const live = useMemo(
     () => orders.filter((o) => o.status !== 'delivered' && o.status !== 'cancelled'),
@@ -182,8 +210,8 @@ export default function GerantDashboardScreen() {
             </Text>
             {!isRemoteSyncEnabled() ? (
               <Text style={[typography.bodyMuted, styles.serviceHint]}>
-                Sans liaison Firestore, l’app client applique uniquement le créneau local (lun–sam 20h–00h).
-                Configurez Firebase sur l’APK pour piloter ouverture / fermeture à distance.
+                Sans liaison en ligne, l’app client suit uniquement le créneau local (lun–sam 20h–00h).
+                Activez la synchronisation pour piloter ouverture et fermeture à distance.
               </Text>
             ) : (
               <>
@@ -204,8 +232,8 @@ export default function GerantDashboardScreen() {
                     onPress={() => {
                       setServiceBusy(true);
                       void pushRemoteServiceAccepting(true)
-                        .then(() => setSnack('Prise de commandes ouverte (Firestore).'))
-                        .catch(() => setSnack('Échec écriture Firestore — vérifiez le réseau.'))
+                        .then(() => setSnack('Prise de commandes ouverte.'))
+                        .catch(() => setSnack('Échec de mise à jour — vérifiez le réseau.'))
                         .finally(() => setServiceBusy(false));
                     }}
                   />
@@ -217,8 +245,8 @@ export default function GerantDashboardScreen() {
                     onPress={() => {
                       setServiceBusy(true);
                       void pushRemoteServiceAccepting(false)
-                        .then(() => setSnack('Service clôturé côté client (Firestore).'))
-                        .catch(() => setSnack('Échec écriture Firestore — vérifiez le réseau.'))
+                        .then(() => setSnack('Service clôturé côté client.'))
+                        .catch(() => setSnack('Échec de mise à jour — vérifiez le réseau.'))
                         .finally(() => setServiceBusy(false));
                     }}
                   />
@@ -235,9 +263,19 @@ export default function GerantDashboardScreen() {
               <PrimaryButton title="Réglages" variant="ghost" style={styles.linkBtn} />
             </Link>
             <Link href="/gerant/distribution" asChild>
-              <PrimaryButton title="Distribution QR & liens (tous les APK)" style={styles.linkBtn} />
+              <PrimaryButton title="Distribution QR & liens d’installation" style={styles.linkBtn} />
             </Link>
           </View>
+
+          {variant === 'all' ? (
+            <View style={styles.hubModeHint}>
+              <Text style={[typography.bodyMuted, styles.siblingHint]}>
+                Mode multi-espaces : ouvrez d’abord l’espace concerné depuis l’accueil principal pour
+                retrouver les actions Client ou Livreur. Les commandes, réglages et la distribution
+                restent disponibles ici.
+              </Text>
+            </View>
+          ) : null}
 
           {variant === 'gerant' ? (
             <View style={styles.siblingBox}>
@@ -246,8 +284,8 @@ export default function GerantDashboardScreen() {
               </Text>
               <Text style={[typography.bodyMuted, styles.siblingHint]}>
                 {isRemoteSyncEnabled()
-                  ? 'Liaison Firestore active : commandes et livreur synchronisés entre appareils (APK unifié hub ou apps Client / Livreur / Gérant). Ouvrez Client ou Livreur depuis ici.'
-                  : 'APK unifié (hub) ou apps séparées : ouvrez Client et Livreur depuis ici. Sans Firebase (Réglages / env), chaque téléphone garde ses données en local.'}
+                  ? 'Synchronisation active : commandes et livreur sont partagés entre appareils. Ouvrez Client ou Livreur depuis ici.'
+                  : 'Ouvrez Client et Livreur depuis ici. Sans synchronisation, chaque téléphone garde ses données en local.'}
               </Text>
               <PrimaryButton
                 title="Ouvrir Husko Client"
@@ -367,6 +405,14 @@ const styles = StyleSheet.create({
   autoBannerText: { fontSize: 13, lineHeight: 19 },
   links: { gap: spacing.sm, marginBottom: spacing.lg, padding: spacing.md },
   linkBtn: { width: '100%' },
+  hubModeHint: {
+    marginBottom: spacing.lg,
+    padding: spacing.md,
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: WC.neonCyanDim,
+    backgroundColor: gerantDashboardVisual.panelBg,
+  },
   siblingBox: {
     marginBottom: spacing.lg,
     padding: spacing.md,

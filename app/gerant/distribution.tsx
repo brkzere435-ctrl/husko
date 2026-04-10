@@ -73,9 +73,8 @@ export default function DistributionScreen() {
           </Text>
           <Text style={[wcSectionLabel, styles.kicker]}>QR & lien · 3 APK (gérant · client · livreur)</Text>
           <Text style={[typography.bodyMuted, styles.intro]}>
-            Les QR ouvrent la <Text style={styles.em}>page Expo</Text> (bouton Installer). Fichier{' '}
-            <Text style={styles.mono}>.apk</Text> sur PC : <Text style={styles.mono}>npm run apk:download:gerant</Text>{' '}
-            / <Text style={styles.mono}>client</Text> / <Text style={styles.mono}>livreur</Text> après build EAS terminé.
+            Les QR ouvrent la page d’installation correspondante. Partagez le lien du rôle concerné
+            (gérant, client ou livreur) puis installez depuis le téléphone.
           </Text>
 
           <DeploymentHints mode="alerts" mapsRelevant={false} style={styles.infra} />
@@ -85,10 +84,7 @@ export default function DistributionScreen() {
             <Text style={[typography.bodyMuted, styles.anywhereBody]}>
               Le QR et le lien vers la page Expo fonctionnent avec la <Text style={styles.em}>données mobiles</Text> ou
               un <Text style={styles.em}>Wi‑Fi quelconque</Text> (y compris à l’étranger) : vous n’avez pas besoin d’être
-              sur le même réseau qu’un PC de développement. Sur un ordinateur,{' '}
-              <Text style={styles.mono}>npm run apk:download:…</Text> fonctionne partout avec Internet si le compte Expo
-              est disponible (<Text style={styles.mono}>eas login</Text> ou variable{' '}
-              <Text style={styles.mono}>EXPO_TOKEN</Text> pour les environnements sans fenêtre de connexion).
+              sur le même réseau qu’un ordinateur.
             </Text>
           </View>
 
@@ -128,7 +124,7 @@ export default function DistributionScreen() {
                   />
                 </View>
                 <Text style={styles.qrVectorHint}>
-                  Même URL que le PNG (or = gérant). Sinon : npm run qr:generate après distribution:sync-eas-urls.
+                  Même lien que le QR imprimable (version gérant).
                 </Text>
                 <Text style={styles.url} selectable>
                   {activeUrl}
@@ -208,7 +204,7 @@ export default function DistributionScreen() {
 }
 
 const configHelp =
-  'Renseignez les URLs client/livreur/gérant dans distribution.defaults.json ou EXPO_PUBLIC_DISTRIBUTION_*_APK_URL puis exécutez npm run distribution:sync-eas-urls.';
+  'Liens d’installation non configurés pour le moment. Contactez l’équipe en charge de la distribution.';
 
 function RoleQrCard({
   label,

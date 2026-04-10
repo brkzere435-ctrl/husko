@@ -1,5 +1,7 @@
-import { useState } from 'react';
-import { Pressable, ScrollView, StyleSheet } from 'react-native';
+import * as Application from 'expo-application';
+import * as Clipboard from 'expo-clipboard';
+import { useMemo, useState } from 'react';
+import { Pressable, ScrollView, StyleSheet, useWindowDimensions } from 'react-native';
 import { Text, TextInput } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Link } from 'expo-router';
@@ -11,6 +13,7 @@ import { SettingsSection, SettingsSwitchRow } from '@/components/settings/Settin
 import { SyncDiagnosticsSection } from '@/components/settings/SyncDiagnosticsSection';
 import { WestCoastBackground } from '@/components/westcoast/WestCoastBackground';
 import { AUTONOMOUS_PACE_ORDER, AUTONOMOUS_PACE_PRESETS } from '@/constants/autonomousDelivery';
+import { getAppVariant } from '@/constants/appVariant';
 import { gerantDashboardVisual } from '@/constants/gerantDashboardVisual';
 import { FONT } from '@/constants/fonts';
 import { typography } from '@/constants/typography';
@@ -18,6 +21,65 @@ import { colors, radius, spacing } from '@/constants/theme';
 import { WC } from '@/constants/westCoastTheme';
 import { isRemoteSyncEnabled } from '@/services/firebaseRemote';
 import { useHuskoStore } from '@/stores/useHuskoStore';
+import { interpretGerantFieldDiagnostic } from '@/utils/interpretGerantFieldDiagnostic';
+import { readHuskoExpoExtra } from '@/utils/readHuskoExpoExtra';
+import { hapticLight } from '@/utils/haptics';
+
+/** Outils support visibles uniquement en mode debug/support. */
+function FieldDiagnosticsSection() {
+  const { width, height } = useWindowDimensions();
+  const payload = useMemo(
+    () => ({
+      hypothesisId: 'H1-field',
+      applicationId: Application.applicationId ?? null,
+      resolvedVariant: getAppVariant(),
+      extraAppVariant: readHuskoExpoExtra().appVariant,
+      screen: { w: Math.round(width), h: Math.round(height) },
+    }),
+    [width, height]
+  );
+  const display = useMemo(() => JSON.stringify(payload, null, 2), [payload]);
+  const interpretation = useMemo(() => interpretGerantFieldDiagnostic(payload), [payload]);
+  const interpColor =
+    interpretation.severity === 'error'
+      ? colors.posterRed
+      : interpretation.severity === 'warn'
+        ? colors.gold
+        : colors.textMuted;
+
+  return (
+    <SettingsSection
+      title="Diagnostic terrain"
+      subtitle="Bloc réservé au support technique."
+    >
+      <Text style={{ fontSize: 11, fontFamily: FONT.bold, color: interpColor, marginBottom: spacing.xs }}>
+        Synthèse ({interpretation.severity})
+      </Text>
+      {interpretation.lines.map((line, i) => (
+        <Text
+          key={i}
+          style={{ fontSize: 12, lineHeight: 18, color: colors.textMuted, marginBottom: spacing.xs }}
+        >
+          {line}
+        </Text>
+      ))}
+      <Text
+        selectable
+        style={{ fontFamily: 'monospace', fontSize: 11, color: colors.textMuted, lineHeight: 16 }}
+      >
+        {display}
+      </Text>
+      <PrimaryButton
+        title="Copier JSON diagnostic"
+        variant="ghost"
+        onPress={() => {
+          const line = JSON.stringify({ ...payload, ts: Date.now() });
+          void Clipboard.setStringAsync(line).then(() => hapticLight());
+        }}
+      />
+    </SettingsSection>
+  );
+}
 
 export default function ReglagesScreen() {
   const managerPin = useHuskoStore((s) => s.managerPin);
@@ -31,6 +93,8 @@ export default function ReglagesScreen() {
 
   const [pin, setPin] = useState(managerPin);
 
+  const showFieldDiagnostics = process.env.EXPO_PUBLIC_HUSKO_DEBUG_BOOT === '1';
+
   return (
     <WestCoastBackground>
       <SafeAreaView style={styles.root} edges={['bottom']}>
@@ -43,7 +107,7 @@ export default function ReglagesScreen() {
             Réglages gérant
           </Text>
           <Text style={[typography.bodyMuted, styles.screenSubtitle]}>
-            Mode démo, sécurité, notifications et déploiement — tout au même endroit.
+            Mode démo, sécurité et notifications — tout au même endroit.
           </Text>
 
           <SettingsSection
@@ -67,7 +131,7 @@ export default function ReglagesScreen() {
                 accessibilityLabel="Ouvrir la distribution QR"
               >
                 <Text style={styles.shortcutTitle}>Distribution QR</Text>
-                <Text style={typography.caption}>Hub unifié, Copilote et APK mono-rôle</Text>
+                <Text style={typography.caption}>Partage des liens d’installation de l’équipe</Text>
               </Pressable>
             </Link>
           </SettingsSection>
@@ -97,11 +161,11 @@ export default function ReglagesScreen() {
             })}
             {isRemoteSyncEnabled() ? (
               <Text style={[typography.caption, styles.syncEta]}>
-                Avec Firebase, le client voit le temps estimé aligné sur ce rythme.
+                Avec la synchronisation active, le client voit le temps estimé aligné sur ce rythme.
               </Text>
             ) : (
               <Text style={[typography.caption, styles.syncEta]}>
-                Sans Firebase, le minuteur tourne sur cet appareil ; le client ne reçoit pas l’ETA
+                Sans synchronisation active, le minuteur tourne sur cet appareil ; le client ne reçoit pas l’ETA
                 auto.
               </Text>
             )}
@@ -138,6 +202,7 @@ export default function ReglagesScreen() {
             />
           </SettingsSection>
 
+          {showFieldDiagnostics ? <FieldDiagnosticsSection /> : null}
           <SyncDiagnosticsSection />
           <OtaUpdateSection />
           <DeploymentHints mode="settings" style={styles.hintBlock} />

@@ -35,7 +35,7 @@ export default function ClientReglagesScreen() {
             Réglages
           </Text>
           <Text style={[typography.bodyMuted, styles.screenSubtitle]}>
-            Notifications, contact et informations sur l’app — tout au même endroit.
+            Notifications, contact et historique — tout au même endroit.
           </Text>
 
           <SettingsSection title="Établissement" subtitle={VENUE_TAGLINE_CLIENT}>

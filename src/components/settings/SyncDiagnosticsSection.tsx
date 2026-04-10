@@ -17,12 +17,15 @@ import { formatCloudSyncErrorForUser } from '@/utils/cloudSyncUserMessage';
  * Visible dans Réglages client / gérant lorsque Firebase est actif dans le build.
  */
 export function SyncDiagnosticsSection() {
+  const supportUiEnabled = process.env.EXPO_PUBLIC_HUSKO_DEBUG_BOOT === '1';
   const cloudSyncWriteError = useHuskoStore((s) => s.cloudSyncWriteError);
   const cloudSyncListenError = useHuskoStore((s) => s.cloudSyncListenError);
   const ordersSyncDebug = useHuskoStore((s) => s.ordersSyncDebug);
   const remote = isRemoteSyncEnabled();
   const projectId = debugFirebaseProjectId();
   const [copied, setCopied] = useState(false);
+
+  if (!supportUiEnabled) return null;
 
   async function copyReport() {
     const payload = {

@@ -18,29 +18,10 @@ import { colors, elevation, radius, spacing, surface } from '@/constants/theme';
 import { WC, wcSectionLabel } from '@/constants/westCoastTheme';
 import { FONT } from '@/constants/fonts';
 import { typography } from '@/constants/typography';
-import { postRuntimeDebugIngest } from '@/utils/debugIngestRuntime';
 
 export default function HubScreen() {
+  const supportUiEnabled = process.env.EXPO_PUBLIC_HUSKO_DEBUG_BOOT === '1';
   const role = getAppVariant();
-  if (role === 'all') {
-    // #region agent log
-    postRuntimeDebugIngest({
-      runId: 'run2',
-      hypothesisId: 'H6',
-      location: 'app/index.tsx:HubScreen',
-      message: 'variant resolved to all',
-      data: {
-        scheme: Constants.expoConfig?.scheme ?? null,
-        slug: Constants.expoConfig?.slug ?? null,
-        version: Constants.expoConfig?.version ?? null,
-        nativeBuildVersion: Constants.nativeBuildVersion ?? null,
-        updateId: Updates.updateId ?? null,
-        channel: Updates.channel ?? null,
-        role,
-      },
-    });
-    // #endregion
-  }
   if (role === 'gerant') return <Redirect href="/gerant" />;
   if (role === 'client') return <Redirect href="/client" />;
   if (role === 'livreur') return <Redirect href="/livreur" />;
@@ -119,8 +100,8 @@ export default function HubScreen() {
 
           <Text variant="bodySmall" style={styles.footer} selectable>
             Husko By Night · v{version}
-            {nativeBuild != null ? ` · APK ${nativeBuild}` : ''}
-            {bundleLine != null ? `\n${bundleLine}` : ''}
+            {supportUiEnabled && nativeBuild != null ? ` · APK ${nativeBuild}` : ''}
+            {supportUiEnabled && bundleLine != null ? `\n${bundleLine}` : ''}
             {'\n'}
             Tout le service — une seule application.
           </Text>

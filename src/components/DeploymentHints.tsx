@@ -22,6 +22,8 @@ type Props = {
  * - alerts : uniquement si problème (bandeau discret ailleurs).
  */
 export function DeploymentHints({ mode = 'settings', mapsRelevant = true, style }: Props) {
+  const supportUiEnabled = process.env.EXPO_PUBLIC_HUSKO_DEBUG_BOOT === '1';
+  if (!supportUiEnabled) return null;
   const remote = isRemoteSyncEnabled();
   const mapsOk = isMapsKeyConfiguredForPlatform();
   const native = Platform.OS !== 'web';

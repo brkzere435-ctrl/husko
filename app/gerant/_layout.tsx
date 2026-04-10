@@ -10,11 +10,31 @@ import { FONT } from '@/constants/fonts';
 import { getAppVariant } from '@/constants/appVariant';
 import { isRemoteSyncEnabled } from '@/services/firebaseRemote';
 import { WC } from '@/constants/westCoastTheme';
-import { postRuntimeDebugIngest } from '@/utils/debugIngestRuntime';
+import { postRuntimeDebugIngest, postSessionA64698Ingest } from '@/utils/debugIngestRuntime';
 
 export default function GerantLayout() {
+  const supportDebugEnabled =
+    __DEV__ || process.env.EXPO_PUBLIC_HUSKO_DEBUG_BOOT === '1';
   const [boot, setBoot] = useState(true);
   useEffect(() => {
+    if (!supportDebugEnabled) return;
+    // #region agent log
+    postSessionA64698Ingest({
+      location: 'app/gerant/_layout.tsx:boot',
+      message: 'ClientBootOverlay visibility',
+      data: { bootVisible: boot, variant: getAppVariant() },
+      runId: 'pre',
+      hypothesisId: 'H4',
+    });
+    console.warn(
+      '[HUSKO_DEBUG_a64698_H4]',
+      JSON.stringify({ bootVisible: boot, variant: getAppVariant() })
+    );
+    // #endregion
+  }, [boot, supportDebugEnabled]);
+
+  useEffect(() => {
+    if (!supportDebugEnabled) return;
     // #region agent log
     postRuntimeDebugIngest({
       runId: 'run4',
@@ -28,7 +48,7 @@ export default function GerantLayout() {
       },
     });
     // #endregion
-  }, []);
+  }, [supportDebugEnabled]);
 
   return (
     <View style={{ flex: 1 }}>

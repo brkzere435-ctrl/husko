@@ -17,6 +17,8 @@ function formatMs(ms: number): string {
 
 /** Bloc version + canal EAS + diagnostic bundle (pourquoi l’UI peut sembler « ancienne »). */
 export function OtaUpdateSection() {
+  const supportUiEnabled = process.env.EXPO_PUBLIC_HUSKO_DEBUG_BOOT === '1';
+  if (!supportUiEnabled) return null;
   const version = Constants.expoConfig?.version ?? '—';
   const channel = Updates.channel ?? '—';
   const updateIdFull = Updates.updateId ?? null;

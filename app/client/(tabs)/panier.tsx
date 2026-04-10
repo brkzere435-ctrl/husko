@@ -164,7 +164,7 @@ export default function PanierScreen() {
                   <Text style={styles.testHoursBody}>
                     {typeof __DEV__ !== 'undefined' && __DEV__
                       ? 'Créneau ignoré en développement (Expo / Metro). Tu peux valider une commande tout de suite.'
-                      : 'Créneau ignoré (build de test avec EXPO_PUBLIC_HUSKO_TEST_ORDER_ANY_HOURS).'}
+                      : 'Créneau ignoré sur cette version de test.'}
                   </Text>
                 </View>
               ) : !orderingAllowed ? (
@@ -297,11 +297,11 @@ export default function PanierScreen() {
             ) : null}
             {dialog?.type === 'cloudRequired' ? (
               <>
-                <Dialog.Title>Liaison cloud requise</Dialog.Title>
+                <Dialog.Title>Service temporairement indisponible</Dialog.Title>
                 <Dialog.Content>
                   <Text variant="bodyMedium">
-                    Cette version client n’est pas correctement liée à Firebase. Pour éviter les commandes
-                    perdues, l’envoi est bloqué tant que la liaison cloud n’est pas active.
+                    L’envoi de commande vers le restaurant est momentanément indisponible sur cette
+                    installation. Réessayez plus tard ou contactez l’équipe.
                   </Text>
                 </Dialog.Content>
                 <Dialog.Actions>

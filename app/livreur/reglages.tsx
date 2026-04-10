@@ -34,7 +34,7 @@ export default function LivreurReglagesScreen() {
         >
           <Text style={styles.screenTitle}>Réglages livreur</Text>
           <Text style={[typography.bodyMuted, styles.screenSubtitle]}>
-            Code d’accès, notifications, position et mises à jour — tout au même endroit.
+            Code d’accès, notifications et position — tout au même endroit.
           </Text>
 
           <SettingsSection
@@ -53,11 +53,11 @@ export default function LivreurReglagesScreen() {
             </Text>
             {isRemoteSyncEnabled() ? (
               <Text style={[typography.caption, styles.muted]}>
-                Firebase actif : la position peut être visible côté client selon le flux de commande.
+                Synchronisation active : la position peut être visible côté client selon le flux de commande.
               </Text>
             ) : (
               <Text style={[typography.caption, styles.muted]}>
-                Sans Firebase, la position reste locale à cet appareil.
+                Sans synchronisation active, la position reste locale à cet appareil.
               </Text>
             )}
           </SettingsSection>
