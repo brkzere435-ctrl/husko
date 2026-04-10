@@ -26,8 +26,7 @@ function isKnownVariant(v: unknown): v is 'all' | 'gerant' | 'client' | 'livreur
   return v === 'all' || isRoleVariant(v);
 }
 
-function readEmbeddedExtraPartial(): Partial<HuskoExpoExtra> {
-  const raw = NativeModules.ExponentConstants?.manifest as string | Record<string, unknown> | undefined;
+function parseManifestExtra(raw: string | Record<string, unknown> | undefined): Partial<HuskoExpoExtra> {
   if (raw == null) return {};
   try {
     const parsed = typeof raw === 'string' ? (JSON.parse(raw) as Record<string, unknown>) : raw;
@@ -39,16 +38,32 @@ function readEmbeddedExtraPartial(): Partial<HuskoExpoExtra> {
   }
 }
 
+function readEmbeddedExtraPartial(): Partial<HuskoExpoExtra> {
+  const fromNative = parseManifestExtra(
+    NativeModules.ExponentConstants?.manifest as string | Record<string, unknown> | undefined
+  );
+  if (Object.keys(fromNative).length > 0) return fromNative;
+  // Repli : manifest embarqué exposé par expo-constants (certains runtimes / SDK n’alimentent pas ExponentConstants.manifest).
+  const unwarn = (Constants as { __unsafeNoWarnManifest?: { extra?: unknown } }).__unsafeNoWarnManifest;
+  const ex = unwarn?.extra;
+  if (ex && typeof ex === 'object') return ex as Partial<HuskoExpoExtra>;
+  return {};
+}
+
 /** Lecture typée de `extra` (app.config → expo-constants), avec repli sur le manifest embarqué. */
 export function readHuskoExpoExtra(): HuskoExpoExtra {
   const embedded = readEmbeddedExtraPartial();
   const active = (Constants.expoConfig?.extra ?? {}) as HuskoExpoExtra;
   const merged = { ...embedded, ...active } as HuskoExpoExtra;
   const embeddedVariant = typeof embedded.appVariant === 'string' ? embedded.appVariant : null;
-  // Source de vérité: l'identité variante embarquée dans l'APK.
-  // Un OTA ne doit jamais basculer un build vers une autre variante.
+  const activeVariant = typeof active.appVariant === 'string' ? active.appVariant : null;
+  // Source de vérité : manifest embarqué APK quand lisible ; sinon manifest actif (OTA) ; sinon hub.
   if (isKnownVariant(embeddedVariant)) {
     merged.appVariant = embeddedVariant;
+  } else if (isKnownVariant(activeVariant)) {
+    merged.appVariant = activeVariant;
+  } else {
+    merged.appVariant = 'all';
   }
   for (const k of FIREBASE_EXTRA_KEYS) {
     const cur = merged[k];

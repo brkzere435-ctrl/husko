@@ -87,6 +87,76 @@ function runEasBuildList(profile) {
   }
 }
 
+/** Liste les builds Android du profil (tous statuts), le plus récent en premier. */
+function runEasBuildListAnyStatus(profile) {
+  const cmd = [
+    'npx',
+    'eas',
+    'build:list',
+    '--platform',
+    'android',
+    '-e',
+    profile,
+    '--limit',
+    '5',
+    '--json',
+    '--non-interactive',
+  ].join(' ');
+  try {
+    return execSync(cmd, {
+      cwd: ROOT,
+      encoding: 'utf8',
+      maxBuffer: 20 * 1024 * 1024,
+      shell: true,
+      env: { ...process.env, EAS_BUILD_NO_EXPO_GO_WARNING: 'true' },
+      stdio: ['ignore', 'pipe', 'pipe'],
+    }).trim();
+  } catch (e) {
+    const errText = [e.stderr, e.stdout].filter(Boolean).join('\n').trim();
+    throw new Error(
+      errText ||
+        `eas build:list (tous statuts) a échoué pour le profil ${profile}. Vérifiez « eas login » ou EXPO_TOKEN.`
+    );
+  }
+}
+
+/**
+ * Si le build le plus récent pour ce profil n’est pas le dernier « finished » qu’on va télécharger,
+ * avertir (ex. build IN_PROGRESS ou ERRORED plus récent que le dernier succès).
+ */
+function warnIfNewerBuildIsNotTheFinishedOne(profile, finishedBuild) {
+  let raw;
+  try {
+    raw = runEasBuildListAnyStatus(profile);
+  } catch {
+    return;
+  }
+  let arr;
+  try {
+    arr = JSON.parse(raw);
+  } catch {
+    return;
+  }
+  if (!Array.isArray(arr) || arr.length === 0) return;
+  const head = arr[0];
+  if (!head || head.id === finishedBuild.id) return;
+
+  const owner = head.project?.ownerAccount?.name;
+  const slug = head.project?.slug;
+  const link =
+    owner && slug
+      ? `https://expo.dev/accounts/${owner}/projects/${slug}/builds/${head.id}`
+      : `https://expo.dev (rechercher le build ${head.id})`;
+
+  console.warn(
+    `[Husko] Attention : le build Android le plus récent pour « ${profile} » est ${head.id} (statut ${head.status ?? '?'}), pas le dernier terminé avec succès (${finishedBuild.id}).`
+  );
+  console.warn(
+    `[Husko] L’APK téléchargé reste celui du dernier build Finished (versionCode ${finishedBuild.appBuildVersion ?? '?'}). Attendez la fin du build récent sur Expo si vous vouliez cette version.`
+  );
+  console.warn(`[Husko] Détail : ${link}`);
+}
+
 async function downloadUrl(url, dest) {
   let lastErr;
   for (let attempt = 1; attempt <= 2; attempt++) {
@@ -138,6 +208,9 @@ async function downloadOne(key) {
   }
   const url = build.artifacts.applicationArchiveUrl;
   const dest = join(ROOT, 'dist', v.file);
+
+  warnIfNewerBuildIsNotTheFinishedOne(v.profile, build);
+
   console.log(`[Husko] ${key} — build ${build.id}`);
   console.log(
     `[Husko] version ${build.appVersion ?? '?'} · versionCode ${build.appBuildVersion ?? '?'} · créé ${build.createdAt ?? '?'}`

@@ -30,6 +30,8 @@ if (!name) {
 const APK = join(ROOT, 'dist', name);
 
 function findAdb() {
+  const repoAdb = join(ROOT, 'tools', 'platform-tools', process.platform === 'win32' ? 'adb.exe' : 'adb');
+  if (existsSync(repoAdb)) return repoAdb;
   const env = process.env.ANDROID_HOME || process.env.ANDROID_SDK_ROOT;
   if (env) {
     const p = join(env, 'platform-tools', process.platform === 'win32' ? 'adb.exe' : 'adb');

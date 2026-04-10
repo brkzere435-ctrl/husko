@@ -60,7 +60,9 @@ const distributionDefaults = JSON.parse(
 );
 
 function readRole() {
-  const raw = process.env.EXPO_PUBLIC_APP_VARIANT ?? 'gerant';
+  // Défaut « all » (hub) : évite qu’un `expo start` sans variable (LAN, web, .env incomplet)
+  // embarque `gerant` dans le manifest Metro et masque l’accueil « Choisir un espace ».
+  const raw = process.env.EXPO_PUBLIC_APP_VARIANT ?? 'all';
   if (
     raw === 'gerant' ||
     raw === 'client' ||
@@ -70,7 +72,7 @@ function readRole() {
   ) {
     return raw;
   }
-  return 'gerant';
+  return 'all';
 }
 
 function resolveVariant(role) {

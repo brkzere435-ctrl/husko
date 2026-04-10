@@ -25,6 +25,9 @@ IntelliJ IDEA 2026/
 IntelliJ IDEA*/
 .cursorrules/
 .DS_Store
+# Android SDK Platform-Tools (install local : npm run tools:platform-tools)
+tools/platform-tools/
+
 # Logs locaux (Metro, outils, sessions debug Cursor, etc.)
 *.log
 .env

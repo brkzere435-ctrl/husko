@@ -190,6 +190,8 @@ npm run apk:download:last
 npm run apk:install:device -- unified
 ```
 
+**EAS : dernier APK téléchargé.** Les commandes `npm run apk:download:*` (script [`scripts/download-latest-apk.mjs`](scripts/download-latest-apk.mjs)) ne récupèrent que le **dernier build `Finished`** avec artefact pour le profil. Si un build **plus récent** est encore `IN_PROGRESS` ou a échoué, le script affiche un **avertissement** (lien Expo) et télécharge tout de même l’APK du **dernier succès** — attendre la fin du build sur [expo.dev](https://expo.dev) pour obtenir la nouvelle version.
+
 ### Android — APK mono-rôle (gérant / client / livreur)
 
 En complément de l’**APK unifié** (`apk-unified`), chaque profil mono-rôle définit `EXPO_PUBLIC_APP_VARIANT` et un `applicationId` distinct (`com.husko.bynight.gerant`, etc.) :

@@ -118,6 +118,12 @@ export default function RootLayout() {
 
   useEffect(() => {
     if (!isRemoteSyncEnabled()) return;
+    const variant = getAppVariant();
+    // Livreur : la position vient du GPS local (setDriver + push Firestore). Écouter meta/driver
+    // réinjecte une copie distante souvent périmée (stale) et peut effacer le marqueur.
+    if (variant === 'livreur') {
+      return;
+    }
     const unsubDriver = subscribeToRemoteDriver(driverOrderId, (driver, driverHeading) => {
       useHuskoStore.setState({ driver, driverHeading });
     });

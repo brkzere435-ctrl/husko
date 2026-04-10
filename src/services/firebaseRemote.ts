@@ -26,7 +26,8 @@ let app: FirebaseApp | null = null;
 let db: Firestore | null = null;
 let driverWriteTimer: ReturnType<typeof setTimeout> | null = null;
 const DRIVER_PUSH_DEBOUNCE_MS = 600;
-const DRIVER_STALE_MS = 30_000;
+/** Au-delà de ce délai sans écriture Firestore, le client masque le livreur (évite fantômes). */
+const DRIVER_STALE_MS = 120_000;
 const DRIVER_ORDER_DOC_PREFIX = 'driver_order_';
 
 function buildConfig() {

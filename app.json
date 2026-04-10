@@ -2,7 +2,7 @@
   "expo": {
     "slug": "husko",
     "android": {
-      "package": "com.husko.app",
+      "package": "com.husko.bynight",
       "versionCode": 117
     },
     "extra": {

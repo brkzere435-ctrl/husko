@@ -18,11 +18,14 @@ Ce fichier résume **où est la vérité** et **quelles commandes** utiliser. Le
 | **Livrer une APK Android gérant (sans bloquer le terminal)** | `npm run ship:gerant:queue` puis suivi via `npx eas build:list --platform android --limit 5 --non-interactive` |
 | **Livrer une APK / iOS « pro »** (hors fil gérant par défaut) | [`docs/GOLDEN_PATH.md`](docs/GOLDEN_PATH.md) — ex. `npm run ship:apk:unified` ou `ship:apk:three` |
 | **Google Play — AAB** (hub, même variante `all`) | `npm run ship:play:aab` → `npm run apk:download:play` — voir [`DEPLOIEMENT.md`](DEPLOIEMENT.md) (fiche Play, politique de confidentialité) |
-| Lancer l’app (dev) | `npm start` (désormais variante gérant par défaut) ; variantes : `npm run start:client` / `start:gerant` / `start:livreur` / `start:hub` |
+| Lancer l’app (dev) | `npm start` (hub / `all` par défaut — écran « Choisir un espace ») ; rôle seul : `npm run start:gerant` / `start:client` / `start:livreur` / `start:assistant` |
+| Vérifier `extra.appVariant` (app.config, sans appareil) | `npm run print:app-variant` — doit afficher `all` si `EXPO_PUBLIC_APP_VARIANT` est absent ; voir aussi `env.example` |
+| **ADB** : packages Husko installés (téléphone connecté) | `npm run adb:husko` — liste `com.husko.bynight` (hub) vs `…gerant` / `…client` / `…livreur` ; URL hub dans `distribution.defaults.json` |
 | Gate qualité (CI locale) | `npm run verify` puis éventuellement `npm run release:gate` |
 | Gate + **photos menu distinctes** (pas de placeholders dupliqués) | `npm run release:gate:pro` — échoue si les PNG `assets/menu/` sont encore majoritairement identiques en taille ; sinon `verify:menu-visual-pro` / `verify:menu-visual-pro:strict` |
 | Après changement d’images menu (flyer / stock) | `npm run assets:menu:verify` — présence des fichiers + diversité des tailles (pas un seul PNG dupliqué 27×) |
 | Télécharger l’APK buildée en dernier (par défaut gérant) | `npm run apk:download:last` |
+| **Hub** : télécharger l’APK unifié puis installer sur appareil (ADB) | `npm run apk:download:unified` puis `npm run apk:install:unified` — voir [`tools/README.txt`](tools/README.txt) |
 | APK hub (EAS), attente jusqu’à la fin | `npm run build:apk:unified` (**uniquement si besoin explicite hors fil gérant**) |
 | APK hub (EAS), **sans bloquer** le terminal / l’IDE (Cursor) | `npm run build:apk:unified:queue` — même build avec `--no-wait` ; suivi comme ci-dessus |
 | **Development build** Android (profil `development-husko`, même base que `apk-unified`) | `npm run build:dev:android` → `npm run apk:download:dev` → `npm run start:dev` — voir [`DEPLOIEMENT.md`](DEPLOIEMENT.md) |
