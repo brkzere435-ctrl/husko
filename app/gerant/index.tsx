@@ -5,7 +5,6 @@ import { Card, Snackbar, Text, TextInput } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { BrandMark } from '@/components/BrandMark';
-import { DeliveryFlowGuide } from '@/components/DeliveryFlowGuide';
 import { FirstPinChangeForm } from '@/components/FirstPinChangeForm';
 import { WestCoastBackground } from '@/components/westcoast/WestCoastBackground';
 import { OrderLinesPreview } from '@/components/OrderLinesPreview';
@@ -126,6 +125,12 @@ export default function GerantDashboardScreen() {
     () => orders.filter((o) => o.status !== 'delivered' && o.status !== 'cancelled'),
     [orders]
   );
+  const pendingCount = useMemo(() => live.filter((o) => o.status === 'pending').length, [live]);
+  useEffect(() => {
+    // #region agent log
+    fetch('http://127.0.0.1:7887/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'a64698'},body:JSON.stringify({sessionId:'a64698',runId:'run-nochange',hypothesisId:'H2',location:'app/gerant/index.tsx:render-signature',message:'gerant dashboard signature',data:{codeSignature:'gerant-alert-v1',variant,unlocked,pendingCount,hasUrgentBanner:true,hasDeliveryFlowGuide:false},timestamp:Date.now()})}).catch(()=>{});
+    // #endregion
+  }, [variant, unlocked, pendingCount]);
 
   function unlock() {
     if (pin === managerPin) setUnlocked(true);
@@ -192,6 +197,14 @@ export default function GerantDashboardScreen() {
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
+          {pendingCount > 0 ? (
+            <View style={styles.urgentBanner}>
+              <Text style={styles.urgentTitle}>Nouvelles commandes · {pendingCount}</Text>
+              <Text style={[typography.body, styles.urgentBody]}>
+                Traitez ces commandes en priorité pour éviter l’attente client.
+              </Text>
+            </View>
+          ) : null}
           {autonomousDemoEnabled ? (
             <View style={styles.autoBanner}>
               <Text style={styles.autoBannerTitle}>Mode autonome actif</Text>
@@ -200,9 +213,7 @@ export default function GerantDashboardScreen() {
                 seules jusqu’à livraison — gardez cet écran ou l’app en arrière-plan selon l’OS.
               </Text>
             </View>
-          ) : (
-            <DeliveryFlowGuide />
-          )}
+          ) : null}
 
           <View style={styles.servicePanel}>
             <Text style={styles.sectionTitle} accessibilityRole="header">
@@ -373,6 +384,22 @@ const styles = StyleSheet.create({
     letterSpacing: 8,
   },
   scroll: { paddingBottom: spacing.xl },
+  urgentBanner: {
+    marginBottom: spacing.lg,
+    padding: spacing.md,
+    borderRadius: radius.xl,
+    borderWidth: 2,
+    borderColor: colors.posterRed,
+    backgroundColor: 'rgba(232, 93, 74, 0.18)',
+    ...elevation.card,
+  },
+  urgentTitle: {
+    ...typography.section,
+    color: colors.gold,
+    marginBottom: spacing.xs,
+    fontSize: 15,
+  },
+  urgentBody: { color: colors.text, lineHeight: 20 },
   servicePanel: {
     marginBottom: spacing.lg,
     padding: spacing.md,

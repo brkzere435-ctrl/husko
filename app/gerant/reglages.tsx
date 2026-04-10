@@ -1,7 +1,7 @@
 import * as Application from 'expo-application';
 import * as Clipboard from 'expo-clipboard';
-import { useMemo, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, useWindowDimensions } from 'react-native';
+import { useEffect, useMemo, useState } from 'react';
+import { Pressable, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { Text, TextInput } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Link } from 'expo-router';
@@ -16,6 +16,7 @@ import { AUTONOMOUS_PACE_ORDER, AUTONOMOUS_PACE_PRESETS } from '@/constants/auto
 import { getAppVariant } from '@/constants/appVariant';
 import { gerantDashboardVisual } from '@/constants/gerantDashboardVisual';
 import { FONT } from '@/constants/fonts';
+import { isDeliveryOpen } from '@/constants/hours';
 import { typography } from '@/constants/typography';
 import { colors, radius, spacing } from '@/constants/theme';
 import { WC } from '@/constants/westCoastTheme';
@@ -90,10 +91,16 @@ export default function ReglagesScreen() {
   const setAutonomousDemoEnabled = useHuskoStore((s) => s.setAutonomousDemoEnabled);
   const autonomousPacePreset = useHuskoStore((s) => s.autonomousPacePreset);
   const setAutonomousPacePreset = useHuskoStore((s) => s.setAutonomousPacePreset);
+  const remoteServiceAccepting = useHuskoStore((s) => s.remoteServiceAccepting);
 
   const [pin, setPin] = useState(managerPin);
 
   const showFieldDiagnostics = process.env.EXPO_PUBLIC_HUSKO_DEBUG_BOOT === '1';
+  useEffect(() => {
+    // #region agent log
+    fetch('http://127.0.0.1:7887/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'a64698'},body:JSON.stringify({sessionId:'a64698',runId:'run-nochange',hypothesisId:'H3',location:'app/gerant/reglages.tsx:render-signature',message:'gerant settings signature',data:{codeSignature:'gerant-settings-live-v1',showFieldDiagnostics,serviceState:remoteServiceAccepting,isRemoteSyncEnabled:isRemoteSyncEnabled()},timestamp:Date.now()})}).catch(()=>{});
+    // #endregion
+  }, [showFieldDiagnostics, remoteServiceAccepting]);
 
   return (
     <WestCoastBackground>
@@ -109,6 +116,34 @@ export default function ReglagesScreen() {
           <Text style={[typography.bodyMuted, styles.screenSubtitle]}>
             Mode démo, sécurité et notifications — tout au même endroit.
           </Text>
+
+          <SettingsSection
+            title="Service en direct"
+            subtitle="Vue rapide de l’ouverture des commandes et de la synchronisation."
+          >
+            <View style={styles.statusRow}>
+              <Text style={typography.body}>Prise de commandes</Text>
+              <Text
+                style={[
+                  typography.body,
+                  remoteServiceAccepting === false ? styles.statusOff : styles.statusOn,
+                ]}
+              >
+                {remoteServiceAccepting === null
+                  ? isDeliveryOpen() ? 'Ouvert (horaire)' : 'Fermé (horaire)'
+                  : remoteServiceAccepting ? 'Ouvert' : 'Fermé'}
+              </Text>
+            </View>
+            <View style={styles.statusRow}>
+              <Text style={typography.body}>Synchronisation</Text>
+              <Text style={[typography.body, isRemoteSyncEnabled() ? styles.statusOn : styles.statusOff]}>
+                {isRemoteSyncEnabled() ? 'Active' : 'Locale'}
+              </Text>
+            </View>
+            <Text style={[typography.caption, styles.statusHint]}>
+              Pour changer l’état d’ouverture, utilisez les boutons en haut de l’accueil gérant.
+            </Text>
+          </SettingsSection>
 
           <SettingsSection
             title="Raccourcis"
@@ -251,4 +286,13 @@ const styles = StyleSheet.create({
   },
   pinNote: { marginTop: spacing.sm, color: colors.textMuted, lineHeight: 18 },
   hintBlock: { marginTop: spacing.sm },
+  statusRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: spacing.xs,
+  },
+  statusOn: { color: WC.neonCyan, fontFamily: FONT.bold, fontWeight: '800' },
+  statusOff: { color: colors.textMuted, fontFamily: FONT.medium, fontWeight: '700' },
+  statusHint: { marginTop: spacing.xs, color: colors.textMuted, lineHeight: 18 },
 });
