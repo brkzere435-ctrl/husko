@@ -27,6 +27,7 @@ IntelliJ IDEA*/
 .DS_Store
 # Android SDK Platform-Tools (install local : npm run tools:platform-tools)
 tools/platform-tools/
+config/platform-tools/
 
 # Logs locaux (Metro, outils, sessions debug Cursor, etc.)
 *.log
