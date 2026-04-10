@@ -1,26 +1,174 @@
-/** Style carte sombre type nuit / GTA (Google Maps JSON) */
+/**
+ * Style carte type minimap GTA (Google Maps JSON officiel).
+ * Utilisé via react-native-maps `customMapStyle` sur Android (PROVIDER_GOOGLE).
+ */
 export const mapDarkStyle = [
-  { elementType: 'geometry', stylers: [{ color: '#1a0a0a' }] },
-  { elementType: 'labels.text.stroke', stylers: [{ color: '#1a0a0a' }] },
-  { elementType: 'labels.text.fill', stylers: [{ color: '#8a7a7a' }] },
   {
-    featureType: 'road',
+    featureType: 'administrative',
     elementType: 'geometry',
-    stylers: [{ color: '#2d1818' }],
+    stylers: [{ visibility: 'off' }],
   },
   {
-    featureType: 'road.highway',
+    featureType: 'administrative',
+    elementType: 'labels',
+    stylers: [{ visibility: 'off' }],
+  },
+  {
+    featureType: 'administrative.country',
+    elementType: 'geometry.stroke',
+    stylers: [{ color: '#050604' }, { visibility: 'on' }],
+  },
+  {
+    featureType: 'administrative.country',
+    elementType: 'labels.text',
+    stylers: [{ visibility: 'on' }],
+  },
+  {
+    featureType: 'administrative.country',
+    elementType: 'labels.text.fill',
+    stylers: [{ color: '#aa9e88' }, { visibility: 'on' }],
+  },
+  {
+    featureType: 'administrative.country',
+    elementType: 'labels.text.stroke',
+    stylers: [{ color: '#353833' }, { visibility: 'on' }],
+  },
+  {
+    featureType: 'administrative.locality',
+    elementType: 'labels.text',
+    stylers: [{ visibility: 'on' }],
+  },
+  {
+    featureType: 'administrative.locality',
+    elementType: 'labels.text.fill',
+    stylers: [{ color: '#396731' }, { visibility: 'on' }],
+  },
+  {
+    featureType: 'administrative.locality',
+    elementType: 'labels.text.stroke',
+    stylers: [{ color: '#2f322a' }, { visibility: 'on' }],
+  },
+  {
+    featureType: 'landscape',
     elementType: 'geometry',
-    stylers: [{ color: '#4a2020' }],
+    stylers: [{ color: '#396731' }, { visibility: 'on' }],
+  },
+  {
+    featureType: 'landscape',
+    elementType: 'labels',
+    stylers: [{ visibility: 'off' }],
+  },
+  {
+    featureType: 'landscape.man_made',
+    elementType: 'geometry.fill',
+    stylers: [{ color: '#95856c' }, { visibility: 'on' }],
+  },
+  {
+    featureType: 'landscape.natural.terrain',
+    elementType: 'geometry',
+    stylers: [{ color: '#95856c' }, { visibility: 'on' }],
+  },
+  {
+    featureType: 'poi',
+    stylers: [{ visibility: 'off' }],
+  },
+  {
+    featureType: 'poi',
+    elementType: 'geometry.fill',
+    stylers: [{ color: '#748837' }, { visibility: 'on' }],
+  },
+  {
+    featureType: 'poi',
+    elementType: 'labels.text',
+    stylers: [{ visibility: 'off' }],
+  },
+  {
+    featureType: 'poi.business',
+    elementType: 'labels.icon',
+    stylers: [{ color: '#428f35' }, { visibility: 'on' }],
+  },
+  {
+    featureType: 'poi.medical',
+    elementType: 'labels.icon',
+    stylers: [{ color: '#db3f4d' }, { visibility: 'on' }],
+  },
+  {
+    featureType: 'poi.park',
+    elementType: 'labels.icon',
+    stylers: [{ color: '#396731' }, { visibility: 'on' }],
+  },
+  {
+    featureType: 'poi.sports_complex',
+    elementType: 'labels.icon',
+    stylers: [{ color: '#396731' }, { visibility: 'on' }],
+  },
+  {
+    featureType: 'road',
+    elementType: 'geometry.fill',
+    stylers: [
+      { color: '#050604' },
+      { saturation: -10 },
+      { lightness: 15 },
+      { visibility: 'on' },
+    ],
+  },
+  {
+    featureType: 'road',
+    elementType: 'geometry.stroke',
+    stylers: [{ visibility: 'off' }],
+  },
+  {
+    featureType: 'road',
+    elementType: 'labels.icon',
+    stylers: [{ visibility: 'off' }],
+  },
+  {
+    featureType: 'road',
+    elementType: 'labels.text.fill',
+    stylers: [{ color: '#95856c' }, { visibility: 'on' }],
+  },
+  {
+    featureType: 'road',
+    elementType: 'labels.text.stroke',
+    stylers: [{ color: '#363636' }, { visibility: 'on' }],
+  },
+  {
+    featureType: 'transit',
+    stylers: [{ visibility: 'off' }],
+  },
+  {
+    featureType: 'transit',
+    elementType: 'geometry.fill',
+    stylers: [{ color: '#989898' }, { visibility: 'on' }],
+  },
+  {
+    featureType: 'transit',
+    elementType: 'geometry.stroke',
+    stylers: [{ color: '#050604' }, { visibility: 'on' }],
+  },
+  {
+    featureType: 'transit',
+    elementType: 'labels.icon',
+    stylers: [{ color: '#636363' }, { visibility: 'on' }],
+  },
+  {
+    featureType: 'transit',
+    elementType: 'labels.text',
+    stylers: [{ visibility: 'off' }],
   },
   {
     featureType: 'water',
     elementType: 'geometry',
-    stylers: [{ color: '#0a1520' }],
+    stylers: [{ color: '#6e87a8' }, { visibility: 'on' }],
   },
   {
-    featureType: 'poi',
-    elementType: 'geometry',
-    stylers: [{ color: '#241010' }],
+    featureType: 'water',
+    elementType: 'geometry.fill',
+    stylers: [{ visibility: 'on' }],
   },
-];
+  {
+    featureType: 'water',
+    elementType: 'labels.text',
+    stylers: [{ visibility: 'off' }],
+  },
+] as const;

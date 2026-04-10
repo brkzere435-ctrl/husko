@@ -10,6 +10,7 @@ import { mapDarkStyle } from '@/constants/mapDarkStyle';
 import { colors, elevation } from '@/constants/theme';
 import { useTracksViewChangesForCustomMarker } from '@/hooks/useTracksViewChangesForCustomMarker';
 import type { MapRegion } from '@/types/mapRegion';
+import { isMapsKeyConfiguredForPlatform } from '@/utils/mapsBuildInfo';
 
 import { CarMarkerIcon } from './CarMarkerIcon';
 
@@ -38,8 +39,8 @@ export function GTAMiniMap({
   showDeparture = true,
   hudFooter = 'LONG BEACH · CADILLAC SUIVI',
 }: Props) {
-  // Force le fallback OSM pour éviter toute dépendance runtime aux clés/SDK Google.
-  const useFallback = true;
+  const mapsConfigured = isMapsKeyConfiguredForPlatform();
+  const useFallback = !mapsConfigured;
   const footerTag = useFallback ? `${hudFooter} · OSM` : hudFooter;
   const useGoogleStyle = Platform.OS === 'android';
 

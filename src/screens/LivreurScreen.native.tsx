@@ -42,7 +42,6 @@ export default function LivreurScreenNative() {
 
   const subRef = useRef<Location.LocationSubscription | null>(null);
   const [snack, setSnack] = useState('');
-  const [nativeMapLoaded, setNativeMapLoaded] = useState(false);
   const mapsConfigured = isMapsKeyConfiguredForPlatform();
 
   useEffect(() => {
@@ -158,22 +157,21 @@ export default function LivreurScreenNative() {
           <DeploymentHints mode="alerts" mapsRelevant />
 
           <View style={styles.mapContainer}>
-            <View
-              style={styles.mapFallback}
-              pointerEvents="none"
-            >
-              <GTAMiniMapFallbackInterior
-                region={region}
-                driver={driver}
-                headingDeg={driverHeading}
-                departure={HUSKO_DEPARTURE_HUB}
-                showDeparture
-                showDest={false}
-              />
-            </View>
+            {!mapsConfigured ? (
+              <View style={styles.mapFallback} pointerEvents="none">
+                <GTAMiniMapFallbackInterior
+                  region={region}
+                  driver={driver}
+                  headingDeg={driverHeading}
+                  departure={HUSKO_DEPARTURE_HUB}
+                  showDeparture
+                  showDest={false}
+                />
+              </View>
+            ) : null}
             {mapsConfigured ? (
               <MapView
-                style={[styles.map, styles.mapBlend, !nativeMapLoaded ? styles.mapHidden : null]}
+                style={[styles.map, styles.mapBlend]}
                 provider={Platform.OS === 'android' ? PROVIDER_GOOGLE : undefined}
                 region={region}
                 onRegionChangeComplete={setRegion}
@@ -184,19 +182,18 @@ export default function LivreurScreenNative() {
                     hypothesisId: 'H13',
                     location: 'LivreurScreen.native.tsx:map:onMapReady',
                     message: 'native map ready event',
-                    data: { mapsConfigured, nativeMapLoadedBefore: nativeMapLoaded },
+                    data: { mapsConfigured },
                   });
                   // #endregion
                 }}
                 onMapLoaded={() => {
-                  setNativeMapLoaded(true);
                   // #region agent log
                   postRuntimeDebugIngest({
                     runId: 'run6',
                     hypothesisId: 'H13',
                     location: 'LivreurScreen.native.tsx:map:onMapLoaded',
                     message: 'native map loaded event',
-                    data: { mapsConfigured, nativeMapLoadedAfter: true },
+                    data: { mapsConfigured },
                   });
                   // #endregion
                 }}
@@ -277,7 +274,6 @@ const styles = StyleSheet.create({
   mapContainer: { flex: 1, position: 'relative' },
   map: { ...StyleSheet.absoluteFillObject },
   mapBlend: { opacity: 0.8 },
-  mapHidden: { opacity: 0 },
   mapFallback: { ...StyleSheet.absoluteFillObject },
   miniWrap: {
     position: 'absolute',
