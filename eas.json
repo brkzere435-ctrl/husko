@@ -17,12 +17,12 @@
       }
     },
     "development-husko": {
-      "extends": "apk-unified",
+      "extends": "apk-gerant",
       "developmentClient": true,
       "channel": "development",
       "resourceClass": "large",
       "env": {
-        "EXPO_PUBLIC_APP_VARIANT": "all",
+        "EXPO_PUBLIC_APP_VARIANT": "gerant",
         "EAS_BUILD_PROFILE": "development-husko"
       }
     },
@@ -132,7 +132,7 @@
       "env": { "EAS_BUILD_AUTOCOMMIT": "1" }
     },
     "production": {
-      "extends": "apk-unified",
+      "extends": "apk-gerant",
       "distribution": "store",
       "environment": "production",
       "android": {
@@ -143,7 +143,7 @@
         "simulator": false
       },
       "env": {
-        "EXPO_PUBLIC_APP_VARIANT": "all",
+        "EXPO_PUBLIC_APP_VARIANT": "gerant",
         "EAS_BUILD_AUTOCOMMIT": "1",
         "EAS_BUILD_PROFILE": "production"
       }
