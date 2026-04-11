@@ -6,8 +6,6 @@ import { Snackbar, Text } from 'react-native-paper';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { CarMarkerIcon } from '@/components/CarMarkerIcon';
-import { HuskoDepartureBuilding } from '@/components/HuskoDepartureBuilding';
 import { DeploymentHints } from '@/components/DeploymentHints';
 import { GTAMiniMap } from '@/components/GTAMiniMap';
 import { GTAMiniMapFallbackInterior } from '@/components/GTAMiniMapFallbackInterior';
@@ -21,7 +19,6 @@ import { WC } from '@/constants/westCoastTheme';
 import type { MapRegion } from '@/types/mapRegion';
 import { HUSKO_DEPARTURE_HUB } from '@/constants/huskoDepartureHub';
 import { livreurScreenVisual } from '@/constants/livreurScreenVisual';
-import { useTracksViewChangesForCustomMarker } from '@/hooks/useTracksViewChangesForCustomMarker';
 import { ANGERS_DEFAULT, useHuskoStore } from '@/stores/useHuskoStore';
 import { postRuntimeDebugIngest } from '@/utils/debugIngestRuntime';
 import { fitMapRegion } from '@/utils/fitMapRegion';
@@ -43,6 +40,7 @@ export default function LivreurScreenNative() {
   const subRef = useRef<Location.LocationSubscription | null>(null);
   const [snack, setSnack] = useState('');
   const mapsConfigured = isMapsKeyConfiguredForPlatform();
+  const forceRadarFallback = Platform.OS === 'android';
 
   useEffect(() => {
     // #region agent log
@@ -60,56 +58,60 @@ export default function LivreurScreenNative() {
     let cancelled = false;
 
     async function start() {
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      // #region agent log
-      postRuntimeDebugIngest({
-        runId: 'run1',
-        hypothesisId: 'H3',
-        location: 'LivreurScreen.native.tsx:start:permission',
-        message: 'location permission status',
-        data: { status, livreurOnline },
-      });
-      // #endregion
-      if (status !== 'granted') {
-        setSnack('Activez la localisation pour le suivi livreur.');
-        return;
-      }
-      subRef.current?.remove();
-      subRef.current = await Location.watchPositionAsync(
-        {
-          accuracy: Location.Accuracy.High,
-          distanceInterval: 3,
-          timeInterval: 1500,
-        },
-        (loc) => {
-          if (cancelled) return;
-          const lat = loc.coords.latitude;
-          const lng = loc.coords.longitude;
-          const raw = loc.coords.heading;
-          const heading = typeof raw === 'number' && Number.isFinite(raw) ? raw : 0;
-          // #region agent log
-          postRuntimeDebugIngest({
-            runId: 'run1',
-            hypothesisId: 'H3',
-            location: 'LivreurScreen.native.tsx:watchPosition',
-            message: 'location update',
-            data: {
-              lat,
-              lng,
-              heading,
-              accuracy: loc.coords.accuracy ?? null,
-              speed: loc.coords.speed ?? null,
-            },
-          });
-          // #endregion
-          setDriver({ latitude: lat, longitude: lng }, heading);
-          setRegion((r) => ({
-            ...r,
-            latitude: lat,
-            longitude: lng,
-          }));
+      try {
+        const { status } = await Location.requestForegroundPermissionsAsync();
+        // #region agent log
+        postRuntimeDebugIngest({
+          runId: 'run1',
+          hypothesisId: 'H3',
+          location: 'LivreurScreen.native.tsx:start:permission',
+          message: 'location permission status',
+          data: { status, livreurOnline },
+        });
+        // #endregion
+        if (status !== 'granted') {
+          setSnack('Activez la localisation pour le suivi livreur.');
+          return;
         }
-      );
+        subRef.current?.remove();
+        subRef.current = await Location.watchPositionAsync(
+          {
+            accuracy: Location.Accuracy.High,
+            distanceInterval: 3,
+            timeInterval: 1500,
+          },
+          (loc) => {
+            if (cancelled) return;
+            const lat = loc.coords.latitude;
+            const lng = loc.coords.longitude;
+            const raw = loc.coords.heading;
+            const heading = typeof raw === 'number' && Number.isFinite(raw) ? raw : 0;
+            // #region agent log
+            postRuntimeDebugIngest({
+              runId: 'run1',
+              hypothesisId: 'H3',
+              location: 'LivreurScreen.native.tsx:watchPosition',
+              message: 'location update',
+              data: {
+                lat,
+                lng,
+                heading,
+                accuracy: loc.coords.accuracy ?? null,
+                speed: loc.coords.speed ?? null,
+              },
+            });
+            // #endregion
+            setDriver({ latitude: lat, longitude: lng }, heading);
+            setRegion((r) => ({
+              ...r,
+              latitude: lat,
+              longitude: lng,
+            }));
+          }
+        );
+      } catch {
+        setSnack('Impossible d’activer le GPS (services de localisation ?).');
+      }
     }
 
     if (livreurOnline) start();
@@ -132,12 +134,6 @@ export default function LivreurScreenNative() {
     return fitMapRegion(pts, 1.95);
   }, [driver]);
 
-  const driverMarkerKey = driver
-    ? `${driver.latitude.toFixed(5)}_${driver.longitude.toFixed(5)}_${driverHeading.toFixed(0)}`
-    : 'no-driver';
-  const tracksHubMarker = useTracksViewChangesForCustomMarker('husko-hub');
-  const tracksDriverMarker = useTracksViewChangesForCustomMarker(driverMarkerKey);
-
   const useGoogleStyle = Platform.OS === 'android';
 
   return (
@@ -157,7 +153,7 @@ export default function LivreurScreenNative() {
           <DeploymentHints mode="alerts" mapsRelevant />
 
           <View style={styles.mapContainer}>
-            {!mapsConfigured ? (
+            {!mapsConfigured || forceRadarFallback ? (
               <View style={styles.mapFallback} pointerEvents="none">
                 <GTAMiniMapFallbackInterior
                   region={region}
@@ -169,7 +165,7 @@ export default function LivreurScreenNative() {
                 />
               </View>
             ) : null}
-            {mapsConfigured ? (
+            {mapsConfigured && !forceRadarFallback ? (
               <MapView
                 style={[styles.map, styles.mapBlend]}
                 provider={Platform.OS === 'android' ? PROVIDER_GOOGLE : undefined}
@@ -206,22 +202,17 @@ export default function LivreurScreenNative() {
               >
                 <Marker
                   coordinate={HUSKO_DEPARTURE_HUB}
-                  anchor={{ x: 0.5, y: 1 }}
                   zIndex={1}
-                  tracksViewChanges={tracksHubMarker}
                   title="Husko · QG"
-                >
-                  <HuskoDepartureBuilding size={56} />
-                </Marker>
+                  pinColor={colors.accent}
+                />
                 {driver ? (
                   <Marker
                     coordinate={driver}
-                    anchor={{ x: 0.5, y: 0.5 }}
                     zIndex={2}
-                    tracksViewChanges={tracksDriverMarker}
-                  >
-                    <CarMarkerIcon headingDeg={driverHeading} size={48} variant="lowrider" />
-                  </Marker>
+                    title={`Livreur · cap ${Math.round(driverHeading)}°`}
+                    pinColor={colors.posterRed}
+                  />
                 ) : null}
               </MapView>
             ) : null}

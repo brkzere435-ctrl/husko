@@ -354,7 +354,7 @@ export default function ClientMenuScreen() {
               style={[
                 styles.bar,
                 elevation.dock,
-                { paddingBottom: spacing.sm + Math.max(insets.bottom, 0) },
+                { paddingBottom: spacing.sm + Math.min(Math.max(insets.bottom, 0), spacing.xs) },
               ]}
               accessibilityLabel="Résumé panier et actions"
             >
@@ -484,7 +484,7 @@ const styles = StyleSheet.create({
   },
   screenBody: { flex: 1 },
   listFlex: { flex: 1 },
-  listContent: { paddingHorizontal: spacing.md, paddingBottom: spacing.sm },
+  listContent: { paddingHorizontal: spacing.md, paddingBottom: spacing.xs },
   footerAbout: {
     alignItems: 'center',
     paddingVertical: spacing.lg,
@@ -502,7 +502,7 @@ const styles = StyleSheet.create({
   headerBlock: { marginBottom: spacing.sm },
   hint: { marginBottom: spacing.md },
   hero: {
-    padding: spacing.lg,
+    padding: spacing.md,
     borderRadius: radius.xl,
     borderWidth: 2,
     borderColor: clientMenuHero.cardBorder,
@@ -607,24 +607,24 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   menuHint: {
-    marginTop: spacing.md,
+    marginTop: spacing.sm,
     color: clientMenuHero.textMutedStrong,
     fontSize: 14,
-    lineHeight: 20,
+    lineHeight: 19,
     textAlign: 'center',
   },
   trustLine: {
-    marginTop: spacing.md,
+    marginTop: spacing.sm,
     fontSize: 12,
-    lineHeight: 18,
+    lineHeight: 17,
     fontWeight: '700',
     color: 'rgba(252, 211, 77, 0.95)',
     textAlign: 'center',
   },
   moodLine: {
-    marginTop: spacing.sm,
+    marginTop: spacing.xs,
     fontSize: 11,
-    lineHeight: 16,
+    lineHeight: 15,
     fontWeight: '600',
     color: WC.gold,
     textAlign: 'center',
@@ -632,13 +632,13 @@ const styles = StyleSheet.create({
     opacity: 0.95,
   },
   heroContactRow: {
-    marginTop: spacing.md,
+    marginTop: spacing.sm,
     flexDirection: 'row',
     flexWrap: 'wrap',
     alignItems: 'center',
     justifyContent: 'center',
     gap: spacing.sm,
-    paddingVertical: spacing.xs,
+    paddingVertical: 0,
     paddingHorizontal: spacing.sm,
   },
   heroContactHit: {
@@ -790,6 +790,8 @@ const styles = StyleSheet.create({
   barActions: {
     flexDirection: 'row',
     gap: spacing.sm,
+    marginTop: 2,
+    marginBottom: 2,
   },
   barBtnHalf: { flex: 1 },
 });

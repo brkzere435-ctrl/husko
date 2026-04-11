@@ -1,12 +1,14 @@
 import { initializeApp, getApps, getApp, type FirebaseApp } from 'firebase/app';
 import {
   getFirestore,
+  initializeFirestore,
   collection,
   doc,
   setDoc,
   onSnapshot,
   type Firestore,
 } from 'firebase/firestore';
+import { Platform } from 'react-native';
 
 import type { LatLng, Order } from '@/stores/useHuskoStore';
 import { debugAgentLog } from '@/utils/debugAgentLog';
@@ -26,9 +28,12 @@ let app: FirebaseApp | null = null;
 let db: Firestore | null = null;
 let driverWriteTimer: ReturnType<typeof setTimeout> | null = null;
 const DRIVER_PUSH_DEBOUNCE_MS = 600;
+const DRIVER_PUSH_IMMEDIATE_GAP_MS = 4_000;
 /** Au-delà de ce délai sans écriture Firestore, le client masque le livreur (évite fantômes). */
 const DRIVER_STALE_MS = 120_000;
 const DRIVER_ORDER_DOC_PREFIX = 'driver_order_';
+let lastDriverPushAt = 0;
+let lastDriverPushOrderId: string | null = null;
 
 function buildConfig() {
   const e = readHuskoExpoExtra();
@@ -55,7 +60,18 @@ function ensureDb(): Firestore | null {
     app = getApp();
   }
   if (!db) {
-    db = getFirestore(app);
+    try {
+      // Android/iOS RN: WebChannel peut décrocher sur certains réseaux (transport errored).
+      // Long-polling stabilise les listeners Firestore pour le suivi GPS cross-app.
+      db =
+        Platform.OS === 'web'
+          ? getFirestore(app)
+          : initializeFirestore(app, {
+              experimentalForceLongPolling: true,
+            });
+    } catch {
+      db = getFirestore(app);
+    }
   }
   return db;
 }
@@ -207,13 +223,18 @@ function remotePushDriverNow(pos: LatLng | null, heading: number, orderId: strin
   const firestore = ensureDb();
   if (!firestore) return Promise.resolve();
   const normalizedOrderId = orderId && orderId.trim().length > 0 ? orderId.trim() : null;
-  const payload = {
+  const payload: Record<string, unknown> = {
     lat: pos?.latitude ?? null,
     lng: pos?.longitude ?? null,
     heading,
-    orderId: normalizedOrderId,
     updatedAt: Date.now(),
   };
+  if (normalizedOrderId != null) {
+    payload.orderId = normalizedOrderId;
+  } else if (pos == null) {
+    // Passage hors-ligne: on efface explicitement l'association commande.
+    payload.orderId = null;
+  }
   if (normalizedOrderId == null) {
     return setDoc(doc(firestore, 'meta', 'driver'), payload, { merge: true });
   }
@@ -226,18 +247,36 @@ function remotePushDriverNow(pos: LatLng | null, heading: number, orderId: strin
 /** Évite trop d’écritures Firestore pendant le suivi GPS. */
 export function remotePushDriverDebounced(pos: LatLng | null, heading: number, orderId: string | null): void {
   if (!isRemoteSyncEnabled()) return;
+  const normalizedOrderId = orderId && orderId.trim().length > 0 ? orderId.trim() : null;
   if (pos == null) {
     if (driverWriteTimer) {
       clearTimeout(driverWriteTimer);
       driverWriteTimer = null;
     }
-    void remotePushDriverNow(null, 0, orderId);
+    lastDriverPushAt = Date.now();
+    lastDriverPushOrderId = null;
+    void remotePushDriverNow(null, 0, normalizedOrderId);
+    return;
+  }
+  const now = Date.now();
+  const shouldPushNow =
+    now - lastDriverPushAt > DRIVER_PUSH_IMMEDIATE_GAP_MS || lastDriverPushOrderId !== normalizedOrderId;
+  if (shouldPushNow) {
+    if (driverWriteTimer) {
+      clearTimeout(driverWriteTimer);
+      driverWriteTimer = null;
+    }
+    lastDriverPushAt = now;
+    lastDriverPushOrderId = normalizedOrderId;
+    void remotePushDriverNow(pos, heading, normalizedOrderId);
     return;
   }
   if (driverWriteTimer) clearTimeout(driverWriteTimer);
   driverWriteTimer = setTimeout(() => {
     driverWriteTimer = null;
-    void remotePushDriverNow(pos, heading, orderId);
+    lastDriverPushAt = Date.now();
+    lastDriverPushOrderId = normalizedOrderId;
+    void remotePushDriverNow(pos, heading, normalizedOrderId);
   }, DRIVER_PUSH_DEBOUNCE_MS);
 }
 
@@ -324,6 +363,7 @@ type DriverSnapshot = {
   driver: LatLng;
   heading: number;
   updatedAt: number | null;
+  orderId: string | null;
 };
 
 function parseDriverSnapshot(raw: unknown): DriverSnapshot | null {
@@ -332,9 +372,13 @@ function parseDriverSnapshot(raw: unknown): DriverSnapshot | null {
   const lat = Number(d.lat);
   const lng = Number(d.lng);
   if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+  // Certains snapshots historiques/intermédiaires arrivent en 0,0:
+  // on les ignore pour éviter de "débrancher" le suivi client.
+  if ((lat === 0 && lng === 0) || Math.abs(lat) > 90 || Math.abs(lng) > 180) return null;
   const heading = typeof d.heading === 'number' && Number.isFinite(d.heading) ? d.heading : 0;
   const updatedAt = typeof d.updatedAt === 'number' ? d.updatedAt : null;
-  return { driver: { latitude: lat, longitude: lng }, heading, updatedAt };
+  const orderId = typeof d.orderId === 'string' && d.orderId.trim().length > 0 ? d.orderId.trim() : null;
+  return { driver: { latitude: lat, longitude: lng }, heading, updatedAt, orderId };
 }
 
 function isDriverSnapshotStale(s: DriverSnapshot): boolean {
@@ -353,16 +397,27 @@ export function subscribeToRemoteDriver(
   let globalSnapshot: DriverSnapshot | null = null;
 
   const emitBest = () => {
-    const preferred = orderSnapshot ?? globalSnapshot;
-    if (!preferred) {
+    const candidates = [orderSnapshot, globalSnapshot].filter(
+      (s): s is DriverSnapshot => s !== null && !isDriverSnapshotStale(s)
+    );
+    if (candidates.length === 0) {
       onDriver(null, 0);
       return;
     }
-    if (isDriverSnapshotStale(preferred)) {
-      onDriver(null, 0);
-      return;
+    // Priorité: snapshot qui matche la commande suivie, sinon le plus frais.
+    if (normalizedOrderId) {
+      const matching = candidates.find((s) => s.orderId === normalizedOrderId);
+      if (matching) {
+        onDriver(matching.driver, matching.heading);
+        return;
+      }
     }
-    onDriver(preferred.driver, preferred.heading);
+    const freshest = candidates.reduce((best, cur) => {
+      const bestTs = best.updatedAt ?? 0;
+      const curTs = cur.updatedAt ?? 0;
+      return curTs >= bestTs ? cur : best;
+    });
+    onDriver(freshest.driver, freshest.heading);
   };
 
   const unsubGlobal = onSnapshot(
@@ -384,7 +439,8 @@ export function subscribeToRemoteDriver(
           orderId: normalizedOrderId,
         },
       });
-      globalSnapshot = null;
+      // Garde le dernier snapshot valide pour éviter une disparition immédiate
+      // du livreur sur une erreur réseau transitoire du listener Firestore.
       emitBest();
     }
   );
@@ -414,7 +470,6 @@ export function subscribeToRemoteDriver(
           orderId: normalizedOrderId,
         },
       });
-      orderSnapshot = null;
       emitBest();
     }
   );

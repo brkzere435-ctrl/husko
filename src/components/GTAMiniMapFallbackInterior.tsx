@@ -20,6 +20,25 @@ type Props = {
   showDeparture?: boolean;
 };
 
+type RadarPoint = { x: number; y: number };
+
+function clamp01(v: number): number {
+  if (v < 0) return 0;
+  if (v > 1) return 1;
+  return v;
+}
+
+function projectToRadar(point: { latitude: number; longitude: number }, region?: MapRegion): RadarPoint {
+  if (!region) return { x: 50, y: 50 };
+  const minLat = region.latitude - region.latitudeDelta / 2;
+  const maxLat = region.latitude + region.latitudeDelta / 2;
+  const minLng = region.longitude - region.longitudeDelta / 2;
+  const maxLng = region.longitude + region.longitudeDelta / 2;
+  const x = clamp01((point.longitude - minLng) / Math.max(maxLng - minLng, 1e-8));
+  const y = 1 - clamp01((point.latitude - minLat) / Math.max(maxLat - minLat, 1e-8));
+  return { x: x * 100, y: y * 100 };
+}
+
 export function GTAMiniMapFallbackInterior({
   region,
   driver,
@@ -30,6 +49,15 @@ export function GTAMiniMapFallbackInterior({
   showDeparture = true,
 }: Props) {
   const [tileError, setTileError] = useState(false);
+  const depPlot = useMemo(
+    () => (showDeparture && departure ? projectToRadar(departure, region) : null),
+    [showDeparture, departure, region]
+  );
+  const destPlot = useMemo(
+    () => (showDest && dest ? projectToRadar(dest, region) : null),
+    [showDest, dest, region]
+  );
+  const driverPlot = useMemo(() => (driver ? projectToRadar(driver, region) : null), [driver, region]);
 
   const mapUri = useMemo(() => {
     const points: { latitude: number; longitude: number }[] = [];
@@ -75,6 +103,7 @@ export function GTAMiniMapFallbackInterior({
         />
       ) : null}
       <View style={styles.overlayDim} pointerEvents="none" />
+      <View style={styles.radarBackdrop} pointerEvents="none" />
       <View style={styles.zoneRing} pointerEvents="none" />
       <View style={[styles.corner, styles.cornerTL]} />
       <View style={[styles.corner, styles.cornerTR]} />
@@ -83,22 +112,28 @@ export function GTAMiniMapFallbackInterior({
       <View style={styles.gridLine} />
       <View style={[styles.gridLine, styles.gridV]} />
       <View style={styles.palmSilhouette} />
-      {showDeparture && departure ? (
-        <View style={styles.hubWrap} accessibilityLabel="QG Husko">
+      {depPlot ? (
+        <View
+          style={[styles.hubWrap, { left: `${depPlot.x}%`, top: `${depPlot.y}%` }]}
+          accessibilityLabel="QG Husko"
+        >
           <HuskoDepartureBuilding size={44} />
           <Text style={styles.hubTag}>HQ · H</Text>
         </View>
       ) : null}
-      {driver ? (
-        <View style={styles.markerWrap} pointerEvents="none">
+      {driverPlot ? (
+        <View style={[styles.markerWrap, { left: `${driverPlot.x}%`, top: `${driverPlot.y}%` }]} pointerEvents="none">
           <CarMarkerIcon headingDeg={headingDeg} size={38} variant="lowrider" />
         </View>
       ) : null}
-      {showDest && dest ? (
-        <View style={styles.destDot}>
+      {destPlot ? (
+        <View style={[styles.destDot, { left: `${destPlot.x}%`, top: `${destPlot.y}%` }]}>
           <Text style={styles.destX}>×</Text>
         </View>
       ) : null}
+      <View style={styles.legend} pointerEvents="none">
+        <Text style={styles.legendText}>RADAR LOCAL</Text>
+      </View>
       {tileError ? (
         <View style={styles.offlineBadge} pointerEvents="none">
           <Text style={styles.offlineBadgeText}>OSM OFFLINE · RADAR ACTIF</Text>
@@ -119,10 +154,15 @@ const styles = StyleSheet.create({
   },
   mapImage: {
     ...StyleSheet.absoluteFillObject,
+    opacity: 0.28,
   },
   overlayDim: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(6, 3, 8, 0.28)',
+    backgroundColor: 'rgba(6, 3, 8, 0.22)',
+  },
+  radarBackdrop: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(18, 12, 22, 0.45)',
   },
   offlineBadge: {
     position: 'absolute',
@@ -214,10 +254,9 @@ const styles = StyleSheet.create({
   },
   hubWrap: {
     position: 'absolute',
-    top: '14%',
-    left: '10%',
     zIndex: 2,
     alignItems: 'center',
+    transform: [{ translateX: -22 }, { translateY: -22 }],
   },
   hubTag: {
     fontFamily: FONT.bold,
@@ -228,15 +267,12 @@ const styles = StyleSheet.create({
     opacity: 0.95,
   },
   markerWrap: {
-    ...StyleSheet.absoluteFillObject,
+    position: 'absolute',
     zIndex: 4,
-    justifyContent: 'center',
-    alignItems: 'center',
+    transform: [{ translateX: -19 }, { translateY: -30 }],
   },
   destDot: {
     position: 'absolute',
-    bottom: 24,
-    right: 28,
     width: 22,
     height: 22,
     borderRadius: 11,
@@ -244,6 +280,25 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     zIndex: 3,
+    transform: [{ translateX: -11 }, { translateY: -11 }],
   },
   destX: { fontFamily: FONT.bold, color: colors.text, fontSize: 14 },
+  legend: {
+    position: 'absolute',
+    right: 8,
+    bottom: 6,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: 'rgba(34, 211, 238, 0.6)',
+    backgroundColor: 'rgba(2, 10, 16, 0.75)',
+    zIndex: 6,
+  },
+  legendText: {
+    fontFamily: FONT.bold,
+    color: '#22d3ee',
+    fontSize: 8,
+    letterSpacing: 0.8,
+  },
 });

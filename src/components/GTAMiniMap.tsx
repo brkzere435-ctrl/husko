@@ -4,15 +4,11 @@ import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 
 import { GTAHudFrame } from '@/components/GTAHudFrame';
 import { GTAMiniMapFallbackInterior } from '@/components/GTAMiniMapFallbackInterior';
-import { HuskoDepartureBuilding } from '@/components/HuskoDepartureBuilding';
 import { HUSKO_DEPARTURE_HUB } from '@/constants/huskoDepartureHub';
 import { mapDarkStyle } from '@/constants/mapDarkStyle';
 import { colors, elevation } from '@/constants/theme';
-import { useTracksViewChangesForCustomMarker } from '@/hooks/useTracksViewChangesForCustomMarker';
 import type { MapRegion } from '@/types/mapRegion';
 import { isMapsKeyConfiguredForPlatform } from '@/utils/mapsBuildInfo';
-
-import { CarMarkerIcon } from './CarMarkerIcon';
 
 type Props = {
   region: MapRegion;
@@ -40,21 +36,16 @@ export function GTAMiniMap({
   hudFooter = 'LONG BEACH · CADILLAC SUIVI',
 }: Props) {
   const mapsConfigured = isMapsKeyConfiguredForPlatform();
-  const useFallback = !mapsConfigured;
+  // Android: fallback radar OSM forcé pour éviter les écrans carte noirs/intermittents
+  // observés sur certains appareils malgré provider Google actif.
+  const useFallback = !mapsConfigured || Platform.OS === 'android';
   const footerTag = useFallback ? `${hudFooter} · OSM` : hudFooter;
   const useGoogleStyle = Platform.OS === 'android';
 
-  const driverTrackKey = useMemo(
-    () =>
-      driver
-        ? `${driver.latitude.toFixed(5)}_${driver.longitude.toFixed(5)}_${headingDeg.toFixed(0)}`
-        : 'no-driver',
+  const driverTitle = useMemo(
+    () => (driver ? `Livreur · cap ${Math.round(headingDeg)}°` : 'Livreur'),
     [driver, headingDeg]
   );
-  const tracksDepartureMarker = useTracksViewChangesForCustomMarker(
-    showDeparture && departure ? `${departure.latitude}_${departure.longitude}` : 'no-dep'
-  );
-  const tracksDriverMarker = useTracksViewChangesForCustomMarker(driverTrackKey);
 
   const frameSize = { width: size, height: size } as const;
 
@@ -96,13 +87,10 @@ export function GTAMiniMap({
           {showDeparture && departure ? (
             <Marker
               coordinate={departure}
-              anchor={{ x: 0.5, y: 1 }}
               zIndex={1}
-              tracksViewChanges={tracksDepartureMarker}
               title="Husko · QG"
-            >
-              <HuskoDepartureBuilding size={48} />
-            </Marker>
+              pinColor={colors.accent}
+            />
           ) : null}
           {showDest && dest ? (
             <Marker coordinate={dest} zIndex={2} pinColor={colors.accent} title="Livraison" />
@@ -110,12 +98,10 @@ export function GTAMiniMap({
           {driver ? (
             <Marker
               coordinate={driver}
-              anchor={{ x: 0.5, y: 0.5 }}
               zIndex={3}
-              tracksViewChanges={tracksDriverMarker}
-            >
-              <CarMarkerIcon headingDeg={headingDeg} size={38} variant="lowrider" />
-            </Marker>
+              title={driverTitle}
+              pinColor={colors.posterRed}
+            />
           ) : null}
         </MapView>
       </GTAHudFrame>
