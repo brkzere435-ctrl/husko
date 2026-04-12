@@ -20,7 +20,6 @@ import { FONT } from '@/constants/fonts';
 import { typography } from '@/constants/typography';
 
 export default function HubScreen() {
-  const supportUiEnabled = process.env.EXPO_PUBLIC_HUSKO_DEBUG_BOOT === '1';
   const role = getAppVariant();
   if (role === 'gerant') return <Redirect href="/gerant" />;
   if (role === 'client') return <Redirect href="/client" />;
@@ -37,7 +36,11 @@ export default function HubScreen() {
       ? null
       : Updates.updateId
         ? `Bundle JS (OTA) : ${Updates.updateId.slice(0, 8)}…`
-        : 'Bundle JS : embarqué dans l’APK';
+        : 'Bundle JS : embarqué dans l’APK (aucun OTA encore appliqué)';
+  const otaMetaLine =
+    Platform.OS !== 'web' && Updates.isEnabled
+      ? `Runtime EAS ${Updates.runtimeVersion ?? '—'} · Canal ${Updates.channel ?? '—'}`
+      : null;
 
   return (
     <WestCoastBackground>
@@ -100,8 +103,9 @@ export default function HubScreen() {
 
           <Text variant="bodySmall" style={styles.footer} selectable>
             Husko By Night · v{version}
-            {supportUiEnabled && nativeBuild != null ? ` · APK ${nativeBuild}` : ''}
-            {supportUiEnabled && bundleLine != null ? `\n${bundleLine}` : ''}
+            {nativeBuild != null && Platform.OS !== 'web' ? `\nBuild APK : ${nativeBuild}` : ''}
+            {otaMetaLine != null ? `\n${otaMetaLine}` : ''}
+            {bundleLine != null ? `\n${bundleLine}` : ''}
             {'\n'}
             Tout le service — une seule application.
           </Text>

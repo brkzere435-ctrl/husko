@@ -15,10 +15,9 @@ function formatMs(ms: number): string {
   return `${m} min`;
 }
 
-/** Bloc version + canal EAS + diagnostic bundle (pourquoi l’UI peut sembler « ancienne »). */
+/** Bloc version + canal EAS + diagnostic bundle (visible en production pour valider les OTA). */
 export function OtaUpdateSection() {
   const supportUiEnabled = process.env.EXPO_PUBLIC_HUSKO_DEBUG_BOOT === '1';
-  if (!supportUiEnabled) return null;
   const version = Constants.expoConfig?.version ?? '—';
   const channel = Updates.channel ?? '—';
   const updateIdFull = Updates.updateId ?? null;
@@ -97,10 +96,16 @@ export function OtaUpdateSection() {
         </View>
       ) : null}
 
-      <Text style={[typography.caption, styles.muted]}>
-        Vérification automatique : au lancement, au retour de l’app, puis toutes les{' '}
-        {formatMs(OTA_PERIODIC_CHECK_MS)} environ tant que l’app reste ouverte.
-      </Text>
+      {supportUiEnabled ? (
+        <Text style={[typography.caption, styles.muted]}>
+          Vérification automatique : au lancement, au retour de l’app, puis toutes les{' '}
+          {formatMs(OTA_PERIODIC_CHECK_MS)} environ tant que l’app reste ouverte.
+        </Text>
+      ) : (
+        <Text style={[typography.caption, styles.muted]}>
+          Astuce : après une publication OTA, utilisez le bouton ci-dessous si le bundle affiché ne change pas.
+        </Text>
+      )}
       {native ? (
         <Pressable
           onPress={() => void checkUpdatesWithUserFeedbackAsync()}
