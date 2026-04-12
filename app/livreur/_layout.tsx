@@ -47,6 +47,7 @@ export default function LivreurLayout() {
         bootVisualVersion: CLIENT_BOOT_VISUAL_VERSION,
       },
     });
+    fetch('http://127.0.0.1:7887/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'aa3ba6'},body:JSON.stringify({sessionId:'aa3ba6',runId:'run1',hypothesisId:'H1',location:'app/livreur/_layout.tsx:mount',message:'livreur layout boot mounted',data:{variant:getAppVariant(),remoteSyncEnabled:isRemoteSyncEnabled(),bootVisualVersion:CLIENT_BOOT_VISUAL_VERSION},timestamp:Date.now()})}).catch(()=>{});
     // #endregion
   }, []);
 

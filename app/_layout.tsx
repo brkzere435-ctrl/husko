@@ -119,6 +119,9 @@ export default function RootLayout() {
   useEffect(() => {
     if (!isRemoteSyncEnabled()) return;
     const variant = getAppVariant();
+    // #region agent log
+    fetch('http://127.0.0.1:7887/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'aa3ba6'},body:JSON.stringify({sessionId:'aa3ba6',runId:'run1',hypothesisId:'H2',location:'app/_layout.tsx:driverEffect',message:'driver subscription effect',data:{variant,driverOrderId,remoteSyncEnabled:isRemoteSyncEnabled(),skipDriverSubscription:variant==='livreur'},timestamp:Date.now()})}).catch(()=>{});
+    // #endregion
     // Livreur : la position vient du GPS local (setDriver + push Firestore). Écouter meta/driver
     // réinjecte une copie distante souvent périmée (stale) et peut effacer le marqueur.
     if (variant === 'livreur') {
@@ -150,6 +153,9 @@ export default function RootLayout() {
       (remoteOrders, meta) => {
         useHuskoStore.setState((state) => {
           const merged = mergeRemoteOrdersWithLocal(remoteOrders, state.orders);
+          // #region agent log
+          fetch('http://127.0.0.1:7887/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'aa3ba6'},body:JSON.stringify({sessionId:'aa3ba6',runId:'run1',hypothesisId:'H3',location:'app/_layout.tsx:subscribeToRemoteOrders',message:'orders snapshot merged',data:{variant:getAppVariant(),remoteN:remoteOrders.length,localN:state.orders.length,mergedN:merged.length,snapDocCount:meta.snapDocCount,coercedCount:meta.coercedCount},timestamp:Date.now()})}).catch(()=>{});
+          // #endregion
           void notifyRemoteOrderStatusDiff(state.orders, merged, state.notificationsEnabled);
           debugAgentLog({
             location: 'app/_layout.tsx:mergeRemoteOrders',
@@ -181,6 +187,9 @@ export default function RootLayout() {
         });
       },
       (err) => {
+        // #region agent log
+        fetch('http://127.0.0.1:7887/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'aa3ba6'},body:JSON.stringify({sessionId:'aa3ba6',runId:'run1',hypothesisId:'H3',location:'app/_layout.tsx:subscribeToRemoteOrders:onError',message:'orders listener error',data:{variant:getAppVariant(),err:err.message},timestamp:Date.now()})}).catch(()=>{});
+        // #endregion
         debugAgentLog({
           location: 'app/_layout.tsx:onListenError',
           message: 'layout listen error',

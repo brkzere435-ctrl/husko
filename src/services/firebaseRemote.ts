@@ -409,6 +409,9 @@ export function subscribeToRemoteDriver(
       (s): s is DriverSnapshot => s !== null && !isDriverSnapshotStale(s)
     );
     if (candidates.length === 0) {
+      // #region agent log
+      fetch('http://127.0.0.1:7887/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'aa3ba6'},body:JSON.stringify({sessionId:'aa3ba6',runId:'run1',hypothesisId:'H5',location:'firebaseRemote.ts:emitBest',message:'driver emit none (no candidates)',data:{orderId:normalizedOrderId,candidates:0},timestamp:Date.now()})}).catch(()=>{});
+      // #endregion
       onDriver(null, 0);
       return;
     }
@@ -416,10 +419,16 @@ export function subscribeToRemoteDriver(
     if (normalizedOrderId) {
       const matching = candidates.find((s) => s.orderId === normalizedOrderId);
       if (matching) {
+        // #region agent log
+        fetch('http://127.0.0.1:7887/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'aa3ba6'},body:JSON.stringify({sessionId:'aa3ba6',runId:'run1',hypothesisId:'H5',location:'firebaseRemote.ts:emitBest',message:'driver emit matching order',data:{orderId:normalizedOrderId,candidates:candidates.length,matchedOrderId:matching.orderId},timestamp:Date.now()})}).catch(()=>{});
+        // #endregion
         onDriver(matching.driver, matching.heading);
         return;
       }
       // Empêche un "suivi irréel" en affichant la position d'une autre commande.
+      // #region agent log
+      fetch('http://127.0.0.1:7887/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'aa3ba6'},body:JSON.stringify({sessionId:'aa3ba6',runId:'run1',hypothesisId:'H5',location:'firebaseRemote.ts:emitBest',message:'driver emit none (mismatch order)',data:{orderId:normalizedOrderId,candidates:candidates.length,candidateOrderIds:candidates.map((s)=>s.orderId??'null').slice(0,4)},timestamp:Date.now()})}).catch(()=>{});
+      // #endregion
       onDriver(null, 0);
       return;
     }

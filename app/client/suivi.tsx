@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import * as Linking from 'expo-linking';
 import { Link } from 'expo-router';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { Card, Text } from 'react-native-paper';
 import Animated, { FadeIn } from 'react-native-reanimated';
@@ -102,6 +102,14 @@ export default function SuiviScreen() {
       ? 'Du QG Husko à votre adresse — suivi live dès l’étape « En route »'
       : 'Zone client en cours de calibration — suivi live actif dès signal GPS livreur';
   const mapHudFooter = showLiveMap ? 'LBC · DROP TOP · EN ROUTE' : 'APERÇU · QG → DROP';
+  const hasDriver = !!driver;
+  const hasDest = !!dest;
+
+  useEffect(() => {
+    // #region agent log
+    fetch('http://127.0.0.1:7887/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'aa3ba6'},body:JSON.stringify({sessionId:'aa3ba6',runId:'run1',hypothesisId:'H4',location:'app/client/suivi.tsx:state',message:'suivi state computed',data:{ordersCount:orders.length,activeId:active?.id??null,activeStatus:active?.status??null,hasDriver,showLiveMap,showStaticMap,hasDest},timestamp:Date.now()})}).catch(()=>{});
+    // #endregion
+  }, [orders.length, active?.id, active?.status, hasDriver, showLiveMap, showStaticMap, hasDest]);
 
 
   const etaStepMs = useMemo(() => {
