@@ -1,5 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import * as Linking from 'expo-linking';
 import { Link, router } from 'expo-router';
 import { FlashList, type FlashListRef } from '@shopify/flash-list';
 import { memo, useCallback, useMemo, useRef, useState } from 'react';
@@ -20,7 +21,12 @@ import {
   type MenuCategory,
   type MenuItem,
 } from '@/constants/menu';
-import { clientStrings } from '@/constants/clientExperience';
+import {
+  CLIENT_PHONE_DISPLAY,
+  CLIENT_PHONE_TEL,
+  CLIENT_SNAP_ADD_URL,
+  clientStrings,
+} from '@/constants/clientExperience';
 import { VENUE_TAGLINE_CLIENT } from '@/constants/venue';
 import {
   deliveryHoursLabel,
@@ -120,6 +126,29 @@ function MenuHero() {
       </View>
       <Text style={styles.hoursSmall}>{deliveryHoursLabel()}</Text>
       <Text style={styles.menuHint}>{clientStrings.menuHint}</Text>
+      <Text style={styles.trustLine}>{clientStrings.trustLine}</Text>
+      <Text style={styles.moodLine}>{clientStrings.westCoastMood}</Text>
+      <View style={styles.heroContactRow}>
+        <Pressable
+          onPress={() => void Linking.openURL(`tel:${CLIENT_PHONE_TEL}`)}
+          style={({ pressed }) => [styles.heroContactHit, pressed && styles.heroContactPressed]}
+          accessibilityRole="link"
+          accessibilityLabel={`Appeler le ${CLIENT_PHONE_DISPLAY}`}
+        >
+          <Text style={styles.heroContactText}>{CLIENT_PHONE_DISPLAY}</Text>
+        </Pressable>
+        <Text style={styles.heroContactSep} accessible={false}>
+          ·
+        </Text>
+        <Pressable
+          onPress={() => void Linking.openURL(CLIENT_SNAP_ADD_URL)}
+          style={({ pressed }) => [styles.heroContactHit, pressed && styles.heroContactPressed]}
+          accessibilityRole="link"
+          accessibilityLabel="Ouvrir Snapchat Husko HUSKOBYNIGHT"
+        >
+          <Text style={styles.heroContactText}>Snap HUSKOBYNIGHT</Text>
+        </Pressable>
+      </View>
     </LinearGradient>
   );
 }
@@ -583,6 +612,58 @@ const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 19,
     textAlign: 'center',
+  },
+  trustLine: {
+    marginTop: spacing.sm,
+    fontSize: 12,
+    lineHeight: 17,
+    fontWeight: '700',
+    color: 'rgba(252, 211, 77, 0.95)',
+    textAlign: 'center',
+  },
+  moodLine: {
+    marginTop: spacing.xs,
+    fontSize: 11,
+    lineHeight: 15,
+    fontWeight: '600',
+    color: WC.gold,
+    textAlign: 'center',
+    letterSpacing: 0.4,
+    opacity: 0.95,
+  },
+  heroContactRow: {
+    marginTop: spacing.sm,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.sm,
+    paddingVertical: 0,
+    paddingHorizontal: spacing.sm,
+  },
+  heroContactHit: {
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
+    minHeight: 44,
+    justifyContent: 'center',
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: clientMenuHero.heroContactBorder,
+    backgroundColor: clientMenuHero.heroContactBg,
+  },
+  heroContactPressed: { opacity: 0.88 },
+  heroContactSep: {
+    fontFamily: FONT.bold,
+    color: clientMenuHero.textMuted,
+    fontSize: 14,
+  },
+  heroContactText: {
+    fontFamily: FONT.bold,
+    color: WC.gold,
+    fontWeight: '800',
+    fontSize: 13,
+    letterSpacing: 0.2,
+    textDecorationLine: 'underline',
   },
   menuEmptyWrap: {
     paddingVertical: spacing.xl,

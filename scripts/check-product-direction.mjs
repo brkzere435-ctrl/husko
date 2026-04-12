@@ -28,4 +28,27 @@ if (missing.length > 0) {
   process.exit(1);
 }
 
-console.log('[Husko] productDirection exports OK');
+/** Alignement plan « reprise qualité » : livrable prioritaire = gérant (ne pas dériver silencieusement). */
+const INVARIANTS = [
+  {
+    id: 'distributionFocus.roles.gerant',
+    ok: () => /distributionFocus:\s*\{[\s\S]*?roles:\s*\[\s*'gerant'\s*\]/m.test(src),
+  },
+  {
+    id: 'PRODUCT_DELIVERABLE.easApkProfile',
+    ok: () => /easApkProfile:\s*'apk-gerant'/.test(src),
+  },
+  {
+    id: 'apkPro.roleScripts.gerant',
+    ok: () => /roleScripts:\s*\[\s*'build:apk:gerant'\s*\]/.test(src),
+  },
+];
+
+const broken = INVARIANTS.filter((x) => !x.ok());
+if (broken.length > 0) {
+  console.error('[Husko check-product-direction] Invariants produit rompus (priorité gérant / apk-gerant) :');
+  for (const b of broken) console.error('  •', b.id);
+  process.exit(1);
+}
+
+console.log('[Husko] productDirection exports OK + invariants livrable gérant');

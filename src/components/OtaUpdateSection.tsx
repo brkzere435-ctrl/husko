@@ -1,3 +1,4 @@
+import * as Clipboard from 'expo-clipboard';
 import Constants from 'expo-constants';
 import * as Updates from 'expo-updates';
 import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
@@ -35,6 +36,23 @@ export function OtaUpdateSection() {
 
   const isDev = __DEV__;
   const otaEnabled = Updates.isEnabled;
+
+  const copyBugReportTemplate = () => {
+    const lines = [
+      '--- Husko · copie pour signalement (Réglages)',
+      `variante_app: ${appVariant}`,
+      `version_affichée: ${version}`,
+      nativeBuild != null ? `build_natif_apk: ${nativeBuild}` : 'build_natif_apk: —',
+      `runtime_eas: ${runtimeVersion}`,
+      `canal_ota: ${channel}`,
+      `bundle_ota: ${updateIdFull ?? '(JS embarqué dans l’APK)'}`,
+      `ota_activée: ${String(otaEnabled)}`,
+      `plateforme: ${Platform.OS}`,
+      'symptôme_ou_écran: ',
+      'étapes_pour_reproduire: ',
+    ];
+    void Clipboard.setStringAsync(lines.join('\n'));
+  };
 
   return (
     <View style={styles.box}>
@@ -107,14 +125,24 @@ export function OtaUpdateSection() {
         </Text>
       )}
       {native ? (
-        <Pressable
-          onPress={() => void checkUpdatesWithUserFeedbackAsync()}
-          style={({ pressed }) => [styles.btn, pressed && styles.btnPressed]}
-          accessibilityRole="button"
-          accessibilityLabel="Vérifier les mises à jour"
-        >
-          <Text style={styles.btnText}>Vérifier les mises à jour maintenant</Text>
-        </Pressable>
+        <>
+          <Pressable
+            onPress={() => void checkUpdatesWithUserFeedbackAsync()}
+            style={({ pressed }) => [styles.btn, pressed && styles.btnPressed]}
+            accessibilityRole="button"
+            accessibilityLabel="Vérifier les mises à jour"
+          >
+            <Text style={styles.btnText}>Vérifier les mises à jour maintenant</Text>
+          </Pressable>
+          <Pressable
+            onPress={copyBugReportTemplate}
+            style={({ pressed }) => [styles.btnSecondary, pressed && styles.btnPressed]}
+            accessibilityRole="button"
+            accessibilityLabel="Copier les infos version et canal pour un signalement"
+          >
+            <Text style={styles.btnSecondaryText}>Copier infos version / canal (signalement)</Text>
+          </Pressable>
+        </>
       ) : (
         <Text style={[typography.caption, styles.muted]}>
           Sur navigateur, installez l’APK / l’app iOS pour recevoir les mises à jour OTA.
@@ -192,10 +220,25 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.borderGlow,
   },
+  btnSecondary: {
+    marginTop: spacing.sm,
+    alignSelf: 'flex-start',
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
+    borderRadius: radius.md,
+    backgroundColor: 'transparent',
+    borderWidth: 1,
+    borderColor: colors.borderSubtle,
+  },
   btnPressed: { opacity: 0.88 },
   btnText: {
     color: colors.gold,
     fontWeight: '800',
     fontSize: 14,
+  },
+  btnSecondaryText: {
+    color: colors.textMuted,
+    fontWeight: '700',
+    fontSize: 13,
   },
 });
