@@ -39,8 +39,17 @@ export default function LivreurScreenNative() {
   const subRef = useRef<Location.LocationSubscription | null>(null);
   const [snack, setSnack] = useState('');
   const mapsConfigured = isMapsKeyConfiguredForPlatform();
-  /** Sans clé Maps, le grand plan reste le radar HUD (OSM). Avec clé → Google Maps lisible (pas de style JSON sombre sur Android). */
-  const forceRadarFallback = !mapsConfigured;
+  /**
+   * Android: forcer le radar OSM tant que l'API Maps native renvoie une erreur d'autorisation runtime.
+   * Cela évite les cartes noires « Google » sans tuiles.
+   */
+  const forceRadarFallback = Platform.OS === 'android' || !mapsConfigured;
+
+  useEffect(() => {
+    // #region agent log
+    fetch('http://127.0.0.1:7887/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'aa3ba6'},body:JSON.stringify({sessionId:'aa3ba6',runId:'post-fix',hypothesisId:'H6',location:'src/screens/LivreurScreen.native.tsx:mapMode',message:'livreur map mode selected',data:{platform:Platform.OS,mapsConfigured,forceRadarFallback},timestamp:Date.now()})}).catch(()=>{});
+    // #endregion
+  }, [mapsConfigured, forceRadarFallback]);
 
   useEffect(() => {
     let cancelled = false;
