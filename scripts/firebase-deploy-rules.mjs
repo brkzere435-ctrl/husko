@@ -39,10 +39,9 @@ if (!projectId) {
   process.exit(1);
 }
 
-const tokenFromFile = env.FIREBASE_TOKEN?.trim();
-if (tokenFromFile && !process.env.FIREBASE_TOKEN) {
-  process.env.FIREBASE_TOKEN = tokenFromFile;
-}
+// FIREBASE_TOKEN est déprécié et peut invalider une session `firebase login`
+// en injectant un ancien token depuis .env. On privilégie toujours OAuth local.
+delete process.env.FIREBASE_TOKEN;
 
 console.log(`[Husko] Déploiement firestore:rules → projet Firebase "${projectId}" …`);
 
