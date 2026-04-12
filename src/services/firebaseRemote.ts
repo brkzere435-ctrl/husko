@@ -32,6 +32,8 @@ const DRIVER_PUSH_IMMEDIATE_GAP_MS = 4_000;
 /** Au-delà de ce délai sans écriture Firestore, le client masque le livreur (évite fantômes). */
 const DRIVER_STALE_MS = 120_000;
 const DRIVER_ORDER_DOC_PREFIX = 'driver_order_';
+const ORDER_TRACKING_COLLECTION = 'tracking';
+const ORDER_TRACKING_DRIVER_DOC = 'driverLive';
 let lastDriverPushAt = 0;
 let lastDriverPushOrderId: string | null = null;
 
@@ -241,6 +243,11 @@ function remotePushDriverNow(pos: LatLng | null, heading: number, orderId: strin
   return Promise.all([
     setDoc(doc(firestore, 'meta', 'driver'), payload, { merge: true }),
     setDoc(doc(firestore, 'meta', `${DRIVER_ORDER_DOC_PREFIX}${normalizedOrderId}`), payload, { merge: true }),
+    setDoc(
+      doc(firestore, 'orders', normalizedOrderId, ORDER_TRACKING_COLLECTION, ORDER_TRACKING_DRIVER_DOC),
+      payload,
+      { merge: true }
+    ),
   ]).then(() => undefined);
 }
 
@@ -393,11 +400,12 @@ export function subscribeToRemoteDriver(
   if (!firestore) return () => {};
   const normalizedOrderId = orderId && orderId.trim().length > 0 ? orderId.trim() : null;
   const orderDocName = normalizedOrderId ? `${DRIVER_ORDER_DOC_PREFIX}${normalizedOrderId}` : null;
+  let orderTrackingSnapshot: DriverSnapshot | null = null;
   let orderSnapshot: DriverSnapshot | null = null;
   let globalSnapshot: DriverSnapshot | null = null;
 
   const emitBest = () => {
-    const candidates = [orderSnapshot, globalSnapshot].filter(
+    const candidates = [orderTrackingSnapshot, orderSnapshot, globalSnapshot].filter(
       (s): s is DriverSnapshot => s !== null && !isDriverSnapshotStale(s)
     );
     if (candidates.length === 0) {
@@ -445,11 +453,35 @@ export function subscribeToRemoteDriver(
     }
   );
 
-  if (!orderDocName) {
+  const trackedOrderId = normalizedOrderId;
+  if (!orderDocName || !trackedOrderId) {
     return () => {
       unsubGlobal();
     };
   }
+
+  const unsubOrderTracking = onSnapshot(
+    doc(firestore, 'orders', trackedOrderId, ORDER_TRACKING_COLLECTION, ORDER_TRACKING_DRIVER_DOC),
+    (snap) => {
+      orderTrackingSnapshot = parseDriverSnapshot(snap.data());
+      emitBest();
+    },
+    (err) => {
+      if (__DEV__) console.warn('[Husko Firestore driver/orderTracking]', err.message);
+      postRuntimeDebugIngest({
+        runId: 'run1',
+        hypothesisId: 'H3',
+        location: 'firebaseRemote.ts:subscribeToRemoteDriver:onError',
+        message: 'order tracking listener error',
+        data: {
+          projectId: debugFirebaseProjectId(),
+          err: err instanceof Error ? err.message : String(err),
+          orderId: trackedOrderId,
+        },
+      });
+      emitBest();
+    }
+  );
 
   const unsubOrder = onSnapshot(
     doc(firestore, 'meta', orderDocName),
@@ -467,7 +499,7 @@ export function subscribeToRemoteDriver(
         data: {
           projectId: debugFirebaseProjectId(),
           err: err instanceof Error ? err.message : String(err),
-          orderId: normalizedOrderId,
+          orderId: trackedOrderId,
         },
       });
       emitBest();
@@ -475,6 +507,7 @@ export function subscribeToRemoteDriver(
   );
 
   return () => {
+    unsubOrderTracking();
     unsubOrder();
     unsubGlobal();
   };

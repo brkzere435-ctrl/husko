@@ -1,5 +1,6 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { Link, router } from 'expo-router';
+import * as Location from 'expo-location';
 import { useEffect, useMemo, useState } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
@@ -117,14 +118,39 @@ export default function PanierScreen() {
     setSubmitting(true);
     try {
       const cleanAddress = address.trim();
-      if (cleanAddress.length < 4) {
-        setDialog({ type: 'addressGeocodeFailed' });
-        return;
+      let targetDest: { latitude: number; longitude: number } | null = null;
+      let usedApproximateDest = false;
+      let orderAddressLabel = cleanAddress;
+
+      // Priorité à la position GPS native: le livreur peut naviguer sans adresse texte détaillée.
+      try {
+        const permission = await Location.requestForegroundPermissionsAsync();
+        if (permission.status === 'granted') {
+          const pos = await Location.getCurrentPositionAsync({
+            accuracy: Location.Accuracy.Balanced,
+          });
+          const lat = Number(pos.coords.latitude);
+          const lng = Number(pos.coords.longitude);
+          if (Number.isFinite(lat) && Number.isFinite(lng)) {
+            targetDest = { latitude: lat, longitude: lng };
+            orderAddressLabel = cleanAddress.length >= 4 ? cleanAddress : 'Position GPS client';
+          }
+        }
+      } catch {
+        // Fallback geocode ci-dessous.
       }
-      const geocoded = await geocodeAddress(cleanAddress);
-      const usedApproximateDest = !geocoded;
-      const targetDest = geocoded ?? ANGERS_DEFAULT;
-      const order = await placeOrder(cleanAddress, targetDest);
+
+      if (!targetDest) {
+        if (cleanAddress.length < 4) {
+          setDialog({ type: 'addressGeocodeFailed' });
+          return;
+        }
+        const geocoded = await geocodeAddress(cleanAddress);
+        usedApproximateDest = !geocoded;
+        targetDest = geocoded ?? ANGERS_DEFAULT;
+      }
+
+      const order = await placeOrder(orderAddressLabel, targetDest);
       if (order) {
         hapticSuccess();
         setDialog(
