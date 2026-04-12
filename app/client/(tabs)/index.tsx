@@ -8,6 +8,7 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { WestCoastBackground } from '@/components/westcoast/WestCoastBackground';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { SyncStatusPill } from '@/components/SyncStatusPill';
+import { CLIENT_BOOT_HERO } from '@/constants/brandingAssets';
 import { clientHomeVisual, clientMenuChrome } from '@/constants/clientMenuVisual';
 import {
   deliveryHoursLabel,
@@ -22,7 +23,7 @@ import { VENUE_TAGLINE_CLIENT } from '@/constants/venue';
 import { clientStrings } from '@/constants/clientExperience';
 import { useHuskoStore } from '@/stores/useHuskoStore';
 
-const HERO_IMG = require('../../../assets/menu/smash-1.png');
+const HERO_IMG = CLIENT_BOOT_HERO;
 
 export default function ClientHomeScreen() {
   const insets = useSafeAreaInsets();

@@ -33,7 +33,7 @@ import { typography } from '@/constants/typography';
 import { HUSKO_DEPARTURE_HUB } from '@/constants/huskoDepartureHub';
 import { colors, elevation, radius, spacing } from '@/constants/theme';
 import { WC } from '@/constants/westCoastTheme';
-import { useHuskoStore } from '@/stores/useHuskoStore';
+import { pickPrimaryActiveOrder, useHuskoStore } from '@/stores/useHuskoStore';
 import { formatEuro } from '@/utils/formatEuro';
 import { fitMapRegion } from '@/utils/fitMapRegion';
 
@@ -45,10 +45,7 @@ export default function SuiviScreen() {
   const autonomousDemoEnabled = useHuskoStore((s) => s.autonomousDemoEnabled);
   const autonomousPacePreset = useHuskoStore((s) => s.autonomousPacePreset);
 
-  const active = useMemo(
-    () => orders.find((o) => o.status !== 'delivered' && o.status !== 'cancelled'),
-    [orders]
-  );
+  const active = useMemo(() => pickPrimaryActiveOrder(orders), [orders]);
 
   /** Dernière commande (liste triée : plus récente en premier). */
   const latestOrder = orders[0];

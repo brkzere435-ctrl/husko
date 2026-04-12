@@ -128,8 +128,29 @@ function genId() {
 }
 
 export function pickTrackedDriverOrderId(orders: Order[]): string | null {
-  const active = orders.find((o) => o.status === 'on_way') ?? orders.find((o) => o.status === 'awaiting_livreur');
-  return active?.id ?? null;
+  const active = pickPrimaryActiveOrder(orders);
+  if (!active) return null;
+  if (active.status === 'on_way' || active.status === 'awaiting_livreur') return active.id;
+  return null;
+}
+
+function orderPriority(status: OrderStatus): number {
+  if (status === 'on_way') return 4;
+  if (status === 'awaiting_livreur') return 3;
+  if (status === 'preparing') return 2;
+  if (status === 'pending') return 1;
+  return 0;
+}
+
+/** Commande active la plus pertinente pour le suivi client et la liaison GPS. */
+export function pickPrimaryActiveOrder(orders: Order[]): Order | null {
+  const active = orders.filter((o) => o.status !== 'delivered' && o.status !== 'cancelled');
+  if (active.length === 0) return null;
+  return active.sort((a, b) => {
+    const p = orderPriority(b.status) - orderPriority(a.status);
+    if (p !== 0) return p;
+    return b.createdAt - a.createdAt;
+  })[0] ?? null;
 }
 
 function canTransition(

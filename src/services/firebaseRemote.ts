@@ -419,6 +419,9 @@ export function subscribeToRemoteDriver(
         onDriver(matching.driver, matching.heading);
         return;
       }
+      // Empêche un "suivi irréel" en affichant la position d'une autre commande.
+      onDriver(null, 0);
+      return;
     }
     const freshest = candidates.reduce((best, cur) => {
       const bestTs = best.updatedAt ?? 0;

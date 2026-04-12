@@ -9,6 +9,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { DeploymentHints } from '@/components/DeploymentHints';
 import { GTAMiniMap } from '@/components/GTAMiniMap';
 import { GTAMiniMapFallbackInterior } from '@/components/GTAMiniMapFallbackInterior';
+import { LowriderHeroStrip } from '@/components/LowriderHeroStrip';
 import { WestCoastBackground } from '@/components/westcoast/WestCoastBackground';
 import { LivreurAppGate } from '@/components/LivreurAppGate';
 import { LivreurOrderPanel } from '@/components/LivreurOrderPanel';
@@ -102,6 +103,9 @@ export default function LivreurScreenNative() {
       <WestCoastBackground>
         <SafeAreaView style={styles.root} edges={['bottom']}>
           <LivreurOrderPanel />
+          <View style={styles.heroStripWrap}>
+            <LowriderHeroStrip height={96} />
+          </View>
           <View style={styles.toolbar}>
             <Text style={styles.toolbarLabel}>En ligne</Text>
             <Switch
@@ -188,6 +192,10 @@ export default function LivreurScreenNative() {
 
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: 'transparent' },
+  heroStripWrap: {
+    paddingHorizontal: spacing.md,
+    paddingTop: spacing.sm,
+  },
   toolbar: {
     flexDirection: 'row',
     alignItems: 'center',

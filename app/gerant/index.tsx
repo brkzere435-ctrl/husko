@@ -6,6 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { BrandMark } from '@/components/BrandMark';
 import { FirstPinChangeForm } from '@/components/FirstPinChangeForm';
+import { LowriderHeroStrip } from '@/components/LowriderHeroStrip';
 import { WestCoastBackground } from '@/components/westcoast/WestCoastBackground';
 import { OrderLinesPreview } from '@/components/OrderLinesPreview';
 import { PrimaryButton } from '@/components/PrimaryButton';
@@ -209,6 +210,7 @@ export default function GerantDashboardScreen() {
               </Text>
             </View>
           ) : null}
+          <LowriderHeroStrip />
 
           <View style={styles.servicePanel}>
             <Text style={styles.sectionTitle} accessibilityRole="header">
