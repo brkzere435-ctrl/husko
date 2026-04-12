@@ -242,27 +242,6 @@ export const useHuskoStore = create<State>()(
 
       placeOrder: async (addressLabel, dest) => {
         const { cart, notificationsEnabled, remoteServiceAccepting } = get();
-        // #region agent log
-        fetch('http://127.0.0.1:7887/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42',{
-          method:'POST',
-          headers:{'Content-Type':'application/json','X-Debug-Session-Id':'995197'},
-          body:JSON.stringify({
-            sessionId:'995197',
-            runId:'run1',
-            hypothesisId:'H2',
-            location:'useHuskoStore.ts:245',
-            message:'placeOrder called',
-            data:{
-              cartItems:cart.length,
-              remoteServiceAccepting,
-              remoteSyncEnabled:isRemoteSyncEnabled(),
-              destLat:dest.latitude,
-              destLng:dest.longitude,
-            },
-            timestamp:Date.now(),
-          }),
-        }).catch(()=>{});
-        // #endregion
         if (!cart.length) return null;
         if (!isRemoteSyncEnabled()) {
           throw new Error('CLOUD_SYNC_REQUIRED');
@@ -297,39 +276,9 @@ export const useHuskoStore = create<State>()(
         try {
           await remotePushOrder(order);
           set({ cloudSyncWriteError: null });
-          // #region agent log
-          fetch('http://127.0.0.1:7887/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42',{
-            method:'POST',
-            headers:{'Content-Type':'application/json','X-Debug-Session-Id':'995197'},
-            body:JSON.stringify({
-              sessionId:'995197',
-              runId:'run1',
-              hypothesisId:'H2',
-              location:'useHuskoStore.ts:303',
-              message:'placeOrder remote push success',
-              data:{orderId:order.id, status:order.status},
-              timestamp:Date.now(),
-            }),
-          }).catch(()=>{});
-          // #endregion
         } catch (e: unknown) {
           const msg = e instanceof Error ? e.message : 'Erreur synchro cloud';
           set({ cloudSyncWriteError: msg });
-          // #region agent log
-          fetch('http://127.0.0.1:7887/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42',{
-            method:'POST',
-            headers:{'Content-Type':'application/json','X-Debug-Session-Id':'995197'},
-            body:JSON.stringify({
-              sessionId:'995197',
-              runId:'run1',
-              hypothesisId:'H2',
-              location:'useHuskoStore.ts:316',
-              message:'placeOrder remote push failed',
-              data:{orderId:order.id, error:msg},
-              timestamp:Date.now(),
-            }),
-          }).catch(()=>{});
-          // #endregion
           if (__DEV__) console.warn('[Husko placeOrder remotePush]', msg);
           throw e instanceof Error ? e : new Error(msg);
         }
@@ -343,21 +292,6 @@ export const useHuskoStore = create<State>()(
         const order = get().orders.find((o) => o.id === orderId);
         if (!order) return false;
         const allowed = canTransition(order.status, next, actor);
-        // #region agent log
-        fetch('http://127.0.0.1:7887/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42',{
-          method:'POST',
-          headers:{'Content-Type':'application/json','X-Debug-Session-Id':'995197'},
-          body:JSON.stringify({
-            sessionId:'995197',
-            runId:'run1',
-            hypothesisId:'H3',
-            location:'useHuskoStore.ts:335',
-            message:'transitionOrder requested',
-            data:{orderId, from:order.status, to:next, actor, allowed},
-            timestamp:Date.now(),
-          }),
-        }).catch(()=>{});
-        // #endregion
         if (!allowed) return false;
         return applyOrderTransition(orderId, next);
       },

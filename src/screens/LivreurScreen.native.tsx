@@ -13,14 +13,12 @@ import { WestCoastBackground } from '@/components/westcoast/WestCoastBackground'
 import { LivreurAppGate } from '@/components/LivreurAppGate';
 import { LivreurOrderPanel } from '@/components/LivreurOrderPanel';
 import { FONT } from '@/constants/fonts';
-import { mapDarkStyle } from '@/constants/mapDarkStyle';
 import { colors, elevation, radius, spacing } from '@/constants/theme';
 import { WC } from '@/constants/westCoastTheme';
 import type { MapRegion } from '@/types/mapRegion';
 import { HUSKO_DEPARTURE_HUB } from '@/constants/huskoDepartureHub';
 import { livreurScreenVisual } from '@/constants/livreurScreenVisual';
 import { ANGERS_DEFAULT, useHuskoStore } from '@/stores/useHuskoStore';
-import { postRuntimeDebugIngest } from '@/utils/debugIngestRuntime';
 import { fitMapRegion } from '@/utils/fitMapRegion';
 import { isMapsKeyConfiguredForPlatform } from '@/utils/mapsBuildInfo';
 
@@ -40,19 +38,8 @@ export default function LivreurScreenNative() {
   const subRef = useRef<Location.LocationSubscription | null>(null);
   const [snack, setSnack] = useState('');
   const mapsConfigured = isMapsKeyConfiguredForPlatform();
-  const forceRadarFallback = Platform.OS === 'android';
-
-  useEffect(() => {
-    // #region agent log
-    postRuntimeDebugIngest({
-      runId: 'run5',
-      hypothesisId: 'H12',
-      location: 'LivreurScreen.native.tsx:mount',
-      message: 'livreur map capability snapshot',
-      data: { livreurOnline, mapsConfigured, hasDriver: driver != null },
-    });
-    // #endregion
-  }, [livreurOnline, mapsConfigured, driver]);
+  /** Sans clé Maps, le grand plan reste le radar HUD (OSM). Avec clé → Google Maps lisible (pas de style JSON sombre sur Android). */
+  const forceRadarFallback = !mapsConfigured;
 
   useEffect(() => {
     let cancelled = false;
@@ -60,15 +47,6 @@ export default function LivreurScreenNative() {
     async function start() {
       try {
         const { status } = await Location.requestForegroundPermissionsAsync();
-        // #region agent log
-        postRuntimeDebugIngest({
-          runId: 'run1',
-          hypothesisId: 'H3',
-          location: 'LivreurScreen.native.tsx:start:permission',
-          message: 'location permission status',
-          data: { status, livreurOnline },
-        });
-        // #endregion
         if (status !== 'granted') {
           setSnack('Activez la localisation pour le suivi livreur.');
           return;
@@ -86,21 +64,6 @@ export default function LivreurScreenNative() {
             const lng = loc.coords.longitude;
             const raw = loc.coords.heading;
             const heading = typeof raw === 'number' && Number.isFinite(raw) ? raw : 0;
-            // #region agent log
-            postRuntimeDebugIngest({
-              runId: 'run1',
-              hypothesisId: 'H3',
-              location: 'LivreurScreen.native.tsx:watchPosition',
-              message: 'location update',
-              data: {
-                lat,
-                lng,
-                heading,
-                accuracy: loc.coords.accuracy ?? null,
-                speed: loc.coords.speed ?? null,
-              },
-            });
-            // #endregion
             setDriver({ latitude: lat, longitude: lng }, heading);
             setRegion((r) => ({
               ...r,
@@ -133,8 +96,6 @@ export default function LivreurScreenNative() {
     if (driver) pts.push(driver);
     return fitMapRegion(pts, 1.95);
   }, [driver]);
-
-  const useGoogleStyle = Platform.OS === 'android';
 
   return (
     <LivreurAppGate>
@@ -171,33 +132,10 @@ export default function LivreurScreenNative() {
                 provider={Platform.OS === 'android' ? PROVIDER_GOOGLE : undefined}
                 region={region}
                 onRegionChangeComplete={setRegion}
-                onMapReady={() => {
-                  // #region agent log
-                  postRuntimeDebugIngest({
-                    runId: 'run6',
-                    hypothesisId: 'H13',
-                    location: 'LivreurScreen.native.tsx:map:onMapReady',
-                    message: 'native map ready event',
-                    data: { mapsConfigured },
-                  });
-                  // #endregion
-                }}
-                onMapLoaded={() => {
-                  // #region agent log
-                  postRuntimeDebugIngest({
-                    runId: 'run6',
-                    hypothesisId: 'H13',
-                    location: 'LivreurScreen.native.tsx:map:onMapLoaded',
-                    message: 'native map loaded event',
-                    data: { mapsConfigured },
-                  });
-                  // #endregion
-                }}
                 showsUserLocation={false}
                 showsMyLocationButton={false}
                 loadingEnabled
                 toolbarEnabled={false}
-                customMapStyle={useGoogleStyle ? mapDarkStyle : undefined}
                 mapType={Platform.OS === 'ios' ? 'mutedStandard' : 'standard'}
               >
                 <Marker

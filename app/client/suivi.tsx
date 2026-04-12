@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import * as Linking from 'expo-linking';
 import { Link } from 'expo-router';
-import { useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { Card, Text } from 'react-native-paper';
 import Animated, { FadeIn } from 'react-native-reanimated';
@@ -34,10 +34,8 @@ import { HUSKO_DEPARTURE_HUB } from '@/constants/huskoDepartureHub';
 import { colors, elevation, radius, spacing } from '@/constants/theme';
 import { WC } from '@/constants/westCoastTheme';
 import { useHuskoStore } from '@/stores/useHuskoStore';
-import { postRuntimeDebugIngest } from '@/utils/debugIngestRuntime';
 import { formatEuro } from '@/utils/formatEuro';
 import { fitMapRegion } from '@/utils/fitMapRegion';
-import { isMapsKeyConfiguredForPlatform } from '@/utils/mapsBuildInfo';
 
 export default function SuiviScreen() {
   const orders = useHuskoStore((s) => s.orders);
@@ -75,7 +73,6 @@ export default function SuiviScreen() {
     (active.status === 'on_way' || !!driver);
   const showStaticMap =
     !!active && !showLiveMap && active.status !== 'delivered' && active.status !== 'cancelled';
-  const mapsConfigured = isMapsKeyConfiguredForPlatform();
 
   const staticRegion = useMemo(() => {
     if (!active || !showStaticMap) return null;
@@ -130,30 +127,6 @@ export default function SuiviScreen() {
     const t = new Date(Date.now() + ms);
     return t.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
   }, [active, etaStepMs]);
-
-  const activeId = active?.id ?? null;
-  const activeStatus = active?.status ?? null;
-  const hasDriver = !!driver;
-
-  useEffect(() => {
-    // #region agent log
-    postRuntimeDebugIngest({
-      runId: 'run1',
-      hypothesisId: 'H1',
-      location: 'app/client/suivi.tsx:renderState',
-      message: 'suivi state snapshot',
-      data: {
-        ordersCount: orders.length,
-        hasActive: activeId !== null,
-        activeStatus,
-        showLiveMap,
-        showStaticMap,
-        hasDriver,
-        mapsConfigured,
-      },
-    });
-    // #endregion
-  }, [orders.length, activeId, activeStatus, showLiveMap, showStaticMap, hasDriver, mapsConfigured]);
 
   return (
     <WestCoastBackground preset="client">

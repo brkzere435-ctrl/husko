@@ -5,7 +5,6 @@ import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import { GTAHudFrame } from '@/components/GTAHudFrame';
 import { GTAMiniMapFallbackInterior } from '@/components/GTAMiniMapFallbackInterior';
 import { HUSKO_DEPARTURE_HUB } from '@/constants/huskoDepartureHub';
-import { mapDarkStyle } from '@/constants/mapDarkStyle';
 import { colors, elevation } from '@/constants/theme';
 import type { MapRegion } from '@/types/mapRegion';
 import { isMapsKeyConfiguredForPlatform } from '@/utils/mapsBuildInfo';
@@ -36,11 +35,9 @@ export function GTAMiniMap({
   hudFooter = 'LONG BEACH · CADILLAC SUIVI',
 }: Props) {
   const mapsConfigured = isMapsKeyConfiguredForPlatform();
-  // Android: fallback radar OSM forcé pour éviter les écrans carte noirs/intermittents
-  // observés sur certains appareils malgré provider Google actif.
-  const useFallback = !mapsConfigured || Platform.OS === 'android';
+  // Clé Maps OK → react-native-maps (tuiles natives). Sans clé → radar OSM + HUD.
+  const useFallback = !mapsConfigured;
   const footerTag = useFallback ? `${hudFooter} · OSM` : hudFooter;
-  const useGoogleStyle = Platform.OS === 'android';
 
   const driverTitle = useMemo(
     () => (driver ? `Livreur · cap ${Math.round(headingDeg)}°` : 'Livreur'),
@@ -81,7 +78,6 @@ export function GTAMiniMap({
           zoomEnabled={false}
           loadingEnabled
           toolbarEnabled={false}
-          customMapStyle={useGoogleStyle ? mapDarkStyle : undefined}
           mapType={Platform.OS === 'ios' ? 'mutedStandard' : 'standard'}
         >
           {showDeparture && departure ? (

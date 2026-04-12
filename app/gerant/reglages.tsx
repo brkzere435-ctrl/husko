@@ -1,6 +1,6 @@
 import * as Application from 'expo-application';
 import * as Clipboard from 'expo-clipboard';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { Text, TextInput } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -96,17 +96,6 @@ export default function ReglagesScreen() {
   const [pin, setPin] = useState(managerPin);
 
   const showFieldDiagnostics = process.env.EXPO_PUBLIC_HUSKO_DEBUG_BOOT === '1';
-  useEffect(() => {
-    // #region agent log
-    fetch('http://127.0.0.1:7887/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'a64698'},body:JSON.stringify({sessionId:'a64698',runId:'run-verify-ota',hypothesisId:'H22',location:'app/gerant/reglages.tsx:mounted',message:'gerant settings mounted',data:{codeSignature:'gerant-settings-live-v2',showFieldDiagnostics,serviceState:remoteServiceAccepting,syncState:isRemoteSyncEnabled()},timestamp:Date.now()})}).catch(()=>{});
-    // #endregion
-  }, [showFieldDiagnostics, remoteServiceAccepting]);
-
-  useEffect(() => {
-    // #region agent log
-    fetch('http://127.0.0.1:7887/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'a64698'},body:JSON.stringify({sessionId:'a64698',runId:'run-nochange',hypothesisId:'H3',location:'app/gerant/reglages.tsx:render-signature',message:'gerant settings signature',data:{codeSignature:'gerant-settings-live-v1',showFieldDiagnostics,serviceState:remoteServiceAccepting,isRemoteSyncEnabled:isRemoteSyncEnabled()},timestamp:Date.now()})}).catch(()=>{});
-    // #endregion
-  }, [showFieldDiagnostics, remoteServiceAccepting]);
 
   return (
     <WestCoastBackground>

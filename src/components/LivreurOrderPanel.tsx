@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useState } from 'react';
+import { Fragment, useState } from 'react';
 import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Button, Dialog, Portal, Text as PaperText } from 'react-native-paper';
 
@@ -10,7 +10,6 @@ import { colors, elevation, radius, spacing } from '@/constants/theme';
 import { WC, wcSectionLabel } from '@/constants/westCoastTheme';
 import { openTechnicalFeedback } from '@/navigation/openTechnicalFeedback';
 import { useHuskoStore } from '@/stores/useHuskoStore';
-import { postRuntimeDebugIngest } from '@/utils/debugIngestRuntime';
 import { formatEuro } from '@/utils/formatEuro';
 import { hapticLight, hapticSuccess } from '@/utils/haptics';
 
@@ -27,23 +26,6 @@ export function LivreurOrderPanel() {
 
   const pickup = orders.filter((o) => o.status === 'awaiting_livreur');
   const enRoute = orders.filter((o) => o.status === 'on_way');
-
-  useEffect(() => {
-    // #region agent log
-    postRuntimeDebugIngest({
-      runId: 'run1',
-      hypothesisId: 'H5',
-      location: 'LivreurOrderPanel.tsx:render',
-      message: 'livreur panel orders snapshot',
-      data: {
-        ordersCount: orders.length,
-        pickupCount: pickup.length,
-        enRouteCount: enRoute.length,
-        sample: orders.slice(0, 8).map((o) => ({ id: o.id, status: o.status })),
-      },
-    });
-    // #endregion
-  }, [orders, pickup.length, enRoute.length]);
 
   return (
     <Fragment>

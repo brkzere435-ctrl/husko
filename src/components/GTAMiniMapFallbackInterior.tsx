@@ -48,6 +48,8 @@ export function GTAMiniMapFallbackInterior({
   departure = HUSKO_DEPARTURE_HUB,
   showDeparture = true,
 }: Props) {
+  /** 0 = tuile avec marqueurs ; 1 = tuile centre seul (certains proxies bloquent le format markers=). */
+  const [staticMapAttempt, setStaticMapAttempt] = useState(0);
   const [tileError, setTileError] = useState(false);
   const depPlot = useMemo(
     () => (showDeparture && departure ? projectToRadar(departure, region) : null),
@@ -59,23 +61,23 @@ export function GTAMiniMapFallbackInterior({
   );
   const driverPlot = useMemo(() => (driver ? projectToRadar(driver, region) : null), [driver, region]);
 
-  const mapUri = useMemo(() => {
+  const { mapUriWithMarkers, mapUriPlain } = useMemo(() => {
     const points: { latitude: number; longitude: number }[] = [];
     if (showDeparture && departure) points.push(departure);
     if (showDest && dest) points.push(dest);
     if (driver) points.push(driver);
 
-    const centerLat =
+    const cLat =
       points.length > 0
         ? points.reduce((sum, p) => sum + p.latitude, 0) / points.length
         : (region?.latitude ?? HUSKO_DEPARTURE_HUB.latitude);
-    const centerLng =
+    const cLng =
       points.length > 0
         ? points.reduce((sum, p) => sum + p.longitude, 0) / points.length
         : (region?.longitude ?? HUSKO_DEPARTURE_HUB.longitude);
 
     const latitudeDelta = region?.latitudeDelta ?? 0.02;
-    const zoom = Math.max(11, Math.min(18, Math.round(Math.log2(360 / Math.max(latitudeDelta, 0.0001)))));
+    const z = Math.max(11, Math.min(18, Math.round(Math.log2(360 / Math.max(latitudeDelta, 0.0001)))));
 
     const markerParts: string[] = [];
     if (showDeparture && departure) {
@@ -88,17 +90,27 @@ export function GTAMiniMapFallbackInterior({
       markerParts.push(`${driver.latitude},${driver.longitude},red`);
     }
     const markerQuery = markerParts.length > 0 ? `&markers=${encodeURIComponent(markerParts.join('|'))}` : '';
-    return `https://staticmap.openstreetmap.de/staticmap.php?center=${centerLat},${centerLng}&zoom=${zoom}&size=640x640&maptype=mapnik${markerQuery}`;
+    const base = `https://staticmap.openstreetmap.de/staticmap.php?center=${cLat},${cLng}&zoom=${z}&size=640x640&maptype=mapnik`;
+    return {
+      mapUriWithMarkers: `${base}${markerQuery}`,
+      mapUriPlain: base,
+    };
   }, [departure, dest, driver, region, showDeparture, showDest]);
+
+  const mapUri = staticMapAttempt === 0 ? mapUriWithMarkers : mapUriPlain;
 
   return (
     <View style={styles.fakeMap} collapsable={false}>
       {!tileError ? (
         <Image
+          key={mapUri}
           source={{ uri: mapUri }}
           style={styles.mapImage}
           resizeMode="cover"
-          onError={() => setTileError(true)}
+          onError={() => {
+            if (staticMapAttempt === 0) setStaticMapAttempt(1);
+            else setTileError(true);
+          }}
           accessibilityLabel="Carte OpenStreetMap"
         />
       ) : null}
@@ -154,15 +166,15 @@ const styles = StyleSheet.create({
   },
   mapImage: {
     ...StyleSheet.absoluteFillObject,
-    opacity: 0.28,
+    opacity: 0.4,
   },
   overlayDim: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(6, 3, 8, 0.22)',
+    backgroundColor: 'rgba(6, 3, 8, 0.16)',
   },
   radarBackdrop: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(18, 12, 22, 0.45)',
+    backgroundColor: 'rgba(18, 12, 22, 0.32)',
   },
   offlineBadge: {
     position: 'absolute',

@@ -103,12 +103,6 @@ export default function GerantDashboardScreen() {
   const pendingCount = useMemo(() => live.filter((o) => o.status === 'pending').length, [live]);
 
   useEffect(() => {
-    // #region agent log
-    fetch('http://127.0.0.1:7887/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'a64698'},body:JSON.stringify({sessionId:'a64698',runId:'run-verify-ota',hypothesisId:'H21',location:'app/gerant/index.tsx:mounted',message:'gerant dashboard mounted',data:{codeSignature:'gerant-hotfix-banner-v2',variant,unlocked,pendingCount,showUrgentBanner:pendingCount>0},timestamp:Date.now()})}).catch(()=>{});
-    // #endregion
-  }, [variant, unlocked, pendingCount]);
-
-  useEffect(() => {
     if (!supportDebugEnabled) return;
     // #region agent log
     postSessionA64698Ingest({
@@ -132,12 +126,6 @@ export default function GerantDashboardScreen() {
     );
     // #endregion
   }, [supportDebugEnabled, variant, unlocked]);
-
-  useEffect(() => {
-    // #region agent log
-    fetch('http://127.0.0.1:7887/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'a64698'},body:JSON.stringify({sessionId:'a64698',runId:'run-nochange',hypothesisId:'H2',location:'app/gerant/index.tsx:render-signature',message:'gerant dashboard signature',data:{codeSignature:'gerant-alert-v1',variant,unlocked,pendingCount,hasUrgentBanner:true,hasDeliveryFlowGuide:false},timestamp:Date.now()})}).catch(()=>{});
-    // #endregion
-  }, [variant, unlocked, pendingCount]);
 
   function unlock() {
     if (pin === managerPin) setUnlocked(true);

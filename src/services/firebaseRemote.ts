@@ -237,26 +237,6 @@ function remotePushDriverNow(pos: LatLng | null, heading: number, orderId: strin
     // Passage hors-ligne: on efface explicitement l'association commande.
     payload.orderId = null;
   }
-  // #region agent log
-  fetch('http://127.0.0.1:7887/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42',{
-    method:'POST',
-    headers:{'Content-Type':'application/json','X-Debug-Session-Id':'995197'},
-    body:JSON.stringify({
-      sessionId:'995197',
-      runId:'run1',
-      hypothesisId:'H4',
-      location:'firebaseRemote.ts:240',
-      message:'remotePushDriverNow write requested',
-      data:{
-        hasPosition:pos != null,
-        heading,
-        orderId:normalizedOrderId,
-        writesOrderTracking:normalizedOrderId != null,
-      },
-      timestamp:Date.now(),
-    }),
-  }).catch(()=>{});
-  // #endregion
   if (normalizedOrderId == null) {
     return setDoc(doc(firestore, 'meta', 'driver'), payload, { merge: true });
   }
@@ -428,27 +408,6 @@ export function subscribeToRemoteDriver(
     const candidates = [orderTrackingSnapshot, orderSnapshot, globalSnapshot].filter(
       (s): s is DriverSnapshot => s !== null && !isDriverSnapshotStale(s)
     );
-    // #region agent log
-    fetch('http://127.0.0.1:7887/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42',{
-      method:'POST',
-      headers:{'Content-Type':'application/json','X-Debug-Session-Id':'995197'},
-      body:JSON.stringify({
-        sessionId:'995197',
-        runId:'run1',
-        hypothesisId:'H5',
-        location:'firebaseRemote.ts:432',
-        message:'emitBest evaluating driver candidates',
-        data:{
-          trackedOrderId:normalizedOrderId,
-          orderTrackingPresent:orderTrackingSnapshot != null,
-          orderMetaPresent:orderSnapshot != null,
-          globalPresent:globalSnapshot != null,
-          candidateCount:candidates.length,
-        },
-        timestamp:Date.now(),
-      }),
-    }).catch(()=>{});
-    // #endregion
     if (candidates.length === 0) {
       onDriver(null, 0);
       return;

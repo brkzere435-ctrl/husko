@@ -2,7 +2,6 @@ import * as Linking from 'expo-linking';
 import Constants from 'expo-constants';
 import * as Updates from 'expo-updates';
 import { Link, Redirect } from 'expo-router';
-import { useEffect } from 'react';
 import { Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { Surface, Text } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -23,23 +22,6 @@ import { typography } from '@/constants/typography';
 export default function HubScreen() {
   const supportUiEnabled = process.env.EXPO_PUBLIC_HUSKO_DEBUG_BOOT === '1';
   const role = getAppVariant();
-  useEffect(() => {
-    // #region agent log
-    fetch('http://127.0.0.1:7887/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42',{
-      method:'POST',
-      headers:{'Content-Type':'application/json','X-Debug-Session-Id':'995197'},
-      body:JSON.stringify({
-        sessionId:'995197',
-        runId:'run1',
-        hypothesisId:'H1',
-        location:'app/index.tsx:24',
-        message:'root variant resolved',
-        data:{role, platform:Platform.OS},
-        timestamp:Date.now(),
-      }),
-    }).catch(()=>{});
-    // #endregion
-  }, [role]);
   if (role === 'gerant') return <Redirect href="/gerant" />;
   if (role === 'client') return <Redirect href="/client" />;
   if (role === 'livreur') return <Redirect href="/livreur" />;
