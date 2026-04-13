@@ -331,6 +331,9 @@ export const useHuskoStore = create<State>()(
 
       setDriver: (pos, heading = 0) => {
         const trackedOrderId = pickTrackedDriverOrderId(get().orders);
+        // #region agent log
+        fetch('http://127.0.0.1:7887/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'248b3d'},body:JSON.stringify({sessionId:'248b3d',runId:'run6',hypothesisId:'H1',location:'src/stores/useHuskoStore.ts:setDriver',message:'setDriver called with tracked order',data:{trackedOrderId,hasPos:!!pos,heading,ordersActive:get().orders.filter((o)=>o.status!=='delivered'&&o.status!=='cancelled').slice(0,3).map((o)=>({id:o.id,status:o.status}))},timestamp:Date.now()})}).catch(()=>{});
+        // #endregion
         set({ driver: pos, driverHeading: heading });
         remotePushDriverDebounced(pos, heading, trackedOrderId);
       },

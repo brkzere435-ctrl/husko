@@ -18,16 +18,15 @@ const branding = join(assets, 'branding');
 mkdirSync(assets, { recursive: true });
 mkdirSync(branding, { recursive: true });
 
-/** Ciel multi-stops — transitions douces (évite le rendu « 16 bits »). */
+/** Palette Husko rouge/noir — transitions douces (évite le rendu « 16 bits »). */
 const SKY_STOPS = `
-      <stop offset="0%" stop-color="#1e1b4b"/>
-      <stop offset="12%" stop-color="#4c1d95"/>
-      <stop offset="28%" stop-color="#9d174d"/>
-      <stop offset="44%" stop-color="#ea580c"/>
-      <stop offset="58%" stop-color="#f97316"/>
-      <stop offset="72%" stop-color="#c2410c"/>
-      <stop offset="88%" stop-color="#431407"/>
-      <stop offset="100%" stop-color="#0c0a09"/>`;
+      <stop offset="0%" stop-color="#070203"/>
+      <stop offset="16%" stop-color="#160304"/>
+      <stop offset="34%" stop-color="#2b0608"/>
+      <stop offset="52%" stop-color="#590b10"/>
+      <stop offset="70%" stop-color="#8c1018"/>
+      <stop offset="86%" stop-color="#5d0b12"/>
+      <stop offset="100%" stop-color="#0c0203"/>`;
 
 /** Silhouette palmier centrée sur (0,0) — tronc vers le bas (y+). */
 function palmSilhouetteLocal(s) {
@@ -86,21 +85,21 @@ function iconSvg(size, titlePx, subPx) {
     <linearGradient id="sky" x1="0%" y1="0%" x2="0%" y2="100%">${SKY_STOPS}
     </linearGradient>
     <linearGradient id="chrome" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#fffefb"/>
-      <stop offset="22%" stop-color="#fef3c7"/>
-      <stop offset="48%" stop-color="#fcd34d"/>
-      <stop offset="78%" stop-color="#fb923c"/>
-      <stop offset="100%" stop-color="#ea580c"/>
+      <stop offset="0%" stop-color="#fffdfd"/>
+      <stop offset="24%" stop-color="#ffe8e8"/>
+      <stop offset="52%" stop-color="#ffb3b3"/>
+      <stop offset="80%" stop-color="#ff4b4b"/>
+      <stop offset="100%" stop-color="#d41414"/>
     </linearGradient>
     <radialGradient id="sunCore" cx="50%" cy="42%" r="50%">
-      <stop offset="0%" stop-color="#fffbeb"/>
-      <stop offset="45%" stop-color="#fdba74"/>
-      <stop offset="100%" stop-color="#ea580c"/>
+      <stop offset="0%" stop-color="#fff7f7"/>
+      <stop offset="45%" stop-color="#ff8b8b"/>
+      <stop offset="100%" stop-color="#d41414"/>
     </radialGradient>
     <radialGradient id="sunBloom" cx="50%" cy="40%" r="65%">
-      <stop offset="0%" stop-color="#fb923c" stop-opacity="0.5"/>
-      <stop offset="45%" stop-color="#f97316" stop-opacity="0.18"/>
-      <stop offset="100%" stop-color="#1e1b4b" stop-opacity="0"/>
+      <stop offset="0%" stop-color="#ff3b3b" stop-opacity="0.48"/>
+      <stop offset="45%" stop-color="#c1121f" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="#120304" stop-opacity="0"/>
     </radialGradient>
     <filter id="sunSoft" x="-40%" y="-40%" width="180%" height="180%">
       <feGaussianBlur stdDeviation="${Math.max(3, Math.round(s * 0.012))}" result="b"/>
@@ -113,9 +112,9 @@ function iconSvg(size, titlePx, subPx) {
       <feDropShadow dx="0" dy="${Math.max(2, Math.round(s * 0.004))}" stdDeviation="${Math.max(4, Math.round(s * 0.01))}" flood-color="#1c0a0c" flood-opacity="0.55"/>
     </filter>
     <linearGradient id="horizonMist" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#1a0a0c" stop-opacity="0"/>
-      <stop offset="50%" stop-color="#140608" stop-opacity="0.55"/>
-      <stop offset="100%" stop-color="#0a0304" stop-opacity="0.92"/>
+      <stop offset="0%" stop-color="#1e0608" stop-opacity="0"/>
+      <stop offset="50%" stop-color="#150405" stop-opacity="0.62"/>
+      <stop offset="100%" stop-color="#090203" stop-opacity="0.94"/>
     </linearGradient>
   </defs>
   <rect width="100%" height="100%" fill="url(#sky)"/>
@@ -133,7 +132,7 @@ function iconSvg(size, titlePx, subPx) {
     font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
     font-size="${subPx}" font-weight="500"
     letter-spacing="${Math.round(subPx * 0.42)}"
-    fill="rgba(255, 247, 237, 0.88)">BY NIGHT</text>
+    fill="rgba(255, 232, 232, 0.92)">BY NIGHT</text>
 </svg>`;
 }
 
@@ -176,13 +175,13 @@ function bootHeroSvg(w, h) {
     <linearGradient id="bhSky" x1="0%" y1="0%" x2="0%" y2="100%">${SKY_STOPS}
     </linearGradient>
     <radialGradient id="bhSun" cx="50%" cy="38%" r="55%">
-      <stop offset="0%" stop-color="#fffbeb"/>
-      <stop offset="50%" stop-color="#fb923c"/>
-      <stop offset="100%" stop-color="#c2410c"/>
+      <stop offset="0%" stop-color="#fff8f8"/>
+      <stop offset="50%" stop-color="#ff5f5f"/>
+      <stop offset="100%" stop-color="#c1121f"/>
     </radialGradient>
     <radialGradient id="bhBloom" cx="50%" cy="36%" r="70%">
-      <stop offset="0%" stop-color="#fb923c" stop-opacity="0.42"/>
-      <stop offset="100%" stop-color="#1e1b4b" stop-opacity="0"/>
+      <stop offset="0%" stop-color="#ff3b3b" stop-opacity="0.44"/>
+      <stop offset="100%" stop-color="#120304" stop-opacity="0"/>
     </radialGradient>
     <filter id="bhGlow" x="-35%" y="-35%" width="170%" height="170%">
       <feGaussianBlur stdDeviation="28" result="b"/>

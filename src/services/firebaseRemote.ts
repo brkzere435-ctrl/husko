@@ -225,6 +225,9 @@ function remotePushDriverNow(pos: LatLng | null, heading: number, orderId: strin
   const firestore = ensureDb();
   if (!firestore) return Promise.resolve();
   const normalizedOrderId = orderId && orderId.trim().length > 0 ? orderId.trim() : null;
+  // #region agent log
+  fetch('http://127.0.0.1:7887/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'248b3d'},body:JSON.stringify({sessionId:'248b3d',runId:'run6',hypothesisId:'H2',location:'src/services/firebaseRemote.ts:remotePushDriverNow',message:'pushing driver snapshot',data:{orderId:normalizedOrderId,hasPos:!!pos,heading},timestamp:Date.now()})}).catch(()=>{});
+  // #endregion
   const payload: Record<string, unknown> = {
     lat: pos?.latitude ?? null,
     lng: pos?.longitude ?? null,

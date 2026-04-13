@@ -142,10 +142,16 @@ export default function RootLayout() {
     // Client: ne jamais afficher un livreur "global" sans commande suivie explicite,
     // sinon le suivi paraît irréel (position d'une autre course).
     if (variant === 'client' && !driverOrderId) {
+      // #region agent log
+      fetch('http://127.0.0.1:7887/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'248b3d'},body:JSON.stringify({sessionId:'248b3d',runId:'run6',hypothesisId:'H3',location:'app/_layout.tsx:driverEffect:noTrackedOrder',message:'client has no tracked order for driver subscribe',data:{variant,driverOrderId},timestamp:Date.now()})}).catch(()=>{});
+      // #endregion
       useHuskoStore.setState({ driver: null, driverHeading: 0 });
       return;
     }
     const unsubDriver = subscribeToRemoteDriver(driverOrderId, (driver, driverHeading) => {
+      // #region agent log
+      fetch('http://127.0.0.1:7887/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'248b3d'},body:JSON.stringify({sessionId:'248b3d',runId:'run6',hypothesisId:'H4',location:'app/_layout.tsx:subscribeToRemoteDriver:callback',message:'driver callback delivered to store',data:{variant,driverOrderId,hasDriver:!!driver,driverHeading},timestamp:Date.now()})}).catch(()=>{});
+      // #endregion
       useHuskoStore.setState({ driver, driverHeading });
     });
     return () => {
