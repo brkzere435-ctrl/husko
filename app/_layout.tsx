@@ -65,6 +65,7 @@ export default function RootLayout() {
   useEffect(() => {
     if (!appReady) return;
     // #region agent log
+    fetch('http://127.0.0.1:7887/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'248b3d'},body:JSON.stringify({sessionId:'248b3d',runId:'run5',hypothesisId:'H3',location:'app/_layout.tsx:appReady',message:'root layout appReady reached',data:{appReady,variant:getAppVariant(),remoteSyncEnabled:isRemoteSyncEnabled()},timestamp:Date.now()})}).catch(()=>{});
     postRuntimeDebugIngest({
       runId: 'run4',
       hypothesisId: 'H9',
@@ -120,7 +121,18 @@ export default function RootLayout() {
     if (!isRemoteSyncEnabled()) return;
     const variant = getAppVariant();
     // #region agent log
-    fetch('http://127.0.0.1:7887/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'aa3ba6'},body:JSON.stringify({sessionId:'aa3ba6',runId:'run1',hypothesisId:'H2',location:'app/_layout.tsx:driverEffect',message:'driver subscription effect',data:{variant,driverOrderId,remoteSyncEnabled:isRemoteSyncEnabled(),skipDriverSubscription:variant==='livreur'},timestamp:Date.now()})}).catch(()=>{});
+    postRuntimeDebugIngest({
+      runId: 'run1',
+      hypothesisId: 'H2',
+      location: 'app/_layout.tsx:driverEffect',
+      message: 'driver subscription effect',
+      data: {
+        variant,
+        driverOrderId,
+        remoteSyncEnabled: isRemoteSyncEnabled(),
+        skipDriverSubscription: variant === 'livreur',
+      },
+    });
     // #endregion
     // Livreur : la position vient du GPS local (setDriver + push Firestore). Écouter meta/driver
     // réinjecte une copie distante souvent périmée (stale) et peut effacer le marqueur.
@@ -160,7 +172,20 @@ export default function RootLayout() {
         useHuskoStore.setState((state) => {
           const merged = mergeRemoteOrdersWithLocal(remoteOrders, state.orders);
           // #region agent log
-          fetch('http://127.0.0.1:7887/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'aa3ba6'},body:JSON.stringify({sessionId:'aa3ba6',runId:'run1',hypothesisId:'H3',location:'app/_layout.tsx:subscribeToRemoteOrders',message:'orders snapshot merged',data:{variant:getAppVariant(),remoteN:remoteOrders.length,localN:state.orders.length,mergedN:merged.length,snapDocCount:meta.snapDocCount,coercedCount:meta.coercedCount},timestamp:Date.now()})}).catch(()=>{});
+          postRuntimeDebugIngest({
+            runId: 'run1',
+            hypothesisId: 'H3',
+            location: 'app/_layout.tsx:subscribeToRemoteOrders',
+            message: 'orders snapshot merged',
+            data: {
+              variant: getAppVariant(),
+              remoteN: remoteOrders.length,
+              localN: state.orders.length,
+              mergedN: merged.length,
+              snapDocCount: meta.snapDocCount,
+              coercedCount: meta.coercedCount,
+            },
+          });
           // #endregion
           void notifyRemoteOrderStatusDiff(state.orders, merged, state.notificationsEnabled);
           debugAgentLog({
@@ -194,7 +219,16 @@ export default function RootLayout() {
       },
       (err) => {
         // #region agent log
-        fetch('http://127.0.0.1:7887/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'aa3ba6'},body:JSON.stringify({sessionId:'aa3ba6',runId:'run1',hypothesisId:'H3',location:'app/_layout.tsx:subscribeToRemoteOrders:onError',message:'orders listener error',data:{variant:getAppVariant(),err:err.message},timestamp:Date.now()})}).catch(()=>{});
+        postRuntimeDebugIngest({
+          runId: 'run1',
+          hypothesisId: 'H3',
+          location: 'app/_layout.tsx:subscribeToRemoteOrders:onError',
+          message: 'orders listener error',
+          data: {
+            variant: getAppVariant(),
+            err: err.message,
+          },
+        });
         // #endregion
         debugAgentLog({
           location: 'app/_layout.tsx:onListenError',

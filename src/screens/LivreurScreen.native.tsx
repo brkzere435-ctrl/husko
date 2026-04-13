@@ -48,6 +48,9 @@ export default function LivreurScreenNative() {
 
   useEffect(() => {
     let cancelled = false;
+    // #region agent log
+    fetch('http://127.0.0.1:7887/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'248b3d'},body:JSON.stringify({sessionId:'248b3d',runId:'run5',hypothesisId:'H2',location:'src/screens/LivreurScreen.native.tsx:effectStart',message:'livreur gps effect started',data:{livreurOnline},timestamp:Date.now()})}).catch(()=>{});
+    // #endregion
     const applyLocation = (
       lat: number,
       lng: number,
@@ -65,6 +68,9 @@ export default function LivreurScreenNative() {
     async function start() {
       try {
         const { status } = await Location.requestForegroundPermissionsAsync();
+        // #region agent log
+        fetch('http://127.0.0.1:7887/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'248b3d'},body:JSON.stringify({sessionId:'248b3d',runId:'run5',hypothesisId:'H2',location:'src/screens/LivreurScreen.native.tsx:permission',message:'gps permission resolved',data:{status},timestamp:Date.now()})}).catch(()=>{});
+        // #endregion
         if (status !== 'granted') {
           setSnack('Activez la localisation pour le suivi livreur.');
           return;
@@ -77,6 +83,9 @@ export default function LivreurScreenNative() {
         const raw0 = prime.coords.heading;
         const heading0 = typeof raw0 === 'number' && Number.isFinite(raw0) ? raw0 : 0;
         applyLocation(lat0, lng0, heading0);
+        // #region agent log
+        fetch('http://127.0.0.1:7887/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'248b3d'},body:JSON.stringify({sessionId:'248b3d',runId:'run5',hypothesisId:'H2',location:'src/screens/LivreurScreen.native.tsx:prime',message:'initial gps fix applied',data:{lat:lat0,lng:lng0,heading:heading0},timestamp:Date.now()})}).catch(()=>{});
+        // #endregion
         subRef.current?.remove();
         subRef.current = await Location.watchPositionAsync(
           {
@@ -107,6 +116,9 @@ export default function LivreurScreenNative() {
             .catch(() => {});
         }, 5000);
       } catch {
+        // #region agent log
+        fetch('http://127.0.0.1:7887/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'248b3d'},body:JSON.stringify({sessionId:'248b3d',runId:'run5',hypothesisId:'H2',location:'src/screens/LivreurScreen.native.tsx:startCatch',message:'gps activation threw exception',data:{livreurOnline},timestamp:Date.now()})}).catch(()=>{});
+        // #endregion
         setSnack('Impossible d’activer le GPS (services de localisation ?).');
       }
     }

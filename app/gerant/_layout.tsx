@@ -17,6 +17,9 @@ export default function GerantLayout() {
     __DEV__ || process.env.EXPO_PUBLIC_HUSKO_DEBUG_BOOT === '1';
   const [boot, setBoot] = useState(true);
   useEffect(() => {
+    // #region agent log
+    fetch('http://127.0.0.1:7887/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'248b3d'},body:JSON.stringify({sessionId:'248b3d',runId:'run5',hypothesisId:'H1',location:'app/gerant/_layout.tsx:mountGuard',message:'gerant layout mount guard evaluated',data:{bootInitial:boot,supportDebugEnabled,variant:getAppVariant()},timestamp:Date.now()})}).catch(()=>{});
+    // #endregion
     if (!supportDebugEnabled) return;
     // #region agent log
     postSessionA64698Ingest({
@@ -47,9 +50,25 @@ export default function GerantLayout() {
         bootVisualVersion: CLIENT_BOOT_VISUAL_VERSION,
       },
     });
-    fetch('http://127.0.0.1:7887/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'aa3ba6'},body:JSON.stringify({sessionId:'aa3ba6',runId:'run1',hypothesisId:'H1',location:'app/gerant/_layout.tsx:mount',message:'gerant layout boot mounted',data:{variant:getAppVariant(),remoteSyncEnabled:isRemoteSyncEnabled(),bootVisualVersion:CLIENT_BOOT_VISUAL_VERSION,supportDebugEnabled},timestamp:Date.now()})}).catch(()=>{});
+    postRuntimeDebugIngest({
+      runId: 'run1',
+      hypothesisId: 'H1',
+      location: 'app/gerant/_layout.tsx:mount',
+      message: 'gerant layout boot mounted',
+      data: {
+        variant: getAppVariant(),
+        remoteSyncEnabled: isRemoteSyncEnabled(),
+        bootVisualVersion: CLIENT_BOOT_VISUAL_VERSION,
+        supportDebugEnabled,
+      },
+    });
     // #endregion
   }, [supportDebugEnabled]);
+  useEffect(() => {
+    // #region agent log
+    fetch('http://127.0.0.1:7887/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'248b3d'},body:JSON.stringify({sessionId:'248b3d',runId:'run5',hypothesisId:'H1',location:'app/gerant/_layout.tsx:bootState',message:'gerant boot visibility changed',data:{bootVisible:boot},timestamp:Date.now()})}).catch(()=>{});
+    // #endregion
+  }, [boot]);
 
   return (
     <View style={{ flex: 1 }}>
