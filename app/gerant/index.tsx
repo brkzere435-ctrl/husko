@@ -24,7 +24,6 @@ import type { Order } from '@/stores/useHuskoStore';
 import { useHuskoStore } from '@/stores/useHuskoStore';
 import { formatEuro } from '@/utils/formatEuro';
 import { hapticLight } from '@/utils/haptics';
-import { postSessionA64698Ingest } from '@/utils/debugIngestRuntime';
 import { openSiblingApp } from '@/utils/siblingApps';
 
 function GerantOrderActions({
@@ -80,8 +79,6 @@ function GerantOrderActions({
 }
 
 export default function GerantDashboardScreen() {
-  const supportDebugEnabled =
-    __DEV__ || process.env.EXPO_PUBLIC_HUSKO_DEBUG_BOOT === '1';
   const variant = getAppVariant();
   const orders = useHuskoStore((s) => s.orders);
   const autonomousDemoEnabled = useHuskoStore((s) => s.autonomousDemoEnabled);
@@ -103,31 +100,6 @@ export default function GerantDashboardScreen() {
     [orders]
   );
   const pendingCount = useMemo(() => live.filter((o) => o.status === 'pending').length, [live]);
-
-  useEffect(() => {
-    if (!supportDebugEnabled) return;
-    // #region agent log
-    postSessionA64698Ingest({
-      location: 'app/gerant/index.tsx:GerantDashboardScreen',
-      message: 'dashboard state',
-      data: {
-        variant,
-        siblingBlockVisible: variant === 'gerant',
-        unlocked,
-      },
-      runId: 'pre',
-      hypothesisId: 'H3',
-    });
-    console.warn(
-      '[HUSKO_DEBUG_a64698_H3]',
-      JSON.stringify({
-        variant,
-        siblingBlockVisible: variant === 'gerant',
-        unlocked,
-      })
-    );
-    // #endregion
-  }, [supportDebugEnabled, variant, unlocked]);
 
   function unlock() {
     autoUnlockTriggeredRef.current = true;

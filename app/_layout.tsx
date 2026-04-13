@@ -5,6 +5,8 @@ import {
   useFonts,
 } from '@expo-google-fonts/oswald';
 import { Stack } from 'expo-router';
+import * as Updates from 'expo-updates';
+import { useUpdates } from 'expo-updates';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import * as SystemUI from 'expo-system-ui';
@@ -40,8 +42,6 @@ import {
 import { pickTrackedDriverOrderId, useHuskoStore } from '@/stores/useHuskoStore';
 import Constants from 'expo-constants';
 
-import { debugAgentLog } from '@/utils/debugAgentLog';
-import { postRuntimeDebugIngest } from '@/utils/debugIngestRuntime';
 import { emitBootDebugProbes, isBootDebugEnabled } from '@/utils/debugProbe';
 import { readHuskoExpoExtra } from '@/utils/readHuskoExpoExtra';
 import { installRenderLayoutDebugTap, logRootLayoutOnce } from '@/utils/debugRenderLayoutLogs';
@@ -58,26 +58,13 @@ export default function RootLayout() {
     Oswald_700Bold,
   });
   const appReady = fontsLoaded || fontError;
+  const { isUpdatePending } = useUpdates();
 
   const tickRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const otaRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
     if (!appReady) return;
-    // #region agent log
-    fetch('http://127.0.0.1:7887/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'248b3d'},body:JSON.stringify({sessionId:'248b3d',runId:'run5',hypothesisId:'H3',location:'app/_layout.tsx:appReady',message:'root layout appReady reached',data:{appReady,variant:getAppVariant(),remoteSyncEnabled:isRemoteSyncEnabled()},timestamp:Date.now()})}).catch(()=>{});
-    postRuntimeDebugIngest({
-      runId: 'run4',
-      hypothesisId: 'H9',
-      location: 'app/_layout.tsx:appReady',
-      message: 'root layout appReady reached',
-      data: {
-        appReady,
-        variant: getAppVariant(),
-        remoteSyncEnabled: isRemoteSyncEnabled(),
-      },
-    });
-    // #endregion
     installRenderLayoutDebugTap();
     if (isBootDebugEnabled()) {
       const cfg = Constants.expoConfig;
@@ -99,13 +86,18 @@ export default function RootLayout() {
   }, [appReady]);
 
   useEffect(() => {
+    if (!appReady || !isUpdatePending) return;
+    void Updates.reloadAsync().catch(() => {});
+  }, [appReady, isUpdatePending]);
+
+  useEffect(() => {
     const run = () => useHuskoStore.getState().expireStalePendingOrders();
-    const startedAt = Date.now();
     run();
+    void checkAndReloadUpdatesAsync();
     tickRef.current = setInterval(run, 60_000);
     otaRef.current = setInterval(() => void checkAndReloadUpdatesAsync(), OTA_PERIODIC_CHECK_MS);
     const sub = AppState.addEventListener('change', (s) => {
-      if (s === 'active' && Date.now() - startedAt > 60_000) {
+      if (s === 'active') {
         run();
         void checkAndReloadUpdatesAsync();
       }
@@ -120,38 +112,16 @@ export default function RootLayout() {
   useEffect(() => {
     if (!isRemoteSyncEnabled()) return;
     const variant = getAppVariant();
-    // #region agent log
-    postRuntimeDebugIngest({
-      runId: 'run1',
-      hypothesisId: 'H2',
-      location: 'app/_layout.tsx:driverEffect',
-      message: 'driver subscription effect',
-      data: {
-        variant,
-        driverOrderId,
-        remoteSyncEnabled: isRemoteSyncEnabled(),
-        skipDriverSubscription: variant === 'livreur',
-      },
-    });
-    // #endregion
     // Livreur : la position vient du GPS local (setDriver + push Firestore). Écouter meta/driver
     // réinjecte une copie distante souvent périmée (stale) et peut effacer le marqueur.
     if (variant === 'livreur') {
       return;
     }
-    // Client: ne jamais afficher un livreur "global" sans commande suivie explicite,
-    // sinon le suivi paraît irréel (position d'une autre course).
+    // Client sans commande suivie : ne pas écouter le pilote global Firestore (reprise qualité + pas de « fantôme »).
     if (variant === 'client' && !driverOrderId) {
-      // #region agent log
-      fetch('http://127.0.0.1:7887/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'248b3d'},body:JSON.stringify({sessionId:'248b3d',runId:'run6',hypothesisId:'H3',location:'app/_layout.tsx:driverEffect:noTrackedOrder',message:'client has no tracked order for driver subscribe',data:{variant,driverOrderId},timestamp:Date.now()})}).catch(()=>{});
-      // #endregion
-      useHuskoStore.setState({ driver: null, driverHeading: 0 });
       return;
     }
     const unsubDriver = subscribeToRemoteDriver(driverOrderId, (driver, driverHeading) => {
-      // #region agent log
-      fetch('http://127.0.0.1:7887/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'248b3d'},body:JSON.stringify({sessionId:'248b3d',runId:'run6',hypothesisId:'H4',location:'app/_layout.tsx:subscribeToRemoteDriver:callback',message:'driver callback delivered to store',data:{variant,driverOrderId,hasDriver:!!driver,driverHeading},timestamp:Date.now()})}).catch(()=>{});
-      // #endregion
       useHuskoStore.setState({ driver, driverHeading });
     });
     return () => {
@@ -161,51 +131,11 @@ export default function RootLayout() {
 
   useEffect(() => {
     if (!isRemoteSyncEnabled()) return;
-    // #region agent log
-    postRuntimeDebugIngest({
-      runId: 'run1',
-      hypothesisId: 'H2',
-      location: 'app/_layout.tsx:remoteSync:entry',
-      message: 'remote sync effect mounted',
-      data: {
-        variant: getAppVariant(),
-        remoteSyncEnabled: isRemoteSyncEnabled(),
-      },
-    });
-    // #endregion
     const unsubOrders = subscribeToRemoteOrders(
       (remoteOrders, meta) => {
         useHuskoStore.setState((state) => {
           const merged = mergeRemoteOrdersWithLocal(remoteOrders, state.orders);
-          // #region agent log
-          postRuntimeDebugIngest({
-            runId: 'run1',
-            hypothesisId: 'H3',
-            location: 'app/_layout.tsx:subscribeToRemoteOrders',
-            message: 'orders snapshot merged',
-            data: {
-              variant: getAppVariant(),
-              remoteN: remoteOrders.length,
-              localN: state.orders.length,
-              mergedN: merged.length,
-              snapDocCount: meta.snapDocCount,
-              coercedCount: meta.coercedCount,
-            },
-          });
-          // #endregion
           void notifyRemoteOrderStatusDiff(state.orders, merged, state.notificationsEnabled);
-          debugAgentLog({
-            location: 'app/_layout.tsx:mergeRemoteOrders',
-            message: 'after merge',
-            hypothesisId: 'H4',
-            data: {
-              remoteN: remoteOrders.length,
-              localN: state.orders.length,
-              mergedN: merged.length,
-              snapDocCount: meta.snapDocCount,
-              coercedCount: meta.coercedCount,
-            },
-          });
           return {
             orders: merged,
             cloudSyncListenError: null,
@@ -224,24 +154,6 @@ export default function RootLayout() {
         });
       },
       (err) => {
-        // #region agent log
-        postRuntimeDebugIngest({
-          runId: 'run1',
-          hypothesisId: 'H3',
-          location: 'app/_layout.tsx:subscribeToRemoteOrders:onError',
-          message: 'orders listener error',
-          data: {
-            variant: getAppVariant(),
-            err: err.message,
-          },
-        });
-        // #endregion
-        debugAgentLog({
-          location: 'app/_layout.tsx:onListenError',
-          message: 'layout listen error',
-          hypothesisId: 'H2',
-          data: { err: err.message },
-        });
         useHuskoStore.setState({ cloudSyncListenError: err.message });
       }
     );

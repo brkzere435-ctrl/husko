@@ -61,7 +61,11 @@ export function ClientBootOverlay({ visible, onDone, variant = 'client' }: Props
         <View style={styles.backTint} pointerEvents="none" />
         <View style={[styles.fill, { paddingTop: topPad }]}>
           <View style={styles.posterWrap} pointerEvents="none">
-            <Image source={CLIENT_BOOT_HERO} style={styles.poster} resizeMode="contain" />
+            <Image
+              source={CLIENT_BOOT_HERO}
+              style={styles.poster}
+              resizeMode="contain"
+            />
           </View>
           <View style={styles.bottomPanel}>
             <Text style={styles.roleText}>APK {VARIANT_LABEL[variant].toUpperCase()}</Text>

@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import * as Linking from 'expo-linking';
 import { Link } from 'expo-router';
-import { useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { Card, Text } from 'react-native-paper';
 import Animated, { FadeIn } from 'react-native-reanimated';
@@ -34,7 +34,6 @@ import { HUSKO_DEPARTURE_HUB } from '@/constants/huskoDepartureHub';
 import { colors, elevation, radius, spacing } from '@/constants/theme';
 import { WC } from '@/constants/westCoastTheme';
 import { pickPrimaryActiveOrder, useHuskoStore } from '@/stores/useHuskoStore';
-import { postRuntimeDebugIngest } from '@/utils/debugIngestRuntime';
 import { formatEuro } from '@/utils/formatEuro';
 import { fitMapRegion } from '@/utils/fitMapRegion';
 
@@ -103,29 +102,6 @@ export default function SuiviScreen() {
       ? 'Du QG Husko à votre adresse — suivi live dès l’étape « En route »'
       : 'Zone client en cours de calibration — suivi live actif dès signal GPS livreur';
   const mapHudFooter = showLiveMap ? 'LBC · DROP TOP · EN ROUTE' : 'APERÇU · QG → DROP';
-  const hasDriver = !!driver;
-  const hasDest = !!dest;
-
-  useEffect(() => {
-    // #region agent log
-    postRuntimeDebugIngest({
-      runId: 'run1',
-      hypothesisId: 'H4',
-      location: 'app/client/suivi.tsx:state',
-      message: 'suivi state computed',
-      data: {
-        ordersCount: orders.length,
-        activeId: active?.id ?? null,
-        activeStatus: active?.status ?? null,
-        hasDriver,
-        showLiveMap,
-        showStaticMap,
-        hasDest,
-      },
-    });
-    // #endregion
-  }, [orders.length, active?.id, active?.status, hasDriver, showLiveMap, showStaticMap, hasDest]);
-
 
   const etaStepMs = useMemo(() => {
     if (remoteAutonomousDemo?.enabled) return remoteAutonomousDemo.stepMs;

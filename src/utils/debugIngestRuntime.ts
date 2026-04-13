@@ -1,14 +1,10 @@
 import { debugAgentLog } from '@/utils/debugAgentLog';
 
-const FALLBACK_INGEST_URL =
-  'http://127.0.0.1:7887/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42';
-const FALLBACK_SESSION_ID = '995197';
-
+/** URL complète d’ingest (optionnel). Sans variable d’env, aucun POST réseau. */
 const ENV_INGEST_URL = process.env.EXPO_PUBLIC_DEBUG_INGEST_URL?.trim() ?? '';
-export const DEBUG_INGEST_URL =
-  ENV_INGEST_URL.length > 0 ? ENV_INGEST_URL : (__DEV__ ? FALLBACK_INGEST_URL : '');
+export const DEBUG_INGEST_URL = ENV_INGEST_URL;
 export const DEBUG_INGEST_SESSION_ID =
-  process.env.EXPO_PUBLIC_DEBUG_SESSION_ID?.trim() || FALLBACK_SESSION_ID;
+  process.env.EXPO_PUBLIC_DEBUG_SESSION_ID?.trim() || 'husko';
 
 type RuntimeIngestPayload = {
   runId: string;
@@ -18,7 +14,9 @@ type RuntimeIngestPayload = {
   data?: Record<string, unknown>;
 };
 
-/** Ingest session Cursor debug (`debug-a64698.log`) — toujours tente un POST (release inclus). Préférer EXPO_PUBLIC_DEBUG_INGEST_URL = URL LAN du PC (voir env.example). */
+/**
+ * Ingest debug session (ex. Cursor) — uniquement si `EXPO_PUBLIC_DEBUG_INGEST_URL` pointe vers le PC (LAN).
+ */
 export function postSessionA64698Ingest(
   payload: Omit<RuntimeIngestPayload, 'runId'> & { runId?: string }
 ): void {
@@ -39,8 +37,8 @@ export function postSessionA64698Ingest(
       },
     });
   }
-  const url = ENV_INGEST_URL.length > 0 ? ENV_INGEST_URL : FALLBACK_INGEST_URL;
-  void fetch(url, {
+  if (!ENV_INGEST_URL) return;
+  void fetch(ENV_INGEST_URL, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -55,11 +53,8 @@ export function postSessionA64698Ingest(
 }
 
 export function postRuntimeDebugIngest(payload: RuntimeIngestPayload): void {
-  if (!DEBUG_INGEST_URL) return;
-  // #region agent log
-  if (__DEV__) console.log('[HuskoIngest] send', DEBUG_INGEST_URL, payload.location);
-  // #endregion
-  void fetch(DEBUG_INGEST_URL, {
+  if (!ENV_INGEST_URL) return;
+  void fetch(ENV_INGEST_URL, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -70,16 +65,5 @@ export function postRuntimeDebugIngest(payload: RuntimeIngestPayload): void {
       ...payload,
       timestamp: Date.now(),
     }),
-  }).catch((err: unknown) => {
-    // #region agent log
-    if (__DEV__) {
-      console.log(
-        '[HuskoIngest] fail',
-        DEBUG_INGEST_URL,
-        payload.location,
-        err instanceof Error ? err.message : String(err)
-      );
-    }
-    // #endregion
-  });
+  }).catch(() => {});
 }

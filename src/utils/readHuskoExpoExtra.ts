@@ -2,7 +2,6 @@ import Constants from 'expo-constants';
 import { NativeModules } from 'react-native';
 
 import type { HuskoExpoExtra } from '@/types/huskoExpoExtra';
-import { postRuntimeDebugIngest } from '@/utils/debugIngestRuntime';
 
 /**
  * Clés Firebase injectées au build natif (`app.config.js` → `extra`).
@@ -17,8 +16,6 @@ const FIREBASE_EXTRA_KEYS: (keyof HuskoExpoExtra)[] = [
   'firebaseMessagingSenderId',
   'firebaseAppId',
 ];
-let hasLoggedExtraProbe = false;
-
 function isRoleVariant(v: unknown): v is 'gerant' | 'client' | 'livreur' | 'assistant' {
   return v === 'gerant' || v === 'client' || v === 'livreur' || v === 'assistant';
 }
@@ -72,25 +69,6 @@ export function readHuskoExpoExtra(): HuskoExpoExtra {
     if (typeof fallback === 'string' && fallback.trim() !== '') {
       (merged as unknown as Record<string, string>)[k] = fallback;
     }
-  }
-  if (!hasLoggedExtraProbe) {
-    hasLoggedExtraProbe = true;
-    // #region agent log
-    postRuntimeDebugIngest({
-      runId: 'run2',
-      hypothesisId: 'H6',
-      location: 'readHuskoExpoExtra.ts:readHuskoExpoExtra',
-      message: 'expo extra merge snapshot',
-      data: {
-        embeddedAppVariant: typeof embedded.appVariant === 'string' ? embedded.appVariant : null,
-        activeAppVariant: typeof active.appVariant === 'string' ? active.appVariant : null,
-        resolvedAppVariant: typeof merged.appVariant === 'string' ? merged.appVariant : null,
-        embeddedProjectId: typeof embedded.eas?.projectId === 'string' ? embedded.eas.projectId : null,
-        activeProjectId: typeof active.eas?.projectId === 'string' ? active.eas.projectId : null,
-        resolvedProjectId: typeof merged.eas?.projectId === 'string' ? merged.eas.projectId : null,
-      },
-    });
-    // #endregion
   }
   return merged;
 }

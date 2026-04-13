@@ -68,8 +68,12 @@ function MenuItemVisualInner({ item, size, emphasizeFrame = true }: Props) {
           cachePolicy="memory-disk"
           priority={thumb ? 'low' : 'high'}
           allowDownscaling
-          onLoad={() => setImageLoaded(true)}
-          onError={() => setImageFailed(true)}
+          onLoad={() => {
+            setImageLoaded(true);
+          }}
+          onError={() => {
+            setImageFailed(true);
+          }}
           accessibilityLabel={item.name}
           accessibilityIgnoresInvertColors
         />

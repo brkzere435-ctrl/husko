@@ -4,7 +4,6 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { colors, radius, spacing } from '@/constants/theme';
 import { openTechnicalFeedback } from '@/navigation/openTechnicalFeedback';
-import { postRuntimeDebugIngest } from '@/utils/debugIngestRuntime';
 import { logErrorBoundaryCatch } from '@/utils/debugRenderLayoutLogs';
 
 type Props = { children: ReactNode };
@@ -24,20 +23,6 @@ export class ErrorBoundary extends Component<Props, State> {
   componentDidCatch(error: Error, info: ErrorInfo): void {
     console.error('[ErrorBoundary]', error.message, info.componentStack);
     logErrorBoundaryCatch(error, info);
-    // #region agent log
-    postRuntimeDebugIngest({
-      runId: 'run3',
-      hypothesisId: 'H7',
-      location: 'ErrorBoundary.tsx:componentDidCatch',
-      message: 'root error boundary captured error',
-      data: {
-        name: error.name,
-        message: error.message,
-        hasComponentStack:
-          typeof info.componentStack === 'string' && info.componentStack.length > 0,
-      },
-    });
-    // #endregion
   }
 
   render(): ReactNode {

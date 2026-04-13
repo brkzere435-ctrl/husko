@@ -11,8 +11,6 @@ import {
 import { Platform } from 'react-native';
 
 import type { LatLng, Order } from '@/stores/useHuskoStore';
-import { debugAgentLog } from '@/utils/debugAgentLog';
-import { postRuntimeDebugIngest } from '@/utils/debugIngestRuntime';
 import { coerceOrderFromRemote } from '@/utils/orderNormalize';
 import { readHuskoExpoExtra } from '@/utils/readHuskoExpoExtra';
 
@@ -98,43 +96,18 @@ const REMOTE_PUSH_BACKOFF_MS = [0, 500, 1400];
 
 export async function remotePushOrder(order: Order): Promise<void> {
   const firestore = ensureDb();
-  const pid = debugFirebaseProjectId();
-  debugAgentLog({
-    location: 'firebaseRemote.ts:remotePushOrder:entry',
-    message: 'remotePushOrder entry',
-    hypothesisId: 'H1',
-    data: { orderId: order.id, hasDb: !!firestore, projectId: pid },
-  });
   if (!firestore) return;
   const payload = JSON.parse(JSON.stringify(order)) as Record<string, unknown>;
   let lastErr: unknown;
   for (let attempt = 0; attempt < REMOTE_PUSH_MAX_ATTEMPTS; attempt++) {
     if (attempt > 0) {
       await sleep(REMOTE_PUSH_BACKOFF_MS[attempt] ?? 1000);
-      debugAgentLog({
-        location: 'firebaseRemote.ts:remotePushOrder:retry',
-        message: 'setDoc retry',
-        hypothesisId: 'H1',
-        data: { orderId: order.id, attempt: attempt + 1 },
-      });
     }
     try {
       await setDoc(doc(firestore, 'orders', order.id), payload);
-      debugAgentLog({
-        location: 'firebaseRemote.ts:remotePushOrder:success',
-        message: 'setDoc orders ok',
-        hypothesisId: 'H1',
-        data: { orderId: order.id, projectId: pid, attempts: attempt + 1 },
-      });
       return;
     } catch (e) {
       lastErr = e;
-      debugAgentLog({
-        location: 'firebaseRemote.ts:remotePushOrder:catch',
-        message: 'setDoc failed',
-        hypothesisId: 'H1',
-        data: { orderId: order.id, err: e instanceof Error ? e.message : String(e), attempt: attempt + 1 },
-      });
     }
   }
   const msg = lastErr instanceof Error ? lastErr.message : String(lastErr);
@@ -225,9 +198,6 @@ function remotePushDriverNow(pos: LatLng | null, heading: number, orderId: strin
   const firestore = ensureDb();
   if (!firestore) return Promise.resolve();
   const normalizedOrderId = orderId && orderId.trim().length > 0 ? orderId.trim() : null;
-  // #region agent log
-  fetch('http://127.0.0.1:7887/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'248b3d'},body:JSON.stringify({sessionId:'248b3d',runId:'run6',hypothesisId:'H2',location:'src/services/firebaseRemote.ts:remotePushDriverNow',message:'pushing driver snapshot',data:{orderId:normalizedOrderId,hasPos:!!pos,heading},timestamp:Date.now()})}).catch(()=>{});
-  // #endregion
   const payload: Record<string, unknown> = {
     lat: pos?.latitude ?? null,
     lng: pos?.longitude ?? null,
@@ -307,61 +277,14 @@ export function subscribeToRemoteOrders(
         if (order) list.push(order);
       });
       list.sort((a, b) => b.createdAt - a.createdAt);
-      const pid = debugFirebaseProjectId();
       const meta: OrdersRemoteSnapshotMeta = {
         snapDocCount: snap.size,
         coercedCount: list.length,
       };
-      debugAgentLog({
-        location: 'firebaseRemote.ts:subscribeToRemoteOrders:snapshot',
-        message: 'orders snapshot',
-        hypothesisId: 'H2',
-        data: {
-          projectId: pid,
-          snapDocCount: meta.snapDocCount,
-          coercedCount: meta.coercedCount,
-          sampleIds: list.slice(0, 8).map((o) => o.id),
-        },
-      });
-      // #region agent log
-      postRuntimeDebugIngest({
-        runId: 'run1',
-        hypothesisId: 'H2',
-        location: 'firebaseRemote.ts:subscribeToRemoteOrders:snapshot',
-        message: 'orders snapshot',
-        data: {
-          projectId: pid,
-          snapDocCount: meta.snapDocCount,
-          coercedCount: meta.coercedCount,
-          sampleIds: list.slice(0, 8).map((o) => o.id),
-        },
-      });
-      // #endregion
       onOrders(list, meta);
     },
     (err) => {
       if (__DEV__) console.warn('[Husko Firestore orders]', err.message);
-      debugAgentLog({
-        location: 'firebaseRemote.ts:subscribeToRemoteOrders:onError',
-        message: 'orders listener error',
-        hypothesisId: 'H2',
-        data: {
-          projectId: debugFirebaseProjectId(),
-          err: err instanceof Error ? err.message : String(err),
-        },
-      });
-      // #region agent log
-      postRuntimeDebugIngest({
-        runId: 'run1',
-        hypothesisId: 'H2',
-        location: 'firebaseRemote.ts:subscribeToRemoteOrders:onError',
-        message: 'orders listener error',
-        data: {
-          projectId: debugFirebaseProjectId(),
-          err: err instanceof Error ? err.message : String(err),
-        },
-      });
-      // #endregion
       const wrapped =
         err instanceof Error ? err : new Error(typeof err === 'string' ? err : 'Erreur Firestore');
       onListenError?.(wrapped);
@@ -412,18 +335,6 @@ export function subscribeToRemoteDriver(
       (s): s is DriverSnapshot => s !== null && !isDriverSnapshotStale(s)
     );
     if (candidates.length === 0) {
-      // #region agent log
-      postRuntimeDebugIngest({
-        runId: 'run1',
-        hypothesisId: 'H5',
-        location: 'firebaseRemote.ts:emitBest',
-        message: 'driver emit none (no candidates)',
-        data: {
-          orderId: normalizedOrderId,
-          candidates: 0,
-        },
-      });
-      // #endregion
       onDriver(null, 0);
       return;
     }
@@ -431,36 +342,10 @@ export function subscribeToRemoteDriver(
     if (normalizedOrderId) {
       const matching = candidates.find((s) => s.orderId === normalizedOrderId);
       if (matching) {
-        // #region agent log
-        postRuntimeDebugIngest({
-          runId: 'run1',
-          hypothesisId: 'H5',
-          location: 'firebaseRemote.ts:emitBest',
-          message: 'driver emit matching order',
-          data: {
-            orderId: normalizedOrderId,
-            candidates: candidates.length,
-            matchedOrderId: matching.orderId,
-          },
-        });
-        // #endregion
         onDriver(matching.driver, matching.heading);
         return;
       }
       // Empêche un "suivi irréel" en affichant la position d'une autre commande.
-      // #region agent log
-      postRuntimeDebugIngest({
-        runId: 'run1',
-        hypothesisId: 'H5',
-        location: 'firebaseRemote.ts:emitBest',
-        message: 'driver emit none (mismatch order)',
-        data: {
-          orderId: normalizedOrderId,
-          candidates: candidates.length,
-          candidateOrderIds: candidates.map((s) => s.orderId ?? 'null').slice(0, 4),
-        },
-      });
-      // #endregion
       onDriver(null, 0);
       return;
     }
@@ -480,17 +365,6 @@ export function subscribeToRemoteDriver(
     },
     (err) => {
       if (__DEV__) console.warn('[Husko Firestore driver/global]', err.message);
-      postRuntimeDebugIngest({
-        runId: 'run1',
-        hypothesisId: 'H3',
-        location: 'firebaseRemote.ts:subscribeToRemoteDriver:onError',
-        message: 'global driver listener error',
-        data: {
-          projectId: debugFirebaseProjectId(),
-          err: err instanceof Error ? err.message : String(err),
-          orderId: normalizedOrderId,
-        },
-      });
       // Garde le dernier snapshot valide pour éviter une disparition immédiate
       // du livreur sur une erreur réseau transitoire du listener Firestore.
       emitBest();
@@ -512,17 +386,6 @@ export function subscribeToRemoteDriver(
     },
     (err) => {
       if (__DEV__) console.warn('[Husko Firestore driver/orderTracking]', err.message);
-      postRuntimeDebugIngest({
-        runId: 'run1',
-        hypothesisId: 'H3',
-        location: 'firebaseRemote.ts:subscribeToRemoteDriver:onError',
-        message: 'order tracking listener error',
-        data: {
-          projectId: debugFirebaseProjectId(),
-          err: err instanceof Error ? err.message : String(err),
-          orderId: trackedOrderId,
-        },
-      });
       emitBest();
     }
   );
@@ -535,17 +398,6 @@ export function subscribeToRemoteDriver(
     },
     (err) => {
       if (__DEV__) console.warn('[Husko Firestore driver/order]', err.message);
-      postRuntimeDebugIngest({
-        runId: 'run1',
-        hypothesisId: 'H3',
-        location: 'firebaseRemote.ts:subscribeToRemoteDriver:onError',
-        message: 'order driver listener error',
-        data: {
-          projectId: debugFirebaseProjectId(),
-          err: err instanceof Error ? err.message : String(err),
-          orderId: trackedOrderId,
-        },
-      });
       emitBest();
     }
   );

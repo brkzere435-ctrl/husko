@@ -1,13 +1,8 @@
 import * as Application from 'expo-application';
 
 import { readHuskoExpoExtra } from '@/utils/readHuskoExpoExtra';
-import { postSessionA64698Ingest } from '@/utils/debugIngestRuntime';
 
 export type AppVariant = 'all' | 'gerant' | 'client' | 'livreur' | 'assistant';
-
-let __huskoDebugVariantResolvedOnce = false;
-const SUPPORT_DEBUG_ENABLED =
-  __DEV__ || process.env.EXPO_PUBLIC_HUSKO_DEBUG_BOOT === '1';
 
 function detectVariantFromNativeId(): AppVariant | null {
   const nativeId = Application.applicationId?.toLowerCase().trim();
@@ -23,7 +18,6 @@ function detectVariantFromNativeId(): AppVariant | null {
 
 export function getAppVariant(): AppVariant {
   // Priorité à l'identité native installée (APK/AAB), plus fiable que le manifest OTA.
-  const nativeId = Application.applicationId?.toLowerCase().trim() ?? null;
   const nativeVariant = detectVariantFromNativeId();
   const v = readHuskoExpoExtra().appVariant;
   let resolved: AppVariant;
@@ -33,22 +27,6 @@ export function getAppVariant(): AppVariant {
     resolved = v;
   } else {
     resolved = 'all';
-  }
-  if (SUPPORT_DEBUG_ENABLED && !__huskoDebugVariantResolvedOnce) {
-    __huskoDebugVariantResolvedOnce = true;
-    // #region agent log
-    postSessionA64698Ingest({
-      location: 'src/constants/appVariant.ts:getAppVariant',
-      message: 'resolved app variant (first call)',
-      data: { nativeId, nativeVariant, extraAppVariant: v, resolved },
-      runId: 'pre',
-      hypothesisId: 'H1',
-    });
-    console.warn(
-      '[HUSKO_DEBUG_a64698_H1]',
-      JSON.stringify({ nativeId, nativeVariant, extraAppVariant: v, resolved })
-    );
-    // #endregion
   }
   return resolved;
 }

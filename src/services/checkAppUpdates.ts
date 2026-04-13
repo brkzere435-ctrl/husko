@@ -3,7 +3,6 @@ import { Alert, Platform } from 'react-native';
 
 import { notifyAppUpdateReady } from '@/services/orderNotifications';
 import { useHuskoStore } from '@/stores/useHuskoStore';
-import { postRuntimeDebugIngest } from '@/utils/debugIngestRuntime';
 
 /** Vérification automatique en arrière-plan (toutes les N ms, app ouverte). */
 export const OTA_PERIODIC_CHECK_MS = 15 * 60 * 1000;
@@ -31,23 +30,6 @@ export async function checkUpdatesWithUserFeedbackAsync(): Promise<void> {
 }
 
 async function runOtaCheck(mode: CheckMode): Promise<void> {
-  // #region agent log
-  postRuntimeDebugIngest({
-    runId: 'run1',
-    hypothesisId: 'H1',
-    location: 'checkAppUpdates.ts:runOtaCheck:entry',
-    message: 'ota check entry',
-    data: {
-      mode,
-      isDev: __DEV__,
-      platform: Platform.OS,
-      updatesEnabled: Updates.isEnabled,
-      channel: Updates.channel ?? null,
-      runtimeVersion: Updates.runtimeVersion ?? null,
-      updateId: Updates.updateId ?? null,
-    },
-  });
-  // #endregion
   if (__DEV__) {
     if (mode === 'user') {
       Alert.alert(
@@ -71,20 +53,6 @@ async function runOtaCheck(mode: CheckMode): Promise<void> {
       return;
     }
     const result = await Updates.checkForUpdateAsync();
-    // #region agent log
-    postRuntimeDebugIngest({
-      runId: 'run1',
-      hypothesisId: 'H1',
-      location: 'checkAppUpdates.ts:runOtaCheck:checkForUpdate',
-      message: 'ota check result',
-      data: {
-        mode,
-        isAvailable: result.isAvailable,
-        channel: Updates.channel ?? null,
-        runtimeVersion: Updates.runtimeVersion ?? null,
-      },
-    });
-    // #endregion
     if (!result.isAvailable) {
       if (mode === 'user') {
         Alert.alert('Husko', 'Vous avez déjà la dernière version pour ce canal.');
@@ -92,20 +60,6 @@ async function runOtaCheck(mode: CheckMode): Promise<void> {
       return;
     }
     const next = await Updates.fetchUpdateAsync();
-    // #region agent log
-    postRuntimeDebugIngest({
-      runId: 'run1',
-      hypothesisId: 'H1',
-      location: 'checkAppUpdates.ts:runOtaCheck:fetchUpdate',
-      message: 'ota fetch result',
-      data: {
-        mode,
-        isNew: next.isNew,
-        updateId: Updates.updateId ?? null,
-        channel: Updates.channel ?? null,
-      },
-    });
-    // #endregion
     if (next.isNew) {
       const { notificationsEnabled } = useHuskoStore.getState();
       if (notificationsEnabled) {
@@ -120,16 +74,7 @@ async function runOtaCheck(mode: CheckMode): Promise<void> {
     if (mode === 'user') {
       Alert.alert('Husko', 'Aucun bundle nouveau à appliquer pour le moment.');
     }
-  } catch (error) {
-    // #region agent log
-    postRuntimeDebugIngest({
-      runId: 'run1',
-      hypothesisId: 'H1',
-      location: 'checkAppUpdates.ts:runOtaCheck:catch',
-      message: 'ota check error',
-      data: { mode, error: error instanceof Error ? error.message : String(error) },
-    });
-    // #endregion
+  } catch {
     if (mode === 'user') {
       Alert.alert(
         'Husko',
