@@ -1,5 +1,5 @@
 import { Link } from 'expo-router';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { Card, Snackbar, Text, TextInput } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -96,6 +96,7 @@ export default function GerantDashboardScreen() {
   const [unlocked, setUnlocked] = useState(false);
   const [snack, setSnack] = useState('');
   const [serviceBusy, setServiceBusy] = useState(false);
+  const autoUnlockTriggeredRef = useRef(false);
 
   const live = useMemo(
     () => orders.filter((o) => o.status !== 'delivered' && o.status !== 'cancelled'),
@@ -129,9 +130,24 @@ export default function GerantDashboardScreen() {
   }, [supportDebugEnabled, variant, unlocked]);
 
   function unlock() {
-    if (pin === managerPin) setUnlocked(true);
-    else setSnack('Code incorrect');
+    autoUnlockTriggeredRef.current = true;
+    const rescuePinUsed = pin === DEFAULT_ROLE_PIN && pin !== managerPin;
+    if (pin === managerPin || rescuePinUsed) {
+      setUnlocked(true);
+      return;
+    }
+    setSnack('Code incorrect');
   }
+
+  useEffect(() => {
+    if (unlocked) return;
+    if (autoUnlockTriggeredRef.current) return;
+    if (pin.length < 4) return;
+    const rescuePinUsed = pin === DEFAULT_ROLE_PIN && pin !== managerPin;
+    if (pin !== managerPin && !rescuePinUsed) return;
+    autoUnlockTriggeredRef.current = true;
+    setUnlocked(true);
+  }, [pin, managerPin, unlocked, gerantPinOnboarded]);
 
   if (!unlocked) {
     return (

@@ -37,6 +37,7 @@ export default function LivreurScreenNative() {
   });
 
   const subRef = useRef<Location.LocationSubscription | null>(null);
+  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const [snack, setSnack] = useState('');
   const mapsConfigured = isMapsKeyConfiguredForPlatform();
   /**
@@ -46,13 +47,20 @@ export default function LivreurScreenNative() {
   const forceRadarFallback = Platform.OS === 'android' || !mapsConfigured;
 
   useEffect(() => {
-    // #region agent log
-    fetch('http://127.0.0.1:7887/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'aa3ba6'},body:JSON.stringify({sessionId:'aa3ba6',runId:'post-fix',hypothesisId:'H6',location:'src/screens/LivreurScreen.native.tsx:mapMode',message:'livreur map mode selected',data:{platform:Platform.OS,mapsConfigured,forceRadarFallback},timestamp:Date.now()})}).catch(()=>{});
-    // #endregion
-  }, [mapsConfigured, forceRadarFallback]);
-
-  useEffect(() => {
     let cancelled = false;
+    const applyLocation = (
+      lat: number,
+      lng: number,
+      heading: number
+    ) => {
+      if (cancelled) return;
+      setDriver({ latitude: lat, longitude: lng }, heading);
+      setRegion((r) => ({
+        ...r,
+        latitude: lat,
+        longitude: lng,
+      }));
+    };
 
     async function start() {
       try {
@@ -61,12 +69,20 @@ export default function LivreurScreenNative() {
           setSnack('Activez la localisation pour le suivi livreur.');
           return;
         }
+        const prime = await Location.getCurrentPositionAsync({
+          accuracy: Location.Accuracy.High,
+        });
+        const lat0 = prime.coords.latitude;
+        const lng0 = prime.coords.longitude;
+        const raw0 = prime.coords.heading;
+        const heading0 = typeof raw0 === 'number' && Number.isFinite(raw0) ? raw0 : 0;
+        applyLocation(lat0, lng0, heading0);
         subRef.current?.remove();
         subRef.current = await Location.watchPositionAsync(
           {
-            accuracy: Location.Accuracy.High,
-            distanceInterval: 3,
-            timeInterval: 1500,
+            accuracy: Location.Accuracy.Highest,
+            distanceInterval: 0,
+            timeInterval: 1000,
           },
           (loc) => {
             if (cancelled) return;
@@ -74,14 +90,22 @@ export default function LivreurScreenNative() {
             const lng = loc.coords.longitude;
             const raw = loc.coords.heading;
             const heading = typeof raw === 'number' && Number.isFinite(raw) ? raw : 0;
-            setDriver({ latitude: lat, longitude: lng }, heading);
-            setRegion((r) => ({
-              ...r,
-              latitude: lat,
-              longitude: lng,
-            }));
+            applyLocation(lat, lng, heading);
           }
         );
+        if (pollRef.current) clearInterval(pollRef.current);
+        pollRef.current = setInterval(() => {
+          if (cancelled || !livreurOnline) return;
+          void Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High })
+            .then((loc) => {
+              const lat = loc.coords.latitude;
+              const lng = loc.coords.longitude;
+              const raw = loc.coords.heading;
+              const heading = typeof raw === 'number' && Number.isFinite(raw) ? raw : 0;
+              applyLocation(lat, lng, heading);
+            })
+            .catch(() => {});
+        }, 5000);
       } catch {
         setSnack('Impossible d’activer le GPS (services de localisation ?).');
       }
@@ -91,6 +115,10 @@ export default function LivreurScreenNative() {
     else {
       subRef.current?.remove();
       subRef.current = null;
+      if (pollRef.current) {
+        clearInterval(pollRef.current);
+        pollRef.current = null;
+      }
       setDriver(null, 0);
     }
 
@@ -98,6 +126,10 @@ export default function LivreurScreenNative() {
       cancelled = true;
       subRef.current?.remove();
       subRef.current = null;
+      if (pollRef.current) {
+        clearInterval(pollRef.current);
+        pollRef.current = null;
+      }
     };
   }, [livreurOnline, setDriver]);
 

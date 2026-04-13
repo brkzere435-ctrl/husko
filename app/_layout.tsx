@@ -127,6 +127,12 @@ export default function RootLayout() {
     if (variant === 'livreur') {
       return;
     }
+    // Client: ne jamais afficher un livreur "global" sans commande suivie explicite,
+    // sinon le suivi paraît irréel (position d'une autre course).
+    if (variant === 'client' && !driverOrderId) {
+      useHuskoStore.setState({ driver: null, driverHeading: 0 });
+      return;
+    }
     const unsubDriver = subscribeToRemoteDriver(driverOrderId, (driver, driverHeading) => {
       useHuskoStore.setState({ driver, driverHeading });
     });

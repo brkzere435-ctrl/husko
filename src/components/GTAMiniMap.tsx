@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { Platform, StyleSheet, View } from 'react-native';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 
@@ -45,12 +45,6 @@ export function GTAMiniMap({
   );
 
   const frameSize = { width: size, height: size } as const;
-
-  useEffect(() => {
-    // #region agent log
-    fetch('http://127.0.0.1:7887/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'aa3ba6'},body:JSON.stringify({sessionId:'aa3ba6',runId:'post-fix',hypothesisId:'H6',location:'src/components/GTAMiniMap.tsx:mode',message:'mini-map rendering mode',data:{platform:Platform.OS,mapsConfigured,useFallback},timestamp:Date.now()})}).catch(()=>{});
-    // #endregion
-  }, [mapsConfigured, useFallback]);
 
   if (useFallback) {
     return (

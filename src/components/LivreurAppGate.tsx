@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { Alert, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -23,13 +23,25 @@ export function LivreurAppGate({ children }: Props) {
 
   const [pin, setPin] = useState('');
   const [unlocked, setUnlocked] = useState(false);
+  const autoUnlockTriggeredRef = useRef(false);
 
   function tryUnlock() {
+    autoUnlockTriggeredRef.current = true;
     if (pin === livreurPin) {
       setUnlocked(true);
       hapticLight();
     } else Alert.alert('Code incorrect');
   }
+
+  useEffect(() => {
+    if (unlocked) return;
+    if (autoUnlockTriggeredRef.current) return;
+    if (pin.length < 4) return;
+    if (pin !== livreurPin) return;
+    autoUnlockTriggeredRef.current = true;
+    setUnlocked(true);
+    hapticLight();
+  }, [pin, livreurPin, unlocked, livreurPinOnboarded]);
 
   if (!unlocked) {
     return (

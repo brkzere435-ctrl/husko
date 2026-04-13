@@ -8,9 +8,9 @@ import Animated, { FadeIn } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { DeploymentHints } from '@/components/DeploymentHints';
+import { GTAMiniMap } from '@/components/GTAMiniMap';
 import { OrderLinesPreview } from '@/components/OrderLinesPreview';
 import { WestCoastBackground } from '@/components/westcoast/WestCoastBackground';
-import { GTAMiniMap } from '@/components/GTAMiniMap';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { StatusBadge } from '@/components/StatusBadge';
 import {
