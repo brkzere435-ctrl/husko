@@ -8,7 +8,7 @@ import { FONT } from '@/constants/fonts';
 import { colors, spacing } from '@/constants/theme';
 
 const BOOT_CONTENT_OFFSET = spacing.lg;
-export const CLIENT_BOOT_VISUAL_VERSION = '2026-04-13-flyer-cropped-premium-v2';
+export const CLIENT_BOOT_VISUAL_VERSION = '2026-04-08-flyer-fullscreen-v1';
 type BootVariant = 'client' | 'gerant' | 'livreur';
 
 type Props = {
@@ -61,9 +61,7 @@ export function ClientBootOverlay({ visible, onDone, variant = 'client' }: Props
         <View style={styles.backTint} pointerEvents="none" />
         <View style={[styles.fill, { paddingTop: topPad }]}>
           <View style={styles.posterWrap} pointerEvents="none">
-            <View style={styles.posterViewport}>
-              <Image source={CLIENT_BOOT_HERO} style={styles.posterCrop} resizeMode="cover" />
-            </View>
+            <Image source={CLIENT_BOOT_HERO} style={styles.poster} resizeMode="contain" />
           </View>
           <View style={styles.bottomPanel}>
             <Text style={styles.roleText}>APK {VARIANT_LABEL[variant].toUpperCase()}</Text>
@@ -94,21 +92,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingVertical: spacing.md,
   },
-  posterViewport: {
+  poster: {
     width: '100%',
     maxWidth: 420,
-    aspectRatio: 9 / 16,
-    overflow: 'hidden',
-    borderRadius: 22,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.14)',
-    backgroundColor: 'rgba(0,0,0,0.25)',
-  },
-  posterCrop: {
-    width: '132%',
-    height: '124%',
-    marginLeft: '-16%',
-    marginTop: '-10%',
+    height: '100%',
+    maxHeight: 760,
   },
   bottomPanel: {
     alignItems: 'center',
