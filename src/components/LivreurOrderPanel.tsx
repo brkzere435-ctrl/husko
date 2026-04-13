@@ -22,6 +22,7 @@ type ActionFailDialog = {
 export function LivreurOrderPanel() {
   const orders = useHuskoStore((s) => s.orders);
   const transitionOrder = useHuskoStore((s) => s.transitionOrder);
+  const setTrackingOrderId = useHuskoStore((s) => s.setTrackingOrderId);
   const [failDialog, setFailDialog] = useState<ActionFailDialog | null>(null);
 
   const pickup = orders.filter((o) => o.status === 'awaiting_livreur');
@@ -50,7 +51,10 @@ export function LivreurOrderPanel() {
             title="Prendre en charge · en route"
             onPress={() => {
               const ok = transitionOrder(o.id, 'on_way', 'livreur');
-              if (ok) hapticLight();
+              if (ok) {
+                setTrackingOrderId(o.id);
+                hapticLight();
+              }
               else {
                 setFailDialog({
                   title: 'Action impossible',
