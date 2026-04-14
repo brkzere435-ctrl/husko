@@ -65,6 +65,13 @@ Pour un essai **d’une variante seule** (client, livreur, etc.), utilise plutô
     - **`npm run release:next`** affiche cette checklist et exécute `eas whoami` (échoue si pas connecté à Expo).
   - Raccourci partiel : `npm run verify:all` (= preflight + verify seulement). **`npm run husko:doctor`** — audit style + fonction + garde-fous techniques.
 
+### Audit npm (transitoire) — eas-cli
+
+- Version retenue côté projet : **`eas-cli@18.6.0`** (devDependency locale).
+- `npm audit` peut encore signaler des vulnérabilités transitives via `eas-cli` (`@xmldom/xmldom`, `minimatch`, `node-forge`, `tar`, `ajv`, `yaml`, `diff`).
+- Tant que la CLI EAS et la gate projet restent stables (`npx eas --version`, `npx eas update --help`, `npm run verify`), ce risque est **connu et temporairement accepté**.
+- Éviter `npm audit fix --force` sans branche de test dédiée : la résolution proposée peut introduire une version cassante de `eas-cli`.
+
 ### Risques courants — réponses rapides
 
 | Risque | Mitigation dans le projet |
