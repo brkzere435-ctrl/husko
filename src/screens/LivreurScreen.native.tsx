@@ -55,11 +55,9 @@ export default function LivreurScreenNative() {
     ) => {
       if (cancelled) return;
       setDriver({ latitude: lat, longitude: lng }, heading);
-      setRegion((r) => ({
-        ...r,
-        latitude: lat,
-        longitude: lng,
-      }));
+      // Ne pas centrer strictement sur le livreur: garder une zone de contexte
+      // (QG + position livreur) pour rendre le mouvement visible.
+      setRegion(fitMapRegion([HUSKO_DEPARTURE_HUB, { latitude: lat, longitude: lng }], 1.95));
     };
 
     async function start() {

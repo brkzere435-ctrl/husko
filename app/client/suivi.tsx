@@ -155,11 +155,12 @@ export default function SuiviScreen() {
 
   const liveRegion = useMemo(() => {
     if (!active || !showLiveMap) return null;
+    // Zone live stable (QG -> destination) pour voir le marqueur livreur se déplacer.
+    // Si on inclut le driver dans la région, la carte se recale en continu et le "live" paraît figé.
     const pts = [HUSKO_DEPARTURE_HUB];
     if (dest) pts.push(dest);
-    if (driver) pts.push(driver);
-    return fitMapRegion(pts, 1.85);
-  }, [active, driver, showLiveMap, dest]);
+    return fitMapRegion(pts, 1.9);
+  }, [active, showLiveMap, dest]);
 
   const fallbackMapRegion = useMemo(() => {
     const pts = [HUSKO_DEPARTURE_HUB];
