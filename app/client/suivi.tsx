@@ -9,6 +9,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { DeploymentHints } from '@/components/DeploymentHints';
 import { GTAMiniMap } from '@/components/GTAMiniMap';
+import { GTAMiniMapFallbackInterior } from '@/components/GTAMiniMapFallbackInterior';
 import { OrderLinesPreview } from '@/components/OrderLinesPreview';
 import { WestCoastBackground } from '@/components/westcoast/WestCoastBackground';
 import { PrimaryButton } from '@/components/PrimaryButton';
@@ -60,11 +61,25 @@ const MiniMapCanvas = memo(function MiniMapCanvas({
   mapHudFooter,
   mapAccessibilityLabel,
 }: MiniMapCanvasProps) {
+  if (Platform.OS === 'android') {
+    return (
+      <View style={styles.mapNeonOuter} accessibilityRole="image" accessibilityLabel={mapAccessibilityLabel}>
+        <View style={{ width: mapSize, height: mapSize, borderRadius: radius.lg, overflow: 'hidden' }}>
+          <GTAMiniMapFallbackInterior
+            region={mapRegion}
+            driver={driver}
+            headingDeg={driverHeading}
+            dest={dest}
+            showDest={!!dest}
+          />
+        </View>
+      </View>
+    );
+  }
   return (
     <View style={styles.mapNeonOuter} accessibilityRole="image" accessibilityLabel={mapAccessibilityLabel}>
       <GTAMiniMap
         size={mapSize}
-        forceFallback={Platform.OS === 'android'}
         region={mapRegion}
         driver={driver}
         headingDeg={driverHeading}
