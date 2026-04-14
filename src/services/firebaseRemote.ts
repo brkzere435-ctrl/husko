@@ -320,7 +320,7 @@ function isDriverSnapshotStale(s: DriverSnapshot): boolean {
 
 export function subscribeToRemoteDriver(
   orderId: string | null,
-  onDriver: (driver: LatLng | null, heading: number) => void
+  onDriver: (driver: LatLng | null, heading: number, updatedAt: number | null) => void
 ): () => void {
   const firestore = ensureDb();
   if (!firestore) return () => {};
@@ -335,18 +335,18 @@ export function subscribeToRemoteDriver(
       (s): s is DriverSnapshot => s !== null && !isDriverSnapshotStale(s)
     );
     if (candidates.length === 0) {
-      onDriver(null, 0);
+      onDriver(null, 0, null);
       return;
     }
     // Priorité: snapshot qui matche la commande suivie, sinon le plus frais.
     if (normalizedOrderId) {
       const matching = candidates.find((s) => s.orderId === normalizedOrderId);
       if (matching) {
-        onDriver(matching.driver, matching.heading);
+        onDriver(matching.driver, matching.heading, matching.updatedAt);
         return;
       }
       // Empêche un "suivi irréel" en affichant la position d'une autre commande.
-      onDriver(null, 0);
+      onDriver(null, 0, null);
       return;
     }
     const freshest = candidates.reduce((best, cur) => {
@@ -354,7 +354,7 @@ export function subscribeToRemoteDriver(
       const curTs = cur.updatedAt ?? 0;
       return curTs >= bestTs ? cur : best;
     });
-    onDriver(freshest.driver, freshest.heading);
+    onDriver(freshest.driver, freshest.heading, freshest.updatedAt);
   };
 
   const unsubGlobal = onSnapshot(

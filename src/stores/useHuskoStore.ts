@@ -69,6 +69,8 @@ type State = {
   orders: Order[];
   driver: LatLng | null;
   driverHeading: number;
+  /** Timestamp ms du dernier point livreur reçu / publié (null si aucun). */
+  driverPositionUpdatedAt: number | null;
   /** Commande explicitement suivie par le livreur pour publier le GPS. */
   trackingOrderId: string | null;
   livreurOnline: boolean;
@@ -226,6 +228,7 @@ export const useHuskoStore = create<State>()(
       orders: [],
       driver: null,
       driverHeading: 0,
+      driverPositionUpdatedAt: null,
       trackingOrderId: null,
       livreurOnline: true,
       managerPin: DEFAULT_ROLE_PIN,
@@ -341,7 +344,11 @@ export const useHuskoStore = create<State>()(
         const trackedOrderId = hasPinnedTrackingOrder
           ? state.trackingOrderId
           : pickTrackedDriverOrderId(state.orders);
-        set({ driver: pos, driverHeading: heading });
+        set({
+          driver: pos,
+          driverHeading: heading,
+          driverPositionUpdatedAt: pos ? Date.now() : null,
+        });
         remotePushDriverDebounced(pos, heading, trackedOrderId);
       },
 

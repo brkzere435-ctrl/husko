@@ -97,6 +97,8 @@ export function GTAMiniMap({
               zIndex={3}
               title={driverTitle}
               pinColor={colors.posterRed}
+              rotation={headingDeg}
+              flat
             />
           ) : null}
         </MapView>

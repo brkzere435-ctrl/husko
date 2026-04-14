@@ -66,32 +66,35 @@ export default function RootLayout() {
   useEffect(() => {
     if (!appReady) return;
     installRenderLayoutDebugTap();
-    // #region agent log
+    // #region agent log — pas de POST vers localhost en release APK (téléphone ≠ PC).
+    const envIngest = process.env.EXPO_PUBLIC_DEBUG_INGEST_URL?.trim();
     const debugIngestUrl =
-      process.env.EXPO_PUBLIC_DEBUG_INGEST_URL?.trim() ||
-      'http://127.0.0.1:7887/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42';
+      envIngest ||
+      (__DEV__ ? 'http://127.0.0.1:7887/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42' : null);
     const mirrorConsole =
       __DEV__ || process.env.EXPO_PUBLIC_DEBUG_SESSION_MIRROR === '1';
-    void fetch(debugIngestUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Debug-Session-Id': '971882',
-      },
-      body: JSON.stringify({
-        sessionId: '971882',
-        runId: 'pre',
-        hypothesisId: 'H0',
-        location: 'app/_layout.tsx:appReady',
-        message: 'root ready ping (debug pipeline)',
-        data: { variant: getAppVariant(), remoteSync: isRemoteSyncEnabled() },
-        timestamp: Date.now(),
-      }),
-    }).catch((err: unknown) => {
-      if (__DEV__ || mirrorConsole) {
-        console.warn('[DEBUG_INGEST_FAIL_971882]', debugIngestUrl, err);
-      }
-    });
+    if (debugIngestUrl) {
+      void fetch(debugIngestUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Debug-Session-Id': '971882',
+        },
+        body: JSON.stringify({
+          sessionId: '971882',
+          runId: 'pre',
+          hypothesisId: 'H0',
+          location: 'app/_layout.tsx:appReady',
+          message: 'root ready ping (debug pipeline)',
+          data: { variant: getAppVariant(), remoteSync: isRemoteSyncEnabled() },
+          timestamp: Date.now(),
+        }),
+      }).catch((err: unknown) => {
+        if (__DEV__ || mirrorConsole) {
+          console.warn('[DEBUG_INGEST_FAIL_971882]', debugIngestUrl, err);
+        }
+      });
+    }
     if (mirrorConsole) {
       const ndjson = JSON.stringify({
         sessionId: '971882',
@@ -160,8 +163,8 @@ export default function RootLayout() {
     if (variant === 'client' && !driverOrderId) {
       return;
     }
-    const unsubDriver = subscribeToRemoteDriver(driverOrderId, (driver, driverHeading) => {
-      useHuskoStore.setState({ driver, driverHeading });
+    const unsubDriver = subscribeToRemoteDriver(driverOrderId, (driver, driverHeading, updatedAt) => {
+      useHuskoStore.setState({ driver, driverHeading, driverPositionUpdatedAt: updatedAt });
     });
     return () => {
       unsubDriver();

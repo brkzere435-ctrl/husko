@@ -1,8 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
 import * as Linking from 'expo-linking';
 import { Link } from 'expo-router';
-import { useMemo } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { memo, useEffect, useMemo, useState } from 'react';
+import { Platform, Pressable, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { Card, Text } from 'react-native-paper';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -34,13 +34,58 @@ import { HUSKO_DEPARTURE_HUB } from '@/constants/huskoDepartureHub';
 import { colors, elevation, radius, spacing } from '@/constants/theme';
 import { WC } from '@/constants/westCoastTheme';
 import { pickPrimaryActiveOrder, useHuskoStore } from '@/stores/useHuskoStore';
+import { isRemoteSyncEnabled } from '@/services/firebaseRemote';
 import { formatEuro } from '@/utils/formatEuro';
+import { formatDriverPositionAgeFr } from '@/utils/formatDriverPositionAge';
 import { fitMapRegion } from '@/utils/fitMapRegion';
 
+const DRIVER_SIGNAL_STALE_MS = 120_000;
+
+type MiniMapCanvasProps = {
+  mapSize: number;
+  mapRegion: Parameters<typeof GTAMiniMap>[0]['region'];
+  driver: Parameters<typeof GTAMiniMap>[0]['driver'];
+  driverHeading: number;
+  dest: Parameters<typeof GTAMiniMap>[0]['dest'];
+  mapHudFooter: string;
+  mapAccessibilityLabel: string;
+};
+
+const MiniMapCanvas = memo(function MiniMapCanvas({
+  mapSize,
+  mapRegion,
+  driver,
+  driverHeading,
+  dest,
+  mapHudFooter,
+  mapAccessibilityLabel,
+}: MiniMapCanvasProps) {
+  return (
+    <View style={styles.mapNeonOuter} accessibilityRole="image" accessibilityLabel={mapAccessibilityLabel}>
+      <GTAMiniMap
+        size={mapSize}
+        region={mapRegion}
+        driver={driver}
+        headingDeg={driverHeading}
+        dest={dest}
+        showDest={!!dest}
+        hudFooter={mapHudFooter}
+      />
+    </View>
+  );
+});
+
 export default function SuiviScreen() {
+  const { width: windowW } = useWindowDimensions();
+  const mapSize = Math.min(288, Math.max(220, windowW - spacing.md * 2 - spacing.lg * 2));
+  const compactMapUi = windowW < 372;
+  const [nowMs, setNowMs] = useState(() => Date.now());
+
   const orders = useHuskoStore((s) => s.orders);
+  const cloudSyncListenError = useHuskoStore((s) => s.cloudSyncListenError);
   const driver = useHuskoStore((s) => s.driver);
   const driverHeading = useHuskoStore((s) => s.driverHeading);
+  const driverPositionUpdatedAt = useHuskoStore((s) => s.driverPositionUpdatedAt);
   const remoteAutonomousDemo = useHuskoStore((s) => s.remoteAutonomousDemo);
   const autonomousDemoEnabled = useHuskoStore((s) => s.autonomousDemoEnabled);
   const autonomousPacePreset = useHuskoStore((s) => s.autonomousPacePreset);
@@ -63,11 +108,24 @@ export default function SuiviScreen() {
     return hasDestCoords ? { latitude: active.destLat, longitude: active.destLng } : null;
   }, [active]);
 
+  const remoteOk = isRemoteSyncEnabled();
+  const driverDot = driver;
+  const driverSignalAgeMs =
+    driverPositionUpdatedAt == null ? null : Math.max(0, nowMs - driverPositionUpdatedAt);
+  const hasReliableDriverSignal =
+    !!driverDot && driverSignalAgeMs != null && driverSignalAgeMs <= DRIVER_SIGNAL_STALE_MS;
+
+  /** Ne pas étiqueter « live » sans point GPS réel — évite le ressenti « faux suivi ». */
+  const mapTruth = useMemo(() => {
+    if (!active || active.status === 'delivered' || active.status === 'cancelled') return 'preview' as const;
+    if (hasReliableDriverSignal && (active.status === 'on_way' || active.status === 'awaiting_livreur')) {
+      return 'live' as const;
+    }
+    if (active.status === 'on_way') return 'en_route_no_fix' as const;
+    return 'preview' as const;
+  }, [active, hasReliableDriverSignal]);
   const showLiveMap =
-    !!active &&
-    active.status !== 'delivered' &&
-    active.status !== 'cancelled' &&
-    (active.status === 'on_way' || !!driver);
+    !!active && active.status !== 'delivered' && active.status !== 'cancelled' && mapTruth === 'live';
   const showStaticMap =
     !!active && !showLiveMap && active.status !== 'delivered' && active.status !== 'cancelled';
 
@@ -93,15 +151,82 @@ export default function SuiviScreen() {
     return fitMapRegion(pts, 2);
   }, [driver]);
   const mapRegion = liveRegion ?? staticRegion ?? fallbackMapRegion;
-  const mapTitle = showLiveMap ? 'Suivi Cadillac · mode GTA' : 'Aperçu du trajet';
-  const mapSub = showLiveMap
-    ? dest
-      ? 'QG bâtiment H (néon) · livraison en pin — le livreur roule vers toi'
-      : 'Signal GPS livreur actif · destination client en cours de synchronisation'
-    : dest
-      ? 'Du QG Husko à votre adresse — suivi live dès l’étape « En route »'
-      : 'Zone client en cours de calibration — suivi live actif dès signal GPS livreur';
-  const mapHudFooter = showLiveMap ? 'LBC · DROP TOP · EN ROUTE' : 'APERÇU · QG → DROP';
+  const mapKicker =
+    mapTruth === 'live'
+      ? 'LIVE'
+      : mapTruth === 'en_route_no_fix'
+        ? 'EN ROUTE'
+        : 'TRAJET';
+  const mapTitle =
+    mapTruth === 'live'
+      ? 'Livreur localisé'
+      : mapTruth === 'en_route_no_fix'
+        ? 'En route · signal GPS attendu'
+        : 'Trajet prévu';
+  const mapSub =
+    mapTruth === 'live'
+      ? dest
+        ? 'Position reçue · QG vers ta livraison'
+        : 'Position reçue · adresse de livraison à confirmer'
+      : mapTruth === 'en_route_no_fix'
+        ? remoteOk
+          ? driverDot && driverSignalAgeMs != null && driverSignalAgeMs > DRIVER_SIGNAL_STALE_MS
+            ? 'Dernier signal trop ancien · attente d’une nouvelle position.'
+            : 'Le point apparaît dès qu’un GPS livreur fiable est reçu.'
+          : 'Pas de liaison cloud sur ce téléphone · suivi temps réel indisponible.'
+        : dest
+          ? 'QG Husko vers ton adresse · le live démarre en route.'
+          : 'Le trajet complet s’affiche dès que l’adresse est confirmée.';
+  const mapHudFooter =
+    mapTruth === 'live' ? 'HUSKO · SUIVI LIVE' : mapTruth === 'en_route_no_fix' ? 'EN ROUTE · GPS' : 'APERÇU PARCOURS';
+  const driverPositionLabel = useMemo(() => {
+    if (!driverDot || (mapTruth !== 'live' && mapTruth !== 'en_route_no_fix')) return null;
+    if (driverPositionUpdatedAt == null) {
+      return 'Dernière position : heure non dispo';
+    }
+    return `Dernière position : ${formatDriverPositionAgeFr(driverPositionUpdatedAt, nowMs)}`;
+  }, [driverDot, driverPositionUpdatedAt, mapTruth, nowMs]);
+  const driverSignalTone = useMemo(() => {
+    if (!driverDot || driverPositionUpdatedAt == null) return null;
+    const ageSec = Math.max(0, Math.round((nowMs - driverPositionUpdatedAt) / 1000));
+    if (ageSec <= 45) return 'fresh' as const;
+    if (ageSec <= Math.round(DRIVER_SIGNAL_STALE_MS / 1000)) return 'aging' as const;
+    return 'old' as const;
+  }, [driverDot, driverPositionUpdatedAt, nowMs]);
+  const signalUi = useMemo(() => {
+    if (!driverSignalTone) return null;
+    if (driverSignalTone === 'fresh') {
+      return {
+        label: 'Signal GPS OK',
+        icon: 'radio' as const,
+        iconColor: colors.gold,
+        style: styles.signalChipFresh,
+      };
+    }
+    if (driverSignalTone === 'aging') {
+      return {
+        label: 'Signal GPS moyen',
+        icon: 'radio' as const,
+        iconColor: colors.gold,
+        style: styles.signalChipAging,
+      };
+    }
+    return {
+      label: 'Signal GPS faible',
+      icon: 'warning' as const,
+      iconColor: colors.posterRed,
+      style: styles.signalChipOld,
+    };
+  }, [driverSignalTone]);
+  const mapAccessibilityLabel = useMemo(() => {
+    if (mapTruth === 'live') {
+      return 'Carte : QG, position livreur et adresse de livraison';
+    }
+    if (mapTruth === 'en_route_no_fix') {
+      return 'Carte : trajet sans position livreur pour l’instant';
+    }
+    return 'Aperçu de carte : QG Husko et trajet';
+  }, [mapTruth]);
 
   const etaStepMs = useMemo(() => {
     if (remoteAutonomousDemo?.enabled) return remoteAutonomousDemo.stepMs;
@@ -124,6 +249,15 @@ export default function SuiviScreen() {
     return t.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
   }, [active, etaStepMs]);
 
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setNowMs(Date.now());
+    }, 30_000);
+    return () => {
+      clearInterval(timer);
+    };
+  }, []);
+
   return (
     <WestCoastBackground preset="client">
       <SafeAreaView style={styles.root} edges={['bottom']}>
@@ -137,6 +271,44 @@ export default function SuiviScreen() {
                   <Text style={styles.etaHeroKicker}>Arrivée estimée</Text>
                   <Text style={styles.etaHeroTime}>{etaClockLabel}</Text>
                   {etaText ? <Text style={styles.etaHeroSub}>{etaText}</Text> : null}
+                  {remoteAutonomousDemo?.enabled || autonomousDemoEnabled ? (
+                    <Text style={styles.etaDemoHint}>Indicatif automatique (rythme de démo / cuisine)</Text>
+                  ) : null}
+                </View>
+              ) : null}
+
+              {!remoteOk ? (
+                <View style={styles.syncBanner} accessibilityRole="alert">
+                  <View style={styles.syncBannerHead}>
+                    <Ionicons name="cloud-offline" size={15} color={WC.neonOrange} />
+                    <Text style={styles.syncBannerTitle}>Pas de liaison en ligne</Text>
+                  </View>
+                  <Text style={styles.syncBannerBody}>
+                    Les commandes et le GPS ne se synchronisent pas avec le restaurant sur cette
+                    installation. Le suivi « comme en vrai » nécessite la même config Firebase que les
+                    autres apps Husko (voir l’équipe ou les réglages si disponibles).
+                  </Text>
+                </View>
+              ) : null}
+              {remoteOk && cloudSyncListenError ? (
+                <View style={[styles.syncBanner, styles.syncBannerError]} accessibilityRole="alert">
+                  <View style={styles.syncBannerHead}>
+                    <Ionicons name="alert-circle" size={15} color={colors.posterRed} />
+                    <Text style={styles.syncBannerTitle}>Synchro interrompue</Text>
+                  </View>
+                  <Text style={styles.syncBannerBody}>{cloudSyncListenError}</Text>
+                </View>
+              ) : null}
+              {remoteOk && mapTruth === 'en_route_no_fix' ? (
+                <View style={styles.syncBanner}>
+                  <View style={styles.syncBannerHead}>
+                    <Ionicons name="navigate" size={15} color={WC.neonOrange} />
+                    <Text style={styles.syncBannerTitle}>Position livreur</Text>
+                  </View>
+                  <Text style={styles.syncBannerBody}>
+                    Vous êtes en route côté commande, mais aucune position n’arrive encore. Vérifiez le
+                    réseau, l’app livreur ouverte, et que le livreur a bien pris la course.
+                  </Text>
                 </View>
               ) : null}
 
@@ -200,23 +372,43 @@ export default function SuiviScreen() {
 
               {active.status === 'awaiting_livreur' ? (
                 <Text style={[typography.bodyMuted, styles.mapHint]}>
-                  Un livreur va bientôt prendre en charge votre commande. Dès qu’il est en route, la carte
-                  passe en suivi live avec sa position.
+                  Le livreur prend la course. Le suivi live s’active dès le premier signal GPS fiable.
                 </Text>
               ) : null}
 
               {active && mapRegion ? (
                 <View style={styles.mapWrap}>
-                  <Text style={styles.mapTitle}>{mapTitle}</Text>
-                  <Text style={styles.mapSub}>{mapSub}</Text>
-                  <GTAMiniMap
-                    size={236}
-                    region={mapRegion}
+                  <View style={styles.mapInfoPanel}>
+                    <Text style={[styles.mapKicker, compactMapUi && styles.mapKickerCompact]}>{mapKicker}</Text>
+                    <Text style={[styles.mapTitle, compactMapUi && styles.mapTitleCompact]}>{mapTitle}</Text>
+                    <Text style={[styles.mapSub, compactMapUi && styles.mapSubCompact]}>{mapSub}</Text>
+                    {signalUi ? (
+                      <View
+                        style={[
+                          styles.signalChip,
+                          signalUi.style,
+                        ]}
+                      >
+                        <Ionicons name={signalUi.icon} size={14} color={signalUi.iconColor} />
+                        <Text style={[styles.signalChipTxt, compactMapUi && styles.signalChipTxtCompact]}>
+                          {signalUi.label}
+                        </Text>
+                      </View>
+                    ) : null}
+                    {driverPositionLabel ? (
+                      <Text style={[styles.mapFreshness, compactMapUi && styles.mapFreshnessCompact]}>
+                        {driverPositionLabel}
+                      </Text>
+                    ) : null}
+                  </View>
+                  <MiniMapCanvas
+                    mapSize={mapSize}
+                    mapRegion={mapRegion}
                     driver={driver}
-                    headingDeg={driverHeading}
+                    driverHeading={driverHeading}
                     dest={dest}
-                    showDest={!!dest}
-                    hudFooter={mapHudFooter}
+                    mapHudFooter={mapHudFooter}
+                    mapAccessibilityLabel={mapAccessibilityLabel}
                   />
                 </View>
               ) : null}
@@ -365,6 +557,44 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '600',
   },
+  etaDemoHint: {
+    marginTop: spacing.sm,
+    fontSize: 11,
+    lineHeight: 15,
+    textAlign: 'center',
+    color: colors.textMuted,
+    fontStyle: 'italic',
+  },
+  syncBanner: {
+    marginBottom: spacing.md,
+    padding: spacing.md,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: clientSuiviVisual.syncBannerBorder,
+    backgroundColor: clientSuiviVisual.syncBannerBg,
+  },
+  syncBannerError: {
+    borderColor: clientSuiviVisual.syncErrorBorder,
+    backgroundColor: clientSuiviVisual.syncErrorBg,
+  },
+  syncBannerTitle: {
+    fontFamily: FONT.bold,
+    fontSize: 12,
+    letterSpacing: 1,
+    color: WC.neonOrange,
+  },
+  syncBannerHead: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+    marginBottom: spacing.xs,
+  },
+  syncBannerBody: {
+    ...typography.bodyMuted,
+    fontSize: 13,
+    lineHeight: 19,
+    color: 'rgba(255,250,245,0.88)',
+  },
   stepperRow: {
     flexDirection: 'row',
     flexWrap: 'nowrap',
@@ -444,30 +674,106 @@ const styles = StyleSheet.create({
   addr: { marginTop: spacing.xs },
   pay: { marginTop: spacing.md, fontStyle: 'italic' },
   mapHint: { marginTop: spacing.md },
+  mapInfoPanel: {
+    alignItems: 'center',
+    width: '100%',
+    marginBottom: spacing.sm,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.sm,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: 'rgba(252, 211, 77, 0.2)',
+    backgroundColor: 'rgba(8, 4, 6, 0.45)',
+  },
+  mapKicker: {
+    alignSelf: 'center',
+    marginBottom: spacing.xs,
+    fontFamily: FONT.bold,
+    fontSize: 10,
+    letterSpacing: 3,
+    color: WC.fire,
+    opacity: 0.95,
+  },
+  mapKickerCompact: { fontSize: 9, letterSpacing: 2.2 },
   mapTitle: {
     ...typography.section,
     marginBottom: spacing.xs,
-    marginTop: spacing.sm,
     alignSelf: 'stretch',
     textAlign: 'center',
     color: colors.gold,
-    fontSize: 13,
-    letterSpacing: 1.4,
+    fontSize: 14,
+    letterSpacing: 1.2,
   },
+  mapTitleCompact: { fontSize: 13, letterSpacing: 0.8 },
   mapSub: {
     fontFamily: FONT.medium,
     textAlign: 'center',
     color: WC.neonCyan,
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: '600',
-    marginBottom: spacing.sm,
+    marginBottom: spacing.md,
     opacity: 0.92,
+    lineHeight: 17,
+    paddingHorizontal: spacing.xs,
   },
-  mapWrap: {
-    marginTop: spacing.lg,
+  mapSubCompact: { fontSize: 11, lineHeight: 16 },
+  mapFreshness: {
+    marginBottom: spacing.xs,
+    fontFamily: FONT.medium,
+    fontSize: 12,
+    color: colors.textMuted,
+    textAlign: 'center',
+  },
+  mapFreshnessCompact: { fontSize: 11 },
+  signalChip: {
+    flexDirection: 'row',
     alignItems: 'center',
-    minHeight: 180,
+    gap: spacing.xs,
+    marginBottom: spacing.xs,
+    paddingVertical: 6,
+    paddingHorizontal: spacing.sm,
+    borderRadius: radius.pill,
+    borderWidth: 1,
+  },
+  signalChipFresh: {
+    borderColor: 'rgba(34, 197, 94, 0.55)',
+    backgroundColor: 'rgba(22, 101, 52, 0.25)',
+  },
+  signalChipAging: {
+    borderColor: 'rgba(252, 211, 77, 0.55)',
+    backgroundColor: 'rgba(146, 64, 14, 0.22)',
+  },
+  signalChipOld: {
+    borderColor: 'rgba(248, 113, 113, 0.55)',
+    backgroundColor: 'rgba(127, 29, 29, 0.28)',
+  },
+  signalChipTxt: {
+    fontFamily: FONT.medium,
+    fontSize: 12,
+    color: colors.text,
+  },
+  signalChipTxtCompact: { fontSize: 11 },
+  mapWrap: {
+    marginTop: spacing.sm,
+    alignItems: 'center',
     width: '100%',
+  },
+  mapNeonOuter: {
+    borderRadius: radius.lg,
+    padding: 3,
+    borderWidth: 1,
+    borderColor: clientSuiviVisual.mapNeonBorder,
+    backgroundColor: clientSuiviVisual.mapNeonBg,
+    ...Platform.select({
+      ios: {
+        shadowColor: clientSuiviVisual.mapNeonShadow,
+        shadowOpacity: 0.5,
+        shadowRadius: 16,
+        shadowOffset: { width: 0, height: 6 },
+      },
+      android: { elevation: 10 },
+      default: {},
+    }),
   },
   historiqueLinkWrap: { marginTop: spacing.md, marginBottom: spacing.sm },
   infra: { marginTop: spacing.lg },

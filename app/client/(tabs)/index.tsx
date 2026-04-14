@@ -2,6 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Link, router } from 'expo-router';
+import { useMemo } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -21,12 +22,15 @@ import { WC } from '@/constants/westCoastTheme';
 import { radius, spacing } from '@/constants/theme';
 import { VENUE_TAGLINE_CLIENT } from '@/constants/venue';
 import { clientStrings } from '@/constants/clientExperience';
-import { useHuskoStore } from '@/stores/useHuskoStore';
+import { ORDER_STATUS_LABEL } from '@/constants/orderStatus';
+import { pickPrimaryActiveOrder, useHuskoStore } from '@/stores/useHuskoStore';
 
 const HERO_IMG = CLIENT_BOOT_HERO;
 
 export default function ClientHomeScreen() {
   const insets = useSafeAreaInsets();
+  const orders = useHuskoStore((s) => s.orders);
+  const activeOrder = useMemo(() => pickPrimaryActiveOrder(orders), [orders]);
   const remoteServiceAccepting = useHuskoStore((s) => s.remoteServiceAccepting);
   const orderingOpen = isClientOrderingAllowed(new Date(), remoteServiceAccepting);
   const pillStatusLabel = orderingOpen
@@ -88,6 +92,25 @@ export default function ClientHomeScreen() {
             </View>
             <Text style={styles.hoursLine}>{deliveryHoursLabel()}</Text>
           </LinearGradient>
+
+          {activeOrder ? (
+            <Link href="/client/suivi" asChild>
+              <Pressable
+                style={styles.activeOrderStrip}
+                accessibilityRole="button"
+                accessibilityLabel={`Suivi de commande, ${ORDER_STATUS_LABEL[activeOrder.status]}`}
+              >
+                <Ionicons name="navigate-circle" size={26} color="rgba(252, 211, 77, 0.95)" />
+                <View style={styles.activeOrderTextCol}>
+                  <Text style={styles.activeOrderKicker}>COMMANDE EN COURS</Text>
+                  <Text style={styles.activeOrderStatus} numberOfLines={1}>
+                    {ORDER_STATUS_LABEL[activeOrder.status]}
+                  </Text>
+                </View>
+                <Ionicons name="chevron-forward" size={22} color="rgba(255,255,255,0.75)" />
+              </Pressable>
+            </Link>
+          ) : null}
 
           <View style={styles.ctaRow}>
             <PrimaryButton title="Voir le menu" onPress={() => router.push('/client/menu')} />
@@ -229,6 +252,37 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: 'rgba(255,255,255,0.65)',
     fontWeight: '600',
+  },
+  activeOrderStrip: {
+    marginTop: spacing.md,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.md,
+    borderRadius: radius.lg,
+    borderWidth: 2,
+    borderColor: clientHomeVisual.fabBorder,
+    backgroundColor: 'rgba(12, 4, 8, 0.94)',
+    shadowColor: clientHomeVisual.topBarGlow,
+    shadowOpacity: 0.45,
+    shadowRadius: 14,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 6,
+  },
+  activeOrderTextCol: { flex: 1, minWidth: 0 },
+  activeOrderKicker: {
+    fontFamily: FONT.bold,
+    fontSize: 10,
+    letterSpacing: 2.5,
+    color: 'rgba(255,255,255,0.72)',
+  },
+  activeOrderStatus: {
+    marginTop: 2,
+    fontFamily: FONT.bold,
+    fontSize: 15,
+    letterSpacing: 0.3,
+    color: WC.white,
   },
   ctaRow: { marginTop: spacing.lg, gap: spacing.sm },
   fab: {
