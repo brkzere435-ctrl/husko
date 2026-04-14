@@ -6,6 +6,7 @@ import { useHuskoStore } from '@/stores/useHuskoStore';
 
 /** Vérification automatique en arrière-plan (toutes les N ms, app ouverte). */
 export const OTA_PERIODIC_CHECK_MS = 15 * 60 * 1000;
+export const OTA_RUNTIME_ENABLED = process.env.EXPO_PUBLIC_OTA_ENABLED !== '0';
 
 /** Laisse le temps au système d’afficher la notification locale avant le reload. */
 const MS_AFTER_UPDATE_NOTIFICATION = 1400;
@@ -65,7 +66,20 @@ async function runOtaCheck(mode: CheckMode): Promise<void> {
     platform: Platform.OS,
     dev: __DEV__,
     updatesEnabled: Updates.isEnabled,
+    otaRuntimeEnabled: OTA_RUNTIME_ENABLED,
   });
+  if (!OTA_RUNTIME_ENABLED) {
+    otaDebugLog(runId, 'H1', 'checkAppUpdates.ts:runOtaCheck:guard-env-disabled', 'guarded by OTA env switch', {
+      mode,
+    });
+    if (mode === 'user') {
+      Alert.alert(
+        'Husko',
+        'Les mises à jour OTA sont désactivées par configuration (EXPO_PUBLIC_OTA_ENABLED=0).'
+      );
+    }
+    return;
+  }
   if (__DEV__) {
     otaDebugLog(runId, 'H1', 'checkAppUpdates.ts:runOtaCheck:guard-dev', 'guarded in __DEV__', { mode });
     if (mode === 'user') {

@@ -33,6 +33,7 @@ import {
 import { mergeRemoteOrdersWithLocal } from '@/utils/mergeRemoteOrders';
 import {
   OTA_PERIODIC_CHECK_MS,
+  OTA_RUNTIME_ENABLED,
   checkAndReloadUpdatesAsync,
 } from '@/services/checkAppUpdates';
 import {
@@ -141,13 +142,13 @@ export default function RootLayout() {
   }, [appReady]);
 
   useEffect(() => {
-    if (!appReady || !isUpdatePending) return;
+    if (!appReady || !isUpdatePending || !OTA_RUNTIME_ENABLED) return;
     // #region agent log
     postDebugIngest(
       'H4',
       'app/_layout.tsx:useEffect:isUpdatePending',
       'isUpdatePending triggered reloadAsync',
-      { appReady, isUpdatePending }
+      { appReady, isUpdatePending, otaRuntimeEnabled: OTA_RUNTIME_ENABLED }
     );
     // #endregion
     void Updates.reloadAsync().catch(() => {});
@@ -161,14 +162,18 @@ export default function RootLayout() {
       'H2',
       'app/_layout.tsx:useEffect:ota-bootstrap',
       'bootstrap checkAndReloadUpdatesAsync',
-      {}
+      { otaRuntimeEnabled: OTA_RUNTIME_ENABLED }
     );
     // #endregion
-    void checkAndReloadUpdatesAsync();
+    if (OTA_RUNTIME_ENABLED) {
+      void checkAndReloadUpdatesAsync();
+    }
     tickRef.current = setInterval(run, 60_000);
-    otaRef.current = setInterval(() => void checkAndReloadUpdatesAsync(), OTA_PERIODIC_CHECK_MS);
+    if (OTA_RUNTIME_ENABLED) {
+      otaRef.current = setInterval(() => void checkAndReloadUpdatesAsync(), OTA_PERIODIC_CHECK_MS);
+    }
     const sub = AppState.addEventListener('change', (s) => {
-      if (s === 'active') {
+      if (s === 'active' && OTA_RUNTIME_ENABLED) {
         run();
         void checkAndReloadUpdatesAsync();
       }

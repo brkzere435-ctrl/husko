@@ -7,7 +7,11 @@ import { componentsVisual } from '@/constants/componentsVisual';
 import { FONT } from '@/constants/fonts';
 import { typography } from '@/constants/typography';
 import { colors, radius, spacing } from '@/constants/theme';
-import { OTA_PERIODIC_CHECK_MS, checkUpdatesWithUserFeedbackAsync } from '@/services/checkAppUpdates';
+import {
+  OTA_PERIODIC_CHECK_MS,
+  OTA_RUNTIME_ENABLED,
+  checkUpdatesWithUserFeedbackAsync,
+} from '@/services/checkAppUpdates';
 import { readHuskoExpoExtra } from '@/utils/readHuskoExpoExtra';
 
 function formatMs(ms: number): string {
@@ -35,7 +39,8 @@ export function OtaUpdateSection() {
       : null;
 
   const isDev = __DEV__;
-  const otaEnabled = Updates.isEnabled;
+  const otaRuntimeEnabled = OTA_RUNTIME_ENABLED;
+  const otaEnabled = Updates.isEnabled && otaRuntimeEnabled;
 
   const copyBugReportTemplate = () => {
     const lines = [
@@ -47,6 +52,7 @@ export function OtaUpdateSection() {
       `canal_ota: ${channel}`,
       `bundle_ota: ${updateIdFull ?? '(JS embarqué dans l’APK)'}`,
       `ota_activée: ${String(otaEnabled)}`,
+      `ota_runtime_switch: ${String(otaRuntimeEnabled)}`,
       `plateforme: ${Platform.OS}`,
       'symptôme_ou_écran: ',
       'étapes_pour_reproduire: ',
@@ -62,9 +68,11 @@ export function OtaUpdateSection() {
         <Text style={styles.pillText}>
           {isDev
             ? 'Mode : développement (Metro)'
-            : otaEnabled
-              ? 'Mode : build installé (OTA activée)'
-              : 'Mode : build installé (OTA désactivée)'}
+            : otaRuntimeEnabled
+              ? otaEnabled
+                ? 'Mode : build installé (OTA activée)'
+                : 'Mode : build installé (OTA indisponible sur ce build)'
+              : 'Mode : build installé (OTA désactivée par configuration)'}
         </Text>
       </View>
 
@@ -99,6 +107,16 @@ export function OtaUpdateSection() {
             <Text style={styles.code}>npm run start:client</Text> / <Text style={styles.code}>start:gerant</Text> etc.
           </Text>
         </View>
+      ) : !otaRuntimeEnabled ? (
+        <View style={styles.hintBlock}>
+          <Text style={styles.hintTitle}>OTA désactivée côté runtime</Text>
+          <Text style={[typography.caption, styles.muted]}>
+            Ce build ignore volontairement les checks OTA (`EXPO_PUBLIC_OTA_ENABLED=0`).
+            {'\n'}
+            Pour réactiver : retire la variable ou mets <Text style={styles.code}>EXPO_PUBLIC_OTA_ENABLED=1</Text>{' '}
+            puis redémarre l’app.
+          </Text>
+        </View>
       ) : native ? (
         <View style={styles.hintBlock}>
           <Text style={styles.hintTitle}>Si l’interface semble ancienne</Text>
@@ -128,11 +146,18 @@ export function OtaUpdateSection() {
         <>
           <Pressable
             onPress={() => void checkUpdatesWithUserFeedbackAsync()}
-            style={({ pressed }) => [styles.btn, pressed && styles.btnPressed]}
+            disabled={!otaRuntimeEnabled}
+            style={({ pressed }) => [
+              styles.btn,
+              !otaRuntimeEnabled && styles.btnDisabled,
+              pressed && styles.btnPressed,
+            ]}
             accessibilityRole="button"
             accessibilityLabel="Vérifier les mises à jour"
           >
-            <Text style={styles.btnText}>Vérifier les mises à jour maintenant</Text>
+            <Text style={styles.btnText}>
+              {otaRuntimeEnabled ? 'Vérifier les mises à jour maintenant' : 'OTA désactivée (check bloqué)'}
+            </Text>
           </Pressable>
           <Pressable
             onPress={copyBugReportTemplate}
@@ -231,6 +256,9 @@ const styles = StyleSheet.create({
     borderColor: colors.borderSubtle,
   },
   btnPressed: { opacity: 0.88 },
+  btnDisabled: {
+    opacity: 0.55,
+  },
   btnText: {
     color: colors.gold,
     fontWeight: '800',
