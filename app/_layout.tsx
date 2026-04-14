@@ -66,6 +66,45 @@ export default function RootLayout() {
   useEffect(() => {
     if (!appReady) return;
     installRenderLayoutDebugTap();
+    // #region agent log
+    const debugIngestUrl =
+      process.env.EXPO_PUBLIC_DEBUG_INGEST_URL?.trim() ||
+      'http://127.0.0.1:7887/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42';
+    const mirrorConsole =
+      __DEV__ || process.env.EXPO_PUBLIC_DEBUG_SESSION_MIRROR === '1';
+    void fetch(debugIngestUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Debug-Session-Id': '971882',
+      },
+      body: JSON.stringify({
+        sessionId: '971882',
+        runId: 'pre',
+        hypothesisId: 'H0',
+        location: 'app/_layout.tsx:appReady',
+        message: 'root ready ping (debug pipeline)',
+        data: { variant: getAppVariant(), remoteSync: isRemoteSyncEnabled() },
+        timestamp: Date.now(),
+      }),
+    }).catch((err: unknown) => {
+      if (__DEV__ || mirrorConsole) {
+        console.warn('[DEBUG_INGEST_FAIL_971882]', debugIngestUrl, err);
+      }
+    });
+    if (mirrorConsole) {
+      const ndjson = JSON.stringify({
+        sessionId: '971882',
+        runId: 'pre',
+        hypothesisId: 'H0',
+        location: 'app/_layout.tsx:appReady',
+        message: 'root ready ping (metro mirror — paste if debug-971882.log missing)',
+        data: { variant: getAppVariant(), remoteSync: isRemoteSyncEnabled() },
+        timestamp: Date.now(),
+      });
+      console.log('[DEBUG_NDJSON_971882]', ndjson);
+    }
+    // #endregion
     if (isBootDebugEnabled()) {
       const cfg = Constants.expoConfig;
       const extra = readHuskoExpoExtra();
