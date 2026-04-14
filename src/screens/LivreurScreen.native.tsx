@@ -40,11 +40,8 @@ export default function LivreurScreenNative() {
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const [snack, setSnack] = useState('');
   const mapsConfigured = isMapsKeyConfiguredForPlatform();
-  /**
-   * Android: forcer le radar OSM tant que l'API Maps native renvoie une erreur d'autorisation runtime.
-   * Cela évite les cartes noires « Google » sans tuiles.
-   */
-  const forceRadarFallback = Platform.OS === 'android' || !mapsConfigured;
+  /** Mode pro: carte native dès que les clés Maps sont configurées, fallback seulement en secours. */
+  const forceRadarFallback = !mapsConfigured;
 
   useEffect(() => {
     let cancelled = false;
