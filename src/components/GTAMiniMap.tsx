@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Platform, StyleSheet, View } from 'react-native';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 
@@ -35,8 +35,10 @@ export function GTAMiniMap({
   hudFooter = 'LONG BEACH · CADILLAC SUIVI',
 }: Props) {
   const mapsConfigured = isMapsKeyConfiguredForPlatform();
-  // Android: on force le fallback OSM/HUD tant que la clé Maps native renvoie des erreurs d'autorisation runtime.
-  const useFallback = Platform.OS === 'android' || !mapsConfigured;
+  const [nativeMapFailed, setNativeMapFailed] = useState(false);
+  // Utilise la carte native dès que la clé est dispo. Repli HUD uniquement si clé absente
+  // ou si MapView remonte une erreur runtime (permissions Google Maps / auth / renderer).
+  const useFallback = !mapsConfigured || nativeMapFailed;
   const footerTag = useFallback ? `${hudFooter} · OSM` : hudFooter;
 
   const driverTitle = useMemo(
@@ -71,6 +73,7 @@ export function GTAMiniMap({
           style={styles.map}
           collapsable={false}
           provider={Platform.OS === 'android' ? PROVIDER_GOOGLE : undefined}
+          onError={() => setNativeMapFailed(true)}
           region={region}
           rotateEnabled={false}
           pitchEnabled={false}
