@@ -29,15 +29,41 @@ export function ClientBootOverlay({ visible, onDone, variant = 'client' }: Props
   const doneRef = useRef(onDone);
   doneRef.current = onDone;
 
-  const finish = useCallback(() => {
+  const emitBootLog = useCallback(
+    (hypothesisId: 'H1' | 'H2', location: string, message: string, data: Record<string, unknown>) => {
+      // #region agent log
+      fetch('http://127.0.0.1:7887/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': '971882' },
+        body: JSON.stringify({
+          sessionId: '971882',
+          runId: `boot-${Date.now().toString(36)}`,
+          hypothesisId,
+          location,
+          message,
+          data,
+          timestamp: Date.now(),
+        }),
+      }).catch(() => {});
+      // #endregion
+    },
+    []
+  );
+
+  const finish = useCallback((reason: 'timer' | 'press') => {
+    emitBootLog('H1', 'ClientBootOverlay.tsx:finish', 'boot overlay finish', { variant, reason });
     doneRef.current();
-  }, []);
+  }, [emitBootLog, variant]);
 
   useEffect(() => {
     if (!visible) return;
-    const t = setTimeout(finish, CLIENT_BOOT_DURATION_MS);
+    emitBootLog('H1', 'ClientBootOverlay.tsx:useEffect', 'boot overlay visible', {
+      variant,
+      durationMs: CLIENT_BOOT_DURATION_MS,
+    });
+    const t = setTimeout(() => finish('timer'), CLIENT_BOOT_DURATION_MS);
     return () => clearTimeout(t);
-  }, [visible, finish]);
+  }, [visible, finish, emitBootLog, variant]);
 
   if (!visible) return null;
 
@@ -53,11 +79,25 @@ export function ClientBootOverlay({ visible, onDone, variant = 'client' }: Props
     >
       <Pressable
         style={styles.root}
-        onPress={finish}
+        onPress={() => finish('press')}
         accessibilityRole="button"
         accessibilityLabel={`${CLIENT_BOOT_SKIP_HINT}. Ouvre l'application.`}
       >
-        <Image source={CLIENT_BOOT_HERO} style={StyleSheet.absoluteFill} resizeMode="cover" blurRadius={10} />
+        <Image
+          source={CLIENT_BOOT_HERO}
+          style={StyleSheet.absoluteFill}
+          resizeMode="cover"
+          blurRadius={10}
+          onLoad={() =>
+            emitBootLog('H2', 'ClientBootOverlay.tsx:bgImage:onLoad', 'boot background image loaded', { variant })
+          }
+          onError={(e) =>
+            emitBootLog('H2', 'ClientBootOverlay.tsx:bgImage:onError', 'boot background image failed', {
+              variant,
+              error: String(e?.nativeEvent?.error ?? 'unknown'),
+            })
+          }
+        />
         <View style={styles.backTint} pointerEvents="none" />
         <View style={[styles.fill, { paddingTop: topPad }]}>
           <View style={styles.posterWrap} pointerEvents="none">
@@ -65,6 +105,15 @@ export function ClientBootOverlay({ visible, onDone, variant = 'client' }: Props
               source={CLIENT_BOOT_HERO}
               style={styles.poster}
               resizeMode="contain"
+              onLoad={() =>
+                emitBootLog('H2', 'ClientBootOverlay.tsx:poster:onLoad', 'boot poster image loaded', { variant })
+              }
+              onError={(e) =>
+                emitBootLog('H2', 'ClientBootOverlay.tsx:poster:onError', 'boot poster image failed', {
+                  variant,
+                  error: String(e?.nativeEvent?.error ?? 'unknown'),
+                })
+              }
             />
           </View>
           <View style={styles.bottomPanel}>

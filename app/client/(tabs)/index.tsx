@@ -39,6 +39,23 @@ export default function ClientHomeScreen() {
       ? clientStrings.orderingClosedByRestaurant
       : clientStrings.orderingClosedHours;
   const tabBarReserve = 72;
+  const emitHomeHeroLog = (hypothesisId: 'H3', location: string, message: string, data: Record<string, unknown>) => {
+    // #region agent log
+    fetch('http://127.0.0.1:7887/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': '971882' },
+      body: JSON.stringify({
+        sessionId: '971882',
+        runId: `home-${Date.now().toString(36)}`,
+        hypothesisId,
+        location,
+        message,
+        data,
+        timestamp: Date.now(),
+      }),
+    }).catch(() => {});
+    // #endregion
+  };
 
   return (
     <WestCoastBackground preset="client">
@@ -68,7 +85,19 @@ export default function ClientHomeScreen() {
             style={styles.heroCard}
           >
             <View style={styles.heroImageWrap}>
-              <Image source={HERO_IMG} style={styles.heroImage} contentFit="cover" />
+              <Image
+                source={HERO_IMG}
+                style={styles.heroImage}
+                contentFit="cover"
+                onLoad={() =>
+                  emitHomeHeroLog('H3', 'app/client/(tabs)/index.tsx:hero:onLoad', 'home hero image loaded', {})
+                }
+                onError={(e) =>
+                  emitHomeHeroLog('H3', 'app/client/(tabs)/index.tsx:hero:onError', 'home hero image failed', {
+                    error: String(e?.error ?? 'unknown'),
+                  })
+                }
+              />
               <LinearGradient
                 colors={['transparent', 'rgba(5,4,8,0.85)']}
                 style={styles.heroImageFade}
