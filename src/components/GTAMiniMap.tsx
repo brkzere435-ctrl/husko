@@ -12,6 +12,7 @@ import { isMapsKeyConfiguredForPlatform } from '@/utils/mapsBuildInfo';
 type Props = {
   region: MapRegion;
   size?: number;
+  forceFallback?: boolean;
   driver?: { latitude: number; longitude: number } | null;
   headingDeg?: number;
   dest?: { latitude: number; longitude: number } | null;
@@ -26,6 +27,7 @@ const HUD_SIZE = 172;
 export function GTAMiniMap({
   region,
   size = HUD_SIZE,
+  forceFallback = false,
   driver,
   headingDeg = 0,
   dest,
@@ -38,7 +40,7 @@ export function GTAMiniMap({
   const [nativeMapFailed, setNativeMapFailed] = useState(false);
   // Utilise la carte native dès que la clé est dispo. Repli HUD uniquement si clé absente
   // ou si MapView remonte une erreur runtime (permissions Google Maps / auth / renderer).
-  const useFallback = !mapsConfigured || nativeMapFailed;
+  const useFallback = forceFallback || !mapsConfigured || nativeMapFailed;
   const footerTag = useFallback ? `${hudFooter} · OSM` : hudFooter;
 
   const driverTitle = useMemo(

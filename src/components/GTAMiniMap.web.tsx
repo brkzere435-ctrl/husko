@@ -9,6 +9,7 @@ import type { MapRegion } from '@/types/mapRegion';
 type Props = {
   region: MapRegion;
   size?: number;
+  forceFallback?: boolean;
   driver?: { latitude: number; longitude: number } | null;
   headingDeg?: number;
   dest?: { latitude: number; longitude: number } | null;
@@ -24,6 +25,7 @@ const HUD_SIZE = 172;
 export function GTAMiniMap({
   region: _region,
   size = HUD_SIZE,
+  forceFallback: _forceFallback = false,
   driver,
   headingDeg = 0,
   dest,

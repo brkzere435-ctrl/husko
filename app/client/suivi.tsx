@@ -39,7 +39,7 @@ import { formatEuro } from '@/utils/formatEuro';
 import { formatDriverPositionAgeFr } from '@/utils/formatDriverPositionAge';
 import { fitMapRegion } from '@/utils/fitMapRegion';
 
-const DRIVER_SIGNAL_STALE_MS = 120_000;
+const DRIVER_SIGNAL_STALE_MS = 10 * 60_000;
 
 type MiniMapCanvasProps = {
   mapSize: number;
@@ -64,6 +64,7 @@ const MiniMapCanvas = memo(function MiniMapCanvas({
     <View style={styles.mapNeonOuter} accessibilityRole="image" accessibilityLabel={mapAccessibilityLabel}>
       <GTAMiniMap
         size={mapSize}
+        forceFallback={Platform.OS === 'android'}
         region={mapRegion}
         driver={driver}
         headingDeg={driverHeading}

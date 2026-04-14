@@ -28,7 +28,7 @@ let driverWriteTimer: ReturnType<typeof setTimeout> | null = null;
 const DRIVER_PUSH_DEBOUNCE_MS = 600;
 const DRIVER_PUSH_IMMEDIATE_GAP_MS = 4_000;
 /** Au-delà de ce délai sans écriture Firestore, le client masque le livreur (évite fantômes). */
-const DRIVER_STALE_MS = 120_000;
+const DRIVER_STALE_MS = 10 * 60_000;
 const DRIVER_ORDER_DOC_PREFIX = 'driver_order_';
 const ORDER_TRACKING_COLLECTION = 'tracking';
 const ORDER_TRACKING_DRIVER_DOC = 'driverLive';
@@ -343,6 +343,13 @@ export function subscribeToRemoteDriver(
       const matching = candidates.find((s) => s.orderId === normalizedOrderId);
       if (matching) {
         onDriver(matching.driver, matching.heading, matching.updatedAt);
+        return;
+      }
+      const unknownOrder = candidates.find((s) => s.orderId == null);
+      if (unknownOrder) {
+        // Tolérance: certains snapshots valides n'embarquent pas orderId.
+        // On garde le point frais tant qu'aucune autre commande explicite ne correspond.
+        onDriver(unknownOrder.driver, unknownOrder.heading, unknownOrder.updatedAt);
         return;
       }
       // Empêche un "suivi irréel" en affichant la position d'une autre commande.
