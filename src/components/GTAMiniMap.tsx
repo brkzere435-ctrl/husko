@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Platform, StyleSheet, View } from 'react-native';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 
@@ -38,10 +38,18 @@ export function GTAMiniMap({
 }: Props) {
   const mapsConfigured = isMapsKeyConfiguredForPlatform();
   const [nativeMapFailed, setNativeMapFailed] = useState(false);
+  const [nativeMapReady, setNativeMapReady] = useState(false);
   // Utilise la carte native dès que la clé est dispo. Repli HUD uniquement si clé absente
   // ou si MapView remonte une erreur runtime (permissions Google Maps / auth / renderer).
   const useFallback = forceFallback || !mapsConfigured || nativeMapFailed;
   const footerTag = useFallback ? `${hudFooter} · OSM` : hudFooter;
+
+  useEffect(() => {
+    if (useFallback) return;
+    if (nativeMapReady) return;
+    const timer = setTimeout(() => setNativeMapFailed(true), 3500);
+    return () => clearTimeout(timer);
+  }, [nativeMapReady, useFallback]);
 
   const driverTitle = useMemo(
     () => (driver ? `Livreur · cap ${Math.round(headingDeg)}°` : 'Livreur'),
@@ -76,6 +84,7 @@ export function GTAMiniMap({
           collapsable={false}
           provider={Platform.OS === 'android' ? PROVIDER_GOOGLE : undefined}
           onError={() => setNativeMapFailed(true)}
+          onMapReady={() => setNativeMapReady(true)}
           region={region}
           rotateEnabled={false}
           pitchEnabled={false}

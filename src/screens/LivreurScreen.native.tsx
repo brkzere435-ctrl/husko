@@ -42,6 +42,16 @@ export default function LivreurScreenNative() {
   const mapsConfigured = isMapsKeyConfiguredForPlatform();
   /** Mode pro: carte native dès que les clés Maps sont configurées, fallback seulement en secours. */
   const forceRadarFallback = !mapsConfigured;
+  const [nativeMapFailed, setNativeMapFailed] = useState(false);
+  const [nativeMapReady, setNativeMapReady] = useState(false);
+  const useRadarFallback = forceRadarFallback || nativeMapFailed;
+
+  useEffect(() => {
+    if (useRadarFallback) return;
+    if (nativeMapReady) return;
+    const timer = setTimeout(() => setNativeMapFailed(true), 3500);
+    return () => clearTimeout(timer);
+  }, [nativeMapReady, useRadarFallback]);
 
   useEffect(() => {
     let cancelled = false;
@@ -154,7 +164,7 @@ export default function LivreurScreenNative() {
           <DeploymentHints mode="alerts" mapsRelevant />
 
           <View style={styles.mapContainer}>
-            {!mapsConfigured || forceRadarFallback ? (
+            {useRadarFallback ? (
               <View style={styles.mapFallback} pointerEvents="none">
                 <GTAMiniMapFallbackInterior
                   region={region}
@@ -166,10 +176,12 @@ export default function LivreurScreenNative() {
                 />
               </View>
             ) : null}
-            {mapsConfigured && !forceRadarFallback ? (
+            {!useRadarFallback ? (
               <MapView
                 style={[styles.map, styles.mapBlend]}
                 provider={Platform.OS === 'android' ? PROVIDER_GOOGLE : undefined}
+                onError={() => setNativeMapFailed(true)}
+                onMapReady={() => setNativeMapReady(true)}
                 region={region}
                 onRegionChangeComplete={setRegion}
                 showsUserLocation={false}
