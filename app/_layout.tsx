@@ -48,6 +48,40 @@ import { installRenderLayoutDebugTap, logRootLayoutOnce } from '@/utils/debugRen
 import { getAppVariant } from '@/constants/appVariant';
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
+const DEFAULT_DEBUG_INGEST_URL = 'http://127.0.0.1:7887/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42';
+const ENV_DEBUG_INGEST_URL = process.env.EXPO_PUBLIC_DEBUG_INGEST_URL?.trim();
+const DEBUG_INGEST_URL = ENV_DEBUG_INGEST_URL || (__DEV__ ? DEFAULT_DEBUG_INGEST_URL : null);
+const MIRROR_CONSOLE = __DEV__ || process.env.EXPO_PUBLIC_DEBUG_SESSION_MIRROR === '1';
+
+function postDebugIngest(
+  hypothesisId: string,
+  location: string,
+  message: string,
+  data: Record<string, unknown>,
+  runId = `layout-${Date.now().toString(36)}`
+) {
+  if (!DEBUG_INGEST_URL) return;
+  void fetch(DEBUG_INGEST_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Debug-Session-Id': '971882',
+    },
+    body: JSON.stringify({
+      sessionId: '971882',
+      runId,
+      hypothesisId,
+      location,
+      message,
+      data,
+      timestamp: Date.now(),
+    }),
+  }).catch((err: unknown) => {
+    if (__DEV__ || MIRROR_CONSOLE) {
+      console.warn('[DEBUG_INGEST_FAIL_971882]', DEBUG_INGEST_URL, err);
+    }
+  });
+}
 
 export default function RootLayout() {
   const { showOfflineBanner } = useNetworkState();
@@ -67,35 +101,14 @@ export default function RootLayout() {
     if (!appReady) return;
     installRenderLayoutDebugTap();
     // #region agent log — pas de POST vers localhost en release APK (téléphone ≠ PC).
-    const envIngest = process.env.EXPO_PUBLIC_DEBUG_INGEST_URL?.trim();
-    const debugIngestUrl =
-      envIngest ||
-      (__DEV__ ? 'http://127.0.0.1:7887/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42' : null);
-    const mirrorConsole =
-      __DEV__ || process.env.EXPO_PUBLIC_DEBUG_SESSION_MIRROR === '1';
-    if (debugIngestUrl) {
-      void fetch(debugIngestUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Debug-Session-Id': '971882',
-        },
-        body: JSON.stringify({
-          sessionId: '971882',
-          runId: 'pre',
-          hypothesisId: 'H0',
-          location: 'app/_layout.tsx:appReady',
-          message: 'root ready ping (debug pipeline)',
-          data: { variant: getAppVariant(), remoteSync: isRemoteSyncEnabled() },
-          timestamp: Date.now(),
-        }),
-      }).catch((err: unknown) => {
-        if (__DEV__ || mirrorConsole) {
-          console.warn('[DEBUG_INGEST_FAIL_971882]', debugIngestUrl, err);
-        }
-      });
-    }
-    if (mirrorConsole) {
+    postDebugIngest(
+      'H0',
+      'app/_layout.tsx:appReady',
+      'root ready ping (debug pipeline)',
+      { variant: getAppVariant(), remoteSync: isRemoteSyncEnabled() },
+      'pre'
+    );
+    if (MIRROR_CONSOLE) {
       const ndjson = JSON.stringify({
         sessionId: '971882',
         runId: 'pre',
@@ -129,12 +142,28 @@ export default function RootLayout() {
 
   useEffect(() => {
     if (!appReady || !isUpdatePending) return;
+    // #region agent log
+    postDebugIngest(
+      'H4',
+      'app/_layout.tsx:useEffect:isUpdatePending',
+      'isUpdatePending triggered reloadAsync',
+      { appReady, isUpdatePending }
+    );
+    // #endregion
     void Updates.reloadAsync().catch(() => {});
   }, [appReady, isUpdatePending]);
 
   useEffect(() => {
     const run = () => useHuskoStore.getState().expireStalePendingOrders();
     run();
+    // #region agent log
+    postDebugIngest(
+      'H2',
+      'app/_layout.tsx:useEffect:ota-bootstrap',
+      'bootstrap checkAndReloadUpdatesAsync',
+      {}
+    );
+    // #endregion
     void checkAndReloadUpdatesAsync();
     tickRef.current = setInterval(run, 60_000);
     otaRef.current = setInterval(() => void checkAndReloadUpdatesAsync(), OTA_PERIODIC_CHECK_MS);
