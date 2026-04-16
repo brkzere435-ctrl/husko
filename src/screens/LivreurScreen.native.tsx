@@ -47,6 +47,7 @@ export default function LivreurScreenNative() {
   const forceRadarFallback = !mapsConfigured;
   const [nativeMapFailed, setNativeMapFailed] = useState(false);
   const [nativeMapReady, setNativeMapReady] = useState(false);
+  const [nativeMapLoaded, setNativeMapLoaded] = useState(false);
   const useRadarFallback = forceRadarFallback || nativeMapFailed;
 
   const LIVREUR_MAP_FAILSAFE_MS = 22_000;
@@ -56,6 +57,29 @@ export default function LivreurScreenNative() {
     const timer = setTimeout(() => setNativeMapFailed(true), LIVREUR_MAP_FAILSAFE_MS);
     return () => clearTimeout(timer);
   }, [nativeMapReady, useRadarFallback]);
+
+  const LIVREUR_MAP_LOADED_FAILSAFE_MS = 6500;
+  useEffect(() => {
+    if (useRadarFallback) return;
+    if (!nativeMapReady || nativeMapLoaded) return;
+    const timer = setTimeout(() => {
+      setNativeMapFailed(true);
+      // #region agent log
+      postDebugSession21424c({
+        hypothesisId: 'H5',
+        location: 'LivreurScreen.native:map-loaded-timeout',
+        message: 'map ready but never loaded; forcing radar fallback',
+        data: {
+          nativeMapReady,
+          nativeMapLoaded,
+          timeoutMs: LIVREUR_MAP_LOADED_FAILSAFE_MS,
+        },
+        runId: 'livreur-map',
+      });
+      // #endregion
+    }, LIVREUR_MAP_LOADED_FAILSAFE_MS);
+    return () => clearTimeout(timer);
+  }, [nativeMapLoaded, nativeMapReady, useRadarFallback]);
 
   /** Carte native : pas d’`animateToRegion` avant `onMapReady` (sinon GMS ignore / écran noir). */
   useEffect(() => {
@@ -232,6 +256,7 @@ export default function LivreurScreenNative() {
                 provider={Platform.OS === 'android' ? PROVIDER_GOOGLE : undefined}
                 onError={() => setNativeMapFailed(true)}
                 onMapReady={() => setNativeMapReady(true)}
+                onMapLoaded={() => setNativeMapLoaded(true)}
                 initialRegion={{
                   ...ANGERS_DEFAULT,
                   latitudeDelta: 0.012,

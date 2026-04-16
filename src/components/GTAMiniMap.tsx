@@ -56,6 +56,7 @@ export function GTAMiniMap({
   const safeRegion = useMemo(() => sanitizeMapRegion(region), [region]);
   const [nativeMapFailed, setNativeMapFailed] = useState(false);
   const [nativeMapReady, setNativeMapReady] = useState(false);
+  const [nativeMapLoaded, setNativeMapLoaded] = useState(false);
   /** Clé absente, échec runtime, ou appareil connu pour MapView noir (ex. Huawei) → radar GTA. */
   const useFallback =
     forceFallback || nativeMapFailed || !mapsConfigured || preferDeviceFallback;
@@ -73,6 +74,7 @@ export function GTAMiniMap({
         preferDeviceFallback,
         forceFallback,
         nativeMapReady,
+        nativeMapLoaded,
         nativeMapFailed,
         useFallback,
         hasDriver: !!driver,
@@ -86,6 +88,7 @@ export function GTAMiniMap({
     preferDeviceFallback,
     forceFallback,
     nativeMapReady,
+    nativeMapLoaded,
     nativeMapFailed,
     useFallback,
     driver,
@@ -113,6 +116,27 @@ export function GTAMiniMap({
     }, NATIVE_MAP_FAILSAFE_MS);
     return () => clearTimeout(timer);
   }, [debugRunId, nativeMapReady, nativeMapFailed, useFallback]);
+
+  /**
+   * Cas réel observé en prod: GMS répond "API token INVALID_ARGUMENT", MapView peut être "ready"
+   * mais rester visuellement noir. Si la carte n'est jamais "loaded", bascule proprement en radar.
+   */
+  const NATIVE_MAP_LOADED_FAILSAFE_MS = 6500;
+  useEffect(() => {
+    if (useFallback) return;
+    if (!nativeMapReady || nativeMapLoaded) return;
+    const timer = setTimeout(() => {
+      logMapDebug(
+        debugRunId,
+        'H3',
+        'GTAMiniMap.tsx:map-loaded-timeout',
+        'map ready but not loaded in time; fallback to radar',
+        { nativeMapReady, nativeMapLoaded, timeoutMs: NATIVE_MAP_LOADED_FAILSAFE_MS }
+      );
+      setNativeMapFailed(true);
+    }, NATIVE_MAP_LOADED_FAILSAFE_MS);
+    return () => clearTimeout(timer);
+  }, [debugRunId, nativeMapLoaded, nativeMapReady, useFallback]);
 
   /** Ne pas piloter `region` en prop : sur Android GMS se réinitialise / noircit si la région change à chaque render. */
   const mapRef = useRef<MapView | null>(null);
@@ -177,6 +201,12 @@ export function GTAMiniMap({
               nativeMapReadyBefore: nativeMapReady,
             });
             setNativeMapReady(true);
+          }}
+          onMapLoaded={() => {
+            logMapDebug(debugRunId, 'H4', 'GTAMiniMap.tsx:onMapLoaded', 'native map onMapLoaded fired', {
+              nativeMapLoadedBefore: nativeMapLoaded,
+            });
+            setNativeMapLoaded(true);
           }}
           initialRegion={safeRegion}
           rotateEnabled={false}
