@@ -213,41 +213,53 @@ export default function LivreurScreenNative() {
               </View>
             ) : null}
             {!useRadarFallback ? (
-              <MapView
-                ref={mainMapRef}
-                style={[styles.map, styles.mapBlend]}
-                provider={Platform.OS === 'android' ? PROVIDER_GOOGLE : undefined}
-                onError={() => setNativeMapFailed(true)}
-                onMapReady={() => setNativeMapReady(true)}
-                onMapLoaded={() => setNativeMapLoaded(true)}
-                initialRegion={{
-                  ...ANGERS_DEFAULT,
-                  latitudeDelta: 0.012,
-                  longitudeDelta: 0.012,
-                }}
-                rotateEnabled={false}
-                pitchEnabled={false}
-                showsUserLocation={false}
-                showsMyLocationButton={false}
-                loadingEnabled
-                toolbarEnabled={false}
-                mapType={Platform.OS === 'ios' ? 'mutedStandard' : 'standard'}
-              >
-                <Marker
-                  coordinate={HUSKO_DEPARTURE_HUB}
-                  zIndex={1}
-                  title="Husko · QG"
-                  pinColor={colors.accent}
-                />
-                {driver ? (
-                  <Marker
-                    coordinate={driver}
-                    zIndex={2}
-                    title={`Livreur · cap ${Math.round(driverHeading)}°`}
-                    pinColor={colors.posterRed}
+              <View style={styles.mapStack}>
+                <View style={styles.mapFallback} pointerEvents="none">
+                  <GTAMiniMapFallbackInterior
+                    region={region}
+                    driver={driver}
+                    headingDeg={driverHeading}
+                    departure={HUSKO_DEPARTURE_HUB}
+                    showDeparture
+                    showDest={false}
                   />
-                ) : null}
-              </MapView>
+                </View>
+                <MapView
+                  ref={mainMapRef}
+                  style={[styles.map, styles.mapBlend, !nativeMapLoaded && styles.mapHidden]}
+                  provider={Platform.OS === 'android' ? PROVIDER_GOOGLE : undefined}
+                  onError={() => setNativeMapFailed(true)}
+                  onMapReady={() => setNativeMapReady(true)}
+                  onMapLoaded={() => setNativeMapLoaded(true)}
+                  initialRegion={{
+                    ...ANGERS_DEFAULT,
+                    latitudeDelta: 0.012,
+                    longitudeDelta: 0.012,
+                  }}
+                  rotateEnabled={false}
+                  pitchEnabled={false}
+                  showsUserLocation={false}
+                  showsMyLocationButton={false}
+                  loadingEnabled
+                  toolbarEnabled={false}
+                  mapType={Platform.OS === 'ios' ? 'mutedStandard' : 'standard'}
+                >
+                  <Marker
+                    coordinate={HUSKO_DEPARTURE_HUB}
+                    zIndex={1}
+                    title="Husko · QG"
+                    pinColor={colors.accent}
+                  />
+                  {driver ? (
+                    <Marker
+                      coordinate={driver}
+                      zIndex={2}
+                      title={`Livreur · cap ${Math.round(driverHeading)}°`}
+                      pinColor={colors.posterRed}
+                    />
+                  ) : null}
+                </MapView>
+              </View>
             ) : null}
 
             <View style={styles.miniWrap} pointerEvents="box-none">
@@ -301,8 +313,10 @@ const styles = StyleSheet.create({
   },
   toolbarLabel: { fontFamily: FONT.bold, color: WC.neonCyan, fontSize: 13, letterSpacing: 1.2 },
   mapContainer: { flex: 1, position: 'relative' },
+  mapStack: { ...StyleSheet.absoluteFillObject },
   map: { ...StyleSheet.absoluteFillObject },
   mapBlend: { opacity: 0.8 },
+  mapHidden: { opacity: 0.01 },
   mapFallback: { ...StyleSheet.absoluteFillObject },
   miniWrap: {
     position: 'absolute',

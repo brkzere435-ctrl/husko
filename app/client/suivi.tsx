@@ -51,7 +51,6 @@ type MiniMapCanvasProps = {
   dest: Parameters<typeof GTAMiniMap>[0]['dest'];
   mapHudFooter: string;
   mapAccessibilityLabel: string;
-  mapForceFallback: boolean;
 };
 
 const MiniMapCanvas = memo(function MiniMapCanvas({
@@ -62,14 +61,13 @@ const MiniMapCanvas = memo(function MiniMapCanvas({
   dest,
   mapHudFooter,
   mapAccessibilityLabel,
-  mapForceFallback,
 }: MiniMapCanvasProps) {
   return (
     <View style={styles.mapNeonOuter} accessibilityRole="image" accessibilityLabel={mapAccessibilityLabel}>
       <GTAMiniMap
         size={mapSize}
         region={mapRegion}
-        forceFallback={mapForceFallback}
+        forceFallback={false}
         driver={driver}
         headingDeg={driverHeading}
         dest={dest}
@@ -281,7 +279,6 @@ export default function SuiviScreen() {
     }
     return 'Aperçu de carte : QG Husko et trajet';
   }, [mapTruth]);
-  const mapForceFallback = false;
   useEffect(() => {
     const now = Date.now();
     if (now - lastMapTruthProbeRef.current < 3000) return;
@@ -484,7 +481,6 @@ export default function SuiviScreen() {
                   <MiniMapCanvas
                     mapSize={mapSize}
                     mapRegion={mapRegion}
-                    mapForceFallback={mapForceFallback}
                     driver={driver}
                     driverHeading={driverHeading}
                     dest={dest}

@@ -46,10 +46,7 @@ export function GTAMiniMap({
   const [nativeMapReady, setNativeMapReady] = useState(false);
   const [nativeMapLoaded, setNativeMapLoaded] = useState(false);
   /** Clé absente, échec runtime, ou appareil connu pour MapView noir (ex. Huawei) → radar GTA. */
-  // Android: fallback seulement si explicitement demandé ou si la carte native échoue réellement.
-  const forceAndroidFallback = false;
-  const useFallback =
-    forceAndroidFallback || forceFallback || nativeMapFailed || !mapsConfigured || preferDeviceFallback;
+  const useFallback = forceFallback || nativeMapFailed || !mapsConfigured || preferDeviceFallback;
   const footerTag = useFallback ? `${hudFooter} · OSM` : hudFooter;
 
   /** Ne pas couper MapView avant chargement GMS : 3,5 s démontait la carte sur téléphones réels. */
@@ -86,12 +83,12 @@ export function GTAMiniMap({
     if (now - lastDecisionProbeRef.current < 3000) return;
     lastDecisionProbeRef.current = now;
     console.log(
-      `[DBG21424c][H5] mini map decision fallback=${String(useFallback)} androidForced=${String(forceAndroidFallback)} mapsConfigured=${String(mapsConfigured)} failed=${String(nativeMapFailed)} ready=${String(nativeMapReady)} loaded=${String(nativeMapLoaded)}`
+      `[DBG21424c][H5] mini map decision fallback=${String(useFallback)} mapsConfigured=${String(mapsConfigured)} failed=${String(nativeMapFailed)} ready=${String(nativeMapReady)} loaded=${String(nativeMapLoaded)}`
     );
     // #region agent log
-    fetch('http://127.0.0.1:7887/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'21424c'},body:JSON.stringify({sessionId:'21424c',runId:'gps-live-chain',hypothesisId:'H5',location:'src/components/GTAMiniMap.tsx:decision',message:'mini map fallback decision',data:{platform:Platform.OS,useFallback,forceAndroidFallback,mapsConfigured,nativeMapFailed,nativeMapReady,nativeMapLoaded},timestamp:Date.now()})}).catch(()=>{});
+    fetch('http://127.0.0.1:7887/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'21424c'},body:JSON.stringify({sessionId:'21424c',runId:'gps-live-chain',hypothesisId:'H5',location:'src/components/GTAMiniMap.tsx:decision',message:'mini map fallback decision',data:{platform:Platform.OS,useFallback,mapsConfigured,nativeMapFailed,nativeMapReady,nativeMapLoaded},timestamp:Date.now()})}).catch(()=>{});
     // #endregion
-  }, [forceAndroidFallback, mapsConfigured, nativeMapFailed, nativeMapLoaded, nativeMapReady, useFallback]);
+  }, [mapsConfigured, nativeMapFailed, nativeMapLoaded, nativeMapReady, useFallback]);
   useEffect(() => {
     if (useFallback || !nativeMapReady) return;
     const sig = [
@@ -136,58 +133,71 @@ export function GTAMiniMap({
   return (
     <View style={[elevation.hero, frameSize]} collapsable={false}>
       <GTAHudFrame size={size} footerTag={footerTag}>
-        <MapView
-          ref={mapRef}
-          style={styles.map}
-          collapsable={false}
-          provider={Platform.OS === 'android' ? PROVIDER_GOOGLE : undefined}
-          onError={() => setNativeMapFailed(true)}
-          onMapReady={() => setNativeMapReady(true)}
-          onMapLoaded={() => setNativeMapLoaded(true)}
-          initialRegion={safeRegion}
-          rotateEnabled={false}
-          pitchEnabled={false}
-          scrollEnabled={false}
-          zoomEnabled={false}
-          loadingEnabled
-          loadingBackgroundColor={colors.hudVoid}
-          loadingIndicatorColor={colors.gold}
-          toolbarEnabled={false}
-          mapType={Platform.OS === 'ios' ? 'mutedStandard' : 'standard'}
-        >
-          {showDeparture &&
-          departure &&
-          Number.isFinite(departure.latitude) &&
-          Number.isFinite(departure.longitude) ? (
-            <Marker
-              coordinate={departure}
-              zIndex={1}
-              title="Husko · QG"
-              anchor={{ x: 0.5, y: 1 }}
-              tracksViewChanges={false}
-            >
-              <HuskoDepartureBuilding size={34} />
-            </Marker>
-          ) : null}
-          {showDest && dest && Number.isFinite(dest.latitude) && Number.isFinite(dest.longitude) ? (
-            <Marker coordinate={dest} zIndex={2} pinColor={colors.accent} title="Livraison" />
-          ) : null}
-          {driver && Number.isFinite(driver.latitude) && Number.isFinite(driver.longitude) ? (
-            <Marker
-              coordinate={driver}
-              zIndex={3}
-              title={driverTitle}
-              pinColor={colors.posterRed}
-              rotation={headingDeg}
-              flat
-            />
-          ) : null}
-        </MapView>
+        <View style={styles.mapStack}>
+          <GTAMiniMapFallbackInterior
+            region={safeRegion}
+            driver={driver}
+            headingDeg={headingDeg}
+            dest={dest}
+            showDest={showDest}
+            departure={departure}
+            showDeparture={showDeparture}
+          />
+          <MapView
+            ref={mapRef}
+            style={[styles.map, !nativeMapLoaded && styles.mapHidden]}
+            collapsable={false}
+            provider={Platform.OS === 'android' ? PROVIDER_GOOGLE : undefined}
+            onError={() => setNativeMapFailed(true)}
+            onMapReady={() => setNativeMapReady(true)}
+            onMapLoaded={() => setNativeMapLoaded(true)}
+            initialRegion={safeRegion}
+            rotateEnabled={false}
+            pitchEnabled={false}
+            scrollEnabled={false}
+            zoomEnabled={false}
+            loadingEnabled
+            loadingBackgroundColor={colors.hudVoid}
+            loadingIndicatorColor={colors.gold}
+            toolbarEnabled={false}
+            mapType={Platform.OS === 'ios' ? 'mutedStandard' : 'standard'}
+          >
+            {showDeparture &&
+            departure &&
+            Number.isFinite(departure.latitude) &&
+            Number.isFinite(departure.longitude) ? (
+              <Marker
+                coordinate={departure}
+                zIndex={1}
+                title="Husko · QG"
+                anchor={{ x: 0.5, y: 1 }}
+                tracksViewChanges={false}
+              >
+                <HuskoDepartureBuilding size={34} />
+              </Marker>
+            ) : null}
+            {showDest && dest && Number.isFinite(dest.latitude) && Number.isFinite(dest.longitude) ? (
+              <Marker coordinate={dest} zIndex={2} pinColor={colors.accent} title="Livraison" />
+            ) : null}
+            {driver && Number.isFinite(driver.latitude) && Number.isFinite(driver.longitude) ? (
+              <Marker
+                coordinate={driver}
+                zIndex={3}
+                title={driverTitle}
+                pinColor={colors.posterRed}
+                rotation={headingDeg}
+                flat
+              />
+            ) : null}
+          </MapView>
+        </View>
       </GTAHudFrame>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  mapStack: { ...StyleSheet.absoluteFillObject },
   map: { ...StyleSheet.absoluteFillObject },
+  mapHidden: { opacity: 0.01 },
 });
