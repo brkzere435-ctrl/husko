@@ -6,7 +6,6 @@ import { CLIENT_BOOT_HERO } from '@/constants/brandingAssets';
 import { CLIENT_BOOT_DURATION_MS, CLIENT_BOOT_SKIP_HINT } from '@/constants/clientExperience';
 import { FONT } from '@/constants/fonts';
 import { colors, spacing } from '@/constants/theme';
-import { postCursorDebugIngest } from '@/utils/cursorDebugIngest';
 
 const BOOT_CONTENT_OFFSET = spacing.lg;
 export const CLIENT_BOOT_VISUAL_VERSION = '2026-04-08-flyer-fullscreen-v1';
@@ -30,35 +29,16 @@ export function ClientBootOverlay({ visible, onDone, variant = 'client' }: Props
   const doneRef = useRef(onDone);
   doneRef.current = onDone;
 
-  const emitBootLog = useCallback(
-    (hypothesisId: 'H1' | 'H2', location: string, message: string, data: Record<string, unknown>) => {
-      // #region agent log
-      postCursorDebugIngest({
-        runId: `boot-${Date.now().toString(36)}`,
-        hypothesisId,
-        location,
-        message,
-        data,
-      });
-      // #endregion
-    },
-    []
-  );
-
   const finish = useCallback((reason: 'timer' | 'press') => {
-    emitBootLog('H1', 'ClientBootOverlay.tsx:finish', 'boot overlay finish', { variant, reason });
+    void reason;
     doneRef.current();
-  }, [emitBootLog, variant]);
+  }, []);
 
   useEffect(() => {
     if (!visible) return;
-    emitBootLog('H1', 'ClientBootOverlay.tsx:useEffect', 'boot overlay visible', {
-      variant,
-      durationMs: CLIENT_BOOT_DURATION_MS,
-    });
     const t = setTimeout(() => finish('timer'), CLIENT_BOOT_DURATION_MS);
     return () => clearTimeout(t);
-  }, [visible, finish, emitBootLog, variant]);
+  }, [visible, finish]);
 
   if (!visible) return null;
 
@@ -83,15 +63,6 @@ export function ClientBootOverlay({ visible, onDone, variant = 'client' }: Props
           style={StyleSheet.absoluteFill}
           resizeMode="cover"
           blurRadius={10}
-          onLoad={() =>
-            emitBootLog('H2', 'ClientBootOverlay.tsx:bgImage:onLoad', 'boot background image loaded', { variant })
-          }
-          onError={(e) =>
-            emitBootLog('H2', 'ClientBootOverlay.tsx:bgImage:onError', 'boot background image failed', {
-              variant,
-              error: String(e?.nativeEvent?.error ?? 'unknown'),
-            })
-          }
         />
         <View style={styles.backTint} pointerEvents="none" />
         <View style={[styles.fill, { paddingTop: topPad }]}>
@@ -100,15 +71,6 @@ export function ClientBootOverlay({ visible, onDone, variant = 'client' }: Props
               source={CLIENT_BOOT_HERO}
               style={styles.poster}
               resizeMode="contain"
-              onLoad={() =>
-                emitBootLog('H2', 'ClientBootOverlay.tsx:poster:onLoad', 'boot poster image loaded', { variant })
-              }
-              onError={(e) =>
-                emitBootLog('H2', 'ClientBootOverlay.tsx:poster:onError', 'boot poster image failed', {
-                  variant,
-                  error: String(e?.nativeEvent?.error ?? 'unknown'),
-                })
-              }
             />
           </View>
           <View style={styles.bottomPanel}>

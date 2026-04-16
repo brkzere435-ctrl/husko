@@ -42,16 +42,9 @@ import {
 } from '@/services/orderNotifications';
 import type { Order } from '@/stores/useHuskoStore';
 import { pickTrackedDriverOrderId, useHuskoStore } from '@/stores/useHuskoStore';
-import Constants from 'expo-constants';
-
-import { postCursorDebugIngest } from '@/utils/cursorDebugIngest';
-import { emitBootDebugProbes, isBootDebugEnabled } from '@/utils/debugProbe';
-import { readHuskoExpoExtra } from '@/utils/readHuskoExpoExtra';
-import { installRenderLayoutDebugTap, logRootLayoutOnce } from '@/utils/debugRenderLayoutLogs';
 import { getAppVariant } from '@/constants/appVariant';
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
-const MIRROR_CONSOLE = __DEV__ || process.env.EXPO_PUBLIC_DEBUG_SESSION_MIRROR === '1';
 
 function pruneClientOrdersForTracking(orders: Order[]): Order[] {
   const now = Date.now();
@@ -82,33 +75,6 @@ export default function RootLayout() {
 
   useEffect(() => {
     if (!appReady) return;
-    installRenderLayoutDebugTap();
-    // #region agent log — POST uniquement si EXPO_PUBLIC_DEBUG_INGEST_URL (LAN) ou __DEV__ (localhost).
-    postCursorDebugIngest(
-      {
-        runId: 'pre',
-        hypothesisId: 'H0',
-        location: 'app/_layout.tsx:appReady',
-        message: 'root ready ping (debug pipeline)',
-        data: { variant: getAppVariant(), remoteSync: isRemoteSyncEnabled() },
-      },
-      { mirrorConsole: MIRROR_CONSOLE }
-    );
-    // #endregion
-    if (isBootDebugEnabled()) {
-      const cfg = Constants.expoConfig;
-      const extra = readHuskoExpoExtra();
-      const splash = cfg?.splash as { image?: string } | undefined;
-      emitBootDebugProbes({
-        icon: cfg?.icon,
-        splashImage: splash?.image,
-        adaptiveForeground: cfg?.android?.adaptiveIcon?.foregroundImage,
-        appVariant: String(extra.appVariant ?? ''),
-        mapsAndroidKeyOk: extra.mapsAndroidKeyOk === true,
-        mapsIosKeyOk: extra.mapsIosKeyOk === true,
-      });
-    }
-
     configureNotificationHandler();
     void SystemUI.setBackgroundColorAsync(colors.bg);
     void SplashScreen.hideAsync();
@@ -116,30 +82,12 @@ export default function RootLayout() {
 
   useEffect(() => {
     if (!appReady || !isUpdatePending || !OTA_RUNTIME_ENABLED) return;
-    // #region agent log
-    postCursorDebugIngest({
-      runId: `ota-pending-${Date.now().toString(36)}`,
-      hypothesisId: 'H4',
-      location: 'app/_layout.tsx:useEffect:isUpdatePending',
-      message: 'isUpdatePending triggered reloadAsync',
-      data: { appReady, isUpdatePending, otaRuntimeEnabled: OTA_RUNTIME_ENABLED },
-    });
-    // #endregion
     void Updates.reloadAsync().catch(() => {});
   }, [appReady, isUpdatePending]);
 
   useEffect(() => {
     const run = () => useHuskoStore.getState().expireStalePendingOrders();
     run();
-    // #region agent log
-    postCursorDebugIngest({
-      runId: `ota-bootstrap-${Date.now().toString(36)}`,
-      hypothesisId: 'H2',
-      location: 'app/_layout.tsx:useEffect:ota-bootstrap',
-      message: 'bootstrap checkAndReloadUpdatesAsync',
-      data: { otaRuntimeEnabled: OTA_RUNTIME_ENABLED },
-    });
-    // #endregion
     if (OTA_RUNTIME_ENABLED) {
       void checkAndReloadUpdatesAsync();
     }
@@ -228,13 +176,7 @@ export default function RootLayout() {
   }
 
   return (
-    <GestureHandlerRootView
-      style={{ flex: 1 }}
-      onLayout={(e) => {
-        const { width, height } = e.nativeEvent.layout;
-        logRootLayoutOnce(width, height);
-      }}
-    >
+    <GestureHandlerRootView style={{ flex: 1 }}>
     <SafeAreaProvider>
       <NetworkOfflineBanner visible={showOfflineBanner} />
       <PaperProvider theme={huskoPaperTheme}>

@@ -23,7 +23,6 @@ import { radius, spacing } from '@/constants/theme';
 import { VENUE_TAGLINE_CLIENT } from '@/constants/venue';
 import { clientStrings } from '@/constants/clientExperience';
 import { ORDER_STATUS_LABEL } from '@/constants/orderStatus';
-import { postCursorDebugIngest } from '@/utils/cursorDebugIngest';
 import { pickPrimaryActiveOrder, useHuskoStore } from '@/stores/useHuskoStore';
 
 const HERO_IMG = CLIENT_BOOT_HERO;
@@ -40,17 +39,6 @@ export default function ClientHomeScreen() {
       ? clientStrings.orderingClosedByRestaurant
       : clientStrings.orderingClosedHours;
   const tabBarReserve = 72;
-  const emitHomeHeroLog = (hypothesisId: 'H3', location: string, message: string, data: Record<string, unknown>) => {
-    // #region agent log
-    postCursorDebugIngest({
-      runId: `home-${Date.now().toString(36)}`,
-      hypothesisId,
-      location,
-      message,
-      data,
-    });
-    // #endregion
-  };
 
   return (
     <WestCoastBackground preset="client">
@@ -84,14 +72,6 @@ export default function ClientHomeScreen() {
                 source={HERO_IMG}
                 style={styles.heroImage}
                 contentFit="cover"
-                onLoad={() =>
-                  emitHomeHeroLog('H3', 'app/client/(tabs)/index.tsx:hero:onLoad', 'home hero image loaded', {})
-                }
-                onError={(e) =>
-                  emitHomeHeroLog('H3', 'app/client/(tabs)/index.tsx:hero:onError', 'home hero image failed', {
-                    error: String(e?.error ?? 'unknown'),
-                  })
-                }
               />
               <LinearGradient
                 colors={['transparent', 'rgba(5,4,8,0.85)']}

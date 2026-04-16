@@ -4,7 +4,6 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { colors, radius, spacing } from '@/constants/theme';
 import { openTechnicalFeedback } from '@/navigation/openTechnicalFeedback';
-import { logErrorBoundaryCatch } from '@/utils/debugRenderLayoutLogs';
 
 type Props = { children: ReactNode };
 
@@ -22,7 +21,6 @@ export class ErrorBoundary extends Component<Props, State> {
 
   componentDidCatch(error: Error, info: ErrorInfo): void {
     console.error('[ErrorBoundary]', error.message, info.componentStack);
-    logErrorBoundaryCatch(error, info);
   }
 
   render(): ReactNode {
