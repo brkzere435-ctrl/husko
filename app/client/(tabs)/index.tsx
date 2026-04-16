@@ -23,6 +23,7 @@ import { radius, spacing } from '@/constants/theme';
 import { VENUE_TAGLINE_CLIENT } from '@/constants/venue';
 import { clientStrings } from '@/constants/clientExperience';
 import { ORDER_STATUS_LABEL } from '@/constants/orderStatus';
+import { postCursorDebugIngest } from '@/utils/cursorDebugIngest';
 import { pickPrimaryActiveOrder, useHuskoStore } from '@/stores/useHuskoStore';
 
 const HERO_IMG = CLIENT_BOOT_HERO;
@@ -41,19 +42,13 @@ export default function ClientHomeScreen() {
   const tabBarReserve = 72;
   const emitHomeHeroLog = (hypothesisId: 'H3', location: string, message: string, data: Record<string, unknown>) => {
     // #region agent log
-    fetch('http://127.0.0.1:7887/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': '971882' },
-      body: JSON.stringify({
-        sessionId: '971882',
-        runId: `home-${Date.now().toString(36)}`,
-        hypothesisId,
-        location,
-        message,
-        data,
-        timestamp: Date.now(),
-      }),
-    }).catch(() => {});
+    postCursorDebugIngest({
+      runId: `home-${Date.now().toString(36)}`,
+      hypothesisId,
+      location,
+      message,
+      data,
+    });
     // #endregion
   };
 

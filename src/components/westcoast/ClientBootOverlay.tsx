@@ -6,6 +6,7 @@ import { CLIENT_BOOT_HERO } from '@/constants/brandingAssets';
 import { CLIENT_BOOT_DURATION_MS, CLIENT_BOOT_SKIP_HINT } from '@/constants/clientExperience';
 import { FONT } from '@/constants/fonts';
 import { colors, spacing } from '@/constants/theme';
+import { postCursorDebugIngest } from '@/utils/cursorDebugIngest';
 
 const BOOT_CONTENT_OFFSET = spacing.lg;
 export const CLIENT_BOOT_VISUAL_VERSION = '2026-04-08-flyer-fullscreen-v1';
@@ -32,19 +33,13 @@ export function ClientBootOverlay({ visible, onDone, variant = 'client' }: Props
   const emitBootLog = useCallback(
     (hypothesisId: 'H1' | 'H2', location: string, message: string, data: Record<string, unknown>) => {
       // #region agent log
-      fetch('http://127.0.0.1:7887/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': '971882' },
-        body: JSON.stringify({
-          sessionId: '971882',
-          runId: `boot-${Date.now().toString(36)}`,
-          hypothesisId,
-          location,
-          message,
-          data,
-          timestamp: Date.now(),
-        }),
-      }).catch(() => {});
+      postCursorDebugIngest({
+        runId: `boot-${Date.now().toString(36)}`,
+        hypothesisId,
+        location,
+        message,
+        data,
+      });
       // #endregion
     },
     []

@@ -1,29 +1,25 @@
 import { debugAgentLog } from '@/utils/debugAgentLog';
+import {
+  getCursorDebugIngestUrl,
+  getCursorDebugSessionId,
+  postCursorDebugIngest,
+  type CursorDebugIngestPayload,
+} from '@/utils/cursorDebugIngest';
 
-/** URL complète d’ingest (optionnel). Sans variable d’env, aucun POST réseau. */
-const ENV_INGEST_URL = process.env.EXPO_PUBLIC_DEBUG_INGEST_URL?.trim() ?? '';
-export const DEBUG_INGEST_URL = ENV_INGEST_URL;
-export const DEBUG_INGEST_SESSION_ID =
-  process.env.EXPO_PUBLIC_DEBUG_SESSION_ID?.trim() || 'husko';
+/** @deprecated Utiliser `postCursorDebugIngest` — conservé pour imports historiques. */
+export const DEBUG_INGEST_URL = process.env.EXPO_PUBLIC_DEBUG_INGEST_URL?.trim() ?? '';
+export const DEBUG_INGEST_SESSION_ID = getCursorDebugSessionId();
 
-type RuntimeIngestPayload = {
-  runId: string;
-  hypothesisId: string;
-  location: string;
-  message: string;
-  data?: Record<string, unknown>;
-};
+type RuntimeIngestPayload = CursorDebugIngestPayload;
 
-/**
- * Ingest debug session (ex. Cursor) — uniquement si `EXPO_PUBLIC_DEBUG_INGEST_URL` pointe vers le PC (LAN).
- */
+/** @deprecated Sessions hardcodées retirées — délègue à `postCursorDebugIngest`. */
 export function postSessionA64698Ingest(
   payload: Omit<RuntimeIngestPayload, 'runId'> & { runId?: string }
 ): void {
   const supportDebugEnabled =
     __DEV__ ||
     process.env.EXPO_PUBLIC_HUSKO_DEBUG_BOOT === '1' ||
-    ENV_INGEST_URL.length > 0;
+    DEBUG_INGEST_URL.length > 0;
   if (!supportDebugEnabled) return;
   if (__DEV__) {
     debugAgentLog({
@@ -33,37 +29,16 @@ export function postSessionA64698Ingest(
       data: {
         ...payload.data,
         runId: payload.runId,
-        huskoDebugSession: 'a64698',
       },
     });
   }
-  if (!ENV_INGEST_URL) return;
-  void fetch(ENV_INGEST_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-Debug-Session-Id': 'a64698',
-    },
-    body: JSON.stringify({
-      sessionId: 'a64698',
-      ...payload,
-      timestamp: Date.now(),
-    }),
-  }).catch(() => {});
+  if (!getCursorDebugIngestUrl()) return;
+  postCursorDebugIngest({
+    ...payload,
+    runId: payload.runId ?? `run-${Date.now().toString(36)}`,
+  });
 }
 
 export function postRuntimeDebugIngest(payload: RuntimeIngestPayload): void {
-  if (!ENV_INGEST_URL) return;
-  void fetch(ENV_INGEST_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-Debug-Session-Id': DEBUG_INGEST_SESSION_ID,
-    },
-    body: JSON.stringify({
-      sessionId: DEBUG_INGEST_SESSION_ID,
-      ...payload,
-      timestamp: Date.now(),
-    }),
-  }).catch(() => {});
+  postCursorDebugIngest(payload);
 }

@@ -3,10 +3,12 @@
  * Par défaut : actif seulement en __DEV__. En release : uniquement si EXPO_PUBLIC_HUSKO_DEBUG_BOOT=1 (build dédié).
  * Pas de requête réseau vers 127.0.0.1 en prod sans ce flag.
  */
+import { getCursorDebugSessionId } from '@/utils/cursorDebugIngest';
+
 const INGEST =
   process.env.EXPO_PUBLIC_DEBUG_INGEST_URL?.trim() ||
-  'http://127.0.0.1:7781/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42';
-const SESSION = process.env.EXPO_PUBLIC_DEBUG_SESSION_ID?.trim() || 'husko-boot';
+  'http://127.0.0.1:7887/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42';
+const SESSION = process.env.EXPO_PUBLIC_DEBUG_SESSION_ID?.trim() || getCursorDebugSessionId();
 
 export function isBootDebugEnabled(): boolean {
   if (__DEV__) return true;

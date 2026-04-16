@@ -30,6 +30,7 @@ import { HUSKO_DEPARTURE_HUB } from '@/constants/huskoDepartureHub';
 import { openTechnicalFeedback } from '@/navigation/openTechnicalFeedback';
 import { ANGERS_DEFAULT, useHuskoStore } from '@/stores/useHuskoStore';
 import { formatCloudSyncErrorForUser } from '@/utils/cloudSyncUserMessage';
+import { debugIngest4db8d8 } from '@/utils/debugIngest4db8d8';
 import { formatEuro } from '@/utils/formatEuro';
 import { geocodeAddress } from '@/utils/geocodeAddress';
 import { fitMapRegion } from '@/utils/fitMapRegion';
@@ -53,8 +54,6 @@ export default function PanierScreen() {
   const [address, setAddress] = useState('Angers centre');
   const [dialog, setDialog] = useState<
     | { type: 'empty' }
-    | { type: 'success'; orderId: string }
-    | { type: 'addressApproximate'; orderId: string }
     | { type: 'cloudRequired' }
     | { type: 'pushFailed' }
     | { type: 'serviceClosedManager' }
@@ -107,11 +106,35 @@ export default function PanierScreen() {
   }, [address]);
 
   async function checkout() {
+    // #region agent log
+    debugIngest4db8d8({
+      runId: 'checkout-flow',
+      hypothesisId: 'H1',
+      location: 'app/client/(tabs)/panier.tsx:checkout:start',
+      message: 'checkout started',
+      data: {
+        cartCount: cart.length,
+        cloudOk,
+        orderingAllowed,
+        addressLen: address.trim().length,
+        remoteServiceAccepting,
+      },
+    });
+    // #endregion
     if (!cart.length) {
       setDialog({ type: 'empty' });
       return;
     }
     if (!cloudOk) {
+      // #region agent log
+      debugIngest4db8d8({
+        runId: 'checkout-flow',
+        hypothesisId: 'H5',
+        location: 'app/client/(tabs)/panier.tsx:checkout:cloud-block',
+        message: 'checkout blocked because cloud sync disabled',
+        data: { cloudOk },
+      });
+      // #endregion
       setDialog({ type: 'cloudRequired' });
       return;
     }
@@ -152,15 +175,35 @@ export default function PanierScreen() {
 
       const order = await placeOrder(orderAddressLabel, targetDest);
       if (order) {
+        // #region agent log
+        debugIngest4db8d8({
+          runId: 'checkout-flow',
+          hypothesisId: 'H1',
+          location: 'app/client/(tabs)/panier.tsx:checkout:placeOrder-success',
+          message: 'placeOrder returned order',
+          data: {
+            orderId: order.id,
+            status: order.status,
+            usedApproximateDest,
+            targetLat: targetDest?.latitude ?? null,
+            targetLng: targetDest?.longitude ?? null,
+          },
+        });
+        // #endregion
         hapticSuccess();
-        setDialog(
-          usedApproximateDest
-            ? { type: 'addressApproximate', orderId: order.id }
-            : { type: 'success', orderId: order.id }
-        );
+        router.replace({ pathname: '/client/suivi', params: { orderId: order.id } });
       }
     } catch (e) {
       const msg = e instanceof Error ? e.message : '';
+      // #region agent log
+      debugIngest4db8d8({
+        runId: 'checkout-flow',
+        hypothesisId: 'H1',
+        location: 'app/client/(tabs)/panier.tsx:checkout:catch',
+        message: 'checkout failed',
+        data: { errorMessage: msg || 'unknown' },
+      });
+      // #endregion
       if (msg === 'SERVICE_CLOSED_MANAGER') setDialog({ type: 'serviceClosedManager' });
       else if (msg === 'SERVICE_CLOSED_HOURS') setDialog({ type: 'serviceClosedHours' });
       else if (msg === 'ADDRESS_GEOCODE_FAILED') setDialog({ type: 'addressGeocodeFailed' });
@@ -370,28 +413,6 @@ export default function PanierScreen() {
                 </Dialog.Actions>
               </>
             ) : null}
-            {dialog?.type === 'addressApproximate' ? (
-              <>
-                <Dialog.Title>Commande envoyée (position approximative)</Dialog.Title>
-                <Dialog.Content>
-                  <Text variant="bodyMedium">
-                    {`Votre commande ${dialog.orderId} est bien envoyée. L’adresse n’a pas pu être géolocalisée précisément: le suivi GPS sera approximatif tant que l’adresse n’est pas complétée.\n\n${PAYMENT_NOTICE_SHORT}`}
-                  </Text>
-                </Dialog.Content>
-                <Dialog.Actions>
-                  <Button onPress={() => setDialog(null)}>Fermer</Button>
-                  <Button
-                    mode="contained"
-                    onPress={() => {
-                      setDialog(null);
-                      router.replace('/client/suivi');
-                    }}
-                  >
-                    Voir le suivi
-                  </Button>
-                </Dialog.Actions>
-              </>
-            ) : null}
             {dialog?.type === 'pushFailed' ? (
               <>
                 <Dialog.Title>Envoi incomplet</Dialog.Title>
@@ -419,28 +440,6 @@ export default function PanierScreen() {
                     }}
                   >
                     Détail technique
-                  </Button>
-                </Dialog.Actions>
-              </>
-            ) : null}
-            {dialog?.type === 'success' ? (
-              <>
-                <Dialog.Title>{clientStrings.orderSentTitle}</Dialog.Title>
-                <Dialog.Content>
-                  <Text variant="bodyMedium">
-                    {`${clientStrings.orderSentMessage(dialog.orderId)}\n\n${PAYMENT_NOTICE_SHORT}`}
-                  </Text>
-                </Dialog.Content>
-                <Dialog.Actions>
-                  <Button onPress={() => setDialog(null)}>Fermer</Button>
-                  <Button
-                    mode="contained"
-                    onPress={() => {
-                      setDialog(null);
-                      router.replace('/client/suivi');
-                    }}
-                  >
-                    Voir le suivi
                   </Button>
                 </Dialog.Actions>
               </>

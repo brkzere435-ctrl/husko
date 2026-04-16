@@ -239,10 +239,14 @@ module.exports = (ctx = {}) => {
     googleMapsAndroidKey,
   });
 
-  /** HTTP vers IP LAN (ingest debug Cursor) : sans ça Android bloque le cleartext ; iOS exige ATS local. */
+  /** HTTP vers IP LAN / localhost (ingest debug Cursor, adb reverse) : sans ça Android bloque le cleartext. */
   const debugIngestUrl = (process.env.EXPO_PUBLIC_DEBUG_INGEST_URL || '').trim();
   const allowDebugHttpToLan =
     debugIngestUrl.length > 0 && debugIngestUrl.startsWith('http://');
+  /** Rebuild natif requis. Utile si l’URL ingest est ajoutée seulement après un APK sans cleartext. */
+  const allowDebugHttpFlag =
+    (process.env.EXPO_PUBLIC_DEBUG_ALLOW_HTTP || '').trim() === '1';
+  const allowDebugHttp = allowDebugHttpToLan || allowDebugHttpFlag;
 
   const android = {
     adaptiveIcon: {
@@ -258,7 +262,7 @@ module.exports = (ctx = {}) => {
         apiKey: googleMapsAndroidKey,
       },
     },
-    ...(allowDebugHttpToLan ? { usesCleartextTraffic: true } : {}),
+    ...(allowDebugHttp ? { usesCleartextTraffic: true } : {}),
   };
   if (hasGoogleServicesJson) {
     android.googleServicesFile = GOOGLE_SERVICES_REL;
@@ -276,7 +280,7 @@ module.exports = (ctx = {}) => {
         'Husko utilise votre position pour afficher la carte et le suivi de livraison.',
       NSLocationAlwaysAndWhenInUseUsageDescription:
         'Les livreurs ont besoin de la position pour la navigation et le suivi.',
-      ...(allowDebugHttpToLan
+      ...(allowDebugHttp
         ? {
             NSAppTransportSecurity: {
               NSAllowsLocalNetworking: true,

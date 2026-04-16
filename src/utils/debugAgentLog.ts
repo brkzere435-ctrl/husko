@@ -4,9 +4,11 @@
  * Sur téléphone physique, pointez l’URL vers le PC qui exécute l’ingest Cursor.
  * Désactiver tout : EXPO_PUBLIC_HUSKO_DISABLE_AGENT_DEBUG=1
  */
+import { getCursorDebugSessionId } from '@/utils/cursorDebugIngest';
+
 const AGENT_DEBUG_OFF = process.env.EXPO_PUBLIC_HUSKO_DISABLE_AGENT_DEBUG === '1';
 const INGEST_URL = process.env.EXPO_PUBLIC_DEBUG_INGEST_URL?.trim() ?? '';
-const SESSION_ID = process.env.EXPO_PUBLIC_DEBUG_SESSION_ID?.trim() || 'husko';
+const SESSION_ID = getCursorDebugSessionId();
 
 export type DebugAgentPayload = {
   location: string;

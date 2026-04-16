@@ -70,5 +70,13 @@ export function readHuskoExpoExtra(): HuskoExpoExtra {
       (merged as unknown as Record<string, string>)[k] = fallback;
     }
   }
+  // Flags Maps : un update OTA peut omettre `extra.maps*KeyOk` — ne pas repasser à « pas de clé »
+  // alors que l’APK embarque déjà une vraie clé native (sinon MapView jamais activée après OTA).
+  if (embedded.mapsAndroidKeyOk === true) {
+    merged.mapsAndroidKeyOk = true;
+  }
+  if (embedded.mapsIosKeyOk === true) {
+    merged.mapsIosKeyOk = true;
+  }
   return merged;
 }

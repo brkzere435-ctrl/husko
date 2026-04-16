@@ -18,4 +18,6 @@ export const clientSuiviVisual = {
   syncBannerBorder: 'rgba(252, 211, 77, 0.35)',
   syncErrorBorder: 'rgba(248, 113, 113, 0.5)',
   syncErrorBg: 'rgba(127, 29, 29, 0.22)',
+  syncWarnBorder: 'rgba(251, 191, 36, 0.45)',
+  syncWarnBg: 'rgba(120, 53, 15, 0.2)',
 } as const;

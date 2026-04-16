@@ -20,6 +20,7 @@ import type { MapRegion } from '@/types/mapRegion';
 import { HUSKO_DEPARTURE_HUB } from '@/constants/huskoDepartureHub';
 import { livreurScreenVisual } from '@/constants/livreurScreenVisual';
 import { ANGERS_DEFAULT, useHuskoStore } from '@/stores/useHuskoStore';
+import { postDebugSession21424c } from '@/utils/debugIngestSession21424c';
 import { fitMapRegion } from '@/utils/fitMapRegion';
 import { isMapsKeyConfiguredForPlatform } from '@/utils/mapsBuildInfo';
 
@@ -38,6 +39,8 @@ export default function LivreurScreenNative() {
 
   const subRef = useRef<Location.LocationSubscription | null>(null);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const mainMapRef = useRef<MapView | null>(null);
+  const lastMainMapCamAt = useRef(0);
   const [snack, setSnack] = useState('');
   const mapsConfigured = isMapsKeyConfiguredForPlatform();
   /** Mode pro: carte native dès que les clés Maps sont configurées, fallback seulement en secours. */
@@ -46,12 +49,24 @@ export default function LivreurScreenNative() {
   const [nativeMapReady, setNativeMapReady] = useState(false);
   const useRadarFallback = forceRadarFallback || nativeMapFailed;
 
+  const LIVREUR_MAP_FAILSAFE_MS = 22_000;
   useEffect(() => {
     if (useRadarFallback) return;
     if (nativeMapReady) return;
-    const timer = setTimeout(() => setNativeMapFailed(true), 3500);
+    const timer = setTimeout(() => setNativeMapFailed(true), LIVREUR_MAP_FAILSAFE_MS);
     return () => clearTimeout(timer);
   }, [nativeMapReady, useRadarFallback]);
+
+  /** Carte native : pas d’`animateToRegion` avant `onMapReady` (sinon GMS ignore / écran noir). */
+  useEffect(() => {
+    if (useRadarFallback || !nativeMapReady) return;
+    const now = Date.now();
+    if (lastMainMapCamAt.current > 0 && now - lastMainMapCamAt.current < 2000) return;
+    lastMainMapCamAt.current = now;
+    requestAnimationFrame(() => {
+      mainMapRef.current?.animateToRegion(region, 420);
+    });
+  }, [region, useRadarFallback, nativeMapReady]);
 
   useEffect(() => {
     let cancelled = false;
@@ -71,6 +86,15 @@ export default function LivreurScreenNative() {
       try {
         const { status } = await Location.requestForegroundPermissionsAsync();
         if (status !== 'granted') {
+          // #region agent log
+          postDebugSession21424c({
+            hypothesisId: 'H3',
+            location: 'LivreurScreen.native:start',
+            message: 'foreground location permission not granted',
+            data: { status, livreurOnline },
+            runId: 'livreur-gps',
+          });
+          // #endregion
           setSnack('Activez la localisation pour le suivi livreur.');
           return;
         }
@@ -98,6 +122,19 @@ export default function LivreurScreenNative() {
             applyLocation(lat, lng, heading);
           }
         );
+        // #region agent log
+        postDebugSession21424c({
+          hypothesisId: 'H3',
+          location: 'LivreurScreen.native:watchPositionAsync',
+          message: 'GPS watch active (livreur)',
+          data: {
+            livreurOnline,
+            primeLat: Math.round(lat0 * 1e4) / 1e4,
+            primeLng: Math.round(lng0 * 1e4) / 1e4,
+          },
+          runId: 'livreur-gps',
+        });
+        // #endregion
         if (pollRef.current) clearInterval(pollRef.current);
         pollRef.current = setInterval(() => {
           if (cancelled || !livreurOnline) return;
@@ -111,7 +148,19 @@ export default function LivreurScreenNative() {
             })
             .catch(() => {});
         }, 5000);
-      } catch {
+      } catch (e) {
+        // #region agent log
+        postDebugSession21424c({
+          hypothesisId: 'H5',
+          location: 'LivreurScreen.native:start',
+          message: 'GPS start threw',
+          data: {
+            livreurOnline,
+            err: e instanceof Error ? e.message : String(e),
+          },
+          runId: 'livreur-gps',
+        });
+        // #endregion
         setSnack('Impossible d’activer le GPS (services de localisation ?).');
       }
     }
@@ -178,12 +227,18 @@ export default function LivreurScreenNative() {
             ) : null}
             {!useRadarFallback ? (
               <MapView
+                ref={mainMapRef}
                 style={[styles.map, styles.mapBlend]}
                 provider={Platform.OS === 'android' ? PROVIDER_GOOGLE : undefined}
                 onError={() => setNativeMapFailed(true)}
                 onMapReady={() => setNativeMapReady(true)}
-                region={region}
-                onRegionChangeComplete={setRegion}
+                initialRegion={{
+                  ...ANGERS_DEFAULT,
+                  latitudeDelta: 0.012,
+                  longitudeDelta: 0.012,
+                }}
+                rotateEnabled={false}
+                pitchEnabled={false}
                 showsUserLocation={false}
                 showsMyLocationButton={false}
                 loadingEnabled

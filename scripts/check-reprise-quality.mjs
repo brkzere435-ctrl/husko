@@ -36,6 +36,12 @@ const checks = [
     error: 'Le suivi client doit utiliser la mini-map partagée.',
   },
   {
+    id: 'map.android.huawei-fallback',
+    file: join(root, 'src', 'utils', 'androidMapWorkaround.ts'),
+    test: (src) => src.includes('shouldPreferMiniMapFallback') && src.includes('huawei'),
+    error: 'Le contournement carte Huawei / radar doit rester présent.',
+  },
+  {
     id: 'livreur.gps.watchdog',
     file: join(root, 'src', 'screens', 'LivreurScreen.native.tsx'),
     test: (src) =>
@@ -47,8 +53,10 @@ const checks = [
   {
     id: 'layout.client.driver-scope',
     file: join(root, 'app', '_layout.tsx'),
-    test: (src) => src.includes("variant === 'client' && !driverOrderId"),
-    error: 'Le client doit ignorer le driver global sans commande suivie.',
+    test: (src) =>
+      !src.includes("variant === 'client' && !driverOrderId") &&
+      src.includes('subscribeToRemoteDriver(driverOrderId'),
+    error: 'Le client doit garder le listener driver actif (global + commande) pour éviter un suivi vide.',
   },
 ];
 

@@ -3,6 +3,7 @@ import { Alert, Platform } from 'react-native';
 
 import { notifyAppUpdateReady } from '@/services/orderNotifications';
 import { useHuskoStore } from '@/stores/useHuskoStore';
+import { getCursorDebugIngestUrl, getCursorDebugSessionId } from '@/utils/cursorDebugIngest';
 
 /** Vérification automatique en arrière-plan (toutes les N ms, app ouverte). */
 export const OTA_PERIODIC_CHECK_MS = 15 * 60 * 1000;
@@ -10,10 +11,7 @@ export const OTA_RUNTIME_ENABLED = process.env.EXPO_PUBLIC_OTA_ENABLED !== '0';
 
 /** Laisse le temps au système d’afficher la notification locale avant le reload. */
 const MS_AFTER_UPDATE_NOTIFICATION = 1400;
-const ENV_DEBUG_INGEST_URL = process.env.EXPO_PUBLIC_DEBUG_INGEST_URL?.trim();
-const OTA_DEBUG_INGEST_URL =
-  ENV_DEBUG_INGEST_URL ||
-  (__DEV__ ? 'http://127.0.0.1:7887/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42' : null);
+const OTA_DEBUG_INGEST_URL = getCursorDebugIngestUrl();
 
 type CheckMode = 'silent' | 'user';
 
@@ -43,11 +41,12 @@ function otaDebugLog(
 ) {
   if (!OTA_DEBUG_INGEST_URL) return;
   // #region agent log
+  const sessionId = getCursorDebugSessionId();
   fetch(OTA_DEBUG_INGEST_URL, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': '971882' },
+    headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': sessionId },
     body: JSON.stringify({
-      sessionId: '971882',
+      sessionId,
       runId,
       hypothesisId,
       location,

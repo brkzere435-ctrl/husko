@@ -19,7 +19,9 @@ Sur un **téléphone**, `127.0.0.1` désigne **l’appareil lui-même**, pas la 
 
 ### Ne pas confondre
 
-[`src/utils/debugProbe.ts`](../src/utils/debugProbe.ts) : sondes boot optionnelles (port **7781** / `EXPO_PUBLIC_DEBUG_INGEST_URL`), désactivées sauf flag explicite — distinct de tout outil d’éditeur.
+[`src/utils/debugProbe.ts`](../src/utils/debugProbe.ts) : sondes boot optionnelles (`EXPO_PUBLIC_DEBUG_INGEST_URL`, défaut localhost **7887**), désactivées sauf flag explicite — distinct de tout outil d’éditeur.
+
+**Ingest Cursor (`debug-eaf67a.log`) depuis un téléphone USB :** `npm run debug:ingest:reverse` puis `EXPO_PUBLIC_DEBUG_INGEST_URL=http://127.0.0.1:7887/ingest/…` dans `.env` (voir `env.example`).
 
 ## Pistes pratiques
 

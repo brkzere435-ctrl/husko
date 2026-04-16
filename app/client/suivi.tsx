@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import * as Linking from 'expo-linking';
-import { Link } from 'expo-router';
+import { Link, useLocalSearchParams } from 'expo-router';
 import { memo, useEffect, useMemo, useState } from 'react';
 import { Platform, Pressable, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { Card, Text } from 'react-native-paper';
@@ -37,9 +37,23 @@ import { pickPrimaryActiveOrder, useHuskoStore } from '@/stores/useHuskoStore';
 import { isRemoteSyncEnabled } from '@/services/firebaseRemote';
 import { formatEuro } from '@/utils/formatEuro';
 import { formatDriverPositionAgeFr } from '@/utils/formatDriverPositionAge';
+import { debugIngest9bf99d } from '@/utils/debugIngest9bf99d';
 import { fitMapRegion } from '@/utils/fitMapRegion';
+import { debugIngest4db8d8 } from '@/utils/debugIngest4db8d8';
 
+/** Au-delà : on n’affiche plus le libellé « LIVE » (évite « suivi live » avec point figé). */
+const DRIVER_LIVE_FRESH_MS = 2 * 60_000;
 const DRIVER_SIGNAL_STALE_MS = 10 * 60_000;
+
+function logSuiviDebug(
+  runId: string,
+  hypothesisId: 'H5',
+  location: string,
+  message: string,
+  data: Record<string, unknown>
+) {
+  debugIngest9bf99d({ runId, hypothesisId, location, message, data });
+}
 
 type MiniMapCanvasProps = {
   mapSize: number;
@@ -76,6 +90,8 @@ const MiniMapCanvas = memo(function MiniMapCanvas({
 });
 
 export default function SuiviScreen() {
+  const debugRunId = useMemo(() => `suivi-${Date.now().toString(36)}`, []);
+  const params = useLocalSearchParams<{ orderId?: string | string[] }>();
   const { width: windowW } = useWindowDimensions();
   const mapSize = Math.min(288, Math.max(220, windowW - spacing.md * 2 - spacing.lg * 2));
   const compactMapUi = windowW < 372;
@@ -90,7 +106,21 @@ export default function SuiviScreen() {
   const autonomousDemoEnabled = useHuskoStore((s) => s.autonomousDemoEnabled);
   const autonomousPacePreset = useHuskoStore((s) => s.autonomousPacePreset);
 
-  const active = useMemo(() => pickPrimaryActiveOrder(orders), [orders]);
+  const requestedOrderId = useMemo(() => {
+    const raw = params.orderId;
+    const v = Array.isArray(raw) ? raw[0] : raw;
+    return typeof v === 'string' && v.trim().length > 0 ? v.trim() : null;
+  }, [params.orderId]);
+
+  const active = useMemo(() => {
+    if (requestedOrderId) {
+      const explicit = orders.find(
+        (o) => o.id === requestedOrderId && o.status !== 'delivered' && o.status !== 'cancelled'
+      );
+      if (explicit) return explicit;
+    }
+    return pickPrimaryActiveOrder(orders);
+  }, [orders, requestedOrderId]);
 
   /** Dernière commande (liste triée : plus récente en premier). */
   const latestOrder = orders[0];
@@ -114,18 +144,25 @@ export default function SuiviScreen() {
     driverPositionUpdatedAt == null ? null : Math.max(0, nowMs - driverPositionUpdatedAt);
   const hasReliableDriverSignal =
     !!driverDot && driverSignalAgeMs != null && driverSignalAgeMs <= DRIVER_SIGNAL_STALE_MS;
+  const hasFreshLiveSignal =
+    hasReliableDriverSignal &&
+    driverSignalAgeMs != null &&
+    driverSignalAgeMs <= DRIVER_LIVE_FRESH_MS;
 
   /** Ne pas étiqueter « live » sans point GPS réel — évite le ressenti « faux suivi ». */
   const mapTruth = useMemo(() => {
     if (!active || active.status === 'delivered' || active.status === 'cancelled') return 'preview' as const;
-    if (hasReliableDriverSignal && (active.status === 'on_way' || active.status === 'awaiting_livreur')) {
-      return 'live' as const;
-    }
+    const tracking = active.status === 'on_way' || active.status === 'awaiting_livreur';
+    if (hasFreshLiveSignal && tracking) return 'live' as const;
+    if (hasReliableDriverSignal && !hasFreshLiveSignal && tracking) return 'position_stale' as const;
     if (active.status === 'on_way') return 'en_route_no_fix' as const;
     return 'preview' as const;
-  }, [active, hasReliableDriverSignal]);
+  }, [active, hasFreshLiveSignal, hasReliableDriverSignal]);
   const showLiveMap =
-    !!active && active.status !== 'delivered' && active.status !== 'cancelled' && mapTruth === 'live';
+    !!active &&
+    active.status !== 'delivered' &&
+    active.status !== 'cancelled' &&
+    (mapTruth === 'live' || mapTruth === 'position_stale');
   const showStaticMap =
     !!active && !showLiveMap && active.status !== 'delivered' && active.status !== 'cancelled';
 
@@ -152,36 +189,89 @@ export default function SuiviScreen() {
     return fitMapRegion(pts, 2);
   }, [driver]);
   const mapRegion = liveRegion ?? staticRegion ?? fallbackMapRegion;
+  useEffect(() => {
+    logSuiviDebug(debugRunId, 'H5', 'suivi.tsx:map-state', 'suivi map state snapshot', {
+      platform: Platform.OS,
+      activeStatus: active?.status ?? null,
+      mapTruth,
+      showLiveMap,
+      showStaticMap,
+      hasDriver: !!driverDot,
+      driverSignalAgeMs,
+      hasReliableDriverSignal,
+      hasFreshLiveSignal,
+      hasDest: !!dest,
+      mapRegion,
+      remoteOk,
+      cloudSyncListenError: cloudSyncListenError ?? null,
+    });
+  }, [
+    debugRunId,
+    active?.status,
+    mapTruth,
+    showLiveMap,
+    showStaticMap,
+    driverDot,
+    driverSignalAgeMs,
+    hasReliableDriverSignal,
+    hasFreshLiveSignal,
+    dest,
+    mapRegion,
+    remoteOk,
+    cloudSyncListenError,
+  ]);
   const mapKicker =
     mapTruth === 'live'
       ? 'LIVE'
-      : mapTruth === 'en_route_no_fix'
-        ? 'EN ROUTE'
-        : 'TRAJET';
+      : mapTruth === 'position_stale'
+        ? 'ATTENTE MAJ'
+        : active?.status === 'awaiting_livreur' || active?.status === 'preparing'
+          ? 'PREPARATION'
+        : mapTruth === 'en_route_no_fix'
+          ? 'EN ROUTE'
+          : 'TRAJET';
   const mapTitle =
     mapTruth === 'live'
       ? 'Livreur localisé'
-      : mapTruth === 'en_route_no_fix'
-        ? 'En route · signal GPS attendu'
-        : 'Trajet prévu';
+      : mapTruth === 'position_stale'
+        ? 'Dernière position connue'
+        : active?.status === 'awaiting_livreur' || active?.status === 'preparing'
+          ? 'Préparation en cours (QG Husko)'
+        : mapTruth === 'en_route_no_fix'
+          ? 'En route · signal GPS attendu'
+          : 'Trajet prévu';
   const mapSub =
     mapTruth === 'live'
       ? dest
-        ? 'Position reçue · QG vers ta livraison'
-        : 'Position reçue · adresse de livraison à confirmer'
-      : mapTruth === 'en_route_no_fix'
-        ? remoteOk
-          ? driverDot && driverSignalAgeMs != null && driverSignalAgeMs > DRIVER_SIGNAL_STALE_MS
-            ? 'Dernier signal trop ancien · attente d’une nouvelle position.'
-            : 'Le point apparaît dès qu’un GPS livreur fiable est reçu.'
-          : 'Pas de liaison cloud sur ce téléphone · suivi temps réel indisponible.'
-        : dest
-          ? 'QG Husko vers ton adresse · le live démarre en route.'
-          : 'Le trajet complet s’affiche dès que l’adresse est confirmée.';
+        ? 'Position récente · QG vers ta livraison'
+        : 'Position récente · adresse de livraison à confirmer'
+      : mapTruth === 'position_stale'
+        ? 'Le point ne s’est pas déplacé récemment — le libellé « live » exige un signal à jour (2 min max).'
+        : active?.status === 'awaiting_livreur' || active?.status === 'preparing'
+          ? 'Le bâtiment Husko (point H) reste la base de départ pendant la préparation.'
+        : mapTruth === 'en_route_no_fix'
+          ? remoteOk
+            ? driverDot && driverSignalAgeMs != null && driverSignalAgeMs > DRIVER_SIGNAL_STALE_MS
+              ? 'Dernier signal trop ancien · attente d’une nouvelle position.'
+              : 'Le point apparaît dès qu’un GPS livreur fiable est reçu.'
+            : 'Pas de liaison cloud sur ce téléphone · suivi temps réel indisponible.'
+          : dest
+            ? 'QG Husko vers ton adresse · le live démarre en route.'
+            : 'Le trajet complet s’affiche dès que l’adresse est confirmée.';
   const mapHudFooter =
-    mapTruth === 'live' ? 'HUSKO · SUIVI LIVE' : mapTruth === 'en_route_no_fix' ? 'EN ROUTE · GPS' : 'APERÇU PARCOURS';
+    mapTruth === 'live'
+      ? 'HUSKO · SUIVI LIVE'
+      : mapTruth === 'position_stale'
+        ? 'DERNIÈRE POS · PAS LIVE'
+        : mapTruth === 'en_route_no_fix'
+          ? 'EN ROUTE · GPS'
+          : 'APERÇU PARCOURS';
   const driverPositionLabel = useMemo(() => {
-    if (!driverDot || (mapTruth !== 'live' && mapTruth !== 'en_route_no_fix')) return null;
+    if (
+      !driverDot ||
+      (mapTruth !== 'live' && mapTruth !== 'en_route_no_fix' && mapTruth !== 'position_stale')
+    )
+      return null;
     if (driverPositionUpdatedAt == null) {
       return 'Dernière position : heure non dispo';
     }
@@ -223,11 +313,47 @@ export default function SuiviScreen() {
     if (mapTruth === 'live') {
       return 'Carte : QG, position livreur et adresse de livraison';
     }
+    if (mapTruth === 'position_stale') {
+      return 'Carte : dernière position livreur, mise à jour en attente';
+    }
     if (mapTruth === 'en_route_no_fix') {
       return 'Carte : trajet sans position livreur pour l’instant';
     }
     return 'Aperçu de carte : QG Husko et trajet';
   }, [mapTruth]);
+
+  useEffect(() => {
+    // #region agent log
+    debugIngest4db8d8({
+      runId: 'suivi-render-flow',
+      hypothesisId: 'H4',
+      location: 'app/client/suivi.tsx:active-map-state',
+      message: 'suivi computed active order and map state',
+      data: {
+        ordersCount: orders.length,
+        requestedOrderId,
+        requestedOrderFound: !!(requestedOrderId && active?.id === requestedOrderId),
+        activeOrderId: active?.id ?? null,
+        activeStatus: active?.status ?? null,
+        hasDest: !!dest,
+        showLiveMap,
+        showStaticMap,
+        mapTruth,
+        remoteOk,
+      },
+    });
+    // #endregion
+  }, [
+    orders.length,
+    requestedOrderId,
+    active?.id,
+    active?.status,
+    dest,
+    showLiveMap,
+    showStaticMap,
+    mapTruth,
+    remoteOk,
+  ]);
 
   const etaStepMs = useMemo(() => {
     if (remoteAutonomousDemo?.enabled) return remoteAutonomousDemo.stepMs;
@@ -309,6 +435,20 @@ export default function SuiviScreen() {
                   <Text style={styles.syncBannerBody}>
                     Vous êtes en route côté commande, mais aucune position n’arrive encore. Vérifiez le
                     réseau, l’app livreur ouverte, et que le livreur a bien pris la course.
+                  </Text>
+                </View>
+              ) : null}
+              {remoteOk && mapTruth === 'position_stale' ? (
+                <View style={[styles.syncBanner, styles.syncBannerWarn]}>
+                  <View style={styles.syncBannerHead}>
+                    <Ionicons name="time-outline" size={15} color={WC.neonOrange} />
+                    <Text style={styles.syncBannerTitle}>Pas de suivi « live » pour l’instant</Text>
+                  </View>
+                  <Text style={styles.syncBannerBody}>
+                    La dernière position date de plus de 2 minutes (ou le livreur est à l’arrêt). Le
+                    libellé LIVE n’apparaît que lorsque le GPS envoie un point récent. Si ça ne bouge pas,
+                    vérifiez que le livreur est en ligne, la localisation activée, et le réseau côté les deux
+                    téléphones.
                   </Text>
                 </View>
               ) : null}
@@ -577,6 +717,10 @@ const styles = StyleSheet.create({
   syncBannerError: {
     borderColor: clientSuiviVisual.syncErrorBorder,
     backgroundColor: clientSuiviVisual.syncErrorBg,
+  },
+  syncBannerWarn: {
+    borderColor: clientSuiviVisual.syncWarnBorder,
+    backgroundColor: clientSuiviVisual.syncWarnBg,
   },
   syncBannerTitle: {
     fontFamily: FONT.bold,

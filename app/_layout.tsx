@@ -40,48 +40,33 @@ import {
   configureNotificationHandler,
   notifyRemoteOrderStatusDiff,
 } from '@/services/orderNotifications';
+import type { Order } from '@/stores/useHuskoStore';
 import { pickTrackedDriverOrderId, useHuskoStore } from '@/stores/useHuskoStore';
 import Constants from 'expo-constants';
 
+import { debugIngest9bf99d } from '@/utils/debugIngest9bf99d';
+import { debugIngest4db8d8 } from '@/utils/debugIngest4db8d8';
+import { postDebugSession21424c } from '@/utils/debugIngestSession21424c';
+import { postCursorDebugIngest } from '@/utils/cursorDebugIngest';
 import { emitBootDebugProbes, isBootDebugEnabled } from '@/utils/debugProbe';
 import { readHuskoExpoExtra } from '@/utils/readHuskoExpoExtra';
 import { installRenderLayoutDebugTap, logRootLayoutOnce } from '@/utils/debugRenderLayoutLogs';
 import { getAppVariant } from '@/constants/appVariant';
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
-const DEFAULT_DEBUG_INGEST_URL = 'http://127.0.0.1:7887/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42';
-const ENV_DEBUG_INGEST_URL = process.env.EXPO_PUBLIC_DEBUG_INGEST_URL?.trim();
-const DEBUG_INGEST_URL = ENV_DEBUG_INGEST_URL || (__DEV__ ? DEFAULT_DEBUG_INGEST_URL : null);
 const MIRROR_CONSOLE = __DEV__ || process.env.EXPO_PUBLIC_DEBUG_SESSION_MIRROR === '1';
 
-function postDebugIngest(
-  hypothesisId: string,
-  location: string,
-  message: string,
-  data: Record<string, unknown>,
-  runId = `layout-${Date.now().toString(36)}`
-) {
-  if (!DEBUG_INGEST_URL) return;
-  void fetch(DEBUG_INGEST_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-Debug-Session-Id': '971882',
-    },
-    body: JSON.stringify({
-      sessionId: '971882',
-      runId,
-      hypothesisId,
-      location,
-      message,
-      data,
-      timestamp: Date.now(),
-    }),
-  }).catch((err: unknown) => {
-    if (__DEV__ || MIRROR_CONSOLE) {
-      console.warn('[DEBUG_INGEST_FAIL_971882]', DEBUG_INGEST_URL, err);
+function pruneClientOrdersForTracking(orders: Order[]): Order[] {
+  const now = Date.now();
+  const RECENT_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
+  const MAX_KEEP = 60;
+  const pruned = orders.filter((o) => {
+    if (o.status === 'pending' || o.status === 'preparing' || o.status === 'awaiting_livreur' || o.status === 'on_way') {
+      return true;
     }
+    return now - o.createdAt <= RECENT_WINDOW_MS;
   });
+  return pruned.slice(0, MAX_KEEP);
 }
 
 export default function RootLayout() {
@@ -97,30 +82,22 @@ export default function RootLayout() {
 
   const tickRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const otaRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const driverRemoteDebugLastRef = useRef(0);
 
   useEffect(() => {
     if (!appReady) return;
     installRenderLayoutDebugTap();
-    // #region agent log — pas de POST vers localhost en release APK (téléphone ≠ PC).
-    postDebugIngest(
-      'H0',
-      'app/_layout.tsx:appReady',
-      'root ready ping (debug pipeline)',
-      { variant: getAppVariant(), remoteSync: isRemoteSyncEnabled() },
-      'pre'
-    );
-    if (MIRROR_CONSOLE) {
-      const ndjson = JSON.stringify({
-        sessionId: '971882',
+    // #region agent log — POST uniquement si EXPO_PUBLIC_DEBUG_INGEST_URL (LAN) ou __DEV__ (localhost).
+    postCursorDebugIngest(
+      {
         runId: 'pre',
         hypothesisId: 'H0',
         location: 'app/_layout.tsx:appReady',
-        message: 'root ready ping (metro mirror — paste if debug-971882.log missing)',
+        message: 'root ready ping (debug pipeline)',
         data: { variant: getAppVariant(), remoteSync: isRemoteSyncEnabled() },
-        timestamp: Date.now(),
-      });
-      console.log('[DEBUG_NDJSON_971882]', ndjson);
-    }
+      },
+      { mirrorConsole: MIRROR_CONSOLE }
+    );
     // #endregion
     if (isBootDebugEnabled()) {
       const cfg = Constants.expoConfig;
@@ -144,12 +121,13 @@ export default function RootLayout() {
   useEffect(() => {
     if (!appReady || !isUpdatePending || !OTA_RUNTIME_ENABLED) return;
     // #region agent log
-    postDebugIngest(
-      'H4',
-      'app/_layout.tsx:useEffect:isUpdatePending',
-      'isUpdatePending triggered reloadAsync',
-      { appReady, isUpdatePending, otaRuntimeEnabled: OTA_RUNTIME_ENABLED }
-    );
+    postCursorDebugIngest({
+      runId: `ota-pending-${Date.now().toString(36)}`,
+      hypothesisId: 'H4',
+      location: 'app/_layout.tsx:useEffect:isUpdatePending',
+      message: 'isUpdatePending triggered reloadAsync',
+      data: { appReady, isUpdatePending, otaRuntimeEnabled: OTA_RUNTIME_ENABLED },
+    });
     // #endregion
     void Updates.reloadAsync().catch(() => {});
   }, [appReady, isUpdatePending]);
@@ -158,12 +136,13 @@ export default function RootLayout() {
     const run = () => useHuskoStore.getState().expireStalePendingOrders();
     run();
     // #region agent log
-    postDebugIngest(
-      'H2',
-      'app/_layout.tsx:useEffect:ota-bootstrap',
-      'bootstrap checkAndReloadUpdatesAsync',
-      { otaRuntimeEnabled: OTA_RUNTIME_ENABLED }
-    );
+    postCursorDebugIngest({
+      runId: `ota-bootstrap-${Date.now().toString(36)}`,
+      hypothesisId: 'H2',
+      location: 'app/_layout.tsx:useEffect:ota-bootstrap',
+      message: 'bootstrap checkAndReloadUpdatesAsync',
+      data: { otaRuntimeEnabled: OTA_RUNTIME_ENABLED },
+    });
     // #endregion
     if (OTA_RUNTIME_ENABLED) {
       void checkAndReloadUpdatesAsync();
@@ -186,18 +165,80 @@ export default function RootLayout() {
   }, []);
 
   useEffect(() => {
-    if (!isRemoteSyncEnabled()) return;
+    const remoteOk = isRemoteSyncEnabled();
     const variant = getAppVariant();
-    // Livreur : la position vient du GPS local (setDriver + push Firestore). Écouter meta/driver
-    // réinjecte une copie distante souvent périmée (stale) et peut effacer le marqueur.
-    if (variant === 'livreur') {
+    /** Ne pas couper le flux client quand `driverOrderId` est encore null : même logique que l’APK hub (`all`) — écoute au minimum `meta/driver`. */
+    const skipReason = !remoteOk ? 'remote_off' : variant === 'livreur' ? 'livreur_local_gps' : null;
+
+    if (skipReason !== null) {
+      // #region agent log
+      debugIngest9bf99d({
+        runId: `driver-gate-${driverOrderId ?? 'none'}`,
+        hypothesisId: 'H3',
+        location: 'app/_layout.tsx:subscribeToRemoteDriver:gate',
+        message: 'driver remote listener skipped',
+        data: { skipReason, variant, driverOrderId, remoteOk },
+      });
+      postDebugSession21424c({
+        hypothesisId: skipReason === 'remote_off' ? 'H1' : 'H3',
+        location: 'app/_layout.tsx:subscribeToRemoteDriver:gate',
+        message: 'driver remote listener skipped (21424c)',
+        data: { skipReason, variant, driverOrderId, remoteOk },
+        runId: 'layout-driver-gate',
+      });
+      // #endregion
+      if (!remoteOk) return;
+      if (variant === 'livreur') return;
       return;
     }
-    // Client sans commande suivie : ne pas écouter le pilote global Firestore (reprise qualité + pas de « fantôme »).
-    if (variant === 'client' && !driverOrderId) {
-      return;
-    }
+
+    // #region agent log
+    debugIngest9bf99d({
+      runId: `driver-sub-${driverOrderId ?? 'global'}`,
+      hypothesisId: 'H3',
+      location: 'app/_layout.tsx:subscribeToRemoteDriver:subscribe',
+      message: 'driver remote listener active',
+      data: { variant, driverOrderId, remoteOk },
+    });
+    postDebugSession21424c({
+      hypothesisId: 'H3',
+      location: 'app/_layout.tsx:subscribeToRemoteDriver:subscribe',
+      message: 'driver remote listener active (21424c)',
+      data: { variant, driverOrderId, remoteOk },
+      runId: 'layout-driver-sub',
+    });
+    // #endregion
+
     const unsubDriver = subscribeToRemoteDriver(driverOrderId, (driver, driverHeading, updatedAt) => {
+      const t = Date.now();
+      if (t - driverRemoteDebugLastRef.current >= 7000) {
+        driverRemoteDebugLastRef.current = t;
+        // #region agent log
+        debugIngest9bf99d({
+          runId: `driver-tick-${driverOrderId ?? 'global'}`,
+          hypothesisId: 'H3',
+          location: 'app/_layout.tsx:subscribeToRemoteDriver:callback',
+          message: 'remote driver snapshot applied to store',
+          data: {
+            hasDriver: !!driver,
+            updatedAt,
+            headingRounded: Math.round(driverHeading),
+          },
+        });
+        postDebugSession21424c({
+          hypothesisId: 'H4',
+          location: 'app/_layout.tsx:subscribeToRemoteDriver:callback',
+          message: 'remote driver applied to zustand (21424c)',
+          data: {
+            driverOrderId,
+            hasDriver: !!driver,
+            updatedAt,
+            headingRounded: Math.round(driverHeading),
+          },
+          runId: 'layout-driver-callback',
+        });
+        // #endregion
+      }
       useHuskoStore.setState({ driver, driverHeading, driverPositionUpdatedAt: updatedAt });
     });
     return () => {
@@ -209,11 +250,30 @@ export default function RootLayout() {
     if (!isRemoteSyncEnabled()) return;
     const unsubOrders = subscribeToRemoteOrders(
       (remoteOrders, meta) => {
+        const variant = getAppVariant();
         useHuskoStore.setState((state) => {
           const merged = mergeRemoteOrdersWithLocal(remoteOrders, state.orders);
-          void notifyRemoteOrderStatusDiff(state.orders, merged, state.notificationsEnabled);
+          const nextOrders = variant === 'client' ? pruneClientOrdersForTracking(merged) : merged;
+          // #region agent log
+          debugIngest4db8d8({
+            runId: 'remote-orders-flow',
+            hypothesisId: 'H2',
+            location: 'app/_layout.tsx:subscribeToRemoteOrders:merge',
+            message: 'remote orders merged into local store',
+            data: {
+              variant,
+              remoteCount: remoteOrders.length,
+              localCount: state.orders.length,
+              mergedCount: merged.length,
+              nextCount: nextOrders.length,
+              firstRemoteStatus: remoteOrders[0]?.status ?? null,
+              firstMergedStatus: nextOrders[0]?.status ?? null,
+            },
+          });
+          // #endregion
+          void notifyRemoteOrderStatusDiff(state.orders, nextOrders, state.notificationsEnabled);
           return {
-            orders: merged,
+            orders: nextOrders,
             cloudSyncListenError: null,
             ordersSyncDebug: {
               updatedAt: Date.now(),
