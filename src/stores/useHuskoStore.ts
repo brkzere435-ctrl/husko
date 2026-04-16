@@ -19,7 +19,6 @@ import {
 } from '@/services/firebaseRemote';
 import { isClientOrderingAllowed } from '@/constants/hours';
 import { normalizeOrderStatus } from '@/utils/orderNormalize';
-import { debugIngest4db8d8 } from '@/utils/debugIngest4db8d8';
 import { PENDING_VALIDATION_MS } from '@/constants/orderPolicy';
 import {
   notifyClientDelivered,
@@ -292,15 +291,6 @@ export const useHuskoStore = create<State>()(
           destLng: dest.longitude,
         };
         set((s) => ({ orders: [order, ...s.orders], cart: [] }));
-        // #region agent log
-        debugIngest4db8d8({
-          runId: 'store-order-flow',
-          hypothesisId: 'H2',
-          location: 'src/stores/useHuskoStore.ts:placeOrder:local-set',
-          message: 'order inserted in local store before remote push',
-          data: { orderId: order.id, status: order.status },
-        });
-        // #endregion
         try {
           await remotePushOrder(order);
           set({ cloudSyncWriteError: null });

@@ -11,7 +11,6 @@ import {
 import { Platform } from 'react-native';
 
 import type { LatLng, Order } from '@/stores/useHuskoStore';
-import { postDebugSession21424c } from '@/utils/debugIngestSession21424c';
 import { coerceOrderFromRemote } from '@/utils/orderNormalize';
 import { readHuskoExpoExtra } from '@/utils/readHuskoExpoExtra';
 
@@ -35,8 +34,6 @@ const ORDER_TRACKING_COLLECTION = 'tracking';
 const ORDER_TRACKING_DRIVER_DOC = 'driverLive';
 let lastDriverPushAt = 0;
 let lastDriverPushOrderId: string | null = null;
-let last21424cPushLogAt = 0;
-let last21424cEmitBestLogAt = 0;
 /** Dernier point réellement écrit sur Firestore — évite de rafraîchir `updatedAt` si le GPS ne bouge pas (sinon le client croit à un flux « live » figé). */
 let lastDriverWriteSample: { lat: number; lng: number; orderId: string | null } | null = null;
 const DRIVER_WRITE_COORD_EPS = 0.00003; // ~3 m
@@ -246,30 +243,8 @@ function remotePushDriverNow(pos: LatLng | null, heading: number, orderId: strin
       lastDriverWriteSample = null;
     }
   };
-  const logPush21424c = () => {
-    const t = Date.now();
-    if (t - last21424cPushLogAt < 5000) return;
-    last21424cPushLogAt = t;
-    // #region agent log
-    postDebugSession21424c({
-      hypothesisId: 'H2',
-      location: 'firebaseRemote.ts:remotePushDriverNow',
-      message: 'Firestore driver write completed',
-      data: {
-        orderId: normalizedOrderId,
-        hasPos: pos != null,
-        latRounded: pos != null ? Math.round(pos.latitude * 1e4) / 1e4 : null,
-        lngRounded: pos != null ? Math.round(pos.longitude * 1e4) / 1e4 : null,
-      },
-      runId: 'driver-push',
-    });
-    // #endregion
-  };
   if (normalizedOrderId == null) {
-    return setDoc(doc(firestore, 'meta', 'driver'), payload, { merge: true }).then(() => {
-      afterWrite();
-      logPush21424c();
-    });
+    return setDoc(doc(firestore, 'meta', 'driver'), payload, { merge: true }).then(afterWrite);
   }
   return Promise.all([
     setDoc(doc(firestore, 'meta', 'driver'), payload, { merge: true }),
@@ -279,10 +254,7 @@ function remotePushDriverNow(pos: LatLng | null, heading: number, orderId: strin
       payload,
       { merge: true }
     ),
-  ]).then(() => {
-    afterWrite();
-    logPush21424c();
-  });
+  ]).then(afterWrite);
 }
 
 /** Évite trop d’écritures Firestore pendant le suivi GPS. */
@@ -360,6 +332,13 @@ type DriverSnapshot = {
   orderId: string | null;
 };
 
+type DriverSnapshotSource = 'orderTracking' | 'orderMeta' | 'global';
+
+type DriverSnapshotCandidate = {
+  source: DriverSnapshotSource;
+  snapshot: DriverSnapshot;
+};
+
 function parseDriverSnapshot(raw: unknown): DriverSnapshot | null {
   if (!raw || typeof raw !== 'object') return null;
   const d = raw as Record<string, unknown>;
@@ -391,83 +370,54 @@ export function subscribeToRemoteDriver(
   let orderSnapshot: DriverSnapshot | null = null;
   let globalSnapshot: DriverSnapshot | null = null;
 
-  const logEmitBest21424c = (
-    branch: string,
-    extra: Record<string, unknown>
-  ) => {
-    const t = Date.now();
-    if (t - last21424cEmitBestLogAt < 4500) return;
-    last21424cEmitBestLogAt = t;
-    // #region agent log
-    postDebugSession21424c({
-      hypothesisId: 'H4',
-      location: 'firebaseRemote.ts:subscribeToRemoteDriver:emitBest',
-      message: 'merged remote driver snapshots',
-      data: {
-        branch,
-        normalizedOrderId,
-        ...extra,
-      },
-      runId: 'emitBest',
-    });
-    // #endregion
-  };
-
   const emitBest = () => {
-    const candidates = [orderTrackingSnapshot, orderSnapshot, globalSnapshot].filter(
-      (s): s is DriverSnapshot => s !== null && !isDriverSnapshotStale(s)
-    );
+    const candidates: DriverSnapshotCandidate[] = [
+      orderTrackingSnapshot != null ? { source: 'orderTracking', snapshot: orderTrackingSnapshot } : null,
+      orderSnapshot != null ? { source: 'orderMeta', snapshot: orderSnapshot } : null,
+      globalSnapshot != null ? { source: 'global', snapshot: globalSnapshot } : null,
+    ].filter((s): s is DriverSnapshotCandidate => s !== null && !isDriverSnapshotStale(s.snapshot));
     if (candidates.length === 0) {
-      logEmitBest21424c('no_fresh_candidates', {
-        hasOrderTracking: orderTrackingSnapshot != null,
-        hasOrderMeta: orderSnapshot != null,
-        hasGlobal: globalSnapshot != null,
-      });
       onDriver(null, 0, null);
       return;
     }
     // Priorité: snapshot qui matche la commande suivie, sinon le plus frais.
     if (normalizedOrderId) {
-      // Le doc `orders/{id}/tracking/driverLive` est déjà scopé par commande : il prime sur meta/driver
-      // quand le champ `orderId` dans le payload est absent ou incohérent (évite suivi vide à tort).
-      if (orderTrackingSnapshot != null && !isDriverSnapshotStale(orderTrackingSnapshot)) {
-        logEmitBest21424c('tracking_subcollection_authoritative', { candidateCount: candidates.length });
-        onDriver(
-          orderTrackingSnapshot.driver,
-          orderTrackingSnapshot.heading,
-          orderTrackingSnapshot.updatedAt
-        );
-        return;
-      }
-      const matching = candidates.find((s) => s.orderId === normalizedOrderId);
-      if (matching) {
-        logEmitBest21424c('matched_orderId', { candidateCount: candidates.length });
-        onDriver(matching.driver, matching.heading, matching.updatedAt);
-        return;
-      }
-      const unknownOrder = candidates.find((s) => s.orderId == null);
-      if (unknownOrder) {
-        // Tolérance: certains snapshots valides n'embarquent pas orderId.
-        // On garde le point frais tant qu'aucune autre commande explicite ne correspond.
-        logEmitBest21424c('tolerate_missing_orderId_on_snapshot', { candidateCount: candidates.length });
-        onDriver(unknownOrder.driver, unknownOrder.heading, unknownOrder.updatedAt);
+      const eligible = candidates.filter(({ source, snapshot }) => {
+        if (source === 'orderTracking') return true;
+        if (snapshot.orderId === normalizedOrderId) return true;
+        if (snapshot.orderId == null) return true;
+        return false;
+      });
+      const rankSource = (source: DriverSnapshotSource): number => {
+        if (source === 'orderTracking') return 3;
+        if (source === 'orderMeta') return 2;
+        return 1;
+      };
+      const pickFreshest = (list: DriverSnapshotCandidate[]): DriverSnapshotCandidate | null => {
+        if (list.length === 0) return null;
+        return list.reduce((best, cur) => {
+          const bestTs = best.snapshot.updatedAt ?? 0;
+          const curTs = cur.snapshot.updatedAt ?? 0;
+          if (curTs > bestTs) return cur;
+          if (curTs < bestTs) return best;
+          return rankSource(cur.source) > rankSource(best.source) ? cur : best;
+        });
+      };
+      const selected = pickFreshest(eligible);
+      if (selected) {
+        onDriver(selected.snapshot.driver, selected.snapshot.heading, selected.snapshot.updatedAt);
         return;
       }
       // Empêche un "suivi irréel" en affichant la position d'une autre commande.
-      logEmitBest21424c('blocked_mismatch_orderId', {
-        candidateCount: candidates.length,
-        sampleOrderIds: candidates.map((c) => c.orderId),
-      });
       onDriver(null, 0, null);
       return;
     }
     const freshest = candidates.reduce((best, cur) => {
-      const bestTs = best.updatedAt ?? 0;
-      const curTs = cur.updatedAt ?? 0;
+      const bestTs = best.snapshot.updatedAt ?? 0;
+      const curTs = cur.snapshot.updatedAt ?? 0;
       return curTs >= bestTs ? cur : best;
     });
-    logEmitBest21424c('freshest_without_order_filter', { candidateCount: candidates.length });
-    onDriver(freshest.driver, freshest.heading, freshest.updatedAt);
+    onDriver(freshest.snapshot.driver, freshest.snapshot.heading, freshest.snapshot.updatedAt);
   };
 
   const unsubGlobal = onSnapshot(
@@ -478,17 +428,6 @@ export function subscribeToRemoteDriver(
     },
     (err) => {
       if (__DEV__) console.warn('[Husko Firestore driver/global]', err.message);
-      // #region agent log
-      postDebugSession21424c({
-        hypothesisId: 'H5',
-        location: 'firebaseRemote.ts:onSnapshot:meta/driver',
-        message: String(err instanceof Error ? err.message : err),
-        data: { source: 'global' },
-        runId: 'fs-driver-err',
-      });
-      // #endregion
-      // Garde le dernier snapshot valide pour éviter une disparition immédiate
-      // du livreur sur une erreur réseau transitoire du listener Firestore.
       emitBest();
     }
   );
@@ -508,15 +447,6 @@ export function subscribeToRemoteDriver(
     },
     (err) => {
       if (__DEV__) console.warn('[Husko Firestore driver/orderTracking]', err.message);
-      // #region agent log
-      postDebugSession21424c({
-        hypothesisId: 'H5',
-        location: 'firebaseRemote.ts:onSnapshot:orders/.../tracking/driverLive',
-        message: String(err instanceof Error ? err.message : err),
-        data: { source: 'orderTracking', orderId: trackedOrderId },
-        runId: 'fs-driver-err',
-      });
-      // #endregion
       emitBest();
     }
   );
@@ -529,15 +459,6 @@ export function subscribeToRemoteDriver(
     },
     (err) => {
       if (__DEV__) console.warn('[Husko Firestore driver/order]', err.message);
-      // #region agent log
-      postDebugSession21424c({
-        hypothesisId: 'H5',
-        location: 'firebaseRemote.ts:onSnapshot:meta/driver_order_*',
-        message: String(err instanceof Error ? err.message : err),
-        data: { source: 'orderMeta', orderDocName },
-        runId: 'fs-driver-err',
-      });
-      // #endregion
       emitBest();
     }
   );

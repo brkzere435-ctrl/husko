@@ -20,7 +20,6 @@ import type { MapRegion } from '@/types/mapRegion';
 import { HUSKO_DEPARTURE_HUB } from '@/constants/huskoDepartureHub';
 import { livreurScreenVisual } from '@/constants/livreurScreenVisual';
 import { ANGERS_DEFAULT, useHuskoStore } from '@/stores/useHuskoStore';
-import { postDebugSession21424c } from '@/utils/debugIngestSession21424c';
 import { fitMapRegion } from '@/utils/fitMapRegion';
 import { isMapsKeyConfiguredForPlatform } from '@/utils/mapsBuildInfo';
 
@@ -44,7 +43,7 @@ export default function LivreurScreenNative() {
   const [snack, setSnack] = useState('');
   const mapsConfigured = isMapsKeyConfiguredForPlatform();
   /** Mode pro: carte native dès que les clés Maps sont configurées, fallback seulement en secours. */
-  const forceRadarFallback = !mapsConfigured;
+  const forceRadarFallback = Platform.OS === 'android' || !mapsConfigured;
   const [nativeMapFailed, setNativeMapFailed] = useState(false);
   const [nativeMapReady, setNativeMapReady] = useState(false);
   const [nativeMapLoaded, setNativeMapLoaded] = useState(false);
@@ -64,19 +63,6 @@ export default function LivreurScreenNative() {
     if (!nativeMapReady || nativeMapLoaded) return;
     const timer = setTimeout(() => {
       setNativeMapFailed(true);
-      // #region agent log
-      postDebugSession21424c({
-        hypothesisId: 'H5',
-        location: 'LivreurScreen.native:map-loaded-timeout',
-        message: 'map ready but never loaded; forcing radar fallback',
-        data: {
-          nativeMapReady,
-          nativeMapLoaded,
-          timeoutMs: LIVREUR_MAP_LOADED_FAILSAFE_MS,
-        },
-        runId: 'livreur-map',
-      });
-      // #endregion
     }, LIVREUR_MAP_LOADED_FAILSAFE_MS);
     return () => clearTimeout(timer);
   }, [nativeMapLoaded, nativeMapReady, useRadarFallback]);
@@ -110,15 +96,6 @@ export default function LivreurScreenNative() {
       try {
         const { status } = await Location.requestForegroundPermissionsAsync();
         if (status !== 'granted') {
-          // #region agent log
-          postDebugSession21424c({
-            hypothesisId: 'H3',
-            location: 'LivreurScreen.native:start',
-            message: 'foreground location permission not granted',
-            data: { status, livreurOnline },
-            runId: 'livreur-gps',
-          });
-          // #endregion
           setSnack('Activez la localisation pour le suivi livreur.');
           return;
         }
@@ -146,19 +123,6 @@ export default function LivreurScreenNative() {
             applyLocation(lat, lng, heading);
           }
         );
-        // #region agent log
-        postDebugSession21424c({
-          hypothesisId: 'H3',
-          location: 'LivreurScreen.native:watchPositionAsync',
-          message: 'GPS watch active (livreur)',
-          data: {
-            livreurOnline,
-            primeLat: Math.round(lat0 * 1e4) / 1e4,
-            primeLng: Math.round(lng0 * 1e4) / 1e4,
-          },
-          runId: 'livreur-gps',
-        });
-        // #endregion
         if (pollRef.current) clearInterval(pollRef.current);
         pollRef.current = setInterval(() => {
           if (cancelled || !livreurOnline) return;
@@ -172,19 +136,7 @@ export default function LivreurScreenNative() {
             })
             .catch(() => {});
         }, 5000);
-      } catch (e) {
-        // #region agent log
-        postDebugSession21424c({
-          hypothesisId: 'H5',
-          location: 'LivreurScreen.native:start',
-          message: 'GPS start threw',
-          data: {
-            livreurOnline,
-            err: e instanceof Error ? e.message : String(e),
-          },
-          runId: 'livreur-gps',
-        });
-        // #endregion
+      } catch {
         setSnack('Impossible d’activer le GPS (services de localisation ?).');
       }
     }
@@ -291,6 +243,7 @@ export default function LivreurScreenNative() {
               <GTAMiniMap
                 size={192}
                 region={miniRegion}
+                forceFallback={Platform.OS === 'android'}
                 driver={driver}
                 headingDeg={driverHeading}
                 showDest={false}

@@ -44,9 +44,6 @@ import type { Order } from '@/stores/useHuskoStore';
 import { pickTrackedDriverOrderId, useHuskoStore } from '@/stores/useHuskoStore';
 import Constants from 'expo-constants';
 
-import { debugIngest9bf99d } from '@/utils/debugIngest9bf99d';
-import { debugIngest4db8d8 } from '@/utils/debugIngest4db8d8';
-import { postDebugSession21424c } from '@/utils/debugIngestSession21424c';
 import { postCursorDebugIngest } from '@/utils/cursorDebugIngest';
 import { emitBootDebugProbes, isBootDebugEnabled } from '@/utils/debugProbe';
 import { readHuskoExpoExtra } from '@/utils/readHuskoExpoExtra';
@@ -82,7 +79,6 @@ export default function RootLayout() {
 
   const tickRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const otaRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const driverRemoteDebugLastRef = useRef(0);
 
   useEffect(() => {
     if (!appReady) return;
@@ -171,74 +167,10 @@ export default function RootLayout() {
     const skipReason = !remoteOk ? 'remote_off' : variant === 'livreur' ? 'livreur_local_gps' : null;
 
     if (skipReason !== null) {
-      // #region agent log
-      debugIngest9bf99d({
-        runId: `driver-gate-${driverOrderId ?? 'none'}`,
-        hypothesisId: 'H3',
-        location: 'app/_layout.tsx:subscribeToRemoteDriver:gate',
-        message: 'driver remote listener skipped',
-        data: { skipReason, variant, driverOrderId, remoteOk },
-      });
-      postDebugSession21424c({
-        hypothesisId: skipReason === 'remote_off' ? 'H1' : 'H3',
-        location: 'app/_layout.tsx:subscribeToRemoteDriver:gate',
-        message: 'driver remote listener skipped (21424c)',
-        data: { skipReason, variant, driverOrderId, remoteOk },
-        runId: 'layout-driver-gate',
-      });
-      // #endregion
-      if (!remoteOk) return;
-      if (variant === 'livreur') return;
       return;
     }
 
-    // #region agent log
-    debugIngest9bf99d({
-      runId: `driver-sub-${driverOrderId ?? 'global'}`,
-      hypothesisId: 'H3',
-      location: 'app/_layout.tsx:subscribeToRemoteDriver:subscribe',
-      message: 'driver remote listener active',
-      data: { variant, driverOrderId, remoteOk },
-    });
-    postDebugSession21424c({
-      hypothesisId: 'H3',
-      location: 'app/_layout.tsx:subscribeToRemoteDriver:subscribe',
-      message: 'driver remote listener active (21424c)',
-      data: { variant, driverOrderId, remoteOk },
-      runId: 'layout-driver-sub',
-    });
-    // #endregion
-
     const unsubDriver = subscribeToRemoteDriver(driverOrderId, (driver, driverHeading, updatedAt) => {
-      const t = Date.now();
-      if (t - driverRemoteDebugLastRef.current >= 7000) {
-        driverRemoteDebugLastRef.current = t;
-        // #region agent log
-        debugIngest9bf99d({
-          runId: `driver-tick-${driverOrderId ?? 'global'}`,
-          hypothesisId: 'H3',
-          location: 'app/_layout.tsx:subscribeToRemoteDriver:callback',
-          message: 'remote driver snapshot applied to store',
-          data: {
-            hasDriver: !!driver,
-            updatedAt,
-            headingRounded: Math.round(driverHeading),
-          },
-        });
-        postDebugSession21424c({
-          hypothesisId: 'H4',
-          location: 'app/_layout.tsx:subscribeToRemoteDriver:callback',
-          message: 'remote driver applied to zustand (21424c)',
-          data: {
-            driverOrderId,
-            hasDriver: !!driver,
-            updatedAt,
-            headingRounded: Math.round(driverHeading),
-          },
-          runId: 'layout-driver-callback',
-        });
-        // #endregion
-      }
       useHuskoStore.setState({ driver, driverHeading, driverPositionUpdatedAt: updatedAt });
     });
     return () => {
@@ -254,23 +186,6 @@ export default function RootLayout() {
         useHuskoStore.setState((state) => {
           const merged = mergeRemoteOrdersWithLocal(remoteOrders, state.orders);
           const nextOrders = variant === 'client' ? pruneClientOrdersForTracking(merged) : merged;
-          // #region agent log
-          debugIngest4db8d8({
-            runId: 'remote-orders-flow',
-            hypothesisId: 'H2',
-            location: 'app/_layout.tsx:subscribeToRemoteOrders:merge',
-            message: 'remote orders merged into local store',
-            data: {
-              variant,
-              remoteCount: remoteOrders.length,
-              localCount: state.orders.length,
-              mergedCount: merged.length,
-              nextCount: nextOrders.length,
-              firstRemoteStatus: remoteOrders[0]?.status ?? null,
-              firstMergedStatus: nextOrders[0]?.status ?? null,
-            },
-          });
-          // #endregion
           void notifyRemoteOrderStatusDiff(state.orders, nextOrders, state.notificationsEnabled);
           return {
             orders: nextOrders,

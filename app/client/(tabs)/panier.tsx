@@ -3,7 +3,7 @@ import { Link, router } from 'expo-router';
 import * as Location from 'expo-location';
 import { useEffect, useMemo, useState } from 'react';
 import { Ionicons } from '@expo/vector-icons';
-import { ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
+import { Platform, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { Button, Dialog, Portal, Text, TextInput } from 'react-native-paper';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -30,7 +30,6 @@ import { HUSKO_DEPARTURE_HUB } from '@/constants/huskoDepartureHub';
 import { openTechnicalFeedback } from '@/navigation/openTechnicalFeedback';
 import { ANGERS_DEFAULT, useHuskoStore } from '@/stores/useHuskoStore';
 import { formatCloudSyncErrorForUser } from '@/utils/cloudSyncUserMessage';
-import { debugIngest4db8d8 } from '@/utils/debugIngest4db8d8';
 import { formatEuro } from '@/utils/formatEuro';
 import { geocodeAddress } from '@/utils/geocodeAddress';
 import { fitMapRegion } from '@/utils/fitMapRegion';
@@ -106,35 +105,11 @@ export default function PanierScreen() {
   }, [address]);
 
   async function checkout() {
-    // #region agent log
-    debugIngest4db8d8({
-      runId: 'checkout-flow',
-      hypothesisId: 'H1',
-      location: 'app/client/(tabs)/panier.tsx:checkout:start',
-      message: 'checkout started',
-      data: {
-        cartCount: cart.length,
-        cloudOk,
-        orderingAllowed,
-        addressLen: address.trim().length,
-        remoteServiceAccepting,
-      },
-    });
-    // #endregion
     if (!cart.length) {
       setDialog({ type: 'empty' });
       return;
     }
     if (!cloudOk) {
-      // #region agent log
-      debugIngest4db8d8({
-        runId: 'checkout-flow',
-        hypothesisId: 'H5',
-        location: 'app/client/(tabs)/panier.tsx:checkout:cloud-block',
-        message: 'checkout blocked because cloud sync disabled',
-        data: { cloudOk },
-      });
-      // #endregion
       setDialog({ type: 'cloudRequired' });
       return;
     }
@@ -175,35 +150,11 @@ export default function PanierScreen() {
 
       const order = await placeOrder(orderAddressLabel, targetDest);
       if (order) {
-        // #region agent log
-        debugIngest4db8d8({
-          runId: 'checkout-flow',
-          hypothesisId: 'H1',
-          location: 'app/client/(tabs)/panier.tsx:checkout:placeOrder-success',
-          message: 'placeOrder returned order',
-          data: {
-            orderId: order.id,
-            status: order.status,
-            usedApproximateDest,
-            targetLat: targetDest?.latitude ?? null,
-            targetLng: targetDest?.longitude ?? null,
-          },
-        });
-        // #endregion
         hapticSuccess();
         router.replace({ pathname: '/client/suivi', params: { orderId: order.id } });
       }
     } catch (e) {
       const msg = e instanceof Error ? e.message : '';
-      // #region agent log
-      debugIngest4db8d8({
-        runId: 'checkout-flow',
-        hypothesisId: 'H1',
-        location: 'app/client/(tabs)/panier.tsx:checkout:catch',
-        message: 'checkout failed',
-        data: { errorMessage: msg || 'unknown' },
-      });
-      // #endregion
       if (msg === 'SERVICE_CLOSED_MANAGER') setDialog({ type: 'serviceClosedManager' });
       else if (msg === 'SERVICE_CLOSED_HOURS') setDialog({ type: 'serviceClosedHours' });
       else if (msg === 'ADDRESS_GEOCODE_FAILED') setDialog({ type: 'addressGeocodeFailed' });
@@ -304,6 +255,7 @@ export default function PanierScreen() {
             <View style={[styles.mapRow, mapStackVertical && styles.mapRowStack]}>
               <GTAMiniMap
                 region={region}
+                forceFallback={Platform.OS === 'android'}
                 driver={driver}
                 headingDeg={driverHeading}
                 dest={previewDest}

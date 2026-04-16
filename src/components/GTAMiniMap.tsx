@@ -8,7 +8,6 @@ import { HuskoDepartureBuilding } from '@/components/HuskoDepartureBuilding';
 import { HUSKO_DEPARTURE_HUB } from '@/constants/huskoDepartureHub';
 import { colors, elevation } from '@/constants/theme';
 import type { MapRegion } from '@/types/mapRegion';
-import { debugIngest9bf99d } from '@/utils/debugIngest9bf99d';
 import { shouldPreferMiniMapFallback } from '@/utils/androidMapWorkaround';
 import { sanitizeMapRegion } from '@/utils/fitMapRegion';
 import { isMapsKeyConfiguredForPlatform } from '@/utils/mapsBuildInfo';
@@ -28,16 +27,6 @@ type Props = {
 
 const HUD_SIZE = 172;
 
-function logMapDebug(
-  runId: string,
-  hypothesisId: 'H1' | 'H2' | 'H3' | 'H4',
-  location: string,
-  message: string,
-  data: Record<string, unknown>
-) {
-  debugIngest9bf99d({ runId, hypothesisId, location, message, data });
-}
-
 export function GTAMiniMap({
   region,
   size = HUD_SIZE,
@@ -50,7 +39,6 @@ export function GTAMiniMap({
   showDeparture = true,
   hudFooter = 'LONG BEACH · CADILLAC SUIVI',
 }: Props) {
-  const debugRunId = useMemo(() => `map-${Date.now().toString(36)}`, []);
   const mapsConfigured = isMapsKeyConfiguredForPlatform();
   const preferDeviceFallback = useMemo(() => shouldPreferMiniMapFallback(), []);
   const safeRegion = useMemo(() => sanitizeMapRegion(region), [region]);
@@ -58,64 +46,22 @@ export function GTAMiniMap({
   const [nativeMapReady, setNativeMapReady] = useState(false);
   const [nativeMapLoaded, setNativeMapLoaded] = useState(false);
   /** Clé absente, échec runtime, ou appareil connu pour MapView noir (ex. Huawei) → radar GTA. */
+  // Incident black-map Android: mode radar forcé globalement tant que la chaîne Maps native reste instable.
+  const forceAndroidFallback = Platform.OS === 'android';
   const useFallback =
-    forceFallback || nativeMapFailed || !mapsConfigured || preferDeviceFallback;
+    forceAndroidFallback || forceFallback || nativeMapFailed || !mapsConfigured || preferDeviceFallback;
   const footerTag = useFallback ? `${hudFooter} · OSM` : hudFooter;
-
-  useEffect(() => {
-    logMapDebug(
-      debugRunId,
-      'H1',
-      'GTAMiniMap.tsx:decision',
-      'map render decision updated',
-      {
-        platform: Platform.OS,
-        mapsConfigured,
-        preferDeviceFallback,
-        forceFallback,
-        nativeMapReady,
-        nativeMapLoaded,
-        nativeMapFailed,
-        useFallback,
-        hasDriver: !!driver,
-        hasDest: !!dest,
-        size,
-      }
-    );
-  }, [
-    debugRunId,
-    mapsConfigured,
-    preferDeviceFallback,
-    forceFallback,
-    nativeMapReady,
-    nativeMapLoaded,
-    nativeMapFailed,
-    useFallback,
-    driver,
-    dest,
-    size,
-  ]);
 
   /** Ne pas couper MapView avant chargement GMS : 3,5 s démontait la carte sur téléphones réels. */
   const NATIVE_MAP_FAILSAFE_MS = 22_000;
   useEffect(() => {
     if (useFallback) return;
     if (nativeMapReady) return;
-    logMapDebug(debugRunId, 'H2', 'GTAMiniMap.tsx:fallback-timeout:start', 'fallback failsafe armed', {
-      nativeMapReady,
-      nativeMapFailed,
-      useFallback,
-      failsafeMs: NATIVE_MAP_FAILSAFE_MS,
-    });
     const timer = setTimeout(() => {
-      logMapDebug(debugRunId, 'H2', 'GTAMiniMap.tsx:fallback-timeout:fire', 'fallback failsafe fired', {
-        nativeMapReady,
-        nativeMapFailed,
-      });
       setNativeMapFailed(true);
     }, NATIVE_MAP_FAILSAFE_MS);
     return () => clearTimeout(timer);
-  }, [debugRunId, nativeMapReady, nativeMapFailed, useFallback]);
+  }, [nativeMapReady, nativeMapFailed, useFallback]);
 
   /**
    * Cas réel observé en prod: GMS répond "API token INVALID_ARGUMENT", MapView peut être "ready"
@@ -126,17 +72,10 @@ export function GTAMiniMap({
     if (useFallback) return;
     if (!nativeMapReady || nativeMapLoaded) return;
     const timer = setTimeout(() => {
-      logMapDebug(
-        debugRunId,
-        'H3',
-        'GTAMiniMap.tsx:map-loaded-timeout',
-        'map ready but not loaded in time; fallback to radar',
-        { nativeMapReady, nativeMapLoaded, timeoutMs: NATIVE_MAP_LOADED_FAILSAFE_MS }
-      );
       setNativeMapFailed(true);
     }, NATIVE_MAP_LOADED_FAILSAFE_MS);
     return () => clearTimeout(timer);
-  }, [debugRunId, nativeMapLoaded, nativeMapReady, useFallback]);
+  }, [nativeMapLoaded, nativeMapReady, useFallback]);
 
   /** Ne pas piloter `region` en prop : sur Android GMS se réinitialise / noircit si la région change à chaque render. */
   const mapRef = useRef<MapView | null>(null);
@@ -190,24 +129,9 @@ export function GTAMiniMap({
           style={styles.map}
           collapsable={false}
           provider={Platform.OS === 'android' ? PROVIDER_GOOGLE : undefined}
-          onError={(event: { nativeEvent?: unknown }) => {
-            logMapDebug(debugRunId, 'H3', 'GTAMiniMap.tsx:onError', 'native map onError fired', {
-              error: event?.nativeEvent ? JSON.stringify(event.nativeEvent) : 'no-native-event',
-            });
-            setNativeMapFailed(true);
-          }}
-          onMapReady={() => {
-            logMapDebug(debugRunId, 'H4', 'GTAMiniMap.tsx:onMapReady', 'native map onMapReady fired', {
-              nativeMapReadyBefore: nativeMapReady,
-            });
-            setNativeMapReady(true);
-          }}
-          onMapLoaded={() => {
-            logMapDebug(debugRunId, 'H4', 'GTAMiniMap.tsx:onMapLoaded', 'native map onMapLoaded fired', {
-              nativeMapLoadedBefore: nativeMapLoaded,
-            });
-            setNativeMapLoaded(true);
-          }}
+          onError={() => setNativeMapFailed(true)}
+          onMapReady={() => setNativeMapReady(true)}
+          onMapLoaded={() => setNativeMapLoaded(true)}
           initialRegion={safeRegion}
           rotateEnabled={false}
           pitchEnabled={false}

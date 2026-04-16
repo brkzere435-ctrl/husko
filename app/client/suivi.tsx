@@ -37,23 +37,11 @@ import { pickPrimaryActiveOrder, useHuskoStore } from '@/stores/useHuskoStore';
 import { isRemoteSyncEnabled } from '@/services/firebaseRemote';
 import { formatEuro } from '@/utils/formatEuro';
 import { formatDriverPositionAgeFr } from '@/utils/formatDriverPositionAge';
-import { debugIngest9bf99d } from '@/utils/debugIngest9bf99d';
 import { fitMapRegion } from '@/utils/fitMapRegion';
-import { debugIngest4db8d8 } from '@/utils/debugIngest4db8d8';
 
 /** Au-delà : on n’affiche plus le libellé « LIVE » (évite « suivi live » avec point figé). */
 const DRIVER_LIVE_FRESH_MS = 2 * 60_000;
 const DRIVER_SIGNAL_STALE_MS = 10 * 60_000;
-
-function logSuiviDebug(
-  runId: string,
-  hypothesisId: 'H5',
-  location: string,
-  message: string,
-  data: Record<string, unknown>
-) {
-  debugIngest9bf99d({ runId, hypothesisId, location, message, data });
-}
 
 type MiniMapCanvasProps = {
   mapSize: number;
@@ -63,6 +51,7 @@ type MiniMapCanvasProps = {
   dest: Parameters<typeof GTAMiniMap>[0]['dest'];
   mapHudFooter: string;
   mapAccessibilityLabel: string;
+  mapForceFallback: boolean;
 };
 
 const MiniMapCanvas = memo(function MiniMapCanvas({
@@ -73,12 +62,14 @@ const MiniMapCanvas = memo(function MiniMapCanvas({
   dest,
   mapHudFooter,
   mapAccessibilityLabel,
+  mapForceFallback,
 }: MiniMapCanvasProps) {
   return (
     <View style={styles.mapNeonOuter} accessibilityRole="image" accessibilityLabel={mapAccessibilityLabel}>
       <GTAMiniMap
         size={mapSize}
         region={mapRegion}
+        forceFallback={mapForceFallback}
         driver={driver}
         headingDeg={driverHeading}
         dest={dest}
@@ -90,7 +81,6 @@ const MiniMapCanvas = memo(function MiniMapCanvas({
 });
 
 export default function SuiviScreen() {
-  const debugRunId = useMemo(() => `suivi-${Date.now().toString(36)}`, []);
   const params = useLocalSearchParams<{ orderId?: string | string[] }>();
   const { width: windowW } = useWindowDimensions();
   const mapSize = Math.min(288, Math.max(220, windowW - spacing.md * 2 - spacing.lg * 2));
@@ -189,37 +179,6 @@ export default function SuiviScreen() {
     return fitMapRegion(pts, 2);
   }, [driver]);
   const mapRegion = liveRegion ?? staticRegion ?? fallbackMapRegion;
-  useEffect(() => {
-    logSuiviDebug(debugRunId, 'H5', 'suivi.tsx:map-state', 'suivi map state snapshot', {
-      platform: Platform.OS,
-      activeStatus: active?.status ?? null,
-      mapTruth,
-      showLiveMap,
-      showStaticMap,
-      hasDriver: !!driverDot,
-      driverSignalAgeMs,
-      hasReliableDriverSignal,
-      hasFreshLiveSignal,
-      hasDest: !!dest,
-      mapRegion,
-      remoteOk,
-      cloudSyncListenError: cloudSyncListenError ?? null,
-    });
-  }, [
-    debugRunId,
-    active?.status,
-    mapTruth,
-    showLiveMap,
-    showStaticMap,
-    driverDot,
-    driverSignalAgeMs,
-    hasReliableDriverSignal,
-    hasFreshLiveSignal,
-    dest,
-    mapRegion,
-    remoteOk,
-    cloudSyncListenError,
-  ]);
   const mapKicker =
     mapTruth === 'live'
       ? 'LIVE'
@@ -321,39 +280,7 @@ export default function SuiviScreen() {
     }
     return 'Aperçu de carte : QG Husko et trajet';
   }, [mapTruth]);
-
-  useEffect(() => {
-    // #region agent log
-    debugIngest4db8d8({
-      runId: 'suivi-render-flow',
-      hypothesisId: 'H4',
-      location: 'app/client/suivi.tsx:active-map-state',
-      message: 'suivi computed active order and map state',
-      data: {
-        ordersCount: orders.length,
-        requestedOrderId,
-        requestedOrderFound: !!(requestedOrderId && active?.id === requestedOrderId),
-        activeOrderId: active?.id ?? null,
-        activeStatus: active?.status ?? null,
-        hasDest: !!dest,
-        showLiveMap,
-        showStaticMap,
-        mapTruth,
-        remoteOk,
-      },
-    });
-    // #endregion
-  }, [
-    orders.length,
-    requestedOrderId,
-    active?.id,
-    active?.status,
-    dest,
-    showLiveMap,
-    showStaticMap,
-    mapTruth,
-    remoteOk,
-  ]);
+  const mapForceFallback = Platform.OS === 'android';
 
   const etaStepMs = useMemo(() => {
     if (remoteAutonomousDemo?.enabled) return remoteAutonomousDemo.stepMs;
@@ -545,6 +472,7 @@ export default function SuiviScreen() {
                   <MiniMapCanvas
                     mapSize={mapSize}
                     mapRegion={mapRegion}
+                    mapForceFallback={mapForceFallback}
                     driver={driver}
                     driverHeading={driverHeading}
                     dest={dest}
