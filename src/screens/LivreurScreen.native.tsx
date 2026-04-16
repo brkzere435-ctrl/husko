@@ -38,18 +38,19 @@ export default function LivreurScreenNative() {
 
   const subRef = useRef<Location.LocationSubscription | null>(null);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const lastGpsProbeAtRef = useRef(0);
   const mainMapRef = useRef<MapView | null>(null);
   const lastMainMapCamAt = useRef(0);
   const [snack, setSnack] = useState('');
   const mapsConfigured = isMapsKeyConfiguredForPlatform();
   /** Mode pro: carte native dès que les clés Maps sont configurées, fallback seulement en secours. */
-  const forceRadarFallback = Platform.OS === 'android' || !mapsConfigured;
+  const forceRadarFallback = !mapsConfigured;
   const [nativeMapFailed, setNativeMapFailed] = useState(false);
   const [nativeMapReady, setNativeMapReady] = useState(false);
   const [nativeMapLoaded, setNativeMapLoaded] = useState(false);
   const useRadarFallback = forceRadarFallback || nativeMapFailed;
 
-  const LIVREUR_MAP_FAILSAFE_MS = 22_000;
+  const LIVREUR_MAP_FAILSAFE_MS = 4_000;
   useEffect(() => {
     if (useRadarFallback) return;
     if (nativeMapReady) return;
@@ -57,7 +58,7 @@ export default function LivreurScreenNative() {
     return () => clearTimeout(timer);
   }, [nativeMapReady, useRadarFallback]);
 
-  const LIVREUR_MAP_LOADED_FAILSAFE_MS = 6500;
+  const LIVREUR_MAP_LOADED_FAILSAFE_MS = 1500;
   useEffect(() => {
     if (useRadarFallback) return;
     if (!nativeMapReady || nativeMapLoaded) return;
@@ -86,6 +87,16 @@ export default function LivreurScreenNative() {
       heading: number
     ) => {
       if (cancelled) return;
+      const now = Date.now();
+      if (now - lastGpsProbeAtRef.current > 3000) {
+        lastGpsProbeAtRef.current = now;
+        console.log(
+          `[DBG21424c][H1] livreur GPS point accepted lat=${Math.round(lat * 1e5) / 1e5} lng=${Math.round(lng * 1e5) / 1e5} heading=${Math.round(heading)} online=${String(livreurOnline)}`
+        );
+        // #region agent log
+        fetch('http://127.0.0.1:7887/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'21424c'},body:JSON.stringify({sessionId:'21424c',runId:'gps-live-chain',hypothesisId:'H1',location:'LivreurScreen.native.tsx:applyLocation',message:'livreur GPS point accepted',data:{livreurOnline,lat:Math.round(lat*1e5)/1e5,lng:Math.round(lng*1e5)/1e5,heading:Math.round(heading)},timestamp:Date.now()})}).catch(()=>{});
+        // #endregion
+      }
       setDriver({ latitude: lat, longitude: lng }, heading);
       // Ne pas centrer strictement sur le livreur: garder une zone de contexte
       // (QG + position livreur) pour rendre le mouvement visible.
@@ -243,7 +254,7 @@ export default function LivreurScreenNative() {
               <GTAMiniMap
                 size={192}
                 region={miniRegion}
-                forceFallback={Platform.OS === 'android'}
+                forceFallback={!mapsConfigured}
                 driver={driver}
                 headingDeg={driverHeading}
                 showDest={false}

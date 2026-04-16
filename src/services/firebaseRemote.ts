@@ -34,6 +34,7 @@ const ORDER_TRACKING_COLLECTION = 'tracking';
 const ORDER_TRACKING_DRIVER_DOC = 'driverLive';
 let lastDriverPushAt = 0;
 let lastDriverPushOrderId: string | null = null;
+let lastDriverProbeAt = 0;
 /** Dernier point réellement écrit sur Firestore — évite de rafraîchir `updatedAt` si le GPS ne bouge pas (sinon le client croit à un flux « live » figé). */
 let lastDriverWriteSample: { lat: number; lng: number; orderId: string | null } | null = null;
 const DRIVER_WRITE_COORD_EPS = 0.00003; // ~3 m
@@ -217,6 +218,16 @@ function remotePushDriverNow(pos: LatLng | null, heading: number, orderId: strin
     const sameSpot =
       lastDriverWriteSample != null && coordsNearlyEqualForPush(pos, lastDriverWriteSample);
     if (sameOrder && sameSpot) {
+      const now = Date.now();
+      if (now - lastDriverProbeAt > 3000) {
+        lastDriverProbeAt = now;
+        console.log(
+          `[DBG21424c][H2] driver write skipped by dedupe guard orderId=${normalizedOrderId ?? 'null'}`
+        );
+        // #region agent log
+        fetch('http://127.0.0.1:7887/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'21424c'},body:JSON.stringify({sessionId:'21424c',runId:'gps-live-chain',hypothesisId:'H2',location:'firebaseRemote.ts:remotePushDriverNow:dedupe',message:'driver write skipped by dedupe guard',data:{orderId:normalizedOrderId},timestamp:Date.now()})}).catch(()=>{});
+        // #endregion
+      }
       return Promise.resolve();
     }
   }
@@ -241,6 +252,16 @@ function remotePushDriverNow(pos: LatLng | null, heading: number, orderId: strin
       };
     } else {
       lastDriverWriteSample = null;
+    }
+    const now = Date.now();
+    if (now - lastDriverProbeAt > 3000) {
+      lastDriverProbeAt = now;
+      console.log(
+        `[DBG21424c][H2] driver write persisted orderId=${normalizedOrderId ?? 'null'} hasPos=${String(pos != null)} updatedAt=${String(payload.updatedAt)}`
+      );
+      // #region agent log
+      fetch('http://127.0.0.1:7887/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'21424c'},body:JSON.stringify({sessionId:'21424c',runId:'gps-live-chain',hypothesisId:'H2',location:'firebaseRemote.ts:remotePushDriverNow:afterWrite',message:'driver write persisted to firestore',data:{orderId:normalizedOrderId,hasPos:pos!=null,updatedAt:payload.updatedAt},timestamp:Date.now()})}).catch(()=>{});
+      // #endregion
     }
   };
   if (normalizedOrderId == null) {

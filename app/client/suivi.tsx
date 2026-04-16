@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import * as Linking from 'expo-linking';
 import { Link, useLocalSearchParams } from 'expo-router';
-import { memo, useEffect, useMemo, useState } from 'react';
+import { memo, useEffect, useMemo, useRef, useState } from 'react';
 import { Platform, Pressable, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { Card, Text } from 'react-native-paper';
 import Animated, { FadeIn } from 'react-native-reanimated';
@@ -81,6 +81,7 @@ const MiniMapCanvas = memo(function MiniMapCanvas({
 });
 
 export default function SuiviScreen() {
+  const lastMapTruthProbeRef = useRef(0);
   const params = useLocalSearchParams<{ orderId?: string | string[] }>();
   const { width: windowW } = useWindowDimensions();
   const mapSize = Math.min(288, Math.max(220, windowW - spacing.md * 2 - spacing.lg * 2));
@@ -280,7 +281,18 @@ export default function SuiviScreen() {
     }
     return 'Aperçu de carte : QG Husko et trajet';
   }, [mapTruth]);
-  const mapForceFallback = Platform.OS === 'android';
+  const mapForceFallback = false;
+  useEffect(() => {
+    const now = Date.now();
+    if (now - lastMapTruthProbeRef.current < 3000) return;
+    lastMapTruthProbeRef.current = now;
+    console.log(
+      `[DBG21424c][H4] mapTruth=${mapTruth} activeStatus=${active?.status ?? 'null'} hasDriver=${String(driver != null)} updatedAt=${String(driverPositionUpdatedAt)} remoteOk=${String(remoteOk)}`
+    );
+    // #region agent log
+    fetch('http://127.0.0.1:7887/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'21424c'},body:JSON.stringify({sessionId:'21424c',runId:'gps-live-chain',hypothesisId:'H4',location:'app/client/suivi.tsx:mapTruth',message:'client map truth computed',data:{activeStatus:active?.status??null,mapTruth,driverPositionUpdatedAt,hasDriver:driver!=null,remoteOk},timestamp:Date.now()})}).catch(()=>{});
+    // #endregion
+  }, [active?.status, driver, driverPositionUpdatedAt, mapTruth, remoteOk]);
 
   const etaStepMs = useMemo(() => {
     if (remoteAutonomousDemo?.enabled) return remoteAutonomousDemo.stepMs;

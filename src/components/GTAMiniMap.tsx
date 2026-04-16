@@ -46,14 +46,14 @@ export function GTAMiniMap({
   const [nativeMapReady, setNativeMapReady] = useState(false);
   const [nativeMapLoaded, setNativeMapLoaded] = useState(false);
   /** Clé absente, échec runtime, ou appareil connu pour MapView noir (ex. Huawei) → radar GTA. */
-  // Incident black-map Android: mode radar forcé globalement tant que la chaîne Maps native reste instable.
-  const forceAndroidFallback = Platform.OS === 'android';
+  // Android: fallback seulement si explicitement demandé ou si la carte native échoue réellement.
+  const forceAndroidFallback = false;
   const useFallback =
     forceAndroidFallback || forceFallback || nativeMapFailed || !mapsConfigured || preferDeviceFallback;
   const footerTag = useFallback ? `${hudFooter} · OSM` : hudFooter;
 
   /** Ne pas couper MapView avant chargement GMS : 3,5 s démontait la carte sur téléphones réels. */
-  const NATIVE_MAP_FAILSAFE_MS = 22_000;
+  const NATIVE_MAP_FAILSAFE_MS = 4_000;
   useEffect(() => {
     if (useFallback) return;
     if (nativeMapReady) return;
@@ -67,7 +67,7 @@ export function GTAMiniMap({
    * Cas réel observé en prod: GMS répond "API token INVALID_ARGUMENT", MapView peut être "ready"
    * mais rester visuellement noir. Si la carte n'est jamais "loaded", bascule proprement en radar.
    */
-  const NATIVE_MAP_LOADED_FAILSAFE_MS = 6500;
+  const NATIVE_MAP_LOADED_FAILSAFE_MS = 1500;
   useEffect(() => {
     if (useFallback) return;
     if (!nativeMapReady || nativeMapLoaded) return;
@@ -80,6 +80,18 @@ export function GTAMiniMap({
   /** Ne pas piloter `region` en prop : sur Android GMS se réinitialise / noircit si la région change à chaque render. */
   const mapRef = useRef<MapView | null>(null);
   const lastRegionSig = useRef<string>('');
+  const lastDecisionProbeRef = useRef(0);
+  useEffect(() => {
+    const now = Date.now();
+    if (now - lastDecisionProbeRef.current < 3000) return;
+    lastDecisionProbeRef.current = now;
+    console.log(
+      `[DBG21424c][H5] mini map decision fallback=${String(useFallback)} androidForced=${String(forceAndroidFallback)} mapsConfigured=${String(mapsConfigured)} failed=${String(nativeMapFailed)} ready=${String(nativeMapReady)} loaded=${String(nativeMapLoaded)}`
+    );
+    // #region agent log
+    fetch('http://127.0.0.1:7887/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'21424c'},body:JSON.stringify({sessionId:'21424c',runId:'gps-live-chain',hypothesisId:'H5',location:'src/components/GTAMiniMap.tsx:decision',message:'mini map fallback decision',data:{platform:Platform.OS,useFallback,forceAndroidFallback,mapsConfigured,nativeMapFailed,nativeMapReady,nativeMapLoaded},timestamp:Date.now()})}).catch(()=>{});
+    // #endregion
+  }, [forceAndroidFallback, mapsConfigured, nativeMapFailed, nativeMapLoaded, nativeMapReady, useFallback]);
   useEffect(() => {
     if (useFallback || !nativeMapReady) return;
     const sig = [

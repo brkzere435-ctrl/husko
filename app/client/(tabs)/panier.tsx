@@ -255,7 +255,7 @@ export default function PanierScreen() {
             <View style={[styles.mapRow, mapStackVertical && styles.mapRowStack]}>
               <GTAMiniMap
                 region={region}
-                forceFallback={Platform.OS === 'android'}
+                forceFallback={false}
                 driver={driver}
                 headingDeg={driverHeading}
                 dest={previewDest}
