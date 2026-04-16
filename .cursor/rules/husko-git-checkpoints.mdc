@@ -1,0 +1,11 @@
+---
+description: Checkpoints Git après progression utile — sauvegarde systématique du travail
+alwaysApply: true
+---
+
+# Sauvegardes Git (checkpoints)
+
+- Après une **avancée substantielle** sur la tâche en cours (correctif testé, étape de feature cohérente, lot de fichiers stable), **créer un commit local** avant de conclure le tour dans le chat.
+- Commande : `npm run checkpoint -- "type(scope): description courte"` (style Conventional Commits si possible). Sans message : `npm run checkpoint` utilise un message `chore: checkpoint …` horodaté.
+- **Ne pas** lancer `git push` ni `npm run checkpoint -- --push` **sans demande explicite** du propriétaire du dépôt (le commit local suffit contre la perte de travail).
+- Si le dépôt est encore dans un état « cassé » mais qu’il faut figer l’état : préfixer le message par `wip:` (ex. `wip: carte suivi avant verify`).

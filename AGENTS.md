@@ -14,6 +14,7 @@ Ce fichier résume **où est la vérité** et **quelles commandes** utiliser. Le
 | Action | Commande |
 |--------|----------|
 | Installer les deps | `npm install` |
+| **Sauvegarde Git locale (checkpoint)** | `npm run checkpoint -- "fix(scope): description"` ; sans message : `npm run checkpoint` — voir [`.cursor/rules/husko-git-checkpoints.mdc`](.cursor/rules/husko-git-checkpoints.mdc) |
 | **Livrer une APK Android gérant (chemin par défaut)** | `npm run ship:gerant` (clean cache local + gate + sync secrets + build EAS `apk-gerant` avec `--clear-cache`) |
 | **Livrer une APK Android gérant (sans bloquer le terminal)** | `npm run ship:gerant:queue` puis suivi via `npx eas build:list --platform android --limit 5 --non-interactive` |
 | **Livrer une APK / iOS « pro »** (hors fil gérant par défaut) | [`docs/GOLDEN_PATH.md`](docs/GOLDEN_PATH.md) — ex. `npm run ship:apk:unified` ou `ship:apk:three` |
@@ -40,7 +41,7 @@ Déploiement, Maps, Firebase, OTA : **[`DEPLOIEMENT.md`](DEPLOIEMENT.md)**. Parc
 
 ## Cursor / assistant
 
-- Règles projet : [`.cursor/rules/husko-product-direction.mdc`](.cursor/rules/husko-product-direction.mdc), [`.cursor/rules/husko-responsive-ui.mdc`](.cursor/rules/husko-responsive-ui.mdc).
+- Règles projet : [`.cursor/rules/husko-product-direction.mdc`](.cursor/rules/husko-product-direction.mdc), [`.cursor/rules/husko-responsive-ui.mdc`](.cursor/rules/husko-responsive-ui.mdc), [`.cursor/rules/husko-git-checkpoints.mdc`](.cursor/rules/husko-git-checkpoints.mdc) (commits locaux après progression utile).
 - **Builds EAS / APK :** ne pas lancer `eas build`, scripts `build:apk:*`, `build:dev:android*`, ni téléchargements d’artefacts distants **sans permission explicite** du propriétaire du dépôt (crédits et temps de build).
 - **Pas de build de distribution tant que ce n’est pas prêt :** base validée (`npm run verify`), pas de défaut bloquant UI / carte GPS / synchro ; anciennes versions côté testeurs corrigées (désinstallation + nouvel install) — voir `PRODUCT_DIRECTION.clientReadinessBeforeBuild` dans `productDirection.ts`.
 - **Phrase d’orientation utile dans le chat :** Husko = fil unique décrit dans `productDirection.ts` ; UI = tokens West Coast ; fin de tâche = `npm run verify` et pas de régression majeure sur l’écran prioritaire ; rester dans le périmètre demandé (pas de refactor hors sujet).

@@ -29,6 +29,12 @@ IntelliJ IDEA*/
 tools/platform-tools/
 config/platform-tools/
 
+# Captures / preuves locales (ne pas versionner)
+tmp/
+
+# platform-tools copiés à la racine (voir aussi tools/platform-tools/)
+platform-tools/
+
 # Logs locaux (Metro, outils, sessions debug Cursor, etc.)
 *.log
 .env
