@@ -3,7 +3,7 @@ import { Link, router } from 'expo-router';
 import * as Location from 'expo-location';
 import { useEffect, useMemo, useState } from 'react';
 import { Ionicons } from '@expo/vector-icons';
-import { Platform, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
+import { ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { Button, Dialog, Portal, Text, TextInput } from 'react-native-paper';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -21,7 +21,7 @@ import {
   isTestOrderAnyHoursEnabled,
   serviceClosedByManagerMessage,
 } from '@/constants/hours';
-import { PAYMENT_NOTICE_LONG, PAYMENT_NOTICE_SHORT } from '@/constants/paymentPolicy';
+import { PAYMENT_NOTICE_LONG } from '@/constants/paymentPolicy';
 import { FONT } from '@/constants/fonts';
 import { typography } from '@/constants/typography';
 import { colors, elevation, radius, spacing } from '@/constants/theme';
@@ -117,7 +117,6 @@ export default function PanierScreen() {
     try {
       const cleanAddress = address.trim();
       let targetDest: { latitude: number; longitude: number } | null = null;
-      let usedApproximateDest = false;
       let orderAddressLabel = cleanAddress;
 
       // Priorité à la position GPS native: le livreur peut naviguer sans adresse texte détaillée.
@@ -144,7 +143,6 @@ export default function PanierScreen() {
           return;
         }
         const geocoded = await geocodeAddress(cleanAddress);
-        usedApproximateDest = !geocoded;
         targetDest = geocoded ?? ANGERS_DEFAULT;
       }
 
