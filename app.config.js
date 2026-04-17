@@ -190,6 +190,9 @@ function huskoPlugins() {
       {
         locationAlwaysAndWhenInUsePermission:
           'Autoriser Husko à utiliser votre position pour la livraison.',
+        /** Livreur : suivi en arrière-plan — rebuild natif requis (prebuild injecte UIBackgroundModes + permissions Android). */
+        isIosBackgroundLocationEnabled: true,
+        isAndroidBackgroundLocationEnabled: true,
       },
     ],
     [

@@ -23,8 +23,12 @@ import { fitMapRegion } from '@/utils/fitMapRegion';
 import { isMapsKeyConfiguredForPlatform } from '@/utils/mapsBuildInfo';
 import {
   clearLivreurWatch,
+  debugAgentPost,
+  dumpAgentDebugTailToConsole,
   ensureLivreurLocationPermission,
+  geoThrownCode,
   getInitialLivreurPosition,
+  livreurGeoErrorUserHint,
   startLivreurWatch,
 } from '@/services/livreurGeolocation';
 
@@ -42,6 +46,8 @@ export default function LivreurScreenNative() {
   });
 
   const watchIdRef = useRef<number | null>(null);
+  /** Évite un spam Snackbar si le watch renvoie des erreurs en boucle (Play Services / GPS). */
+  const watchGpsErrShownRef = useRef(false);
   const mainMapRef = useRef<MapView | null>(null);
   const lastMainMapCamAt = useRef(0);
   const [snack, setSnack] = useState('');
@@ -55,6 +61,22 @@ export default function LivreurScreenNative() {
   const [nativeMapReady, setNativeMapReady] = useState(false);
   const [nativeMapLoaded, setNativeMapLoaded] = useState(false);
   const useRadarFallback = forceRadarFallback || nativeMapFailed;
+
+  // #region agent log
+  useEffect(() => {
+    debugAgentPost(
+      'LivreurScreen.native.tsx:mount',
+      'LivreurScreen natif monté (vérif bundle + logcat)',
+      'H0',
+      { platform: Platform.OS }
+    );
+  }, []);
+
+  useEffect(() => {
+    const t = setTimeout(() => dumpAgentDebugTailToConsole(), 3000);
+    return () => clearTimeout(t);
+  }, []);
+  // #endregion
 
   const LIVREUR_MAP_FAILSAFE_MS = 1_200;
   useEffect(() => {
@@ -88,6 +110,7 @@ export default function LivreurScreenNative() {
   }, [region, useRadarFallback, nativeMapReady]);
 
   useEffect(() => {
+    console.log('[HuskoGeo] useEffect GPS livreur — entrée', { livreurOnline });
     let cancelled = false;
     const applyLocation = (
       lat: number,
@@ -95,6 +118,7 @@ export default function LivreurScreenNative() {
       heading: number
     ) => {
       if (cancelled) return;
+      watchGpsErrShownRef.current = false;
       setDriver({ latitude: lat, longitude: lng }, heading);
       // Ne pas centrer strictement sur le livreur: garder une zone de contexte
       // (QG + position livreur) pour rendre le mouvement visible.
@@ -114,17 +138,46 @@ export default function LivreurScreenNative() {
           clearLivreurWatch(watchIdRef.current);
           watchIdRef.current = null;
         }
-        watchIdRef.current = startLivreurWatch((lat, lng, heading) => {
-          if (cancelled) return;
-          applyLocation(lat, lng, heading);
-        });
-      } catch {
-        setSnack('Impossible d’activer le GPS (services de localisation ?).');
+        watchIdRef.current = startLivreurWatch(
+          (lat, lng, heading) => {
+            if (cancelled) return;
+            applyLocation(lat, lng, heading);
+          },
+          (code, message) => {
+            if (watchGpsErrShownRef.current) return;
+            watchGpsErrShownRef.current = true;
+            setSnack(livreurGeoErrorUserHint(code));
+            // #region agent log
+            debugAgentPost(
+              'LivreurScreen.native.tsx:onWatchError',
+              'watch error surfaced to UI',
+              'H2',
+              { code, message }
+            );
+            // #endregion
+          }
+        );
+      } catch (e) {
+        const thrownCode = geoThrownCode(e);
+        // #region agent log
+        debugAgentPost(
+          'LivreurScreen.native.tsx:start',
+          'start() catch',
+          'H3',
+          { err: String(e), thrownCode }
+        );
+        // #endregion
+        setSnack(
+          thrownCode != null
+            ? livreurGeoErrorUserHint(thrownCode)
+            : 'Impossible d’activer le GPS (services de localisation ?).'
+        );
       }
     }
 
     if (livreurOnline) void start();
     else {
+      watchGpsErrShownRef.current = false;
       if (watchIdRef.current != null) {
         clearLivreurWatch(watchIdRef.current);
         watchIdRef.current = null;
