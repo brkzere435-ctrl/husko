@@ -11,7 +11,6 @@ import { typography } from '@/constants/typography';
 import { colors, radius, spacing } from '@/constants/theme';
 import { WC } from '@/constants/westCoastTheme';
 import { useHuskoStore } from '@/stores/useHuskoStore';
-import { postDebugSessionLog } from '@/utils/debugSessionIngest';
 import { hapticLight } from '@/utils/haptics';
 
 type Props = { children: ReactNode };
@@ -27,7 +26,6 @@ export function LivreurAppGate({ children }: Props) {
   const [unlocked, setUnlocked] = useState(false);
   const [forcePinRotation, setForcePinRotation] = useState(false);
   const autoUnlockTriggeredRef = useRef(false);
-  const lastGateProbeAtRef = useRef(0);
 
   const enteredDefaultPin = pin === DEFAULT_ROLE_PIN;
   const isAcceptedPin = pin === livreurPin || enteredDefaultPin;
@@ -35,15 +33,6 @@ export function LivreurAppGate({ children }: Props) {
 
   function tryUnlock() {
     autoUnlockTriggeredRef.current = true;
-    // #region agent log
-    postDebugSessionLog({
-      runId: 'gps-reorg-pass1',
-      hypothesisId: 'H2',
-      location: 'src/components/LivreurAppGate.tsx:tryUnlock',
-      message: 'livreur gate unlock attempted',
-      data: { pinLen: pin.length, isAcceptedPin, enteredDefaultPin, livreurPinOnboarded },
-    });
-    // #endregion
     if (isAcceptedPin) {
       if (enteredDefaultPin && livreurPin !== DEFAULT_ROLE_PIN) {
         setLivreurPin(DEFAULT_ROLE_PIN);
@@ -69,28 +58,6 @@ export function LivreurAppGate({ children }: Props) {
     setUnlocked(true);
     hapticLight();
   }, [enteredDefaultPin, isAcceptedPin, livreurPin, pin, setLivreurPin, unlocked]);
-
-  useEffect(() => {
-    const now = Date.now();
-    if (now - lastGateProbeAtRef.current < 2500) return;
-    lastGateProbeAtRef.current = now;
-    // #region agent log
-    postDebugSessionLog({
-      runId: 'gps-reorg-pass1',
-      hypothesisId: 'H2',
-      location: 'src/components/LivreurAppGate.tsx:state',
-      message: 'livreur gate state',
-      data: {
-        unlocked,
-        livreurPinOnboarded,
-        forcePinRotation,
-        enteredDefaultPin,
-        isAcceptedPin,
-        pinLen: pin.length,
-      },
-    });
-    // #endregion
-  }, [enteredDefaultPin, forcePinRotation, isAcceptedPin, livreurPinOnboarded, pin.length, unlocked]);
 
   if (!unlocked) {
     return (

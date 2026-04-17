@@ -21,7 +21,6 @@ import { HUSKO_DEPARTURE_HUB } from '@/constants/huskoDepartureHub';
 import { livreurScreenVisual } from '@/constants/livreurScreenVisual';
 import { ANGERS_DEFAULT, useHuskoStore } from '@/stores/useHuskoStore';
 import { fitMapRegion } from '@/utils/fitMapRegion';
-import { postDebugSessionLog } from '@/utils/debugSessionIngest';
 import { isMapsKeyConfiguredForPlatform } from '@/utils/mapsBuildInfo';
 
 export default function LivreurScreenNative() {
@@ -41,7 +40,6 @@ export default function LivreurScreenNative() {
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const mainMapRef = useRef<MapView | null>(null);
   const lastMainMapCamAt = useRef(0);
-  const lastGpsChainProbeAtRef = useRef(0);
   const [snack, setSnack] = useState('');
   const mapsConfigured = isMapsKeyConfiguredForPlatform();
   /**
@@ -93,24 +91,6 @@ export default function LivreurScreenNative() {
       heading: number
     ) => {
       if (cancelled) return;
-      const now = Date.now();
-      if (now - lastGpsChainProbeAtRef.current > 2500) {
-        lastGpsChainProbeAtRef.current = now;
-        // #region agent log
-        postDebugSessionLog({
-          runId: 'gps-reorg-pass1',
-          hypothesisId: 'H3',
-          location: 'src/screens/LivreurScreen.native.tsx:applyLocation',
-          message: 'livreur location applied to store',
-          data: {
-            livreurOnline,
-            lat: Math.round(lat * 1e5) / 1e5,
-            lng: Math.round(lng * 1e5) / 1e5,
-            heading: Math.round(heading),
-          },
-        });
-        // #endregion
-      }
       setDriver({ latitude: lat, longitude: lng }, heading);
       // Ne pas centrer strictement sur le livreur: garder une zone de contexte
       // (QG + position livreur) pour rendre le mouvement visible.
@@ -120,15 +100,6 @@ export default function LivreurScreenNative() {
     async function start() {
       try {
         const { status } = await Location.requestForegroundPermissionsAsync();
-        // #region agent log
-        postDebugSessionLog({
-          runId: 'gps-reorg-pass1',
-          hypothesisId: 'H3',
-          location: 'src/screens/LivreurScreen.native.tsx:permission',
-          message: 'livreur foreground permission checked',
-          data: { status, livreurOnline },
-        });
-        // #endregion
         if (status !== 'granted') {
           setSnack('Activez la localisation pour le suivi livreur.');
           return;
@@ -171,15 +142,6 @@ export default function LivreurScreenNative() {
             .catch(() => {});
         }, 5000);
       } catch {
-        // #region agent log
-        postDebugSessionLog({
-          runId: 'gps-reorg-pass1',
-          hypothesisId: 'H3',
-          location: 'src/screens/LivreurScreen.native.tsx:start:catch',
-          message: 'livreur gps start failed',
-          data: { livreurOnline },
-        });
-        // #endregion
         setSnack('Impossible d’activer le GPS (services de localisation ?).');
       }
     }

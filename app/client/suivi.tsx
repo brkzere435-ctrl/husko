@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import * as Linking from 'expo-linking';
 import { Link, useLocalSearchParams } from 'expo-router';
-import { memo, useEffect, useMemo, useRef, useState } from 'react';
+import { memo, useEffect, useMemo, useState } from 'react';
 import { Platform, Pressable, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { Card, Text } from 'react-native-paper';
 import Animated, { FadeIn } from 'react-native-reanimated';
@@ -37,7 +37,6 @@ import { pickPrimaryActiveOrder, useHuskoStore } from '@/stores/useHuskoStore';
 import { isRemoteSyncEnabled } from '@/services/firebaseRemote';
 import { formatEuro } from '@/utils/formatEuro';
 import { formatDriverPositionAgeFr } from '@/utils/formatDriverPositionAge';
-import { postDebugSessionLog } from '@/utils/debugSessionIngest';
 import { fitMapRegion } from '@/utils/fitMapRegion';
 
 /** Au-delà : on n’affiche plus le libellé « LIVE » (évite « suivi live » avec point figé). */
@@ -80,7 +79,6 @@ const MiniMapCanvas = memo(function MiniMapCanvas({
 });
 
 export default function SuiviScreen() {
-  const lastMapChainProbeRef = useRef(0);
   const params = useLocalSearchParams<{ orderId?: string | string[] }>();
   const { width: windowW } = useWindowDimensions();
   const mapSize = Math.min(288, Math.max(220, windowW - spacing.md * 2 - spacing.lg * 2));
@@ -280,36 +278,6 @@ export default function SuiviScreen() {
     }
     return 'Aperçu de carte : QG Husko et trajet';
   }, [mapTruth]);
-  useEffect(() => {
-    const now = Date.now();
-    if (now - lastMapChainProbeRef.current < 2500) return;
-    lastMapChainProbeRef.current = now;
-    // #region agent log
-    postDebugSessionLog({
-      runId: 'gps-reorg-pass1',
-      hypothesisId: 'H5',
-      location: 'app/client/suivi.tsx:mapTruth',
-      message: 'client map truth state',
-      data: {
-        activeStatus: active?.status ?? null,
-        mapTruth,
-        remoteOk,
-        hasDriver: driver != null,
-        driverPositionUpdatedAt: driverPositionUpdatedAt ?? null,
-        showLiveMap,
-        showStaticMap,
-      },
-    });
-    // #endregion
-  }, [
-    active?.status,
-    driver,
-    driverPositionUpdatedAt,
-    mapTruth,
-    remoteOk,
-    showLiveMap,
-    showStaticMap,
-  ]);
   const etaStepMs = useMemo(() => {
     if (remoteAutonomousDemo?.enabled) return remoteAutonomousDemo.stepMs;
     if (autonomousDemoEnabled) return AUTONOMOUS_PACE_PRESETS[autonomousPacePreset].stepMs;

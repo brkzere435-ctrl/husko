@@ -10,7 +10,6 @@ import { typography } from '@/constants/typography';
 import { colors, spacing } from '@/constants/theme';
 import { debugFirebaseProjectId, isRemoteSyncEnabled } from '@/services/firebaseRemote';
 import { useHuskoStore } from '@/stores/useHuskoStore';
-import { getDebugSessionNdjsonDump } from '@/utils/debugSessionIngest';
 import { formatCloudSyncErrorForUser } from '@/utils/cloudSyncUserMessage';
 
 /**
@@ -29,16 +28,14 @@ export function SyncDiagnosticsSection() {
   if (!supportUiEnabled) return null;
 
   async function copyReport() {
-    const debugNdjsonTail = await getDebugSessionNdjsonDump();
     const payload = {
       generatedAt: new Date().toISOString(),
       projectId: projectId ?? null,
       cloudSyncWriteError: cloudSyncWriteError ?? null,
       cloudSyncListenError: cloudSyncListenError ?? null,
       ordersSyncDebug: ordersSyncDebug ?? null,
-      debugNdjsonTail: debugNdjsonTail.length > 0 ? debugNdjsonTail : null,
       hint:
-        'Comparer avec la console Firebase → Firestore → orders (document HK-… au moment de la commande). debugNdjsonTail = sondes session suivi (H1–H5) si présentes.',
+        'Comparer avec la console Firebase → Firestore → orders (document HK-… au moment de la commande).',
     };
     await Clipboard.setStringAsync(JSON.stringify(payload, null, 2));
     setCopied(true);

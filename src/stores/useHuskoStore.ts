@@ -137,6 +137,26 @@ export function pickTrackedDriverOrderId(orders: Order[]): string | null {
   return null;
 }
 
+/**
+ * Même règle que `setDriver` → `remotePushDriverDebounced` : le livreur peut épingler
+ * `trackingOrderId` ; l’abonnement Firestore côté pont (`subscribeToRemoteDriver`) doit suivre
+ * le même id pour lire `orders/.../tracking/driver` et `meta/driver_order_*` alignés sur l’écriture.
+ */
+export function pickRemoteDriverSubscriptionOrderId(
+  orders: Order[],
+  trackingOrderId: string | null
+): string | null {
+  const hasPinnedTrackingOrder =
+    !!trackingOrderId &&
+    orders.some(
+      (o) =>
+        o.id === trackingOrderId &&
+        (o.status === 'awaiting_livreur' || o.status === 'on_way')
+    );
+  if (hasPinnedTrackingOrder) return trackingOrderId;
+  return pickTrackedDriverOrderId(orders);
+}
+
 function orderPriority(status: OrderStatus): number {
   if (status === 'on_way') return 4;
   if (status === 'awaiting_livreur') return 3;
@@ -336,16 +356,7 @@ export const useHuskoStore = create<State>()(
 
       setDriver: (pos, heading = 0) => {
         const state = get();
-        const hasPinnedTrackingOrder =
-          !!state.trackingOrderId &&
-          state.orders.some(
-            (o) =>
-              o.id === state.trackingOrderId &&
-              (o.status === 'awaiting_livreur' || o.status === 'on_way')
-          );
-        const trackedOrderId = hasPinnedTrackingOrder
-          ? state.trackingOrderId
-          : pickTrackedDriverOrderId(state.orders);
+        const trackedOrderId = pickRemoteDriverSubscriptionOrderId(state.orders, state.trackingOrderId);
         set({
           driver: pos,
           driverHeading: heading,

@@ -30,7 +30,6 @@ import {
   subscribeToRemoteOrders,
   subscribeToRemoteServiceSettings,
 } from '@/services/firebaseRemote';
-import { postDebugSessionLog } from '@/utils/debugSessionIngest';
 import { mergeRemoteOrdersWithLocal } from '@/utils/mergeRemoteOrders';
 import {
   OTA_PERIODIC_CHECK_MS,
@@ -42,7 +41,7 @@ import {
   notifyRemoteOrderStatusDiff,
 } from '@/services/orderNotifications';
 import type { Order } from '@/stores/useHuskoStore';
-import { pickTrackedDriverOrderId, useHuskoStore } from '@/stores/useHuskoStore';
+import { pickRemoteDriverSubscriptionOrderId, useHuskoStore } from '@/stores/useHuskoStore';
 import { getAppVariant } from '@/constants/appVariant';
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
@@ -62,7 +61,9 @@ function pruneClientOrdersForTracking(orders: Order[]): Order[] {
 
 export default function RootLayout() {
   const { showOfflineBanner } = useNetworkState();
-  const driverOrderId = useHuskoStore((s) => pickTrackedDriverOrderId(s.orders));
+  const driverOrderId = useHuskoStore((s) =>
+    pickRemoteDriverSubscriptionOrderId(s.orders, s.trackingOrderId)
+  );
   const [fontsLoaded, fontError] = useFonts({
     Oswald_400Regular,
     Oswald_500Medium,
@@ -73,8 +74,6 @@ export default function RootLayout() {
 
   const tickRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const otaRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const lastDriverBridgeProbeAtRef = useRef(0);
-
   useEffect(() => {
     if (!appReady) return;
     configureNotificationHandler();
@@ -115,39 +114,12 @@ export default function RootLayout() {
     const variant = getAppVariant();
     /** Ne pas couper le flux client quand `driverOrderId` est encore null : même logique que l’APK hub (`all`) — écoute au minimum `meta/driver`. */
     const skipReason = !remoteOk ? 'remote_off' : variant === 'livreur' ? 'livreur_local_gps' : null;
-    // #region agent log
-    postDebugSessionLog({
-      runId: 'gps-reorg-pass1',
-      hypothesisId: 'H1',
-      location: 'app/_layout.tsx:driver-subscribe:gate',
-      message: 'driver bridge gate evaluated',
-      data: { remoteOk, variant, driverOrderId: driverOrderId ?? null, skipReason },
-    });
-    // #endregion
 
     if (skipReason !== null) {
       return;
     }
 
     const unsubDriver = subscribeToRemoteDriver(driverOrderId, (driver, driverHeading, updatedAt) => {
-      const now = Date.now();
-      if (now - lastDriverBridgeProbeAtRef.current > 2500) {
-        lastDriverBridgeProbeAtRef.current = now;
-        // #region agent log
-        postDebugSessionLog({
-          runId: 'gps-reorg-pass1',
-          hypothesisId: 'H1',
-          location: 'app/_layout.tsx:driver-subscribe:callback',
-          message: 'driver bridge callback received',
-          data: {
-            driverOrderId: driverOrderId ?? null,
-            hasDriver: driver != null,
-            updatedAt: updatedAt ?? null,
-            heading: Math.round(driverHeading),
-          },
-        });
-        // #endregion
-      }
       useHuskoStore.setState({ driver, driverHeading, driverPositionUpdatedAt: updatedAt });
     });
     return () => {

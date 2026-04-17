@@ -12,7 +12,6 @@ import { Platform } from 'react-native';
 
 import type { LatLng, Order } from '@/stores/useHuskoStore';
 import { coerceOrderFromRemote } from '@/utils/orderNormalize';
-import { postDebugSessionLog } from '@/utils/debugSessionIngest';
 import { readHuskoExpoExtra } from '@/utils/readHuskoExpoExtra';
 
 /** Métadonnées snapshot Firestore `orders` (diagnostic synchro). */
@@ -370,31 +369,13 @@ export function subscribeToRemoteDriver(
   let orderTrackingSnapshot: DriverSnapshot | null = null;
   let orderSnapshot: DriverSnapshot | null = null;
   let globalSnapshot: DriverSnapshot | null = null;
-  let lastEmitProbeAt = 0;
-
   const emitBest = () => {
     const candidates: DriverSnapshotCandidate[] = [
       orderTrackingSnapshot != null ? { source: 'orderTracking', snapshot: orderTrackingSnapshot } : null,
       orderSnapshot != null ? { source: 'orderMeta', snapshot: orderSnapshot } : null,
       globalSnapshot != null ? { source: 'global', snapshot: globalSnapshot } : null,
     ].filter((s): s is DriverSnapshotCandidate => s !== null && !isDriverSnapshotStale(s.snapshot));
-    const now = Date.now();
-    const shouldProbe = now - lastEmitProbeAt > 2500;
-    if (shouldProbe) {
-      lastEmitProbeAt = now;
-    }
     if (candidates.length === 0) {
-      if (shouldProbe) {
-        // #region agent log
-        postDebugSessionLog({
-          runId: 'gps-reorg-pass1',
-          hypothesisId: 'H4',
-          location: 'src/services/firebaseRemote.ts:emitBest:none',
-          message: 'remote driver candidates empty',
-          data: { normalizedOrderId: normalizedOrderId ?? null },
-        });
-        // #endregion
-      }
       onDriver(null, 0, null);
       return;
     }
@@ -423,37 +404,10 @@ export function subscribeToRemoteDriver(
       };
       const selected = pickFreshest(eligible);
       if (selected) {
-        if (shouldProbe) {
-          // #region agent log
-          postDebugSessionLog({
-            runId: 'gps-reorg-pass1',
-            hypothesisId: 'H4',
-            location: 'src/services/firebaseRemote.ts:emitBest:selected-order',
-            message: 'remote driver selected for tracked order',
-            data: {
-              normalizedOrderId,
-              source: selected.source,
-              snapshotOrderId: selected.snapshot.orderId ?? null,
-              updatedAt: selected.snapshot.updatedAt ?? null,
-            },
-          });
-          // #endregion
-        }
         onDriver(selected.snapshot.driver, selected.snapshot.heading, selected.snapshot.updatedAt);
         return;
       }
       // Empêche un "suivi irréel" en affichant la position d'une autre commande.
-      if (shouldProbe) {
-        // #region agent log
-        postDebugSessionLog({
-          runId: 'gps-reorg-pass1',
-          hypothesisId: 'H4',
-          location: 'src/services/firebaseRemote.ts:emitBest:no-eligible',
-          message: 'remote driver candidates filtered out by order',
-          data: { normalizedOrderId, candidateCount: candidates.length },
-        });
-        // #endregion
-      }
       onDriver(null, 0, null);
       return;
     }
@@ -462,21 +416,6 @@ export function subscribeToRemoteDriver(
       const curTs = cur.snapshot.updatedAt ?? 0;
       return curTs >= bestTs ? cur : best;
     });
-    if (shouldProbe) {
-      // #region agent log
-      postDebugSessionLog({
-        runId: 'gps-reorg-pass1',
-        hypothesisId: 'H4',
-        location: 'src/services/firebaseRemote.ts:emitBest:selected-global',
-        message: 'remote driver selected without tracked order',
-        data: {
-          source: freshest.source,
-          updatedAt: freshest.snapshot.updatedAt ?? null,
-          candidateCount: candidates.length,
-        },
-      });
-      // #endregion
-    }
     onDriver(freshest.snapshot.driver, freshest.snapshot.heading, freshest.snapshot.updatedAt);
   };
 
