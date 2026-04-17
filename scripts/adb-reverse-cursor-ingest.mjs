@@ -26,7 +26,8 @@ try {
   console.log(
     '  EXPO_PUBLIC_DEBUG_INGEST_URL=http://127.0.0.1:7887/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42'
   );
-  console.log('  EXPO_PUBLIC_DEBUG_SESSION_ID=a47b9d');
+  console.log('  # Optionnel — id de session Cursor si vous utilisez l’ingest debug :');
+  console.log('  EXPO_PUBLIC_DEBUG_SESSION_ID=…');
 } catch (e) {
   console.error('[Husko] adb reverse a échoué (appareil USB + débogage activé ?) :', e.message);
   process.exit(1);
