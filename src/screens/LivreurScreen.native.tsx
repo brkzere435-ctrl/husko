@@ -1,5 +1,4 @@
 import { Ionicons } from '@expo/vector-icons';
-import * as Location from 'expo-location';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Platform, StyleSheet, Switch, View } from 'react-native';
 import { Snackbar, Text } from 'react-native-paper';
@@ -22,6 +21,12 @@ import { livreurScreenVisual } from '@/constants/livreurScreenVisual';
 import { ANGERS_DEFAULT, useHuskoStore } from '@/stores/useHuskoStore';
 import { fitMapRegion } from '@/utils/fitMapRegion';
 import { isMapsKeyConfiguredForPlatform } from '@/utils/mapsBuildInfo';
+import {
+  clearLivreurWatch,
+  ensureLivreurLocationPermission,
+  getInitialLivreurPosition,
+  startLivreurWatch,
+} from '@/services/livreurGeolocation';
 
 export default function LivreurScreenNative() {
   const setDriver = useHuskoStore((s) => s.setDriver);
@@ -36,8 +41,7 @@ export default function LivreurScreenNative() {
     longitudeDelta: 0.012,
   });
 
-  const subRef = useRef<Location.LocationSubscription | null>(null);
-  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const watchIdRef = useRef<number | null>(null);
   const mainMapRef = useRef<MapView | null>(null);
   const lastMainMapCamAt = useRef(0);
   const [snack, setSnack] = useState('');
@@ -99,71 +103,40 @@ export default function LivreurScreenNative() {
 
     async function start() {
       try {
-        const { status } = await Location.requestForegroundPermissionsAsync();
-        if (status !== 'granted') {
+        const ok = await ensureLivreurLocationPermission();
+        if (!ok) {
           setSnack('Activez la localisation pour le suivi livreur.');
           return;
         }
-        const prime = await Location.getCurrentPositionAsync({
-          accuracy: Location.Accuracy.High,
+        const prime = await getInitialLivreurPosition();
+        applyLocation(prime.lat, prime.lng, prime.headingDeg);
+        if (watchIdRef.current != null) {
+          clearLivreurWatch(watchIdRef.current);
+          watchIdRef.current = null;
+        }
+        watchIdRef.current = startLivreurWatch((lat, lng, heading) => {
+          if (cancelled) return;
+          applyLocation(lat, lng, heading);
         });
-        const lat0 = prime.coords.latitude;
-        const lng0 = prime.coords.longitude;
-        const raw0 = prime.coords.heading;
-        const heading0 = typeof raw0 === 'number' && Number.isFinite(raw0) ? raw0 : 0;
-        applyLocation(lat0, lng0, heading0);
-        subRef.current?.remove();
-        subRef.current = await Location.watchPositionAsync(
-          {
-            accuracy: Location.Accuracy.Highest,
-            distanceInterval: 0,
-            timeInterval: 1000,
-          },
-          (loc) => {
-            if (cancelled) return;
-            const lat = loc.coords.latitude;
-            const lng = loc.coords.longitude;
-            const raw = loc.coords.heading;
-            const heading = typeof raw === 'number' && Number.isFinite(raw) ? raw : 0;
-            applyLocation(lat, lng, heading);
-          }
-        );
-        if (pollRef.current) clearInterval(pollRef.current);
-        pollRef.current = setInterval(() => {
-          if (cancelled || !livreurOnline) return;
-          void Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High })
-            .then((loc) => {
-              const lat = loc.coords.latitude;
-              const lng = loc.coords.longitude;
-              const raw = loc.coords.heading;
-              const heading = typeof raw === 'number' && Number.isFinite(raw) ? raw : 0;
-              applyLocation(lat, lng, heading);
-            })
-            .catch(() => {});
-        }, 5000);
       } catch {
         setSnack('Impossible d’activer le GPS (services de localisation ?).');
       }
     }
 
-    if (livreurOnline) start();
+    if (livreurOnline) void start();
     else {
-      subRef.current?.remove();
-      subRef.current = null;
-      if (pollRef.current) {
-        clearInterval(pollRef.current);
-        pollRef.current = null;
+      if (watchIdRef.current != null) {
+        clearLivreurWatch(watchIdRef.current);
+        watchIdRef.current = null;
       }
       setDriver(null, 0);
     }
 
     return () => {
       cancelled = true;
-      subRef.current?.remove();
-      subRef.current = null;
-      if (pollRef.current) {
-        clearInterval(pollRef.current);
-        pollRef.current = null;
+      if (watchIdRef.current != null) {
+        clearLivreurWatch(watchIdRef.current);
+        watchIdRef.current = null;
       }
     };
   }, [livreurOnline, setDriver]);
@@ -190,6 +163,12 @@ export default function LivreurScreenNative() {
               trackColor={{ false: colors.switchTrackOff, true: colors.accentDim }}
             />
           </View>
+          {__DEV__ ? (
+            <Text style={styles.geoDevHint} accessibilityLabel="Avertissement développement GPS">
+              Développement : le simulateur / émulateur donne souvent un GPS faux ou absent — valider sur
+              téléphone réel. Clé Maps : {mapsConfigured ? 'présente' : 'manquante (carte radar)'}.
+            </Text>
+          ) : null}
 
           <DeploymentHints mode="alerts" mapsRelevant />
 
@@ -306,6 +285,13 @@ const styles = StyleSheet.create({
     ...elevation.card,
   },
   toolbarLabel: { fontFamily: FONT.bold, color: WC.neonCyan, fontSize: 13, letterSpacing: 1.2 },
+  geoDevHint: {
+    paddingHorizontal: spacing.md,
+    paddingBottom: spacing.sm,
+    fontSize: 11,
+    lineHeight: 15,
+    color: colors.textMuted,
+  },
   mapContainer: { flex: 1, position: 'relative' },
   mapStack: { ...StyleSheet.absoluteFillObject },
   map: { ...StyleSheet.absoluteFillObject },

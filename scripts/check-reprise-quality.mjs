@@ -45,10 +45,19 @@ const checks = [
     id: 'livreur.gps.watchdog',
     file: join(root, 'src', 'screens', 'LivreurScreen.native.tsx'),
     test: (src) =>
-      src.includes('watchPositionAsync') &&
-      src.includes('setInterval(() =>') &&
-      src.includes("Location.Accuracy.Highest"),
-    error: 'Le watchdog GPS livreur (watch + poll) est manquant.',
+      src.includes('startLivreurWatch') &&
+      src.includes('clearLivreurWatch') &&
+      src.includes('livreurGeolocation'),
+    error: 'Le suivi GPS livreur (react-native-geolocation-service + clearWatch) est manquant.',
+  },
+  {
+    id: 'livreur.gps.service.options',
+    file: join(root, 'src', 'services', 'livreurGeolocation.ts'),
+    test: (src) =>
+      src.includes('distanceFilter: 10') &&
+      src.includes('interval: 5000') &&
+      src.includes('fastestInterval: 2000'),
+    error: 'Les options Fused (10 m / 5 s / 2 s) du service livreur sont manquantes.',
   },
   {
     id: 'layout.client.driver-scope',
