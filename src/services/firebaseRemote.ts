@@ -225,13 +225,9 @@ function remotePushDriverNow(pos: LatLng | null, heading: number, orderId: strin
     lng: pos?.longitude ?? null,
     heading,
     updatedAt: Date.now(),
+    /** Toujours écrire `orderId` (y compris `null`) : sans ça, `merge` garde l’ancien id sur `meta/driver`. */
+    orderId: normalizedOrderId,
   };
-  if (normalizedOrderId != null) {
-    payload.orderId = normalizedOrderId;
-  } else if (pos == null) {
-    // Passage hors-ligne: on efface explicitement l'association commande.
-    payload.orderId = null;
-  }
   const afterWrite = () => {
     if (pos != null) {
       lastDriverWriteSample = {
