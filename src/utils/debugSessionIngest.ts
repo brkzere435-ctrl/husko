@@ -1,10 +1,11 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-/** Session Cursor debug — inchangé tant que la session debug active le même fichier NDJSON. */
-const DEBUG_SESSION_ID = 'a47b9d';
+/** Aligné sur `EXPO_PUBLIC_DEBUG_SESSION_ID` (EAS / `.env`) ; défaut si absent. */
+const DEBUG_SESSION_ID =
+  (process.env.EXPO_PUBLIC_DEBUG_SESSION_ID || 'a47b9d').trim() || 'a47b9d';
 const DEFAULT_INGEST =
   'http://127.0.0.1:7887/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42';
-const RING_KEY = 'husko_debug_ndjson_ring_a47b9d';
+const RING_KEY = `husko_debug_ndjson_ring_${DEBUG_SESSION_ID.replace(/[^a-zA-Z0-9_-]/g, '_')}`;
 const RING_MAX = 40;
 
 export type DebugSessionLogPayload = {
