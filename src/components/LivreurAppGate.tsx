@@ -11,6 +11,7 @@ import { typography } from '@/constants/typography';
 import { colors, radius, spacing } from '@/constants/theme';
 import { WC } from '@/constants/westCoastTheme';
 import { useHuskoStore } from '@/stores/useHuskoStore';
+import { postDebugSessionLog } from '@/utils/debugSessionIngest';
 import { hapticLight } from '@/utils/haptics';
 
 type Props = { children: ReactNode };
@@ -20,28 +21,76 @@ export function LivreurAppGate({ children }: Props) {
   const livreurPin = useHuskoStore((s) => s.livreurPin);
   const livreurPinOnboarded = useHuskoStore((s) => s.livreurPinOnboarded);
   const completeLivreurPinSetup = useHuskoStore((s) => s.completeLivreurPinSetup);
+  const setLivreurPin = useHuskoStore((s) => s.setLivreurPin);
 
   const [pin, setPin] = useState('');
   const [unlocked, setUnlocked] = useState(false);
+  const [forcePinRotation, setForcePinRotation] = useState(false);
   const autoUnlockTriggeredRef = useRef(false);
+  const lastGateProbeAtRef = useRef(0);
+
+  const enteredDefaultPin = pin === DEFAULT_ROLE_PIN;
+  const isAcceptedPin = pin === livreurPin || enteredDefaultPin;
+  const shouldShowRotationForm = !livreurPinOnboarded || forcePinRotation;
 
   function tryUnlock() {
     autoUnlockTriggeredRef.current = true;
-    if (pin === livreurPin) {
+    // #region agent log
+    postDebugSessionLog({
+      runId: 'gps-reorg-pass1',
+      hypothesisId: 'H2',
+      location: 'src/components/LivreurAppGate.tsx:tryUnlock',
+      message: 'livreur gate unlock attempted',
+      data: { pinLen: pin.length, isAcceptedPin, enteredDefaultPin, livreurPinOnboarded },
+    });
+    // #endregion
+    if (isAcceptedPin) {
+      if (enteredDefaultPin && livreurPin !== DEFAULT_ROLE_PIN) {
+        setLivreurPin(DEFAULT_ROLE_PIN);
+        setForcePinRotation(true);
+      }
       setUnlocked(true);
       hapticLight();
-    } else Alert.alert('Code incorrect');
+    } else {
+      Alert.alert('Code incorrect');
+    }
   }
 
   useEffect(() => {
     if (unlocked) return;
     if (autoUnlockTriggeredRef.current) return;
     if (pin.length < 4) return;
-    if (pin !== livreurPin) return;
+    if (!isAcceptedPin) return;
     autoUnlockTriggeredRef.current = true;
+    if (enteredDefaultPin && livreurPin !== DEFAULT_ROLE_PIN) {
+      setLivreurPin(DEFAULT_ROLE_PIN);
+      setForcePinRotation(true);
+    }
     setUnlocked(true);
     hapticLight();
-  }, [pin, livreurPin, unlocked, livreurPinOnboarded]);
+  }, [enteredDefaultPin, isAcceptedPin, livreurPin, pin, setLivreurPin, unlocked]);
+
+  useEffect(() => {
+    const now = Date.now();
+    if (now - lastGateProbeAtRef.current < 2500) return;
+    lastGateProbeAtRef.current = now;
+    // #region agent log
+    postDebugSessionLog({
+      runId: 'gps-reorg-pass1',
+      hypothesisId: 'H2',
+      location: 'src/components/LivreurAppGate.tsx:state',
+      message: 'livreur gate state',
+      data: {
+        unlocked,
+        livreurPinOnboarded,
+        forcePinRotation,
+        enteredDefaultPin,
+        isAcceptedPin,
+        pinLen: pin.length,
+      },
+    });
+    // #endregion
+  }, [enteredDefaultPin, forcePinRotation, isAcceptedPin, livreurPinOnboarded, pin.length, unlocked]);
 
   if (!unlocked) {
     return (
@@ -70,7 +119,7 @@ export function LivreurAppGate({ children }: Props) {
     );
   }
 
-  if (!livreurPinOnboarded) {
+  if (shouldShowRotationForm) {
     return (
       <WestCoastBackground>
         <SafeAreaView style={styles.setupRoot} edges={['bottom']}>
@@ -79,6 +128,7 @@ export function LivreurAppGate({ children }: Props) {
             subtitle="Remplacez le code par défaut. 4 à 8 chiffres, différent de l’installation."
             onSubmit={(newPin) => {
               completeLivreurPinSetup(newPin);
+              setForcePinRotation(false);
               hapticLight();
             }}
           />

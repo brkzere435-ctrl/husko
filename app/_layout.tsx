@@ -30,6 +30,7 @@ import {
   subscribeToRemoteOrders,
   subscribeToRemoteServiceSettings,
 } from '@/services/firebaseRemote';
+import { postDebugSessionLog } from '@/utils/debugSessionIngest';
 import { mergeRemoteOrdersWithLocal } from '@/utils/mergeRemoteOrders';
 import {
   OTA_PERIODIC_CHECK_MS,
@@ -72,19 +73,13 @@ export default function RootLayout() {
 
   const tickRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const otaRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const lastDriverCallbackProbeRef = useRef(0);
+  const lastDriverBridgeProbeAtRef = useRef(0);
 
   useEffect(() => {
     if (!appReady) return;
     configureNotificationHandler();
     void SystemUI.setBackgroundColorAsync(colors.bg);
     void SplashScreen.hideAsync();
-    console.log(
-      `[DBG21424c][H0] root layout ready otaEnabled=${String(OTA_RUNTIME_ENABLED)} channel=${String(Updates.channel ?? null)} updateId=${String(Updates.updateId ?? null)} embedded=${String(Updates.isEmbeddedLaunch)}`
-    );
-    // #region agent log
-    fetch('http://127.0.0.1:7887/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'21424c'},body:JSON.stringify({sessionId:'21424c',runId:'gps-live-chain',hypothesisId:'H0',location:'app/_layout.tsx:boot',message:'root layout ready',data:{otaEnabled:OTA_RUNTIME_ENABLED,channel:Updates.channel??null,updateId:Updates.updateId??null,isEmbeddedLaunch:Updates.isEmbeddedLaunch},timestamp:Date.now()})}).catch((err)=>{console.log(`[DBG21424c][H0] boot probe failed: ${String(err)}`);});
-    // #endregion
   }, [appReady]);
 
   useEffect(() => {
@@ -120,6 +115,15 @@ export default function RootLayout() {
     const variant = getAppVariant();
     /** Ne pas couper le flux client quand `driverOrderId` est encore null : même logique que l’APK hub (`all`) — écoute au minimum `meta/driver`. */
     const skipReason = !remoteOk ? 'remote_off' : variant === 'livreur' ? 'livreur_local_gps' : null;
+    // #region agent log
+    postDebugSessionLog({
+      runId: 'gps-reorg-pass1',
+      hypothesisId: 'H1',
+      location: 'app/_layout.tsx:driver-subscribe:gate',
+      message: 'driver bridge gate evaluated',
+      data: { remoteOk, variant, driverOrderId: driverOrderId ?? null, skipReason },
+    });
+    // #endregion
 
     if (skipReason !== null) {
       return;
@@ -127,13 +131,21 @@ export default function RootLayout() {
 
     const unsubDriver = subscribeToRemoteDriver(driverOrderId, (driver, driverHeading, updatedAt) => {
       const now = Date.now();
-      if (now - lastDriverCallbackProbeRef.current > 3000) {
-        lastDriverCallbackProbeRef.current = now;
-        console.log(
-          `[DBG21424c][H3] remote driver applied orderId=${driverOrderId ?? 'null'} hasDriver=${String(driver != null)} updatedAt=${String(updatedAt)} heading=${Math.round(driverHeading)}`
-        );
+      if (now - lastDriverBridgeProbeAtRef.current > 2500) {
+        lastDriverBridgeProbeAtRef.current = now;
         // #region agent log
-        fetch('http://127.0.0.1:7887/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'21424c'},body:JSON.stringify({sessionId:'21424c',runId:'gps-live-chain',hypothesisId:'H3',location:'app/_layout.tsx:subscribeToRemoteDriver:callback',message:'client remote driver snapshot applied',data:{driverOrderId,hasDriver:driver!=null,updatedAt},timestamp:Date.now()})}).catch(()=>{});
+        postDebugSessionLog({
+          runId: 'gps-reorg-pass1',
+          hypothesisId: 'H1',
+          location: 'app/_layout.tsx:driver-subscribe:callback',
+          message: 'driver bridge callback received',
+          data: {
+            driverOrderId: driverOrderId ?? null,
+            hasDriver: driver != null,
+            updatedAt: updatedAt ?? null,
+            heading: Math.round(driverHeading),
+          },
+        });
         // #endregion
       }
       useHuskoStore.setState({ driver, driverHeading, driverPositionUpdatedAt: updatedAt });

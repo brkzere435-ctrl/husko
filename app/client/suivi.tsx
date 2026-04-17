@@ -37,6 +37,7 @@ import { pickPrimaryActiveOrder, useHuskoStore } from '@/stores/useHuskoStore';
 import { isRemoteSyncEnabled } from '@/services/firebaseRemote';
 import { formatEuro } from '@/utils/formatEuro';
 import { formatDriverPositionAgeFr } from '@/utils/formatDriverPositionAge';
+import { postDebugSessionLog } from '@/utils/debugSessionIngest';
 import { fitMapRegion } from '@/utils/fitMapRegion';
 
 /** Au-delà : on n’affiche plus le libellé « LIVE » (évite « suivi live » avec point figé). */
@@ -79,7 +80,7 @@ const MiniMapCanvas = memo(function MiniMapCanvas({
 });
 
 export default function SuiviScreen() {
-  const lastMapTruthProbeRef = useRef(0);
+  const lastMapChainProbeRef = useRef(0);
   const params = useLocalSearchParams<{ orderId?: string | string[] }>();
   const { width: windowW } = useWindowDimensions();
   const mapSize = Math.min(288, Math.max(220, windowW - spacing.md * 2 - spacing.lg * 2));
@@ -281,16 +282,34 @@ export default function SuiviScreen() {
   }, [mapTruth]);
   useEffect(() => {
     const now = Date.now();
-    if (now - lastMapTruthProbeRef.current < 3000) return;
-    lastMapTruthProbeRef.current = now;
-    console.log(
-      `[DBG21424c][H4] mapTruth=${mapTruth} activeStatus=${active?.status ?? 'null'} hasDriver=${String(driver != null)} updatedAt=${String(driverPositionUpdatedAt)} remoteOk=${String(remoteOk)}`
-    );
+    if (now - lastMapChainProbeRef.current < 2500) return;
+    lastMapChainProbeRef.current = now;
     // #region agent log
-    fetch('http://127.0.0.1:7887/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'21424c'},body:JSON.stringify({sessionId:'21424c',runId:'gps-live-chain',hypothesisId:'H4',location:'app/client/suivi.tsx:mapTruth',message:'client map truth computed',data:{activeStatus:active?.status??null,mapTruth,driverPositionUpdatedAt,hasDriver:driver!=null,remoteOk},timestamp:Date.now()})}).catch(()=>{});
+    postDebugSessionLog({
+      runId: 'gps-reorg-pass1',
+      hypothesisId: 'H5',
+      location: 'app/client/suivi.tsx:mapTruth',
+      message: 'client map truth state',
+      data: {
+        activeStatus: active?.status ?? null,
+        mapTruth,
+        remoteOk,
+        hasDriver: driver != null,
+        driverPositionUpdatedAt: driverPositionUpdatedAt ?? null,
+        showLiveMap,
+        showStaticMap,
+      },
+    });
     // #endregion
-  }, [active?.status, driver, driverPositionUpdatedAt, mapTruth, remoteOk]);
-
+  }, [
+    active?.status,
+    driver,
+    driverPositionUpdatedAt,
+    mapTruth,
+    remoteOk,
+    showLiveMap,
+    showStaticMap,
+  ]);
   const etaStepMs = useMemo(() => {
     if (remoteAutonomousDemo?.enabled) return remoteAutonomousDemo.stepMs;
     if (autonomousDemoEnabled) return AUTONOMOUS_PACE_PRESETS[autonomousPacePreset].stepMs;

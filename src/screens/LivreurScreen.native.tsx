@@ -21,6 +21,7 @@ import { HUSKO_DEPARTURE_HUB } from '@/constants/huskoDepartureHub';
 import { livreurScreenVisual } from '@/constants/livreurScreenVisual';
 import { ANGERS_DEFAULT, useHuskoStore } from '@/stores/useHuskoStore';
 import { fitMapRegion } from '@/utils/fitMapRegion';
+import { postDebugSessionLog } from '@/utils/debugSessionIngest';
 import { isMapsKeyConfiguredForPlatform } from '@/utils/mapsBuildInfo';
 
 export default function LivreurScreenNative() {
@@ -38,23 +39,28 @@ export default function LivreurScreenNative() {
 
   const subRef = useRef<Location.LocationSubscription | null>(null);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const lastGpsProbeAtRef = useRef(0);
   const mainMapRef = useRef<MapView | null>(null);
   const lastMainMapCamAt = useRef(0);
+  const lastGpsChainProbeAtRef = useRef(0);
   const [snack, setSnack] = useState('');
   const mapsConfigured = isMapsKeyConfiguredForPlatform();
-  /** Mode pro: carte native dès que les clés Maps sont configurées, fallback seulement en secours. */
-  const forceRadarFallback = !mapsConfigured;
+  /**
+   * Google Maps Android API fails with INVALID_ARGUMENT on target devices.
+   * Keep Android on radar fallback to avoid repeated black-map attempts.
+   */
+  const forceRadarFallback = Platform.OS === 'android' || !mapsConfigured;
   const [nativeMapFailed, setNativeMapFailed] = useState(false);
   const [nativeMapReady, setNativeMapReady] = useState(false);
   const [nativeMapLoaded, setNativeMapLoaded] = useState(false);
   const useRadarFallback = forceRadarFallback || nativeMapFailed;
 
-  const LIVREUR_MAP_FAILSAFE_MS = 4_000;
+  const LIVREUR_MAP_FAILSAFE_MS = 1_200;
   useEffect(() => {
     if (useRadarFallback) return;
     if (nativeMapReady) return;
-    const timer = setTimeout(() => setNativeMapFailed(true), LIVREUR_MAP_FAILSAFE_MS);
+    const timer = setTimeout(() => {
+      setNativeMapFailed(true);
+    }, LIVREUR_MAP_FAILSAFE_MS);
     return () => clearTimeout(timer);
   }, [nativeMapReady, useRadarFallback]);
 
@@ -88,13 +94,21 @@ export default function LivreurScreenNative() {
     ) => {
       if (cancelled) return;
       const now = Date.now();
-      if (now - lastGpsProbeAtRef.current > 3000) {
-        lastGpsProbeAtRef.current = now;
-        console.log(
-          `[DBG21424c][H1] livreur GPS point accepted lat=${Math.round(lat * 1e5) / 1e5} lng=${Math.round(lng * 1e5) / 1e5} heading=${Math.round(heading)} online=${String(livreurOnline)}`
-        );
+      if (now - lastGpsChainProbeAtRef.current > 2500) {
+        lastGpsChainProbeAtRef.current = now;
         // #region agent log
-        fetch('http://127.0.0.1:7887/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'21424c'},body:JSON.stringify({sessionId:'21424c',runId:'gps-live-chain',hypothesisId:'H1',location:'LivreurScreen.native.tsx:applyLocation',message:'livreur GPS point accepted',data:{livreurOnline,lat:Math.round(lat*1e5)/1e5,lng:Math.round(lng*1e5)/1e5,heading:Math.round(heading)},timestamp:Date.now()})}).catch(()=>{});
+        postDebugSessionLog({
+          runId: 'gps-reorg-pass1',
+          hypothesisId: 'H3',
+          location: 'src/screens/LivreurScreen.native.tsx:applyLocation',
+          message: 'livreur location applied to store',
+          data: {
+            livreurOnline,
+            lat: Math.round(lat * 1e5) / 1e5,
+            lng: Math.round(lng * 1e5) / 1e5,
+            heading: Math.round(heading),
+          },
+        });
         // #endregion
       }
       setDriver({ latitude: lat, longitude: lng }, heading);
@@ -106,6 +120,15 @@ export default function LivreurScreenNative() {
     async function start() {
       try {
         const { status } = await Location.requestForegroundPermissionsAsync();
+        // #region agent log
+        postDebugSessionLog({
+          runId: 'gps-reorg-pass1',
+          hypothesisId: 'H3',
+          location: 'src/screens/LivreurScreen.native.tsx:permission',
+          message: 'livreur foreground permission checked',
+          data: { status, livreurOnline },
+        });
+        // #endregion
         if (status !== 'granted') {
           setSnack('Activez la localisation pour le suivi livreur.');
           return;
@@ -148,6 +171,15 @@ export default function LivreurScreenNative() {
             .catch(() => {});
         }, 5000);
       } catch {
+        // #region agent log
+        postDebugSessionLog({
+          runId: 'gps-reorg-pass1',
+          hypothesisId: 'H3',
+          location: 'src/screens/LivreurScreen.native.tsx:start:catch',
+          message: 'livreur gps start failed',
+          data: { livreurOnline },
+        });
+        // #endregion
         setSnack('Impossible d’activer le GPS (services de localisation ?).');
       }
     }

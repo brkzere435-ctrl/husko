@@ -12,6 +12,7 @@ import { Platform } from 'react-native';
 
 import type { LatLng, Order } from '@/stores/useHuskoStore';
 import { coerceOrderFromRemote } from '@/utils/orderNormalize';
+import { postDebugSessionLog } from '@/utils/debugSessionIngest';
 import { readHuskoExpoExtra } from '@/utils/readHuskoExpoExtra';
 
 /** Métadonnées snapshot Firestore `orders` (diagnostic synchro). */
@@ -34,7 +35,6 @@ const ORDER_TRACKING_COLLECTION = 'tracking';
 const ORDER_TRACKING_DRIVER_DOC = 'driverLive';
 let lastDriverPushAt = 0;
 let lastDriverPushOrderId: string | null = null;
-let lastDriverProbeAt = 0;
 /** Dernier point réellement écrit sur Firestore — évite de rafraîchir `updatedAt` si le GPS ne bouge pas (sinon le client croit à un flux « live » figé). */
 let lastDriverWriteSample: { lat: number; lng: number; orderId: string | null } | null = null;
 const DRIVER_WRITE_COORD_EPS = 0.00003; // ~3 m
@@ -218,16 +218,6 @@ function remotePushDriverNow(pos: LatLng | null, heading: number, orderId: strin
     const sameSpot =
       lastDriverWriteSample != null && coordsNearlyEqualForPush(pos, lastDriverWriteSample);
     if (sameOrder && sameSpot) {
-      const now = Date.now();
-      if (now - lastDriverProbeAt > 3000) {
-        lastDriverProbeAt = now;
-        console.log(
-          `[DBG21424c][H2] driver write skipped by dedupe guard orderId=${normalizedOrderId ?? 'null'}`
-        );
-        // #region agent log
-        fetch('http://127.0.0.1:7887/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'21424c'},body:JSON.stringify({sessionId:'21424c',runId:'gps-live-chain',hypothesisId:'H2',location:'firebaseRemote.ts:remotePushDriverNow:dedupe',message:'driver write skipped by dedupe guard',data:{orderId:normalizedOrderId},timestamp:Date.now()})}).catch(()=>{});
-        // #endregion
-      }
       return Promise.resolve();
     }
   }
@@ -252,16 +242,6 @@ function remotePushDriverNow(pos: LatLng | null, heading: number, orderId: strin
       };
     } else {
       lastDriverWriteSample = null;
-    }
-    const now = Date.now();
-    if (now - lastDriverProbeAt > 3000) {
-      lastDriverProbeAt = now;
-      console.log(
-        `[DBG21424c][H2] driver write persisted orderId=${normalizedOrderId ?? 'null'} hasPos=${String(pos != null)} updatedAt=${String(payload.updatedAt)}`
-      );
-      // #region agent log
-      fetch('http://127.0.0.1:7887/ingest/454edf30-5b80-46d0-acc5-a07a792b6f42',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'21424c'},body:JSON.stringify({sessionId:'21424c',runId:'gps-live-chain',hypothesisId:'H2',location:'firebaseRemote.ts:remotePushDriverNow:afterWrite',message:'driver write persisted to firestore',data:{orderId:normalizedOrderId,hasPos:pos!=null,updatedAt:payload.updatedAt},timestamp:Date.now()})}).catch(()=>{});
-      // #endregion
     }
   };
   if (normalizedOrderId == null) {
@@ -390,6 +370,7 @@ export function subscribeToRemoteDriver(
   let orderTrackingSnapshot: DriverSnapshot | null = null;
   let orderSnapshot: DriverSnapshot | null = null;
   let globalSnapshot: DriverSnapshot | null = null;
+  let lastEmitProbeAt = 0;
 
   const emitBest = () => {
     const candidates: DriverSnapshotCandidate[] = [
@@ -397,7 +378,23 @@ export function subscribeToRemoteDriver(
       orderSnapshot != null ? { source: 'orderMeta', snapshot: orderSnapshot } : null,
       globalSnapshot != null ? { source: 'global', snapshot: globalSnapshot } : null,
     ].filter((s): s is DriverSnapshotCandidate => s !== null && !isDriverSnapshotStale(s.snapshot));
+    const now = Date.now();
+    const shouldProbe = now - lastEmitProbeAt > 2500;
+    if (shouldProbe) {
+      lastEmitProbeAt = now;
+    }
     if (candidates.length === 0) {
+      if (shouldProbe) {
+        // #region agent log
+        postDebugSessionLog({
+          runId: 'gps-reorg-pass1',
+          hypothesisId: 'H4',
+          location: 'src/services/firebaseRemote.ts:emitBest:none',
+          message: 'remote driver candidates empty',
+          data: { normalizedOrderId: normalizedOrderId ?? null },
+        });
+        // #endregion
+      }
       onDriver(null, 0, null);
       return;
     }
@@ -426,10 +423,37 @@ export function subscribeToRemoteDriver(
       };
       const selected = pickFreshest(eligible);
       if (selected) {
+        if (shouldProbe) {
+          // #region agent log
+          postDebugSessionLog({
+            runId: 'gps-reorg-pass1',
+            hypothesisId: 'H4',
+            location: 'src/services/firebaseRemote.ts:emitBest:selected-order',
+            message: 'remote driver selected for tracked order',
+            data: {
+              normalizedOrderId,
+              source: selected.source,
+              snapshotOrderId: selected.snapshot.orderId ?? null,
+              updatedAt: selected.snapshot.updatedAt ?? null,
+            },
+          });
+          // #endregion
+        }
         onDriver(selected.snapshot.driver, selected.snapshot.heading, selected.snapshot.updatedAt);
         return;
       }
       // Empêche un "suivi irréel" en affichant la position d'une autre commande.
+      if (shouldProbe) {
+        // #region agent log
+        postDebugSessionLog({
+          runId: 'gps-reorg-pass1',
+          hypothesisId: 'H4',
+          location: 'src/services/firebaseRemote.ts:emitBest:no-eligible',
+          message: 'remote driver candidates filtered out by order',
+          data: { normalizedOrderId, candidateCount: candidates.length },
+        });
+        // #endregion
+      }
       onDriver(null, 0, null);
       return;
     }
@@ -438,6 +462,21 @@ export function subscribeToRemoteDriver(
       const curTs = cur.snapshot.updatedAt ?? 0;
       return curTs >= bestTs ? cur : best;
     });
+    if (shouldProbe) {
+      // #region agent log
+      postDebugSessionLog({
+        runId: 'gps-reorg-pass1',
+        hypothesisId: 'H4',
+        location: 'src/services/firebaseRemote.ts:emitBest:selected-global',
+        message: 'remote driver selected without tracked order',
+        data: {
+          source: freshest.source,
+          updatedAt: freshest.snapshot.updatedAt ?? null,
+          candidateCount: candidates.length,
+        },
+      });
+      // #endregion
+    }
     onDriver(freshest.snapshot.driver, freshest.snapshot.heading, freshest.snapshot.updatedAt);
   };
 
