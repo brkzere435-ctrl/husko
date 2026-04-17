@@ -332,13 +332,6 @@ type DriverSnapshot = {
   orderId: string | null;
 };
 
-type DriverSnapshotSource = 'orderTracking' | 'orderMeta' | 'global';
-
-type DriverSnapshotCandidate = {
-  source: DriverSnapshotSource;
-  snapshot: DriverSnapshot;
-};
-
 function parseDriverSnapshot(raw: unknown): DriverSnapshot | null {
   if (!raw || typeof raw !== 'object') return null;
   const d = raw as Record<string, unknown>;
@@ -358,6 +351,30 @@ function isDriverSnapshotStale(s: DriverSnapshot): boolean {
   return s.updatedAt != null && Date.now() - s.updatedAt > DRIVER_STALE_MS;
 }
 
+/**
+ * Un seul listener sur `meta/driver` : le livreur y écrit toujours la vérité (avec `orderId` si connu).
+ * On évite la fusion fragile entre meta / meta/driver_order_* / orders/.../tracking (désalignements, courses).
+ */
+function emitDriverFromMetaDoc(
+  raw: unknown,
+  normalizedOrderId: string | null,
+  onDriver: (driver: LatLng | null, heading: number, updatedAt: number | null) => void
+): void {
+  const parsed = parseDriverSnapshot(raw);
+  if (!parsed || isDriverSnapshotStale(parsed)) {
+    onDriver(null, 0, null);
+    return;
+  }
+  if (normalizedOrderId) {
+    const oid = parsed.orderId;
+    if (oid != null && oid !== normalizedOrderId) {
+      onDriver(null, 0, null);
+      return;
+    }
+  }
+  onDriver(parsed.driver, parsed.heading, parsed.updatedAt);
+}
+
 export function subscribeToRemoteDriver(
   orderId: string | null,
   onDriver: (driver: LatLng | null, heading: number, updatedAt: number | null) => void
@@ -365,106 +382,15 @@ export function subscribeToRemoteDriver(
   const firestore = ensureDb();
   if (!firestore) return () => {};
   const normalizedOrderId = orderId && orderId.trim().length > 0 ? orderId.trim() : null;
-  const orderDocName = normalizedOrderId ? `${DRIVER_ORDER_DOC_PREFIX}${normalizedOrderId}` : null;
-  let orderTrackingSnapshot: DriverSnapshot | null = null;
-  let orderSnapshot: DriverSnapshot | null = null;
-  let globalSnapshot: DriverSnapshot | null = null;
-  const emitBest = () => {
-    const candidates: DriverSnapshotCandidate[] = [
-      orderTrackingSnapshot != null ? { source: 'orderTracking', snapshot: orderTrackingSnapshot } : null,
-      orderSnapshot != null ? { source: 'orderMeta', snapshot: orderSnapshot } : null,
-      globalSnapshot != null ? { source: 'global', snapshot: globalSnapshot } : null,
-    ].filter((s): s is DriverSnapshotCandidate => s !== null && !isDriverSnapshotStale(s.snapshot));
-    if (candidates.length === 0) {
-      onDriver(null, 0, null);
-      return;
-    }
-    // Priorité: snapshot qui matche la commande suivie, sinon le plus frais.
-    if (normalizedOrderId) {
-      const eligible = candidates.filter(({ source, snapshot }) => {
-        if (source === 'orderTracking') return true;
-        if (snapshot.orderId === normalizedOrderId) return true;
-        if (snapshot.orderId == null) return true;
-        return false;
-      });
-      const rankSource = (source: DriverSnapshotSource): number => {
-        if (source === 'orderTracking') return 3;
-        if (source === 'orderMeta') return 2;
-        return 1;
-      };
-      const pickFreshest = (list: DriverSnapshotCandidate[]): DriverSnapshotCandidate | null => {
-        if (list.length === 0) return null;
-        return list.reduce((best, cur) => {
-          const bestTs = best.snapshot.updatedAt ?? 0;
-          const curTs = cur.snapshot.updatedAt ?? 0;
-          if (curTs > bestTs) return cur;
-          if (curTs < bestTs) return best;
-          return rankSource(cur.source) > rankSource(best.source) ? cur : best;
-        });
-      };
-      const selected = pickFreshest(eligible);
-      if (selected) {
-        onDriver(selected.snapshot.driver, selected.snapshot.heading, selected.snapshot.updatedAt);
-        return;
-      }
-      // Empêche un "suivi irréel" en affichant la position d'une autre commande.
-      onDriver(null, 0, null);
-      return;
-    }
-    const freshest = candidates.reduce((best, cur) => {
-      const bestTs = best.snapshot.updatedAt ?? 0;
-      const curTs = cur.snapshot.updatedAt ?? 0;
-      return curTs >= bestTs ? cur : best;
-    });
-    onDriver(freshest.snapshot.driver, freshest.snapshot.heading, freshest.snapshot.updatedAt);
-  };
 
-  const unsubGlobal = onSnapshot(
+  return onSnapshot(
     doc(firestore, 'meta', 'driver'),
     (snap) => {
-      globalSnapshot = parseDriverSnapshot(snap.data());
-      emitBest();
+      emitDriverFromMetaDoc(snap.data(), normalizedOrderId, onDriver);
     },
     (err) => {
-      if (__DEV__) console.warn('[Husko Firestore driver/global]', err.message);
-      emitBest();
+      if (__DEV__) console.warn('[Husko Firestore driver/meta]', err.message);
+      onDriver(null, 0, null);
     }
   );
-
-  const trackedOrderId = normalizedOrderId;
-  if (!orderDocName || !trackedOrderId) {
-    return () => {
-      unsubGlobal();
-    };
-  }
-
-  const unsubOrderTracking = onSnapshot(
-    doc(firestore, 'orders', trackedOrderId, ORDER_TRACKING_COLLECTION, ORDER_TRACKING_DRIVER_DOC),
-    (snap) => {
-      orderTrackingSnapshot = parseDriverSnapshot(snap.data());
-      emitBest();
-    },
-    (err) => {
-      if (__DEV__) console.warn('[Husko Firestore driver/orderTracking]', err.message);
-      emitBest();
-    }
-  );
-
-  const unsubOrder = onSnapshot(
-    doc(firestore, 'meta', orderDocName),
-    (snap) => {
-      orderSnapshot = parseDriverSnapshot(snap.data());
-      emitBest();
-    },
-    (err) => {
-      if (__DEV__) console.warn('[Husko Firestore driver/order]', err.message);
-      emitBest();
-    }
-  );
-
-  return () => {
-    unsubOrderTracking();
-    unsubOrder();
-    unsubGlobal();
-  };
 }
