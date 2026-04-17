@@ -110,6 +110,16 @@ export default function SuiviScreen() {
     return pickPrimaryActiveOrder(orders);
   }, [orders, requestedOrderId]);
 
+  /** Aligner le pont Firestore (`subscribeToRemoteDriver`) sur la commande affichée (URL ou liste). */
+  useEffect(() => {
+    const id =
+      active && (active.status === 'on_way' || active.status === 'awaiting_livreur')
+        ? active.id
+        : null;
+    useHuskoStore.getState().setClientDriverFocusOrderId(id);
+    return () => useHuskoStore.getState().setClientDriverFocusOrderId(null);
+  }, [active]);
+
   /** Dernière commande (liste triée : plus récente en premier). */
   const latestOrder = orders[0];
   const showDeliveredThanks = !active && latestOrder?.status === 'delivered';

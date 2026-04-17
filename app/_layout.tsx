@@ -41,7 +41,7 @@ import {
   notifyRemoteOrderStatusDiff,
 } from '@/services/orderNotifications';
 import type { Order } from '@/stores/useHuskoStore';
-import { pickRemoteDriverSubscriptionOrderId, useHuskoStore } from '@/stores/useHuskoStore';
+import { resolveDriverSubscriptionOrderId, useHuskoStore } from '@/stores/useHuskoStore';
 import { getAppVariant } from '@/constants/appVariant';
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
@@ -62,7 +62,7 @@ function pruneClientOrdersForTracking(orders: Order[]): Order[] {
 export default function RootLayout() {
   const { showOfflineBanner } = useNetworkState();
   const driverOrderId = useHuskoStore((s) =>
-    pickRemoteDriverSubscriptionOrderId(s.orders, s.trackingOrderId)
+    resolveDriverSubscriptionOrderId(s.orders, s.trackingOrderId, s.clientDriverFocusOrderId)
   );
   const [fontsLoaded, fontError] = useFonts({
     Oswald_400Regular,

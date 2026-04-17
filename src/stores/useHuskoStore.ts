@@ -73,6 +73,11 @@ type State = {
   driverPositionUpdatedAt: number | null;
   /** Commande explicitement suivie par le livreur pour publier le GPS. */
   trackingOrderId: string | null;
+  /**
+   * Client : commande dont l’écran suivi affiche le trajet (priorité sur le tri global pour
+   * `subscribeToRemoteDriver`). Non persisté — défini par `app/client/suivi`.
+   */
+  clientDriverFocusOrderId: string | null;
   livreurOnline: boolean;
   managerPin: string;
   /** False jusqu’à ce que le gérant ait défini un code personnel (1ʳᵉ connexion). */
@@ -110,6 +115,7 @@ type State = {
   demoAdvanceNextOrder: () => void;
   setDriver: (pos: LatLng | null, heading?: number) => void;
   setTrackingOrderId: (orderId: string | null) => void;
+  setClientDriverFocusOrderId: (orderId: string | null) => void;
   setLivreurOnline: (v: boolean) => void;
   setManagerPin: (pin: string) => void;
   setLivreurPin: (pin: string) => void;
@@ -155,6 +161,21 @@ export function pickRemoteDriverSubscriptionOrderId(
     );
   if (hasPinnedTrackingOrder) return trackingOrderId;
   return pickTrackedDriverOrderId(orders);
+}
+
+/** Pont Firestore : priorité à la commande affichée sur l’écran suivi client (URL / focus). */
+export function resolveDriverSubscriptionOrderId(
+  orders: Order[],
+  trackingOrderId: string | null,
+  clientFocusOrderId: string | null
+): string | null {
+  if (clientFocusOrderId) {
+    const o = orders.find((x) => x.id === clientFocusOrderId);
+    if (o && (o.status === 'on_way' || o.status === 'awaiting_livreur')) {
+      return o.id;
+    }
+  }
+  return pickRemoteDriverSubscriptionOrderId(orders, trackingOrderId);
 }
 
 function orderPriority(status: OrderStatus): number {
@@ -250,6 +271,7 @@ export const useHuskoStore = create<State>()(
       driverHeading: 0,
       driverPositionUpdatedAt: null,
       trackingOrderId: null,
+      clientDriverFocusOrderId: null,
       livreurOnline: true,
       managerPin: DEFAULT_ROLE_PIN,
       gerantPinOnboarded: false,
@@ -368,6 +390,8 @@ export const useHuskoStore = create<State>()(
       setTrackingOrderId: (orderId) => {
         set({ trackingOrderId: orderId });
       },
+
+      setClientDriverFocusOrderId: (orderId) => set({ clientDriverFocusOrderId: orderId }),
 
       setLivreurOnline: (livreurOnline) => set({ livreurOnline }),
       setManagerPin: (managerPin) => set({ managerPin, gerantPinOnboarded: true }),
