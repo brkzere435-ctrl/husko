@@ -126,6 +126,7 @@
     "tools:platform-tools": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/install-android-platform-tools.ps1",
     "adb:husko": "node scripts/adb-husko-status.mjs",
     "debug:ingest:reverse": "node scripts/adb-reverse-cursor-ingest.mjs",
+    "debug:ingest:logcat": "node scripts/android-logcat-ingest-to-debug-log.mjs",
     "verify:menu-visual-pro": "node scripts/check-menu-visual-pro.mjs",
     "verify:menu-visual-pro:strict": "node scripts/check-menu-visual-pro.mjs --fail",
     "clean:cache": "node scripts/clean-cache.mjs",

@@ -23,6 +23,8 @@ import { fitMapRegion } from '@/utils/fitMapRegion';
 import { isMapsKeyConfiguredForPlatform } from '@/utils/mapsBuildInfo';
 import {
   clearLivreurWatch,
+  debugAgentPost,
+  dumpAgentDebugTailToConsole,
   ensureLivreurLocationPermission,
   geoThrownCode,
   getInitialLivreurPosition,
@@ -60,6 +62,22 @@ export default function LivreurScreenNative() {
   const [nativeMapLoaded, setNativeMapLoaded] = useState(false);
   const useRadarFallback = forceRadarFallback || nativeMapFailed;
 
+  // #region agent log
+  useEffect(() => {
+    debugAgentPost(
+      'LivreurScreen.native.tsx:mount',
+      'LivreurScreen natif monté (vérif bundle + logcat)',
+      'H0',
+      { platform: Platform.OS }
+    );
+  }, []);
+
+  useEffect(() => {
+    const t = setTimeout(() => dumpAgentDebugTailToConsole(), 3000);
+    return () => clearTimeout(t);
+  }, []);
+  // #endregion
+
   const LIVREUR_MAP_FAILSAFE_MS = 1_200;
   useEffect(() => {
     if (useRadarFallback) return;
@@ -92,6 +110,7 @@ export default function LivreurScreenNative() {
   }, [region, useRadarFallback, nativeMapReady]);
 
   useEffect(() => {
+    console.log('[HuskoGeo] useEffect GPS livreur — entrée', { livreurOnline });
     let cancelled = false;
     const applyLocation = (
       lat: number,
@@ -124,14 +143,30 @@ export default function LivreurScreenNative() {
             if (cancelled) return;
             applyLocation(lat, lng, heading);
           },
-          (code) => {
+          (code, message) => {
             if (watchGpsErrShownRef.current) return;
             watchGpsErrShownRef.current = true;
             setSnack(livreurGeoErrorUserHint(code));
+            // #region agent log
+            debugAgentPost(
+              'LivreurScreen.native.tsx:onWatchError',
+              'watch error surfaced to UI',
+              'H2',
+              { code, message }
+            );
+            // #endregion
           }
         );
       } catch (e) {
         const thrownCode = geoThrownCode(e);
+        // #region agent log
+        debugAgentPost(
+          'LivreurScreen.native.tsx:start',
+          'start() catch',
+          'H3',
+          { err: String(e), thrownCode }
+        );
+        // #endregion
         setSnack(
           thrownCode != null
             ? livreurGeoErrorUserHint(thrownCode)
