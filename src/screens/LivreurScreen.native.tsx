@@ -11,6 +11,7 @@ import { GTAMiniMapFallbackInterior } from '@/components/GTAMiniMapFallbackInter
 import { LowriderHeroStrip } from '@/components/LowriderHeroStrip';
 import { WestCoastBackground } from '@/components/westcoast/WestCoastBackground';
 import { LivreurAppGate } from '@/components/LivreurAppGate';
+import { LivreurOperationalStatusBar } from '@/components/LivreurOperationalStatusBar';
 import { LivreurOrderPanel } from '@/components/LivreurOrderPanel';
 import { FONT } from '@/constants/fonts';
 import { colors, elevation, radius, spacing } from '@/constants/theme';
@@ -232,6 +233,7 @@ export default function LivreurScreenNative() {
               trackColor={{ false: colors.switchTrackOff, true: colors.accentDim }}
             />
           </View>
+          <LivreurOperationalStatusBar hasGpsFix={!!driver} livreurOnline={livreurOnline} />
           {__DEV__ ? (
             <Text style={styles.geoDevHint} accessibilityLabel="Avertissement développement GPS">
               Développement : le simulateur / émulateur donne souvent un GPS faux ou absent — valider sur

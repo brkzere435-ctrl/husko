@@ -11,6 +11,10 @@ import {
 import { Platform } from 'react-native';
 
 import type { LatLng, Order } from '@/stores/useHuskoStore';
+import {
+  markDriverRemotePushFailed,
+  markDriverRemotePushOk,
+} from '@/services/driverRemotePushFeedback';
 import { coerceOrderFromRemote } from '@/utils/orderNormalize';
 import { readHuskoExpoExtra } from '@/utils/readHuskoExpoExtra';
 
@@ -240,7 +244,14 @@ function remotePushDriverNow(pos: LatLng | null, heading: number, orderId: strin
     }
   };
   if (normalizedOrderId == null) {
-    return setDoc(doc(firestore, 'meta', 'driver'), payload, { merge: true }).then(afterWrite);
+    return setDoc(doc(firestore, 'meta', 'driver'), payload, { merge: true })
+      .then(() => {
+        afterWrite();
+        markDriverRemotePushOk();
+      })
+      .catch((e) => {
+        markDriverRemotePushFailed(e);
+      });
   }
   return Promise.all([
     setDoc(doc(firestore, 'meta', 'driver'), payload, { merge: true }),
@@ -250,7 +261,14 @@ function remotePushDriverNow(pos: LatLng | null, heading: number, orderId: strin
       payload,
       { merge: true }
     ),
-  ]).then(afterWrite);
+  ])
+    .then(() => {
+      afterWrite();
+      markDriverRemotePushOk();
+    })
+    .catch((e) => {
+      markDriverRemotePushFailed(e);
+    });
 }
 
 /** Évite trop d’écritures Firestore pendant le suivi GPS. */

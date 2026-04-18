@@ -125,6 +125,7 @@
     "print:app-variant": "node scripts/print-app-config-variant.mjs",
     "tools:platform-tools": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/install-android-platform-tools.ps1",
     "adb:husko": "node scripts/adb-husko-status.mjs",
+    "adb:husko:wipe": "node scripts/adb-husko-uninstall-all.mjs",
     "debug:ingest:reverse": "node scripts/adb-reverse-cursor-ingest.mjs",
     "debug:ingest:logcat": "node scripts/android-logcat-ingest-to-debug-log.mjs",
     "verify:menu-visual-pro": "node scripts/check-menu-visual-pro.mjs",

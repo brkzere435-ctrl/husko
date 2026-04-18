@@ -82,3 +82,6 @@ console.log('');
 console.log(
   '[Husko] Builds cloud : npm run build:apk:unified (accord EAS / credits requis) ou npm run apk:download:unified si deja build.'
 );
+console.log(
+  "[Husko] Base neuf telephone (tout desinstaller) : npm run adb:husko:wipe -- --yes puis reinstaller UNE APK."
+);

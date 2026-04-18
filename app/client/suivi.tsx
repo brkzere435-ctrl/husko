@@ -321,7 +321,12 @@ export default function SuiviScreen() {
   return (
     <WestCoastBackground preset="client">
       <SafeAreaView style={styles.root} edges={['bottom']}>
-        <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+        {/* Android : évite carte / tuile OSM noire ou 0 px dans un ScrollView (vues natives). */}
+        <ScrollView
+          contentContainerStyle={styles.scroll}
+          showsVerticalScrollIndicator={false}
+          removeClippedSubviews={false}
+        >
           {active ? (
             <Animated.View entering={FadeIn.duration(340)}>
               <Card mode="elevated" style={styles.card}>
