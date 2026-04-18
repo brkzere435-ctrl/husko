@@ -108,12 +108,7 @@ export function GTAMiniMap({
 
   if (useFallback) {
     return (
-      <View
-        style={[elevation.hero, frameSize]}
-        collapsable={false}
-        /** Réduit des surfaces noires sur certains GPU Android (overlay + ScrollView). */
-        renderToHardwareTextureAndroid={false}
-      >
+      <View style={[elevation.hero, frameSize]} collapsable={false}>
         <GTAHudFrame size={size} footerTag={footerTag}>
           <GTAMiniMapFallbackInterior
             region={safeRegion}

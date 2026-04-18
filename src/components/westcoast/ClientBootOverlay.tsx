@@ -51,6 +51,8 @@ export function ClientBootOverlay({ visible, onDone, variant = 'client' }: Props
       statusBarTranslucent
       transparent
       accessibilityViewIsModal
+      /** Sans ça, Retour Android peut laisser le Modal bloqué — écran « qui ne s’ouvre pas » derrière. */
+      onRequestClose={() => finish('timer')}
     >
       <Pressable
         style={styles.root}

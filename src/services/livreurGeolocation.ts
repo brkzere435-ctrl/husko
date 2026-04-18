@@ -263,7 +263,15 @@ export function startLivreurWatch(
 
 export function clearLivreurWatch(watchId: number | null): void {
   if (watchId == null) return;
-  Geolocation.clearWatch(watchId);
-  // Un seul watcher livreur dans l'app : forcer l'arrêt global évite les observers orphelins.
-  Geolocation.stopObserving();
+  try {
+    Geolocation.clearWatch(watchId);
+  } catch {
+    /* natif sensible sur certains Samsung si aucun watch actif */
+  }
+  try {
+    // Un seul watcher livreur dans l'app : forcer l'arrêt global évite les observers orphelins.
+    Geolocation.stopObserving();
+  } catch {
+    /* stopObserving sans watch préalable peut throw sur une minorité d’OEM */
+  }
 }

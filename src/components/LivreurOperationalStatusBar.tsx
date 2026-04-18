@@ -1,4 +1,4 @@
-import { useMemo, useSyncExternalStore } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { FONT } from '@/constants/fonts';
@@ -12,20 +12,20 @@ import {
 import { isRemoteSyncEnabled } from '@/services/firebaseRemote';
 import { pickRemoteDriverSubscriptionOrderId, useHuskoStore } from '@/stores/useHuskoStore';
 
-function useDriverRemotePushError(): string | null {
-  return useSyncExternalStore(
-    subscribeDriverRemotePush,
-    getDriverRemotePushErrorSnapshot,
-    () => null
-  );
-}
+function useDriverRemotePushUi(): { cloudErr: string | null; lastOk: number | null } {
+  const [cloudErr, setCloudErr] = useState(() => getDriverRemotePushErrorSnapshot());
+  const [lastOk, setLastOk] = useState(() => getDriverRemotePushLastSuccessAtSnapshot());
 
-function useDriverRemotePushLastOk(): number | null {
-  return useSyncExternalStore(
-    subscribeDriverRemotePush,
-    getDriverRemotePushLastSuccessAtSnapshot,
-    () => null
-  );
+  useEffect(() => {
+    const sync = () => {
+      setCloudErr(getDriverRemotePushErrorSnapshot());
+      setLastOk(getDriverRemotePushLastSuccessAtSnapshot());
+    };
+    sync();
+    return subscribeDriverRemotePush(sync);
+  }, []);
+
+  return { cloudErr, lastOk };
 }
 
 type Props = {
@@ -41,8 +41,7 @@ type Props = {
 export function LivreurOperationalStatusBar({ hasGpsFix, livreurOnline }: Props) {
   const orders = useHuskoStore((s) => s.orders);
   const trackingOrderId = useHuskoStore((s) => s.trackingOrderId);
-  const cloudError = useDriverRemotePushError();
-  const lastCloudOkAt = useDriverRemotePushLastOk();
+  const { cloudErr: cloudError, lastOk: lastCloudOkAt } = useDriverRemotePushUi();
   const remoteOk = isRemoteSyncEnabled();
 
   const trackedOrder = useMemo(
@@ -70,7 +69,7 @@ export function LivreurOperationalStatusBar({ hasGpsFix, livreurOnline }: Props)
         : { label: 'GPS', value: 'en attente du premier point…', tone: 'warn' as const };
 
   return (
-    <View style={styles.wrap} accessibilityRole="summary">
+    <View style={styles.wrap}>
       <View style={styles.row}>
         <Text style={[styles.kicker, styles[`tone_${cloudLine.tone}`]]}>{cloudLine.label}</Text>
         <Text style={[styles.value, styles[`tone_${cloudLine.tone}`]]} numberOfLines={2}>
