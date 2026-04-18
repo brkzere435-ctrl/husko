@@ -1,6 +1,6 @@
 {
   "name": "husko",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "main": "expo-router/entry",
   "private": true,
   "engines": {
@@ -222,3 +222,4 @@
     "typescript": "~5.9.2"
   }
 }
+

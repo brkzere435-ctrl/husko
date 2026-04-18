@@ -315,7 +315,7 @@ module.exports = (ctx = {}) => {
     name: v.name,
     // Slug unique = même projet EAS (projectId) ; les APK se distinguent par android.package / name.
     slug: DEFAULT_VARIANT.slug,
-    version: '1.0.4',
+    version: '1.0.5',
     runtimeVersion: { policy: 'appVersion' },
     updates: {
       url: `https://u.expo.dev/${DEFAULT_EAS_PROJECT_ID}`,
@@ -351,3 +351,4 @@ module.exports = (ctx = {}) => {
     extra: { ...base.extra, ...extra },
   };
 };
+
