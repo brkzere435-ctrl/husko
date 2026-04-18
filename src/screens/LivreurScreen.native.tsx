@@ -132,8 +132,21 @@ export default function LivreurScreenNative() {
           setSnack('Activez la localisation pour le suivi livreur.');
           return;
         }
-        const prime = await getInitialLivreurPosition();
-        applyLocation(prime.lat, prime.lng, prime.headingDeg);
+        let primed = false;
+        try {
+          const prime = await getInitialLivreurPosition();
+          applyLocation(prime.lat, prime.lng, prime.headingDeg);
+          primed = true;
+        } catch (e) {
+          // #region agent log
+          debugAgentPost(
+            'LivreurScreen.native.tsx:prime',
+            'initial fix failed, continue with watch',
+            'H3',
+            { err: String(e), thrownCode: geoThrownCode(e) }
+          );
+          // #endregion
+        }
         if (watchIdRef.current != null) {
           clearLivreurWatch(watchIdRef.current);
           watchIdRef.current = null;
@@ -157,6 +170,9 @@ export default function LivreurScreenNative() {
             // #endregion
           }
         );
+        if (!primed) {
+          setSnack('GPS en attente du premier point… le suivi live est lancé.');
+        }
       } catch (e) {
         const thrownCode = geoThrownCode(e);
         // #region agent log
