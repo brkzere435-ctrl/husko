@@ -30,10 +30,22 @@ if (!channel) {
   process.exit(1);
 }
 
+/** Aligner le bundle JS sur la variante (sinon app.config lit par défaut « gerant » pendant expo export). */
+const CHANNEL_TO_VARIANT = {
+  hub: 'all',
+  gerant: 'gerant',
+  client: 'client',
+  livreur: 'livreur',
+  assistant: 'assistant',
+  development: 'all',
+};
+const exportVariant = CHANNEL_TO_VARIANT[channel] ?? 'gerant';
+
 const sharedEnv = {
   ...process.env,
   CI: '1',
   EAS_NO_VCS: process.env.EAS_NO_VCS || '1',
+  EXPO_PUBLIC_APP_VARIANT: exportVariant,
 };
 
 function run(cmd) {
