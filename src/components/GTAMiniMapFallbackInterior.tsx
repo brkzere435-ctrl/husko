@@ -1,5 +1,5 @@
-import { useMemo, useState } from 'react';
-import { Image, ImageBackground, StyleSheet, Text, View } from 'react-native';
+import { useEffect, useMemo, useState } from 'react';
+import { ActivityIndicator, Image, ImageBackground, StyleSheet, Text, View } from 'react-native';
 
 import { HuskoDepartureBuilding } from '@/components/HuskoDepartureBuilding';
 import { FONT } from '@/constants/fonts';
@@ -52,6 +52,8 @@ export function GTAMiniMapFallbackInterior({
   /** 0 = tuile avec marqueurs ; 1 = tuile centre seul (certains proxies bloquent le format markers=). */
   const [staticMapAttempt, setStaticMapAttempt] = useState(0);
   const [tileError, setTileError] = useState(false);
+  /** Évite l’impression « carré noir » pendant le chargement réseau de la tuile OSM. */
+  const [tileLoaded, setTileLoaded] = useState(false);
   const depPlot = useMemo(
     () => (showDeparture && departure ? projectToRadar(departure, region) : null),
     [showDeparture, departure, region]
@@ -100,6 +102,12 @@ export function GTAMiniMapFallbackInterior({
 
   const mapUri = staticMapAttempt === 0 ? mapUriWithMarkers : mapUriPlain;
 
+  useEffect(() => {
+    setTileLoaded(false);
+  }, [mapUri]);
+
+  const showTileSpinner = !tileError && !tileLoaded;
+
   return (
     <View style={styles.fakeMap} collapsable={false}>
       <ImageBackground source={RADAR_TEXTURE} style={styles.frameBackground} imageStyle={styles.frameBackgroundImage}>
@@ -110,12 +118,19 @@ export function GTAMiniMapFallbackInterior({
               source={{ uri: mapUri }}
               style={styles.mapImage}
               resizeMode="cover"
+              onLoad={() => setTileLoaded(true)}
               onError={() => {
+                setTileLoaded(false);
                 if (staticMapAttempt === 0) setStaticMapAttempt(1);
                 else setTileError(true);
               }}
               accessibilityLabel="Carte OpenStreetMap"
             />
+          ) : null}
+          {showTileSpinner ? (
+            <View style={styles.tileLoadingWrap} pointerEvents="none">
+              <ActivityIndicator size="small" color="rgba(34, 211, 238, 0.9)" />
+            </View>
           ) : null}
           <View style={styles.overlayDim} pointerEvents="none" />
           <View style={styles.radarBackdrop} pointerEvents="none" />
@@ -210,11 +225,18 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     borderWidth: 3,
     borderColor: 'rgba(14, 14, 16, 0.95)',
-    backgroundColor: '#15171b',
+    /** Plus lisible que #15171b pur (effet « écran noir » sur OLED / plein soleil). */
+    backgroundColor: '#252a33',
   },
   mapImage: {
     ...StyleSheet.absoluteFillObject,
-    opacity: 0.65,
+    opacity: 0.82,
+  },
+  tileLoadingWrap: {
+    ...StyleSheet.absoluteFillObject,
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 5,
   },
   overlayDim: {
     ...StyleSheet.absoluteFillObject,
@@ -226,7 +248,7 @@ const styles = StyleSheet.create({
   },
   roadLayer: {
     ...StyleSheet.absoluteFillObject,
-    opacity: 0.72,
+    opacity: 0.88,
   },
   roadH: {
     position: 'absolute',

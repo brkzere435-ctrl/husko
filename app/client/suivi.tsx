@@ -62,12 +62,25 @@ const MiniMapCanvas = memo(function MiniMapCanvas({
   mapHudFooter,
   mapAccessibilityLabel,
 }: MiniMapCanvasProps) {
+  /** Toujours radar + tuile OSM (pas MapView) : évite écran noir GMS/Apple dans ScrollView / Samsung. */
   return (
-    <View style={styles.mapNeonOuter} accessibilityRole="image" accessibilityLabel={mapAccessibilityLabel}>
+    <View
+      style={[
+        styles.mapNeonOuter,
+        {
+          width: mapSize + 10,
+          minHeight: mapSize + 10,
+          alignSelf: 'center',
+        },
+      ]}
+      accessibilityRole="image"
+      accessibilityLabel={mapAccessibilityLabel}
+      collapsable={false}
+    >
       <GTAMiniMap
         size={mapSize}
         region={mapRegion}
-        forceFallback={false}
+        forceFallback
         driver={driver}
         headingDeg={driverHeading}
         dest={dest}
@@ -456,7 +469,7 @@ export default function SuiviScreen() {
               ) : null}
 
               {active && mapRegion ? (
-                <View style={styles.mapWrap}>
+                <View style={[styles.mapWrap, { minHeight: mapSize + 200 }]} collapsable={false}>
                   <View style={styles.mapInfoPanel}>
                     <Text style={[styles.mapKicker, compactMapUi && styles.mapKickerCompact]}>{mapKicker}</Text>
                     <Text style={[styles.mapTitle, compactMapUi && styles.mapTitleCompact]}>{mapTitle}</Text>
