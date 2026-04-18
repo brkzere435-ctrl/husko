@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Platform, StyleSheet, Switch, View } from 'react-native';
+import { Platform, ScrollView, StyleSheet, Switch, useWindowDimensions, View } from 'react-native';
 import { Snackbar, Text } from 'react-native-paper';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -25,7 +25,6 @@ import { isMapsKeyConfiguredForPlatform } from '@/utils/mapsBuildInfo';
 import {
   clearLivreurWatch,
   debugAgentPost,
-  dumpAgentDebugTailToConsole,
   ensureLivreurLocationPermission,
   geoThrownCode,
   getInitialLivreurPosition,
@@ -34,6 +33,7 @@ import {
 } from '@/services/livreurGeolocation';
 
 export default function LivreurScreenNative() {
+  const { height: windowH } = useWindowDimensions();
   const setDriver = useHuskoStore((s) => s.setDriver);
   const livreurOnline = useHuskoStore((s) => s.livreurOnline);
   const setLivreurOnline = useHuskoStore((s) => s.setLivreurOnline);
@@ -62,22 +62,6 @@ export default function LivreurScreenNative() {
   const [nativeMapReady, setNativeMapReady] = useState(false);
   const [nativeMapLoaded, setNativeMapLoaded] = useState(false);
   const useRadarFallback = forceRadarFallback || nativeMapFailed;
-
-  // #region agent log
-  useEffect(() => {
-    debugAgentPost(
-      'LivreurScreen.native.tsx:mount',
-      'LivreurScreen natif monté (vérif bundle + logcat)',
-      'H0',
-      { platform: Platform.OS }
-    );
-  }, []);
-
-  useEffect(() => {
-    const t = setTimeout(() => dumpAgentDebugTailToConsole(), 3000);
-    return () => clearTimeout(t);
-  }, []);
-  // #endregion
 
   const LIVREUR_MAP_FAILSAFE_MS = 1_200;
   useEffect(() => {
@@ -217,33 +201,43 @@ export default function LivreurScreenNative() {
     return fitMapRegion(pts, 1.95);
   }, [driver]);
 
+  /** Hauteur explicite : évite flex:1 résolu à 0 quand la colonne (courses + bandeaux) dépasse la hauteur utile. */
+  const mapBlockHeight = Math.max(300, Math.min(480, Math.round(windowH * 0.42)));
+
   return (
     <LivreurAppGate>
       <WestCoastBackground>
         <SafeAreaView style={styles.root} edges={['bottom']}>
-          <LivreurOrderPanel />
-          <View style={styles.heroStripWrap}>
-            <LowriderHeroStrip height={96} />
-          </View>
-          <View style={styles.toolbar}>
-            <Text style={styles.toolbarLabel}>En ligne</Text>
-            <Switch
-              value={livreurOnline}
-              onValueChange={setLivreurOnline}
-              trackColor={{ false: colors.switchTrackOff, true: colors.accentDim }}
-            />
-          </View>
-          <LivreurOperationalStatusBar hasGpsFix={!!driver} livreurOnline={livreurOnline} />
-          {__DEV__ ? (
-            <Text style={styles.geoDevHint} accessibilityLabel="Avertissement développement GPS">
-              Développement : le simulateur / émulateur donne souvent un GPS faux ou absent — valider sur
-              téléphone réel. Clé Maps : {mapsConfigured ? 'présente' : 'manquante (carte radar)'}.
-            </Text>
-          ) : null}
+          <ScrollView
+            style={styles.mainScroll}
+            contentContainerStyle={styles.mainScrollContent}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+            nestedScrollEnabled
+          >
+            <LivreurOrderPanel />
+            <View style={styles.heroStripWrap}>
+              <LowriderHeroStrip height={96} />
+            </View>
+            <View style={styles.toolbar}>
+              <Text style={styles.toolbarLabel}>En ligne</Text>
+              <Switch
+                value={livreurOnline}
+                onValueChange={setLivreurOnline}
+                trackColor={{ false: colors.switchTrackOff, true: colors.accentDim }}
+              />
+            </View>
+            <LivreurOperationalStatusBar hasGpsFix={!!driver} livreurOnline={livreurOnline} />
+            {__DEV__ ? (
+              <Text style={styles.geoDevHint} accessibilityLabel="Avertissement développement GPS">
+                Développement : le simulateur / émulateur donne souvent un GPS faux ou absent — valider sur
+                téléphone réel. Clé Maps : {mapsConfigured ? 'présente' : 'manquante (carte radar)'}.
+              </Text>
+            ) : null}
 
-          <DeploymentHints mode="alerts" mapsRelevant />
+            <DeploymentHints mode="alerts" mapsRelevant />
 
-          <View style={styles.mapContainer}>
+            <View style={[styles.mapContainer, { height: mapBlockHeight }]}>
             {useRadarFallback ? (
               <View style={styles.mapFallback} pointerEvents="none">
                 <GTAMiniMapFallbackInterior
@@ -329,6 +323,7 @@ export default function LivreurScreenNative() {
               <View style={[styles.gtaCorner, styles.gtaCornerBR]} />
             </View>
           </View>
+          </ScrollView>
           <Snackbar visible={snack.length > 0} onDismiss={() => setSnack('')} duration={4000}>
             {snack}
           </Snackbar>
@@ -340,6 +335,11 @@ export default function LivreurScreenNative() {
 
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: 'transparent' },
+  mainScroll: { flex: 1 },
+  mainScrollContent: {
+    flexGrow: 1,
+    paddingBottom: spacing.md,
+  },
   heroStripWrap: {
     paddingHorizontal: spacing.md,
     paddingTop: spacing.sm,
@@ -363,7 +363,7 @@ const styles = StyleSheet.create({
     lineHeight: 15,
     color: colors.textMuted,
   },
-  mapContainer: { flex: 1, position: 'relative' },
+  mapContainer: { position: 'relative', width: '100%' },
   mapStack: { ...StyleSheet.absoluteFillObject },
   map: { ...StyleSheet.absoluteFillObject },
   mapBlend: { opacity: 0.8 },

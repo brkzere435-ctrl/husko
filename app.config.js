@@ -164,6 +164,21 @@ function huskoPlugins() {
           /** R8 : activé sauf profils dev client (voir androidReleaseUsesMinify). */
           enableMinifyInReleaseBuilds: enableMinifyInRelease,
           enableShrinkResourcesInReleaseBuilds: enableMinifyInRelease,
+          /**
+           * react-native-geolocation-service (RNFusedLocation) + Play Services Location : sans ces règles,
+           * R8 peut provoquer IncompatibleClassChangeError au getCurrentPosition (crash au lancement livreur).
+           */
+          extraProguardRules: `
+-keepattributes Signature
+-keepattributes *Annotation*
+-keep class com.agontuk.RNFusedLocation.** { *; }
+-keep class com.agontuk.rnfusedlocation.** { *; }
+-keep class com.google.android.gms.location.** { *; }
+-keep interface com.google.android.gms.location.** { *; }
+-keep class com.google.android.gms.common.** { *; }
+-keep class com.google.android.gms.tasks.** { *; }
+-dontwarn com.google.android.gms.**
+`.trim(),
         },
       },
     ],

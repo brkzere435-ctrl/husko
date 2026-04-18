@@ -30,7 +30,12 @@ function LivreurHeaderRight({ showSettings }: { showSettings: boolean }) {
 }
 
 export default function LivreurLayout() {
-  const [boot, setBoot] = useState(true);
+  /**
+   * Splash plein écran désactivé : sur plusieurs Samsung / Android 15, le Modal pouvait rester
+   * bloquant ou laisser l’écran principal sans hauteur utile après fermeture.
+   * Réactiver seulement si besoin marketing : useState(true) + tester Retour + timer.
+   */
+  const [boot, setBoot] = useState(false);
 
   return (
     <View style={{ flex: 1 }}>
