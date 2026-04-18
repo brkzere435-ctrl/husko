@@ -363,7 +363,11 @@ const styles = StyleSheet.create({
     lineHeight: 15,
     color: colors.textMuted,
   },
-  mapContainer: { position: 'relative', width: '100%' },
+  mapContainer: {
+    position: 'relative',
+    width: '100%',
+    backgroundColor: colors.mapRadarBg,
+  },
   mapStack: { ...StyleSheet.absoluteFillObject },
   map: { ...StyleSheet.absoluteFillObject },
   mapBlend: { opacity: 0.8 },

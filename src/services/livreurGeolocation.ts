@@ -1,13 +1,16 @@
 /**
- * Géolocalisation livreur (natif uniquement) via `react-native-geolocation-service` :
- * Fused Location sur Android, Core Location sur iOS — plus stable que `watchPositionAsync` Expo pour du suivi continu.
+ * Géolocalisation livreur (natif uniquement).
+ * - **iOS** : `react-native-geolocation-service` (Core Location).
+ * - **Android** : `expo-location` — évite les crashs natifs observés avec RNFusedLocation + R8
+ *   (`IncompatibleClassChangeError` dans `getCurrentPosition` / fused).
  *
  * Logs : préfixe `[HuskoGeo]`, jamais de coordonnées complètes (arrondi + __DEV__ / EXPO_PUBLIC_HUSKO_DEBUG_BOOT).
  * Rebuild natif (EAS / prebuild) obligatoire après ajout de la dépendance.
  */
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Location from 'expo-location';
 import Geolocation from 'react-native-geolocation-service';
-import { PermissionsAndroid, Platform } from 'react-native';
+import { Platform } from 'react-native';
 
 const TAG = '[HuskoGeo]';
 
@@ -150,27 +153,29 @@ export async function ensureLivreurLocationPermission(): Promise<boolean> {
       return false;
     }
   }
-  const results = await PermissionsAndroid.requestMultiple([
-    PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-    PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION,
-  ]);
-  const fine = results[PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION];
-  const coarse = results[PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION];
-  /** Haute précision GPS : exiger ACCESS_FINE_LOCATION (approximatif seul = suivi médiocre / refus Play policy). */
-  const ok = fine === PermissionsAndroid.RESULTS.GRANTED;
-  geoLog('android location (requestMultiple)', { fine, coarse });
-  // #region agent log
-  debugAgentPost(
-    'livreurGeolocation.ts:ensureLivreurLocationPermission',
-    'android requestMultiple results',
-    'H1',
-    { fine, coarse, ok }
-  );
-  // #endregion
-  return ok;
+  if (Platform.OS === 'android') {
+    const { status } = await Location.requestForegroundPermissionsAsync();
+    const ok = status === 'granted';
+    geoLog('android location (expo foreground)', { status, ok });
+    // #region agent log
+    debugAgentPost(
+      'livreurGeolocation.ts:ensureLivreurLocationPermission',
+      'android expo permission',
+      'H1',
+      { status, ok }
+    );
+    // #endregion
+    return ok;
+  }
+  return false;
 }
 
 type PositionCb = (lat: number, lng: number, headingDeg: number) => void;
+
+/** Handles Android `watchPositionAsync` (subscription async) + annulation avant résolution. */
+type AndroidWatchHandle = { sub?: { remove: () => void }; cancelled?: boolean };
+const androidWatchHandles = new Map<number, AndroidWatchHandle>();
+let nextAndroidWatchId = 1;
 
 /** Android : interval / fused. iOS : pas de `interval` natif identique — filtre distance + haute précision. */
 function watchOptions(): Record<string, unknown> {
@@ -195,6 +200,31 @@ export function getInitialLivreurPosition(): Promise<{
   lng: number;
   headingDeg: number;
 }> {
+  if (Platform.OS === 'android') {
+    return (async () => {
+      try {
+        const pos = await Location.getCurrentPositionAsync({
+          accuracy: Location.Accuracy.BestForNavigation,
+          mayShowUserSettingsDialog: true,
+        });
+        const { latitude, longitude, heading } = pos.coords;
+        const h = typeof heading === 'number' && Number.isFinite(heading) ? heading : 0;
+        geoLog('initial fix (expo android)', { accuracy: pos.coords.accuracy });
+        return { lat: latitude, lng: longitude, headingDeg: h };
+      } catch (e) {
+        geoLog('initial fix error (expo android)', { err: String(e) });
+        // #region agent log
+        debugAgentPost(
+          'livreurGeolocation.ts:getCurrentPosition:error',
+          'initial fix error (expo android)',
+          'H3',
+          { err: String(e) }
+        );
+        // #endregion
+        throw e;
+      }
+    })();
+  }
   return new Promise((resolve, reject) => {
     Geolocation.getCurrentPosition(
       (pos) => {
@@ -237,6 +267,56 @@ export function startLivreurWatch(
     { platform: Platform.OS }
   );
   // #endregion
+  if (Platform.OS === 'android') {
+    const id = nextAndroidWatchId++;
+    const handle: AndroidWatchHandle = {};
+    androidWatchHandles.set(id, handle);
+    void Location.watchPositionAsync(
+      {
+        accuracy: Location.Accuracy.BestForNavigation,
+        distanceInterval: 10,
+        timeInterval: 5000,
+        mayShowUserSettingsDialog: true,
+      },
+      (position) => {
+        const { latitude, longitude, heading } = position.coords;
+        const h = typeof heading === 'number' && Number.isFinite(heading) ? heading : 0;
+        geoLog('watch tick (expo android)', { accuracy: position.coords.accuracy });
+        onPosition(latitude, longitude, h);
+      },
+      (message) => {
+        geoLog('watch error (expo android)', { message });
+        // #region agent log
+        debugAgentPost(
+          'livreurGeolocation.ts:watchPosition:error',
+          'watch error (expo android)',
+          'H2',
+          { message }
+        );
+        // #endregion
+        onWatchError?.(-1, message);
+      }
+    )
+      .then((sub) => {
+        const h = androidWatchHandles.get(id);
+        if (!h) {
+          sub.remove();
+          return;
+        }
+        if (h.cancelled) {
+          sub.remove();
+          androidWatchHandles.delete(id);
+          return;
+        }
+        h.sub = sub;
+      })
+      .catch((e) => {
+        geoLog('watch start error (expo android)', { err: String(e) });
+        androidWatchHandles.delete(id);
+        onWatchError?.(-1, String(e));
+      });
+    return id;
+  }
   const watchId = Geolocation.watchPosition(
     (position) => {
       const { latitude, longitude, heading } = position.coords;
@@ -263,6 +343,20 @@ export function startLivreurWatch(
 
 export function clearLivreurWatch(watchId: number | null): void {
   if (watchId == null) return;
+  if (Platform.OS === 'android') {
+    const h = androidWatchHandles.get(watchId);
+    if (h?.sub) {
+      try {
+        h.sub.remove();
+      } catch {
+        /* ignore */
+      }
+    } else if (h) {
+      h.cancelled = true;
+    }
+    androidWatchHandles.delete(watchId);
+    return;
+  }
   try {
     Geolocation.clearWatch(watchId);
   } catch {

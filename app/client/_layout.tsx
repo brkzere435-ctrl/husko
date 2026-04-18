@@ -11,7 +11,8 @@ import { FONT } from '@/constants/fonts';
 import { colors } from '@/constants/theme';
 
 export default function ClientLayout() {
-  const [boot, setBoot] = useState(true);
+  /** Désactivé : même cause que livreur — Modal plein écran + Samsung / Android 15 peut laisser des vues sans hauteur ou empiler des surfaces noires. */
+  const [boot, setBoot] = useState(false);
 
   return (
     <View style={{ flex: 1 }}>

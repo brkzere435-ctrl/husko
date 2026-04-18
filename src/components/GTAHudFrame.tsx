@@ -77,7 +77,8 @@ const styles = StyleSheet.create({
   },
   inner: {
     flex: 1,
-    backgroundColor: colors.hudVoid,
+    /** Moins « trou noir » que hudVoid si le slot carte rend 0 px (Android). */
+    backgroundColor: colors.mapRadarBg,
     overflow: 'hidden',
   },
   bracket: {

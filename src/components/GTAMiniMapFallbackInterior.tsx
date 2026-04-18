@@ -211,6 +211,8 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
     borderRadius: 12,
     overflow: 'hidden',
+    /** Si la texture carbone ou la tuile OSM tarde : pas de rectangle noir pur. */
+    backgroundColor: colors.mapRadarBg,
   },
   frameBackgroundImage: {
     opacity: 0.42,
@@ -225,8 +227,8 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     borderWidth: 3,
     borderColor: 'rgba(14, 14, 16, 0.95)',
-    /** Plus lisible que #15171b pur (effet « écran noir » sur OLED / plein soleil). */
-    backgroundColor: '#252a33',
+    /** Contraste : lisible en plein soleil / OLED sans lire « écran éteint ». */
+    backgroundColor: '#343d4a',
   },
   mapImage: {
     ...StyleSheet.absoluteFillObject,
