@@ -6,6 +6,10 @@ import {
   doc,
   setDoc,
   onSnapshot,
+  query,
+  where,
+  orderBy,
+  limit,
   type Firestore,
 } from 'firebase/firestore';
 import { Platform } from 'react-native';
@@ -41,6 +45,8 @@ let lastDriverPushOrderId: string | null = null;
 /** Dernier point réellement écrit sur Firestore — évite de rafraîchir `updatedAt` si le GPS ne bouge pas (sinon le client croit à un flux « live » figé). */
 let lastDriverWriteSample: { lat: number; lng: number; orderId: string | null } | null = null;
 const DRIVER_WRITE_COORD_EPS = 0.00003; // ~3 m
+const DRIVER_HEARTBEAT_MS = 60_000;
+let lastDriverHeartbeatAt = 0;
 
 function coordsNearlyEqualForPush(
   pos: LatLng,
@@ -68,7 +74,8 @@ function buildConfig() {
   };
 }
 
-function ensureDb(): Firestore | null {
+/** Point d’entrée unique Firebase (Firestore + Auth). */
+export function ensureFirebaseApp(): FirebaseApp | null {
   const cfg = buildConfig();
   if (!cfg) return null;
   if (!getApps().length) {
@@ -76,19 +83,25 @@ function ensureDb(): Firestore | null {
   } else {
     app = getApp();
   }
+  return app;
+}
+
+function ensureDb(): Firestore | null {
+  const firebaseApp = ensureFirebaseApp();
+  if (!firebaseApp) return null;
   if (!db) {
     try {
       // Android/iOS RN: WebChannel peut décrocher sur certains réseaux (transport errored).
       // Long-polling stabilise les listeners Firestore pour le suivi GPS cross-app.
       db =
         Platform.OS === 'web'
-          ? getFirestore(app)
-          : initializeFirestore(app, {
+          ? getFirestore(firebaseApp)
+          : initializeFirestore(firebaseApp, {
               experimentalForceLongPolling: true,
               experimentalAutoDetectLongPolling: true,
             });
     } catch {
-      db = getFirestore(app);
+      db = getFirestore(firebaseApp);
     }
   }
   return db;
@@ -217,10 +230,12 @@ function remotePushDriverNow(pos: LatLng | null, heading: number, orderId: strin
   if (!firestore) return Promise.resolve();
   const normalizedOrderId = orderId && orderId.trim().length > 0 ? orderId.trim() : null;
   if (pos != null) {
+    const now = Date.now();
     const sameOrder = normalizedOrderId === lastDriverWriteSample?.orderId;
     const sameSpot =
       lastDriverWriteSample != null && coordsNearlyEqualForPush(pos, lastDriverWriteSample);
-    if (sameOrder && sameSpot) {
+    const heartbeatDue = now - lastDriverHeartbeatAt >= DRIVER_HEARTBEAT_MS;
+    if (sameOrder && sameSpot && !heartbeatDue) {
       return Promise.resolve();
     }
   }
@@ -233,6 +248,7 @@ function remotePushDriverNow(pos: LatLng | null, heading: number, orderId: strin
     orderId: normalizedOrderId,
   };
   const afterWrite = () => {
+    lastDriverHeartbeatAt = Date.now();
     if (pos != null) {
       lastDriverWriteSample = {
         lat: pos.latitude,
@@ -241,6 +257,7 @@ function remotePushDriverNow(pos: LatLng | null, heading: number, orderId: strin
       };
     } else {
       lastDriverWriteSample = null;
+      lastDriverHeartbeatAt = 0;
     }
   };
   if (normalizedOrderId == null) {
@@ -309,13 +326,23 @@ export function remotePushDriverDebounced(pos: LatLng | null, heading: number, o
 
 export function subscribeToRemoteOrders(
   onOrders: (orders: Order[], meta: OrdersRemoteSnapshotMeta) => void,
-  onListenError?: (err: Error) => void
+  onListenError?: (err: Error) => void,
+  options?: {
+    clientId?: string | null;
+    maxItems?: number;
+  }
 ): () => void {
   const firestore = ensureDb();
   if (!firestore) return () => {};
-
+  const maxItems = Math.max(20, Math.min(options?.maxItems ?? 120, 500));
+  const clientId = options?.clientId?.trim() ?? '';
+  const ordersRef = collection(firestore, 'orders');
+  const q =
+    clientId.length > 0
+      ? query(ordersRef, where('clientId', '==', clientId), orderBy('createdAt', 'desc'), limit(maxItems))
+      : query(ordersRef, orderBy('createdAt', 'desc'), limit(maxItems));
   return onSnapshot(
-    collection(firestore, 'orders'),
+    q,
     (snap) => {
       const list: Order[] = [];
       snap.forEach((d) => {

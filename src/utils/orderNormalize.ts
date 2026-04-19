@@ -79,6 +79,7 @@ export function coerceOrderFromRemote(data: unknown): Order | null {
       : lines.reduce((a, l) => a + l.item.price * l.qty, 0);
 
   const addressLabel = typeof d.addressLabel === 'string' ? d.addressLabel : '—';
+  const clientId = typeof d.clientId === 'string' && d.clientId.trim().length > 0 ? d.clientId.trim() : undefined;
   const destLat =
     typeof d.destLat === 'number' && Number.isFinite(d.destLat) ? d.destLat : 47.4739;
   const destLng =
@@ -88,6 +89,7 @@ export function coerceOrderFromRemote(data: unknown): Order | null {
     id,
     createdAt,
     status,
+    clientId,
     lines,
     total,
     addressLabel,

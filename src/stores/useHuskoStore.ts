@@ -44,6 +44,8 @@ export type Order = {
   id: string;
   createdAt: number;
   status: OrderStatus;
+  /** Identité locale du client ayant créé la commande (isolation multi-clients). */
+  clientId?: string;
   lines: OrderLine[];
   total: number;
   addressLabel: string;
@@ -67,6 +69,10 @@ export type OrdersSyncDebug = {
 type State = {
   cart: OrderLine[];
   orders: Order[];
+  /** Identité persistée de l’appareil client pour filtrer les commandes distantes. */
+  clientDeviceId: string;
+  /** UID Firebase Auth (Google) si connecté côté client. */
+  clientAuthUid: string | null;
   driver: LatLng | null;
   driverHeading: number;
   /** Timestamp ms du dernier point livreur reçu / publié (null si aucun). */
@@ -116,6 +122,7 @@ type State = {
   setDriver: (pos: LatLng | null, heading?: number) => void;
   setTrackingOrderId: (orderId: string | null) => void;
   setClientDriverFocusOrderId: (orderId: string | null) => void;
+  setClientAuthUid: (uid: string | null) => void;
   setLivreurOnline: (v: boolean) => void;
   setManagerPin: (pin: string) => void;
   setLivreurPin: (pin: string) => void;
@@ -130,10 +137,14 @@ type State = {
 
 const ANGERS_DEFAULT: LatLng = { latitude: 47.4739, longitude: -0.5517 };
 
-const STORAGE_VERSION = 6;
+const STORAGE_VERSION = 7;
 
 function genId() {
   return `HK-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`;
+}
+
+function genClientDeviceId() {
+  return `CL-${Math.random().toString(36).slice(2, 10)}${Date.now().toString(36).slice(-4)}`;
 }
 
 export function pickTrackedDriverOrderId(orders: Order[]): string | null {
@@ -267,6 +278,8 @@ export const useHuskoStore = create<State>()(
       return {
       cart: [],
       orders: [],
+      clientDeviceId: genClientDeviceId(),
+      clientAuthUid: null,
       driver: null,
       driverHeading: 0,
       driverPositionUpdatedAt: null,
@@ -309,7 +322,7 @@ export const useHuskoStore = create<State>()(
       },
 
       placeOrder: async (addressLabel, dest) => {
-        const { cart, notificationsEnabled, remoteServiceAccepting } = get();
+        const { cart, notificationsEnabled, remoteServiceAccepting, clientDeviceId, clientAuthUid } = get();
         if (!cart.length) return null;
         if (!isRemoteSyncEnabled()) {
           throw new Error('CLOUD_SYNC_REQUIRED');
@@ -326,6 +339,7 @@ export const useHuskoStore = create<State>()(
           // Validation panier client = commande acceptée côté parcours client,
           // l'écran suivi doit démarrer en préparation immédiatement.
           status: 'preparing',
+          clientId: clientAuthUid ?? clientDeviceId,
           lines: [...cart],
           total,
           addressLabel,
@@ -392,6 +406,7 @@ export const useHuskoStore = create<State>()(
       },
 
       setClientDriverFocusOrderId: (orderId) => set({ clientDriverFocusOrderId: orderId }),
+      setClientAuthUid: (uid) => set({ clientAuthUid: uid }),
 
       setLivreurOnline: (livreurOnline) => set({ livreurOnline }),
       setManagerPin: (managerPin) => set({ managerPin, gerantPinOnboarded: true }),
@@ -448,6 +463,7 @@ export const useHuskoStore = create<State>()(
       migrate: (persisted, version) => {
         const p = persisted as {
           orders?: Order[];
+          clientDeviceId?: string;
           managerPin?: string;
           notificationsEnabled?: boolean;
           gerantPinOnboarded?: boolean;
@@ -473,10 +489,14 @@ export const useHuskoStore = create<State>()(
         if (version < 6) {
           /* expiration auto des pending > 30 min : géré au runtime */
         }
+        if (version < 7) {
+          p.clientDeviceId = p.clientDeviceId ?? genClientDeviceId();
+        }
         return p;
       },
       partialize: (s) => ({
         orders: s.orders,
+        clientDeviceId: s.clientDeviceId,
         managerPin: s.managerPin,
         gerantPinOnboarded: s.gerantPinOnboarded,
         livreurPin: s.livreurPin,

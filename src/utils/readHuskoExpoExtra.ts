@@ -15,6 +15,9 @@ const FIREBASE_EXTRA_KEYS: (keyof HuskoExpoExtra)[] = [
   'firebaseStorageBucket',
   'firebaseMessagingSenderId',
   'firebaseAppId',
+  'googleAuthWebClientId',
+  'googleAuthAndroidClientId',
+  'googleAuthIosClientId',
 ];
 function isRoleVariant(v: unknown): v is 'gerant' | 'client' | 'livreur' | 'assistant' {
   return v === 'gerant' || v === 'client' || v === 'livreur' || v === 'assistant';

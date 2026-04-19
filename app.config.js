@@ -79,6 +79,26 @@ function resolveVariant(role) {
   return VARIANTS[role];
 }
 
+function readClientApkSuffix() {
+  const raw = (process.env.EXPO_PUBLIC_CLIENT_APK_SUFFIX || '').trim().toLowerCase();
+  if (!raw) return '';
+  const cleaned = raw.replace(/[^a-z0-9]/g, '').slice(0, 16);
+  return cleaned;
+}
+
+function withClientSuffix(variant, role) {
+  if (role !== 'client') return variant;
+  const suffix = readClientApkSuffix();
+  if (!suffix) return variant;
+  return {
+    ...variant,
+    name: `${variant.name} ${suffix.toUpperCase()}`,
+    scheme: `${variant.scheme}-${suffix}`,
+    androidPackage: `${variant.androidPackage}.${suffix}`,
+    iosBundle: `${variant.iosBundle}.${suffix}`,
+  };
+}
+
 /** Cle vide = pas de meta-data Maps cote plugin ; on garde un placeholder pour builds EAS sans secrets. */
 function envOrMapsPlaceholder(value, placeholder) {
   const t = (value ?? '').trim();
@@ -108,6 +128,7 @@ function buildExtra({
   googleMapsIosKey,
   googleMapsAndroidKey,
 }) {
+  const clientApkSuffix = readClientApkSuffix();
   return {
     router: { origin: false },
     appVariant: role,
@@ -128,12 +149,16 @@ function buildExtra({
     firebaseStorageBucket: process.env.EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET ?? '',
     firebaseMessagingSenderId: process.env.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID ?? '',
     firebaseAppId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID ?? '',
+    googleAuthWebClientId: process.env.EXPO_PUBLIC_GOOGLE_AUTH_WEB_CLIENT_ID ?? '',
+    googleAuthAndroidClientId: process.env.EXPO_PUBLIC_GOOGLE_AUTH_ANDROID_CLIENT_ID ?? '',
+    googleAuthIosClientId: process.env.EXPO_PUBLIC_GOOGLE_AUTH_IOS_CLIENT_ID ?? '',
     mapsAndroidKeyOk: !String(googleMapsAndroidKey).includes('REMPLACEZ'),
     mapsIosKeyOk: !String(googleMapsIosKey).includes('REMPLACEZ'),
     assistantApiUrl: process.env.EXPO_PUBLIC_ASSISTANT_API_URL ?? '',
     revolutPayEssentiel: process.env.EXPO_PUBLIC_REVOLUT_PAY_ESSENTIEL ?? '',
     revolutPayPro: process.env.EXPO_PUBLIC_REVOLUT_PAY_PRO ?? '',
     revolutPayPremium: process.env.EXPO_PUBLIC_REVOLUT_PAY_PREMIUM ?? '',
+    clientApkSuffix,
   };
 }
 
@@ -190,6 +215,7 @@ function huskoPlugins() {
       },
     ],
     'expo-router',
+    'expo-web-browser',
     [
       'expo-splash-screen',
       {
@@ -229,7 +255,7 @@ function huskoPlugins() {
 module.exports = (ctx = {}) => {
   const base = ctx.config ?? {};
   const role = readRole();
-  const v = resolveVariant(role);
+  const v = withClientSuffix(resolveVariant(role), role);
   const hasGoogleServicesJson = existsSync(GOOGLE_SERVICES_ABS);
   const easProjectId = (process.env.EXPO_PUBLIC_EAS_PROJECT_ID || '').trim() || DEFAULT_EAS_PROJECT_ID;
   const googleMapsIosKey = envOrMapsPlaceholder(

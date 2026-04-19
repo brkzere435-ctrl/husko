@@ -1,5 +1,8 @@
+import * as Google from 'expo-auth-session/providers/google';
+import * as WebBrowser from 'expo-web-browser';
 import * as Linking from 'expo-linking';
 import { Link } from 'expo-router';
+import { useEffect, useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { Text } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -21,11 +24,96 @@ import { typography } from '@/constants/typography';
 import { colors, radius, spacing } from '@/constants/theme';
 import { VENUE_TAGLINE_CLIENT } from '@/constants/venue';
 import { WC } from '@/constants/westCoastTheme';
+import { isGoogleAuthConfigured, signInWithGoogleToken, signOutGoogleAuth } from '@/services/googleAuth';
 import { useHuskoStore } from '@/stores/useHuskoStore';
+import { readHuskoExpoExtra } from '@/utils/readHuskoExpoExtra';
+
+WebBrowser.maybeCompleteAuthSession();
 
 export default function ClientReglagesScreen() {
   const notificationsEnabled = useHuskoStore((s) => s.notificationsEnabled);
   const setNotificationsEnabled = useHuskoStore((s) => s.setNotificationsEnabled);
+  const clientAuthUid = useHuskoStore((s) => s.clientAuthUid);
+  const [authBusy, setAuthBusy] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
+  const extra = readHuskoExpoExtra();
+  const googleConfigured = isGoogleAuthConfigured();
+  const authLabel = useMemo(() => {
+    if (!clientAuthUid) return 'Non connecté';
+    return `Connecté (${clientAuthUid.slice(0, 8)}...)`;
+  }, [clientAuthUid]);
+  const [request, response, promptAsync] = Google.useAuthRequest({
+    webClientId: extra.googleAuthWebClientId || undefined,
+    androidClientId: extra.googleAuthAndroidClientId || undefined,
+    iosClientId: extra.googleAuthIosClientId || undefined,
+    scopes: ['openid', 'profile', 'email'],
+  });
+
+  useEffect(() => {
+    if (!response) return;
+    if (response.type !== 'success') {
+      if (response.type === 'error') {
+        setAuthError('Connexion Google refusée ou interrompue.');
+      }
+      return;
+    }
+    const idToken =
+      response.params?.id_token ??
+      response.authentication?.idToken ??
+      response.authentication?.accessToken ??
+      '';
+    const accessToken = response.authentication?.accessToken;
+    if (!idToken) {
+      setAuthError('Token Google manquant, vérifiez la config OAuth.');
+      return;
+    }
+    setAuthBusy(true);
+    setAuthError(null);
+    void signInWithGoogleToken(idToken, accessToken)
+      .then(() => {
+        setAuthError(null);
+      })
+      .catch((e) => {
+        const msg = e instanceof Error ? e.message : 'Échec de connexion Google.';
+        setAuthError(msg);
+      })
+      .finally(() => {
+        setAuthBusy(false);
+      });
+  }, [response]);
+
+  async function handleGoogleSignIn() {
+    if (!googleConfigured) {
+      setAuthError('Google Auth non configuré (IDs OAuth manquants).');
+      return;
+    }
+    if (!request) {
+      setAuthError('Auth Google pas encore prête, réessayez.');
+      return;
+    }
+    setAuthError(null);
+    setAuthBusy(true);
+    try {
+      await promptAsync();
+    } catch {
+      setAuthError('Impossible d’ouvrir la connexion Google.');
+    } finally {
+      setAuthBusy(false);
+    }
+  }
+
+  async function handleGoogleSignOut() {
+    setAuthBusy(true);
+    try {
+      await signOutGoogleAuth();
+      setAuthError(null);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : 'Déconnexion impossible.';
+      setAuthError(msg);
+    } finally {
+      setAuthBusy(false);
+    }
+  }
 
   return (
     <WestCoastBackground preset="client">
@@ -57,6 +145,36 @@ export default function ClientReglagesScreen() {
               onValueChange={setNotificationsEnabled}
               hint="Vous pouvez les couper ici si vous préférez uniquement consulter l’écran de suivi."
             />
+          </SettingsSection>
+
+          <SettingsSection
+            title="Compte Google"
+            subtitle="Connexion recommandée pour fiabiliser l’identité client et la synchro multi-appareils."
+          >
+            <Text style={styles.authState}>{authLabel}</Text>
+            {authError ? <Text style={styles.authError}>{authError}</Text> : null}
+            <View style={styles.authRow}>
+              {clientAuthUid ? (
+                <PrimaryButton
+                  title={authBusy ? 'Déconnexion…' : 'Se déconnecter'}
+                  variant="ghost"
+                  onPress={handleGoogleSignOut}
+                  disabled={authBusy}
+                />
+              ) : (
+                <PrimaryButton
+                  title={authBusy ? 'Connexion…' : 'Se connecter avec Google'}
+                  onPress={handleGoogleSignIn}
+                  disabled={authBusy || !googleConfigured}
+                />
+              )}
+            </View>
+            {!googleConfigured ? (
+              <Text style={styles.authHint}>
+                Admin requis: renseigner EXPO_PUBLIC_GOOGLE_AUTH_WEB/ANDROID/IOS_CLIENT_ID dans `.env`
+                puis rebuild natif.
+              </Text>
+            ) : null}
           </SettingsSection>
 
           <SettingsSection
@@ -125,5 +243,25 @@ const styles = StyleSheet.create({
     color: WC.gold,
   },
   phoneSub: { color: colors.textMuted },
+  authState: {
+    ...typography.body,
+    color: WC.white,
+    marginBottom: spacing.sm,
+  },
+  authError: {
+    ...typography.caption,
+    color: colors.posterRed,
+    marginBottom: spacing.sm,
+    lineHeight: 18,
+  },
+  authHint: {
+    ...typography.caption,
+    color: colors.textMuted,
+    marginTop: spacing.sm,
+    lineHeight: 18,
+  },
+  authRow: {
+    gap: spacing.sm,
+  },
   hint: { marginTop: spacing.sm },
 });

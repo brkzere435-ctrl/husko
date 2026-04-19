@@ -30,6 +30,7 @@ import {
   subscribeToRemoteOrders,
   subscribeToRemoteServiceSettings,
 } from '@/services/firebaseRemote';
+import { subscribeGoogleAuthUser } from '@/services/googleAuth';
 import { mergeRemoteOrdersWithLocal } from '@/utils/mergeRemoteOrders';
 import {
   OTA_PERIODIC_CHECK_MS,
@@ -59,8 +60,20 @@ function pruneClientOrdersForTracking(orders: Order[]): Order[] {
   return pruned.slice(0, MAX_KEEP);
 }
 
+function filterOrdersForClientDevice(
+  merged: Order[],
+  localOrders: Order[],
+  clientDeviceId: string
+): Order[] {
+  if (!clientDeviceId) return merged;
+  const localIds = new Set(localOrders.map((o) => o.id));
+  return merged.filter((o) => o.clientId === clientDeviceId || localIds.has(o.id));
+}
+
 export default function RootLayout() {
   const { showOfflineBanner } = useNetworkState();
+  const clientDeviceId = useHuskoStore((s) => s.clientDeviceId);
+  const clientAuthUid = useHuskoStore((s) => s.clientAuthUid);
   const driverOrderId = useHuskoStore((s) =>
     resolveDriverSubscriptionOrderId(s.orders, s.trackingOrderId, s.clientDriverFocusOrderId)
   );
@@ -128,13 +141,26 @@ export default function RootLayout() {
   }, [driverOrderId]);
 
   useEffect(() => {
+    const variant = getAppVariant();
+    if (variant !== 'client') return;
+    const unsub = subscribeGoogleAuthUser((user) => {
+      useHuskoStore.getState().setClientAuthUid(user?.uid ?? null);
+    });
+    return () => unsub();
+  }, []);
+
+  useEffect(() => {
     if (!isRemoteSyncEnabled()) return;
     const unsubOrders = subscribeToRemoteOrders(
       (remoteOrders, meta) => {
         const variant = getAppVariant();
         useHuskoStore.setState((state) => {
           const merged = mergeRemoteOrdersWithLocal(remoteOrders, state.orders);
-          const nextOrders = variant === 'client' ? pruneClientOrdersForTracking(merged) : merged;
+          const clientScoped =
+            variant === 'client'
+              ? filterOrdersForClientDevice(merged, state.orders, state.clientDeviceId)
+              : merged;
+          const nextOrders = variant === 'client' ? pruneClientOrdersForTracking(clientScoped) : merged;
           void notifyRemoteOrderStatusDiff(state.orders, nextOrders, state.notificationsEnabled);
           return {
             orders: nextOrders,
@@ -155,7 +181,15 @@ export default function RootLayout() {
       },
       (err) => {
         useHuskoStore.setState({ cloudSyncListenError: err.message });
-      }
+      },
+      getAppVariant() === 'client'
+        ? {
+            clientId: clientAuthUid ?? clientDeviceId,
+            maxItems: 200,
+          }
+        : {
+            maxItems: 300,
+          }
     );
     const unsubAuto = subscribeToRemoteAutonomousDemo((remoteAutonomousDemo) => {
       useHuskoStore.setState({ remoteAutonomousDemo });
@@ -170,7 +204,7 @@ export default function RootLayout() {
       unsubAuto();
       unsubService();
     };
-  }, []);
+  }, [clientAuthUid, clientDeviceId]);
 
   if (!appReady) {
     return <HuskoBootSplash />;

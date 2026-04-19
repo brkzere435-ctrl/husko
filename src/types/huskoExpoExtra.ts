@@ -22,6 +22,10 @@ export type HuskoExpoExtra = {
   firebaseStorageBucket: string;
   firebaseMessagingSenderId: string;
   firebaseAppId: string;
+  /** OAuth Google (Firebase Auth) */
+  googleAuthWebClientId: string;
+  googleAuthAndroidClientId: string;
+  googleAuthIosClientId: string;
   /** true si la clé Android Maps du build n’est pas un placeholder */
   mapsAndroidKeyOk: boolean;
   /** true si la clé iOS Maps du build n’est pas un placeholder */

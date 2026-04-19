@@ -227,8 +227,8 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     borderWidth: 3,
     borderColor: 'rgba(14, 14, 16, 0.95)',
-    /** Contraste : lisible en plein soleil / OLED sans lire « écran éteint ». */
-    backgroundColor: '#343d4a',
+    /** Base volontairement claire pour bannir l’effet "écran noir" même sans tuile OSM. */
+    backgroundColor: '#60748b',
   },
   mapImage: {
     ...StyleSheet.absoluteFillObject,
@@ -242,11 +242,11 @@ const styles = StyleSheet.create({
   },
   overlayDim: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(8, 8, 10, 0.24)',
+    backgroundColor: 'rgba(8, 8, 10, 0.12)',
   },
   radarBackdrop: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(12, 10, 16, 0.34)',
+    backgroundColor: 'rgba(12, 10, 16, 0.16)',
   },
   roadLayer: {
     ...StyleSheet.absoluteFillObject,
