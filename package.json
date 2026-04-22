@@ -27,6 +27,7 @@
     "build:apk:gerant": "node node_modules/cross-env/src/bin/cross-env.js EAS_BUILD_NO_EXPO_GO_WARNING=true EAS_BUILD_AUTOCOMMIT=1 eas build -p android --profile apk-gerant --non-interactive",
     "build:apk:gerant:clean": "node node_modules/cross-env/src/bin/cross-env.js EAS_BUILD_NO_EXPO_GO_WARNING=true EAS_BUILD_AUTOCOMMIT=1 eas build -p android --profile apk-gerant --non-interactive --clear-cache",
     "build:apk:gerant:queue": "node node_modules/cross-env/src/bin/cross-env.js EAS_BUILD_NO_EXPO_GO_WARNING=true EAS_BUILD_AUTOCOMMIT=1 eas build -p android --profile apk-gerant --non-interactive --no-wait",
+    "build:apk:gerant:queue:win": "node node_modules/cross-env/src/bin/cross-env.js GIT_CLONE_PROTECTION_ACTIVE=false EAS_BUILD_NO_EXPO_GO_WARNING=true EAS_BUILD_AUTOCOMMIT=1 eas build -p android --profile apk-gerant --non-interactive --no-wait",
     "build:apk:gerant:clean:queue": "node node_modules/cross-env/src/bin/cross-env.js EAS_BUILD_NO_EXPO_GO_WARNING=true EAS_BUILD_AUTOCOMMIT=1 eas build -p android --profile apk-gerant --non-interactive --clear-cache --no-wait",
     "build:apk:client": "node node_modules/cross-env/src/bin/cross-env.js EAS_BUILD_NO_EXPO_GO_WARNING=true EAS_BUILD_AUTOCOMMIT=1 eas build -p android --profile apk-client --non-interactive",
     "apk:client": "npm run build:apk:client",
