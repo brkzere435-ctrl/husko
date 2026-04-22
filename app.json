@@ -3,7 +3,7 @@
     "slug": "husko",
     "android": {
       "package": "com.husko.bynight",
-      "versionCode": 134
+      "versionCode": 135
     },
     "extra": {
       "eas": {
